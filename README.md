@@ -8,6 +8,6 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 - microscope control
 
 ##diary of progress:
-20160125 - (passing parameters to functions) is done by passing structures with the parameters defined within them.  the default settings are named 'defaultParams' are defined at the top of the function.  over-riding the default parameters consist of passing a structure 'userParams' in which the function will copy over by setstructfields().
+20160125 - (passing parameters to functions) can be done either two ways: 1) pass a structure with fields over-riding the default parameters, or by a named-value pair, func('param1',value1, ...).  
 
 20160125 - (organization of this git repo) is by having different modular projects that interact with each other separated by different folders instead of having indivudal git repos for each project.  
