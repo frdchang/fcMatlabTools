@@ -1,91 +1,37 @@
-function [myPSF] = make3DPSF(varargin)
-%MAKE3DPSF generates a PSF from a vectorial model of the microscope.
+function psfData = genPSF(varargin)
+%genPSF generates a PSF from a Gibson Lanni vectorial model of the
+%microscope
 
-% default parameters-------------------------------------------------------
-fcTools = myParams();
-p.Ti0       = fcTools.params.make3DPSF.p.Ti0;
-p.Ni0       = fcTools.params.make3DPSF.p.Ni0;
-p.Ni        = fcTools.params.make3DPSF.p.Ni;
-p.Tg0       = fcTools.params.make3DPSF.p.Tg0;
-p.Tg        = fcTools.params.make3DPSF.p.Tg;
-p.Ng0       = fcTools.params.make3DPSF.p.Ng0;
-p.Ng        = fcTools.params.make3DPSF.p.Ng;
-p.Ns        = fcTools.params.make3DPSF.p.Ns;
-p.lambda    = fcTools.params.make3DPSF.p.lambda;
-p.M         = fcTools.params.make3DPSF.p.M;
-p.NA        = fcTools.params.make3DPSF.p.NA;
-p.alpha     = asin(p.NA/p.Ni);
-p.pixelSize = fcTools.params.make3DPSF.p.pixelSize;
-p.f         = fcTools.params.make3DPSF.p.f;
-p.mode      = fcTools.params.make3DPSF.p.mode;
-tubeMag     = fcTools.params.make3DPSF.tubeMag;
-p.M         = p.M*tubeMag;
+%--parameters--------------------------------------------------------------
+% microscope settings
+params.Ti0          = 1.3000e-04;
+params.Ni0          = 1.5180;
+params.Ni           = 1.5180;
+params.Tg0          = 1.7000e-04;
+params.Tg           = 1.5150;
+params.Ng0          = 1.5150;
+params.Ng           = 1.5150;
+params.Ns           = 1.46;
+params.lambda       = 5.8100e-07;
+params.M            = 60;
+params.NA           = 1.4500;
+params.alpha        = asin(params.NA/params.Ni);
+params.pixelSize    = 16e-06/4;
+params.f            = 5;
+params.mode         = 1;
 % default position of the PSF
-xp          = fcTools.params.make3DPSF.xp;
-yp          = fcTools.params.make3DPSF.yp;
-zp          = fcTools.params.make3DPSF.zp;
-ru          = fcTools.params.make3DPSF.ru;
+params.xp           = 0;
+params.yp           = 0;
+params.zp           = 0;
+params.ru           = 4*20;
 % default zstep parameters
-dz          = fcTools.params.make3DPSF.dz;
-zSteps      = fcTools.params.make3DPSF.zSteps;
+params.dz           = 0.25e-6;
+params.zSteps       = 25;        
 %--------------------------------------------------------------------------
-
-% user parameters----------------------------------------------------------
-para = inputParser;
-para.addParamValue('Ti0', p.Ti0, @isscalar);
-para.addParamValue('Ni0', p.Ni0, @isscalar);
-para.addParamValue('Ni', p.Ni, @isscalar);
-para.addParamValue('Tg0', p.Tg0, @isscalar);
-para.addParamValue('Tg', p.Tg, @isscalar);
-para.addParamValue('Ng0', p.Ng0, @isscalar);
-para.addParamValue('Ng', p.Ng, @isscalar);
-para.addParamValue('Ns', p.Ns, @isscalar);
-para.addParamValue('lambda', p.lambda, @isscalar);
-para.addParamValue('M', p.M, @isscalar);
-para.addParamValue('NA', p.NA, @isscalar);
-para.addParamValue('alpha', p.alpha, @isscalar);
-para.addParamValue('pixelSize', p.pixelSize, @isscalar);
-para.addParamValue('f', p.f, @isscalar);
-para.addParamValue('mode', p.mode, @isscalar);
-% position of the PSF
-para.addParamValue('xp', xp, @isscalar);
-para.addParamValue('yp', yp, @isscalar);
-para.addParamValue('zp', zp, @isscalar);
-para.addParamValue('ru', ru, @isscalar);
-% zstep parameters
-para.addParamValue('dz', dz, @isscalar);
-para.addParamValue('zSteps', zSteps, @isscalar);
-% threshold value
-para.addParamValue('thresh', [], @isscalar);
-
-para.parse(varargin{:});
-input = para.Results;
-p.Ti0 = input.Ti0;
-p.Ni0 = input.Ni0;
-p.Ni = input.Ni;
-p.Tg0 = input.Tg0;
-p.Tg = input.Tg;
-p.Ng0 = input.Ng0;
-p.Ng = input.Ng;
-p.Ns = input.Ns;
-p.lambda = input.lambda;
-p.M = input.M;
-p.NA = input.NA;
-p.alpha = input.alpha;
-p.pixelSize = input.pixelSize;
-p.f = input.f;
-p.mode = input.mode;
-xp = input.xp;
-yp = input.yp;
-zp = input.zp;
-ru = input.ru;
-dz = input.dz;
-zSteps = input.zSteps;
-thresh = input.thresh;
-%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
 
 % make sure zSteps are odd so centered PSF has a slice
-zSteps = zSteps + ~mod(zSteps,2);
+params.zSteps = params.zSteps + ~mod(params.zSteps,2);
 % generate the zSteps centered at the PSF 
 bounds = dz*(zSteps-1)/2;
 z = linspace(zp + bounds, zp - bounds, zSteps);
