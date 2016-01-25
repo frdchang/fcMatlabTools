@@ -9,4 +9,4 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 
 ##diary of progress:
 
-20160125 - adsfasdl;fkjasdl;fjasld;fjasl;kdfjals;dkfjals;dkfjaslk;dfja asdfasadsfasdf
+20160125 - organization of git repo is by having different modular projects that interact with each other separated by different folders.  
