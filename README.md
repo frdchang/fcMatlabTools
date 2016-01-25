@@ -9,5 +9,4 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 
 ##diary of progress:
 
-20160125 - adsfasdl;fkjasdl;fjasld;fjasl;kdfjals;dkfjals;dkfjaslk;dfjaslkd;fjals;dkfasdkfjasdflkjasdf;klkj
- 
+20160125 - adsfasdl;fkjasdl;fjasld;fjasl;kdfjals;dkfjals;dkfjaslk;dfja asdfasadsfasdf
