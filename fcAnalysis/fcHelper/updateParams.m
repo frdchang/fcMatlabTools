@@ -4,9 +4,9 @@ function params = updateParams(params,userParams)
 
 if ~isempty(userParams)
     if isstruct(userParams)
-        
+        params = setstructfields(params,userParams);
     else
-        
+        params = parsepropval(params,userParams{:});
     end
 end
 
