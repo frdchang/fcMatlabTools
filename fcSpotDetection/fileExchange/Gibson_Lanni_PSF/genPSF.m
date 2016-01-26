@@ -1,6 +1,6 @@
 function psfData = genPSF(varargin)
 %genPSF generates a PSF from a Gibson Lanni vectorial model of the
-%microscope
+%   microscope
 
 %--parameters--------------------------------------------------------------
 % microscope settings
