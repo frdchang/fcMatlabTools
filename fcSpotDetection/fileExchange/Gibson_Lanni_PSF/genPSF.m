@@ -1,6 +1,11 @@
 function psfData = genPSF(varargin)
 %genPSF generates a PSF from a Gibson Lanni vectorial model of the
 %   microscope
+%   usefule equations
+%       1) lateral freq cutoff  = 2*NA / lambda
+%       2) depth freq cutoff    = n*(1-cos(a)) / lambda
+%       3) FWHM                 = 0.353 / NA
+%       4) Gaussian FWHM        = 2.355 sigma
 
 %--parameters--------------------------------------------------------------
 % microscope settings
@@ -23,21 +28,23 @@ params.mode         = 1;
 params.xp           = 0;
 params.yp           = 0;
 params.zp           = 0;
-params.ru           = 4*20;
+% calculating ru
+FWHM = 0.353/params.NA;
+sigma = FWHM/2.355;
+params.ru           = round(4*sigma);
 % default zstep parameters
 params.dz           = 0.25e-6;
-params.zSteps       = 25;        
+params.zSteps       = 25;
+params.z0           = 0;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-% make sure zSteps are odd so centered PSF has a slice
-params.zSteps = params.zSteps + ~mod(params.zSteps,2);
-% generate the zSteps centered at the PSF 
-bounds = dz*(zSteps-1)/2;
-z = linspace(zp + bounds, zp - bounds, zSteps);
-myPSF = vectorialPSF(xp, yp, zp, z, ru, p);
-myPSF = myPSF / sum(myPSF(:));
+%% generate the zSteps centered at the PSF 
+bounds = params.dz*(params.zSteps - 1)/2;
+z = linspace(params.z0 - bounds, params.z0 + bounds, params.zSteps);
+psfData = vectorialPSF(params.xp, params.yp, params.zp, z, params.ru, params);
 
+%% generate nd PSF
 if ~isempty(thresh)
     if ndims(myPSF)==2
         [xs,ys] = ind2sub(size(myPSF),find(myPSF > thresh));
