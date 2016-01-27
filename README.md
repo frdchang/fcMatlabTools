@@ -7,6 +7,15 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 - nD experiment processing
 - microscope control
 
+###rules of the code
+1)
+function output = funcName(varargin)
+% comment
+params.default1 = 1;
+...
+params = updateParams(params,varargin);
+end
+
 ##diary of progress:
 20160125 - (passing parameters to functions) can be done either two ways: 1) pass a structure with fields over-riding the default parameters, or by a named-value pair, func('param1',value1, ...).  
 
