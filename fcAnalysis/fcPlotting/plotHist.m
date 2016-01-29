@@ -1,12 +1,7 @@
-function h = plotHist(listOfData)
-%PLOTHIST will plot overlayed histograms of listOfData
+function h = plotHist(data,varargin)
+%PLOTHIST will histogram nd Data
 
-if iscell(listOfData)
-    
-else
-    
-end
-
+h=histogram(double(data(:)),varargin{:});
 
 end
 
