@@ -14,7 +14,7 @@ function [daGauss,separateComponents] = ndGauss(sigmaVector,sizeVector,varargin)
 if nargin == 2
    muVector = zeros(size(sigmaVector)); 
 else
-    muVector = varargin{1};
+   muVector = varargin{1};
 end
 
 dims = numel(sigmaVector);

@@ -7,15 +7,30 @@ function psfData = genPSF(varargin)
 %       3) FWHM                 = 0.353*lambda / NA  (units?)
 %       4) Gaussian sigma       = FWHM / 2.355
 
-%--parameters--------------------------------------------------------------
+%--parameters-------------------------------------------------------------- 
+
+
+
+
+
+
+
+% Ns        : sample refractive index
+% lambda    : emission wavelength
+% M         : magnification
+% NA        : numerical aperture
+% alpha     : angular aperture, alpha = atan(NA/Ni)
+% pixelSize : physical size (width) of the CCD pixels
+% f         : (optional, default: 3) oversampling factor to approximate CCD integration
+% mode      : (optional, default: 1) if mode = 0, returns oversampled PSF
 % microscope settings
-params.Ti0          = 1.3000e-04;
-params.Ni0          = 1.5180;
-params.Ni           = 1.5180;
-params.Tg0          = 1.7000e-04;
-params.Tg           = 1.7000e-04;
-params.Ng0          = 1.5150;
-params.Ng           = 1.5150;
+params.Ti0          = 1.3000e-04;                   % Ti0       : working distance of the objective
+params.Ni0          = 1.5180;                       % Ni0       : immersion medium refractive index, design value
+params.Ni           = 1.5180;                       % Ni        : immersion medium refractive index, experimental value
+params.Tg0          = 1.7000e-04;                   % Tg0       : coverslip thickness, design value
+params.Tg           = 1.7000e-04;                   % Tg        : coverslip thickness, experimental value
+params.Ng0          = 1.5150;                       % Ng0       : coverslip refractive index, design value
+params.Ng           = 1.5150;                       % Ng        : coverslip refractive index, experimental value
 params.Ns           = 1.33;
 params.lambda       = 5.500e-07;
 params.M            = 100;
@@ -32,6 +47,7 @@ params.zp           = 0;
 FWHM = (0.353*params.lambda)/params.NA;
 sigma = FWHM/2.355;
 specimenPixelSize = params.pixelSize / params.M;
+pixelSigma = sigma / specimenPixelSize;
 params.ru           = 20;
 % default zstep parameters
 params.dz           = 0.25e-6;
@@ -59,13 +75,13 @@ psfData = psfData ./ sum(psfData(:));
 
 %% generate nd PSF
 if ~isempty(params.thresh)
-    threshVol = psfData > params.thresh;
-    
+    psfData = getSubsetwBBoxND(psfData,selectCenterBWObj(psfData > params.thresh));
 end
 
 %% generate line profiles
 if params.plotProfiles
-    for i = 1:ndims(psfData)
+    maxCoor = ind2subND(size(psfData),find(psfData==max(psfData(:)),1));
+    for i = 1:numel(maxCoor)
         
     end
 end
