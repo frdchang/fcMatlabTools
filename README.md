@@ -11,8 +11,9 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 1)
 function output = funcName(varargin)
 % comment
-params.default1 = 1;
-...
+%--parameters--------------------------------------------------------------
+params.default1     = 1;
+%--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 end
 
