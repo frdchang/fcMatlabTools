@@ -38,7 +38,7 @@ needs:
 for a given patch of dataset, multiple models can be fit, thus you need to contain multiple fits
 for a given fit, you need to contain all the related parameters
 each fit has different parameters
-
+```
 spotParamStruct.xp = x position in the specimen plane (m)
 spotParamStruct.yp = y position in the specimen plane (m)
 spotParamStruct.zp = z position in the specimen plane (m)
@@ -50,6 +50,7 @@ spotParamStruct.bak1    = value of the background given 1 spot
 spotParamStruct.logLike1 = Likelihood of Fit given 1 spot
 spotParamStuct.bak0 = value of the background given background only model (0 spot)
 spotParamStruct.logLike0 = likelihood of fit given background only model (0 spot)
+```
 
 ##diary of progress:
 20160213 - (passing parameters to functions) Also the function to list the subfunctions that have the parameters cascaded to them so the user gets a heads up.  Programming rule: append the parameters as you go, so you can have master parameter list for inspection and can be return if desired.
