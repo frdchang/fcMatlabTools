@@ -9,6 +9,7 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 
 ###rules of the code
 1)
+```
 function output = funcName(varargin)
 %FUNCNAME does this
 % more description
@@ -27,6 +28,7 @@ subFunc1(updateParams(params,'param1',1));
 params.addParams1 = 1;
 subFunc1(params);
 end
+```
 
 ### datastructures used in the code
 spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
