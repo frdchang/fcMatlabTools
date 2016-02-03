@@ -54,7 +54,7 @@ spotParamStruct.logLike0 = likelihood of fit given background only model (0 spot
 ```
 
 ##diary of progress:
-20160213 - (passing parameters to functions) Also the function to list the subfunctions that have the parameters cascaded to them so the user gets a heads up.  Programming rule: append the parameters as you go, so you can have master parameter list for inspection and can be return if desired.
-20160213 - (passing parameters to functions) can also cascade the varargin to sub-functions.  this allows the user to change many parameters at once from a root function, but be mindful of parameter name collisions.  there is no checking of that!!!!  
-20160125 - (passing parameters to functions) can be done either two ways: 1) pass a structure with fields over-riding the default parameters, or by a named-value pair, func('param1',value1, ...).  
-20160125 - (organization of this git repo) is by having different modular projects that interact with each other separated by different folders instead of having indivudal git repos for each project.  
+*20160213 - (passing parameters to functions) Also the function to list the subfunctions that have the parameters cascaded to them so the user gets a heads up.  Programming rule: append the parameters as you go, so you can have master parameter list for inspection and can be return if desired.
+*20160213 - (passing parameters to functions) can also cascade the varargin to sub-functions.  this allows the user to change many parameters at once from a root function, but be mindful of parameter name collisions.  there is no checking of that!!!!  
+*20160125 - (passing parameters to functions) can be done either two ways: 1) pass a structure with fields over-riding the default parameters, or by a named-value pair, func('param1',value1, ...).  
+*20160125 - (organization of this git repo) is by having different modular projects that interact with each other separated by different folders instead of having indivudal git repos for each project.  
