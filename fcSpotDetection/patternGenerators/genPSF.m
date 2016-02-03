@@ -6,6 +6,10 @@ function psfDataStruct = genPSF(varargin)
 
 
 %--parameters--------------------------------------------------------------
+% normalization settings
+params.normType     = 2;                            % normType = 0; no normalization
+                                                    % normType = 1; normalize by Sum = 1
+                                                    % normType = 2; normalize by Peak = 1
 % microscope settings
 params.Ti0          = 1.3000e-04;                   % Ti0       : working distance of the objective                                             (Nikon 60x Lambda = 0.14mm)
 params.Ni0          = 1.5180;                       % Ni0       : immersion medium refractive index, design value
@@ -14,7 +18,7 @@ params.Tg0          = 1.7000e-04;                   % Tg0       : coverslip thic
 params.Tg           = 1.7000e-04;                   % Tg        : coverslip thickness, experimental value
 params.Ng0          = 1.5150;                       % Ng0       : coverslip refractive index, design value
 params.Ng           = 1.5150;                       % Ng        : coverslip refractive index, experimental value
-params.Ns           = 1.33;                         % Ns        : sample refractive index
+params.Ns           = 1.5150;                       % Ns        : sample refractive index
 params.lambda       = 5.500e-07;                    % lambda    : emission wavelength
 params.M            = 60;                           % M         : magnification                                                                 (Nikon 60x Lambda)
 params.NA           = 1.400;                        % NA        : numerical aperture                                                            (Nikon 60x Lambda = 1.4)
@@ -30,19 +34,20 @@ params.ru           = 10;
 % default zstep parameters
 params.dz           = 0.25e-6;
 params.zSteps       = 25;
-params.z0           = 0;
+params.z0           = -1e-6;
 % threshold the psf, if so, put threshold value
 params.thresh       = []; %0.0002;
 % plot line profiles
 params.plotProfiles = true;
 % fit gaussian shape
 params.fitGauss     = true;
+% only output psf for single output argument
+params.onlyPSF      = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 %% generate the zSteps centered at the PSF
-bounds = params.dz*(params.zSteps - 1)/2;
-z = linspace(params.z0 - bounds, params.z0 + bounds, params.zSteps);
+z = params.z0:params.dz:(params.z0 + params.dz*(params.zSteps-1));
 % this is the parameter structure that vectorialPSF needs, values are not
 % important.
 p=struct('Ti0',1.3000e-04,'Ni0', 1.5180,'Ni',1.5180, 'Tg0', 1.7000e-04,...
@@ -51,14 +56,30 @@ p=struct('Ti0',1.3000e-04,'Ni0', 1.5180,'Ni',1.5180, 'Tg0', 1.7000e-04,...
 
 psfData = vectorialPSF(params.xp, params.yp, params.zp, z, params.ru, curateStruct(p,params));
 % normalize psfData
-psfData = psfData ./ sum(psfData(:));
+switch params.normType
+    case 0
+        
+    case 1 
+        psfData = psfData ./ sum(psfData(:));
+
+    case 2
+        psfData = psfData ./ max(psfData(:));
+    otherwise
+        error('this normType is not expected');
+end
 
 %% generate nd PSF
 if ~isempty(params.thresh)
     psfData = getSubsetwBBoxND(psfData,selectCenterBWObj(psfData > params.thresh));
 end
 
-psfDataStruct.glPSF = psfData;
+if params.onlyPSF
+    psfDataStruct = psfData;
+    return;
+else
+    psfDataStruct.glPSF = psfData;
+end
+
 %% fit gaussian
 if params.fitGauss
     % generate line profiles from the brighteset pixel in all cardinal
