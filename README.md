@@ -8,7 +8,7 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 - microscope control
 
 ###rules of the code
-1)
+1.
 ```
 function output = funcName(varargin)
 %FUNCNAME does this
@@ -31,6 +31,7 @@ end
 ```
 
 ### datastructures used in the code
+1.
 spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
 
