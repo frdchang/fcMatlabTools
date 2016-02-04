@@ -8,7 +8,7 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 - microscope control
 
 ###rules of the code
-1.
+1. template function that allows parameter adjustment and passing to subfunctions.
 ```
 function output = funcName(varargin)
 %FUNCNAME does this
@@ -34,11 +34,11 @@ end
 1.
 spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
+* for synthetic spot generation it is organized like so:
+{spotParamStruct1,spotParamStruct2,...}
+* for parameters of different models extract for many patches of data it is organized like so:
+{{spotParamStruct1forPatch1,spotParamStruct2,...},{spotParamStruct1,spotParamStruct2,...}
 
-needs:
-for a given patch of dataset, multiple models can be fit, thus you need to contain multiple fits
-for a given fit, you need to contain all the related parameters
-each fit has different parameters
 ```
 spotParamStruct.xp = x position in the specimen plane (m)
 spotParamStruct.yp = y position in the specimen plane (m)
