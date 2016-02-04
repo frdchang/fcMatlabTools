@@ -1,4 +1,4 @@
-function syntheticSpots = genSyntheticSpots(varargin)
+function synSpotStruct = genSyntheticSpots(varargin)
 %GENSYNTHETICSPOTS generates a synthetic fluorescent spot dataset.  This
 % function outputs simulated spot data and also the spot parameters
 % spotParamsBasket = {spotParamStruct1,spotParamStruct2,...}
@@ -42,14 +42,24 @@ specimenPixSize = params.pixelSize / params.M;
 switch params.useCase
     case 1
         % generate spotList of random spots uniformly in dataSetSize
-        spotCoors = bsxfun(@minus,rand(3,params.numSpots),[0.5;0.5;0]);
-        spotCoors = bsxfun(@times,spotCoors, dataSetSize');
+        sampleUniformDist = rand(3,params.numSpots);
+        % shift it so x and y samples centered at zero
+        spotCoors = bsxfun(@minus,sampleUniformDist,[0.5;0.5;0]);
+        % transform so x and y samples from -1 to 1
+        spotCoors = bsxfun(@times,spotCoors,[2;2;1]);
+        % scale so x and y and z samples the size of the dataset in pixels
+        spotCoors = bsxfun(@times,spotCoors, [params.ru,params.ru,params.zSteps]');
         spotInts  = randn(params.numSpots)*params.stdInt + params.meanInt;
         params.spotList = cell(params.numSpots,1);
         for i = 1:params.numSpots
+            % in units of the specimen plane (m)
             spotParamStruct.xp        = spotCoors(1,i)*specimenPixSize;
             spotParamStruct.yp        = spotCoors(2,i)*specimenPixSize;
             spotParamStruct.zp        = spotCoors(3,i)*params.dz + params.z0;
+            % in units of voxel index, which maps [0,1] -> [1,L]
+            spotParamStruct.xPixel    = sampleUniformDist(1,i)*(dataSetSize(1)-1)+1;
+            spotParamStruct.yPixel    = sampleUniformDist(2,i)*(dataSetSize(2)-1)+1;
+            spotParamStruct.zPixel    = sampleUniformDist(3,i)*(dataSetSize(3)-1)+1;
             spotParamStruct.amp       = spotInts(i);
             spotParamStruct.bak       = params.bkgndVal;
             params.spotList{i}        = spotParamStruct;
@@ -75,6 +85,8 @@ syntheticSpots = syntheticSpots + params.bkgndVal;
 % simulate microscope dataset
 syntheticSpots = genMicroscopeNoise(syntheticSpots,params);
 
+synSpotStruct.data = syntheticSpots;
+synSpotStruct.synSpotList = params.spotList;
 
 
 
