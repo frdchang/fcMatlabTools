@@ -16,7 +16,7 @@ function [fig] = plot3Dstack(varargin)
 %
 
 % parameters
-markerParam = {'or','LineWidth',3,'MarkerSize',20};
+markerParam = {'or','LineWidth',3,'MarkerSize',15};
 markerParamW = {'ow','LineWidth',1,'MarkerSize',10};
 nucleiParam = {'-sr'};
 volumeParam = {'FaceColor',[1,0,0],'EdgeAlpha',0.1,'FaceAlpha',0.5};
@@ -200,8 +200,7 @@ end
 zRange = zTicks:zTicks:floor(zL/zTicks)*zTicks;
 
 if ~isempty(clustCent)
-    clustCent = clustCent + [0;0;0.7];
-    pairWiseLines = returnPairWiseDists(clustCent)';
+%     pairWiseLines = returnPairWiseDists(clustCent)';
 end
 
 
@@ -263,9 +262,9 @@ end
 %     end
 % end
 
-% if ~isempty(clustCent)
-%     hold on;plot(clustCent(2,:),clustCent(1,:),markerParam{:});
-% end
+if ~isempty(clustCent)
+    hold on;plot(clustCent(2,:),clustCent(1,:),markerParam{:});
+end
 
 if ~isempty(nucVol)
     hold on;
@@ -365,9 +364,9 @@ else
     set(get(gca,'Title'),'Color','w');
 end
 
-% if ~isempty(clustCent)
-%     hold on;plot(clustCent(3,:),clustCent(1,:),markerParam{:});
-% end
+if ~isempty(clustCent)
+    hold on;plot(clustCent(3,:),clustCent(1,:),markerParam{:});
+end
 
 if ~isempty(nucVol)
     %     hold on;
@@ -440,9 +439,9 @@ else
     set(get(gca,'Title'),'Color','w');
 end
 
-% if ~isempty(clustCent)
-%     hold on;plot(clustCent(2,:),clustCent(3,:),markerParam{:});
-% end
+if ~isempty(clustCent)
+    hold on;plot(clustCent(2,:),clustCent(3,:),markerParam{:});
+end
 
 if ~isempty(nucVol)
     %     hold on;
