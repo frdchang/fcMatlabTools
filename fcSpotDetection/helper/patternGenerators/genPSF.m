@@ -70,7 +70,7 @@ end
 
 %% generate nd PSF
 if ~isempty(params.thresh)
-    psfData = getSubsetwBBoxND(psfData,selectCenterBWObj(psfData > params.thresh));
+    psfData = threshPSF(psfData,params.thresh);
 end
 
 if params.onlyPSF

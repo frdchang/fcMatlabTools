@@ -11,7 +11,7 @@ if ~isempty(userParams)
        if isstruct(userParams{1})
            params = setstructfields(params,userParams{1});
        else
-           params = parsepropval(params,userParams{:});
+           params = parsepropvalFC(params,userParams{:});
        end   
    else
        if isstruct(userParams)

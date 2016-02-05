@@ -27,11 +27,12 @@ params.numSpots        = 10;
 % if you want to use user defined spots
 spotParamStruct1.xp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0e-6;  %(units m in specimen plane)
-spotParamStruct1.zp   = 1e-6;  %(units m in specimen plane)
+spotParamStruct1.zp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.amp  = 50;    %(number of electrons at peak)
 %spotParamStruct1.bak  = (will be assigned params.bkgndVal)
 % spotList = {spotParamStruct1,spotParamStruct2,...};
 params.spotList        = {spotParamStruct1};
+params.simMicroscope   = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -48,7 +49,7 @@ switch params.useCase
         % transform so x and y samples from -1 to 1
         spotCoors = bsxfun(@times,spotCoors,[2;2;1]);
         % scale so x and y and z samples the size of the dataset in pixels
-        spotCoors = bsxfun(@times,spotCoors, [params.ru,params.ru,params.zSteps]');
+        spotCoors = round(bsxfun(@times,spotCoors, [params.ru-1,params.ru-1,params.zSteps-1]'));
         spotInts  = randn(params.numSpots)*params.stdInt + params.meanInt;
         params.spotList = cell(params.numSpots,1);
         for i = 1:params.numSpots
@@ -56,10 +57,6 @@ switch params.useCase
             spotParamStruct.xp        = spotCoors(1,i)*specimenPixSize;
             spotParamStruct.yp        = spotCoors(2,i)*specimenPixSize;
             spotParamStruct.zp        = spotCoors(3,i)*params.dz + params.z0;
-            % in units of voxel index, which maps [0,1] -> [1,L]
-            spotParamStruct.xPixel    = sampleUniformDist(1,i)*(dataSetSize(1)-1)+1;
-            spotParamStruct.yPixel    = sampleUniformDist(2,i)*(dataSetSize(2)-1)+1;
-            spotParamStruct.zPixel    = sampleUniformDist(3,i)*(dataSetSize(3)-1)+1;
             spotParamStruct.amp       = spotInts(i);
             spotParamStruct.bak       = params.bkgndVal;
             params.spotList{i}        = spotParamStruct;
@@ -80,10 +77,21 @@ for i = 1:numel(params.spotList)
     % check if {x,y,z} are bounded by dataset
     syntheticSpots = syntheticSpots + params.spotList{i}.amp*genPSF(updateParams(params,genPSFParams));
 end
+
+% generate pixel unit coordinates
+for i = 1:numel(params.spotList)
+    params.spotList{i}.xPixel = ((dataSetSize(1) )/(dataSetSize(1)*specimenPixSize))*(params.spotList{i}.xp - (-params.ru+1)*specimenPixSize) + 1;
+    params.spotList{i}.yPixel = ((dataSetSize(2) )/(dataSetSize(2)*specimenPixSize))*(params.spotList{i}.yp - (-params.ru+1)*specimenPixSize) + 1;
+    params.spotList{i}.zPixel = (params.spotList{i}.zp - params.z0) / params.dz + 1;
+end
+
+% add background signal
 syntheticSpots = syntheticSpots + params.bkgndVal;
 
 % simulate microscope dataset
-syntheticSpots = genMicroscopeNoise(syntheticSpots,params);
+if params.simMicroscope
+    syntheticSpots = genMicroscopeNoise(syntheticSpots,params);
+end
 
 synSpotStruct.data = syntheticSpots;
 synSpotStruct.synSpotList = params.spotList;

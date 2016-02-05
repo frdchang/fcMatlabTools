@@ -28,12 +28,12 @@ Normalization = k1.^2 - k5.*k3;
 
 A = (k1.*k4 - k5.*k2 ) ./ Normalization;
 B = (k1.*k2 - k3.*k4)  ./ Normalization;
-Abefore = (k2-k1.*k4./k5)./sqrt(k3./k5 - (k1./k5).^2);
+% Abefore = (k2-k1.*k4./k5)./sqrt(k3./k5 - (k1./k5).^2);
 % Atry = (k1.*k4 - k5.*k2 ) ./ sqrt(Normalization);
 
 detected.A = unpadarray(A,size(data));
 detected.B = unpadarray(B,size(data));
-detected.Abefore = unpadarray(Abefore,size(data));
+% detected.Abefore = unpadarray(Abefore,size(data));
 % detected.Atry= unpadarray(Atry,size(data));
 end
 
