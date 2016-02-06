@@ -30,6 +30,8 @@ subFunc1(params);
 end
 ```
 
+2. when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
+[Read more words!](fcSpotDetection/README.md)
 ### datastructures used in the code
 1.
 spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
