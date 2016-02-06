@@ -22,7 +22,7 @@ params.bkgndVal     = 10;
 params.useCase         = 1;
 % if you want to generate random spots
 params.meanInt         = 50;
-params.stdInt          = 10;
+params.stdInt          = 0;
 params.numSpots        = 10;
 % if you want to use user defined spots
 spotParamStruct1.xp   = 0e-6;  %(units m in specimen plane)
