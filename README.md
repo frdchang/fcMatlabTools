@@ -1,4 +1,6 @@
-fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
+fcTools by frederick chang
+fchang@fas.harvard.edu
+frdchang@gmail.com
 ===========================================================================
 
 ##fctools is a set of matlab tools that i use for my research:
