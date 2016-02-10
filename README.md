@@ -58,6 +58,7 @@ spotParamStruct.logLike0    = likelihood of fit given background only model (0 s
 
 ### notes:
 3D/ND spot detection protocols
+
 for ideal use case (this fulfills MLE):
 1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}.
 2. capture an experimental image (ADU units)
@@ -66,6 +67,7 @@ for ideal use case (this fulfills MLE):
 5. apply stage one MLE 
 
 for just-get-it-done case (empiraclly works well):
+
 1. capture image
 2. apply stage one MLE
 
