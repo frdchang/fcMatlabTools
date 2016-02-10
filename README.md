@@ -40,8 +40,8 @@ this container should be able to handle different fits, such as 0 spots, 1 spot,
   * for parameters of different models extract for many patches of data it is organized like so:
 {{spotParamStruct1forPatch1,spotParamStruct2,...},{spotParamStruct1,spotParamStruct2,...}
 
-a sample spot param data structure may look like the following:
-```Matlab
+  a sample spot param data structure may look like the following:
+  ```
 spotParamStruct.xp          = x position in the specimen plane (m)
 spotParamStruct.yp          = y position in the specimen plane (m)
 spotParamStruct.zp          = z position in the specimen plane (m)
@@ -53,7 +53,7 @@ spotParamStruct.bak1        = value of the background given 1 spot
 spotParamStruct.logLike1    = Likelihood of Fit given 1 spot
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
 spotParamStruct.logLike0    = likelihood of fit given background only model (0 spot)
-```
+  ```
 
 ### notes:
 * 3D/ND spot detection protocols
