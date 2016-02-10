@@ -31,12 +31,13 @@ subFunc1(params);
 end
 ```
 
-- complicated functions with sub-functions should be organized by folder.  
+- complicated functions with sub-functions should be organized by folder. 
+  ``` 
 ./doFunc
 ./doFunc/helper
 ./doFunc/testFunctions
 ./doFunc/doFunc.m
-
+```
 - when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
 
 
