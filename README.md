@@ -57,7 +57,7 @@ spotParamStruct.logLike0    = likelihood of fit given background only model (0 s
 ```
 
 ### notes:
-*3D/ND spot detection protocols
+* 3D/ND spot detection protocols
 
 for ideal use case (this fulfills MLE):
 
@@ -67,7 +67,7 @@ for ideal use case (this fulfills MLE):
 4. add camera variance image (in electon units) to fulfill poisson approximation
 5. apply stage one MLE 
 
-*for just-get-it-done case (empiraclly works well):
+* for just-get-it-done case (empiraclly works well):
 
 1. capture image
 2. apply stage one MLE
