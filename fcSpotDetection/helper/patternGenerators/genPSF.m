@@ -8,8 +8,8 @@ function psfDataStruct = genPSF(varargin)
 %--parameters--------------------------------------------------------------
 % normalization settings
 params.normType     = 2;                            % normType = 0; no normalization
-                                                    % normType = 1; normalize by Sum = 1
-                                                    % normType = 2; normalize by Peak = 1
+% normType = 1; normalize by Sum = 1
+% normType = 2; normalize by Peak = 1
 % microscope settings
 params.Ti0          = 1.3000e-04;                   % Ti0       : working distance of the objective                                             (Nikon 60x Lambda = 0.14mm)
 params.Ni0          = 1.5180;                       % Ni0       : immersion medium refractive index, design value
@@ -57,11 +57,9 @@ p=struct('Ti0',1.3000e-04,'Ni0', 1.5180,'Ni',1.5180, 'Tg0', 1.7000e-04,...
 psfData = vectorialPSF(params.xp, params.yp, params.zp, z, params.ru, curateStruct(p,params));
 % normalize psfData
 switch params.normType
-    case 0
-        
-    case 1 
+    case 1
         psfData = psfData ./ sum(psfData(:));
-
+        
     case 2
         psfData = psfData ./ max(psfData(:));
     otherwise
@@ -105,6 +103,15 @@ if params.fitGauss
         sigmaBasket(i) = sqrt(((fitBasket{i}.c1)^2)/2);
     end
     psfDataStruct.gaussKern = ndGauss(sigmaBasket,size(psfData));
+    switch params.normType
+        case 1
+            psfDataStruct.gaussKern = psfDataStruct.gaussKern ./ sum(psfDataStruct.gaussKern(:));
+            
+        case 2
+            psfDataStruct.gaussKern = psfDataStruct.gaussKern ./ max(psfDataStruct.gaussKern(:));
+        otherwise
+            error('this normType is not expected');
+    end
     psfDataStruct.gaussSigmas = sigmaBasket;
 end
 

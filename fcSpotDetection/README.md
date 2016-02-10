@@ -10,3 +10,7 @@ for ideal use case
 for just-get-it-done case (empiracly works well)
 1) capture image
 2) apply stage one MLE
+
+
+diary:
+* 201602107 -- hmm.. after likelihood thresholding there will be blobs of candidate spot locations.  how to handle this?    
