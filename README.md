@@ -1,13 +1,13 @@
 fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 ===========================================================================
 
-###fctools is a set of matlab tools that i use for my research:
+##fctools is a set of matlab tools that i use for my research:
 - 3d spot detection
 - segmentation
 - nD experiment processing
 - microscope control
 
-###rules of the code:
+##rules of the code:
 - template function that allows parameter adjustment and passing to subfunctions.
 ```Matlab
 function output = funcName(varargin)
@@ -32,7 +32,7 @@ end
 
 - when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
 
-### datastructures used in the code:
+## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
   * for synthetic spot generation it is organized like so:
@@ -55,7 +55,7 @@ spotParamStuct.bak0         = value of the background given background only mode
 spotParamStruct.logLike0    = likelihood of fit given background only model (0 spot)
   ```
 
-### notes:
+## notes:
 * 3D/ND spot detection protocols
 for ideal use case (this fulfills MLE):
   1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}
@@ -74,7 +74,7 @@ for ideal use case (this fulfills MLE):
 
 
 
-##diary of progress:
+## diary of progress:
 * 20160207 __what to do?__ after likelihood thresholding there will be blobs of candidate spot locations.  how to process this to hand off to iterative MLE?
 * 20160213 __passing parameters to functions__ Also the function to list the subfunctions that have the parameters cascaded to them so the user gets a heads up.  Programming rule: append the parameters as you go, so you can have master parameter list for inspection and can be return if desired.
 * 20160213 __passing parameters to functions__ can also cascade the varargin to sub-functions.  this allows the user to change many parameters at once from a root function, but be mindful of parameter name collisions.  there is no checking of that!!!!  
