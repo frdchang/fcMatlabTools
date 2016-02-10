@@ -9,7 +9,7 @@ fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 
 ###rules of the code:
 1. template function that allows parameter adjustment and passing to subfunctions.
-```
+```Matlab
 function output = funcName(varargin)
 %FUNCNAME does this
 % more description
@@ -42,7 +42,7 @@ this container should be able to handle different fits, such as 0 spots, 1 spot,
 {{spotParamStruct1forPatch1,spotParamStruct2,...},{spotParamStruct1,spotParamStruct2,...}
 
 a sample spot param data structure may look like the following:
-```
+```Matlab
 spotParamStruct.xp          = x position in the specimen plane (m)
 spotParamStruct.yp          = y position in the specimen plane (m)
 spotParamStruct.zp          = z position in the specimen plane (m)
@@ -58,16 +58,16 @@ spotParamStruct.logLike0    = likelihood of fit given background only model (0 s
 
 ### notes:
 3D/ND spot detection protocols
-...for ideal use case (this fulfills MLE):
-..1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}.
-..2. capture an experimental image (ADU units)
-..3. transform image (ADU units) to electrons
-..4. add camera variance image (in electon units) to fulfill poisson approximation
-..5. apply stage one MLE 
+for ideal use case (this fulfills MLE):
+1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}.
+2. capture an experimental image (ADU units)
+3. transform image (ADU units) to electrons
+4. add camera variance image (in electon units) to fulfill poisson approximation
+5. apply stage one MLE 
 
-...for just-get-it-done case (empiraclly works well):
-..1. capture image
-..2. apply stage one MLE
+for just-get-it-done case (empiraclly works well):
+1. capture image
+2. apply stage one MLE
 
 * how to organize stage two functions so multiple emitters can be solved
 
