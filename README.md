@@ -1,14 +1,14 @@
 fcTools by frederick chang - fchang@fas.harvard.edu - frdchang@gmail.com
 ===========================================================================
 
-####fctools is a set of matlab tools that i use for my research:
+###fctools is a set of matlab tools that i use for my research:
 - 3d spot detection
 - segmentation
 - nD experiment processing
 - microscope control
 
 ###rules of the code:
-1. template function that allows parameter adjustment and passing to subfunctions.
+- template function that allows parameter adjustment and passing to subfunctions.
 ```Matlab
 function output = funcName(varargin)
 %FUNCNAME does this
@@ -22,23 +22,22 @@ params = updateParams(params,varargin);
 
 subFunc1Params.addStuff = 1;
 subFunc1(updateParams(params,subFunc1Params)); 
-%or
+% or
 subFunc1(updateParams(params,'param1',1));
-%or 
+% or 
 params.addParams1 = 1;
 subFunc1(params);
 end
 ```
 
-2. when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
-[Read more words!](fcSpotDetection/README.md)
+- when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
+
 ### datastructures used in the code:
-1.
-spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
+- spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
-* for synthetic spot generation it is organized like so:
+  * for synthetic spot generation it is organized like so:
 {spotParamStruct1,spotParamStruct2,...}
-* for parameters of different models extract for many patches of data it is organized like so:
+  * for parameters of different models extract for many patches of data it is organized like so:
 {{spotParamStruct1forPatch1,spotParamStruct2,...},{spotParamStruct1,spotParamStruct2,...}
 
 a sample spot param data structure may look like the following:
@@ -66,10 +65,12 @@ for ideal use case (this fulfills MLE):
   5. apply stage one MLE 
 
 * for just-get-it-done case (empiraclly works well):
-  1. capture image
-  2. apply stage one MLE
+  1. capture image (in ADU units)
+  2. apply stage one MLE (intensity parameters are in ADU units)
 
 * how to organize stage two functions so multiple emitters can be solved
+
+
 
 
 
