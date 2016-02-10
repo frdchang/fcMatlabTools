@@ -31,7 +31,7 @@ subFunc1(params);
 end
 ```
 
-- complicated functions with sub-functions should be organized by folder. 
+- complicated functions with sub-functions should be organized by the following folder hierarchy.
   ``` 
 ./doFunc
 ./doFunc/helper
