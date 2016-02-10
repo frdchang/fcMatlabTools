@@ -31,6 +31,12 @@ subFunc1(params);
 end
 ```
 
+- complicated functions with sub-functions should be organized by folder.  
+./doFunc
+./doFunc/helper
+./doFunc/testFunctions
+./doFunc/doFunc.m
+
 - when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
 
 
@@ -64,7 +70,7 @@ spotParamStruct.logLike0    = likelihood of fit given background only model (0 s
 
 
 
-## notes:
+## usage notes:
 * 3D/ND spot detection protocols
 for ideal use case (this fulfills MLE):
   1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}
@@ -80,6 +86,7 @@ for ideal use case (this fulfills MLE):
 * how to organize stage two functions so multiple emitters can be solved
 
 
+## programming notes:
 
 
 
