@@ -62,7 +62,7 @@ for ideal use case (this fulfills MLE):
   4. add camera variance image (in electon units) to fulfill poisson approximation
   5. apply stage one MLE 
 
-* for just-get-it-done case (empiraclly works well):
+* for just-get-it-done case (empirically works well):
   1. capture image (in ADU units)
   2. apply stage one MLE (intensity parameters are in ADU units)
 
