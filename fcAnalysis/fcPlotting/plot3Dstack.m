@@ -126,9 +126,9 @@ relYDirZ = (1-4*border)*relYDirZ;
 % define figure window with appropriate proportions
 
 if ~toDisk
-    fig = figure('Position', [100, 100, 1024, 1024]);
+    fig = figure('Position', [10, 10, 1400, 1400]);
 else
-    fig = figure('Position', [100, 100, 1024, 1024],'Visible','off');
+    fig = figure('Position', [10, 10, 1400, 1400],'Visible','off');
 end
 
 if forPoster
@@ -590,9 +590,9 @@ else
                         [clustCent(3,i),nucDists(3,i)],edgeParams{:});
                 end
             end
-            if ~isempty(pairWiseLines)
-                plot3(pairWiseLines(:,1),pairWiseLines(:,2),pairWiseLines(:,3),pairWiseParam{:});
-            end
+%             if ~isempty(pairWiseLines)
+%                 plot3(pairWiseLines(:,1),pairWiseLines(:,2),pairWiseLines(:,3),pairWiseParam{:});
+%             end
             
             scatter3(clustCent(1,:),clustCent(2,:),clustCent(3,:),volMarkerParam{:});
             for i = 1:size(clustCent,2)
