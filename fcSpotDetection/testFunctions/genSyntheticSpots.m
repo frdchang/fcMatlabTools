@@ -16,7 +16,7 @@ params.pixelSize    = 6.5e-06;
 % magnficiation
 params.M            = 60;
 %--spot parameters---------------------------------------------------------
-params.bkgndVal     = 10;
+params.bkgndVal     = 5;
 % useCase = 1 is to generate random spots
 % useCase = 2 is to use user defined spots
 params.useCase         = 1;
@@ -28,7 +28,7 @@ params.numSpots        = 10;
 spotParamStruct1.xp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.zp   = 0e-6;  %(units m in specimen plane)
-spotParamStruct1.amp  = 50;    %(number of electrons at peak)
+spotParamStruct1.amp  = 13;    %(number of electrons at peak)
 %spotParamStruct1.bak  = (will be assigned params.bkgndVal)
 % spotList = {spotParamStruct1,spotParamStruct2,...};
 params.spotList        = {spotParamStruct1};
@@ -49,7 +49,7 @@ switch params.useCase
         % transform so x and y samples from -1 to 1
         spotCoors = bsxfun(@times,spotCoors,[2;2;1]);
         % scale so x and y and z samples the size of the dataset in pixels
-        spotCoors = round(bsxfun(@times,spotCoors, [params.ru-1,params.ru-1,params.zSteps-1]'));
+        spotCoors = bsxfun(@times,spotCoors, [params.ru-1,params.ru-1,params.zSteps-1]');
         spotInts  = randn(params.numSpots)*params.stdInt + params.meanInt;
         params.spotList = cell(params.numSpots,1);
         for i = 1:params.numSpots

@@ -32,39 +32,115 @@ sqrtBest = sqrt(Best);
 
 %% plot 3d gradient vector field using quiver3(x,y,z,u,v,w)
 test = genSyntheticSpots('useCase',2);
-% find the coordinate of maximum intensity
-startCoor = ind2subND(size(test.data),find(test.data == max(test.data(:))));
 inElectrons = returnElectrons(test.data,2.1,100);
 inPhotons = (inElectrons)*(1/0.7);
 kern = genPSF('onlyPSF',false);
 detectedWPSF = findSpotsStageOne(inPhotons,threshPSF(kern.glPSF,0.08),ones(size(test.data)));
+% find the coordinate of maximum intensity
+startCoor = ind2subND(size(detectedWPSF.A),find(detectedWPSF.A == max(detectedWPSF.A(:))));
 Aest = detectedWPSF.A(startCoor{:});
 Best = detectedWPSF.B(startCoor{:});
-
-startCoor = ind2subND(size(test.data),find(test.data == max(test.data(:))));
-
 kernSigmas = {kern.gaussSigmas(1),kern.gaussSigmas(2),kern.gaussSigmas(3)};
+initParam = [Aest,Best,startCoor{:},kernSigmas{:}];
+useParam = [1,1,1,1,1,0,0,0];
+close all;
+param = doGradientSearch(initParam,useParam,@DLogDTheta_Spot1,inPhotons,'maxIter',1000,'stepSize',.1);
+plot3Dstack(detectedWPSF.A,'clustCent',[param(3);param(4);param(5)]);
+% DLogDTheta = calcDLogDTheta(Aest,Best,startCoor,kernSigmas,inPhotons);
+% sampling = 1:1:numel(test.data);
+% basketGrad = {};
+% basketCoor = {};
+% zSlice = 5;
+% index = 1;
+% for i = 1:size(test.data,1)
+%     for j = 1:size(test.data,2)
+%         currCoor = {i,j,zSlice};
+%         DLogDTheta = calcDLogDTheta(Aest,Best,currCoor,kernSigmas,inPhotons);
+%         basketGrad{index} = DLogDTheta(3:5);
+%         basketCoor{index} = [currCoor{:}]';
+%         index = index+1;
+%     end
+% end
+% basketCoor = cell2mat(basketCoor)';
+% basketGrad = cell2mat(basketGrad)';
+% imagesc(detectedWPSF.A(:,:,zSlice));
+% colormap gray
+% hold on;
+% quiver(basketCoor(:,1),basketCoor(:,2),basketGrad(:,1),basketGrad(:,2),'sr','filled');
+% quiver3(basketCoor(:,1),basketCoor(:,2),basketCoor(:,3),basketGrad(:,1),basketGrad(:,2),basketGrad(:,3),'sr','filled');
 
-
-DLogDTheta = calcDLogDTheta(Aest,Best,startCoor,kernSigmas,inPhotons);
-sampling = 1:1:numel(test.data);
-basketGrad = {};
-basketCoor = {};
-zSlice = 5;
-index = 1;
-for i = 1:size(test.data,1)
-    for j = 1:size(test.data,2)
-        currCoor = {i,j,zSlice};
-        DLogDTheta = calcDLogDTheta(Aest,Best,currCoor,kernSigmas,inPhotons);
-        basketGrad{index} = DLogDTheta(3:5);
-        basketCoor{index} = [currCoor{:}]';
+%% generate different SNR
+kern = genPSF('onlyPSF',false);
+As = 10:4:30;
+for j = 1:1000
+    index = 1;
+    for i = As
+        spotParamStruct1.xp   = .2e-6;  %(units m in specimen plane)
+        spotParamStruct1.yp   = .1e-6;  %(units m in specimen plane)
+        spotParamStruct1.zp   = 0e-6;  %(units m in specimen plane)
+        spotParamStruct1.amp  = i;    %(number of electrons at peak)
+        sampleData = genSyntheticSpots('useCase',2,'bkgndVal',10,'spotList',{spotParamStruct1});
+        % convert to photons
+        inElectrons = returnElectrons(sampleData.data,2.1,100);
+        inPhotons = (inElectrons)*(1/0.7);
+        % grab kernel
+        kern = genPSF('onlyPSF',false);
+        % do stage 1
+        detectedWPSF = findSpotsStageOne(inPhotons,threshPSF(kern.glPSF,0.04),ones(size(sampleData.data)));
+        % save them
+        if index == 1
+            catenated = cat(2,maxintensityproj(detectedWPSF.A,3),maxintensityproj(sampleData.synAmp,3),maxintensityproj(detectedWPSF.B,3),maxintensityproj(sampleData.synBak,3));
+            datas = maxintensityproj(sampleData.data,3);
+        else
+            catenated = cat(1,catenated,cat(2,maxintensityproj(detectedWPSF.A,3),maxintensityproj(sampleData.synAmp,3),maxintensityproj(detectedWPSF.B,3),maxintensityproj(sampleData.synBak,3)));
+            datas = cat(1,datas,maxintensityproj(sampleData.data,3));
+        end
         index = index+1;
     end
+    exportSingleTifStack(['~/Desktop/test/catenated' num2str(j)],uint8(round(catenated*10)));
+    exportSingleTifStack(['~/Desktop/test/datas' num2str(j)],uint8(round(datas)));
 end
-basketCoor = cell2mat(basketCoor)';
-basketGrad = cell2mat(basketGrad)';
-imagesc(detectedWPSF.A(:,:,zSlice));
-colormap gray
-hold on;
-quiver(basketCoor(:,1),basketCoor(:,2),basketGrad(:,1),basketGrad(:,2),'sr','filled');
-quiver3(basketCoor(:,1),basketCoor(:,2),basketCoor(:,3),basketGrad(:,1),basketGrad(:,2),basketGrad(:,3),'sr','filled');
+% setup stage 2
+startCoor = ind2subND(size(detectedWPSF.A),find(detectedWPSF.A == max(detectedWPSF.A(:))));
+Aest = detectedWPSF.A(startCoor{:});
+Best = detectedWPSF.B(startCoor{:});
+kernSigmas = {kern.gaussSigmas(1),kern.gaussSigmas(2),kern.gaussSigmas(3)};
+initParam = [Aest,Best,startCoor{:},kernSigmas{:}];
+useParam = [1,1,1,1,1,0,0,0];
+% do stage 2
+param = doGradientSearch(initParam,useParam,@DLogDTheta_Spot1,inPhotons,'maxIter',10000,'stepSize',1);
+
+
+
+%% thousand points of light
+thresh = 10;
+minVolume = 10;
+kern = genPSF('onlyPSF',false);
+kernSigmas = {kern.gaussSigmas(1),kern.gaussSigmas(2),kern.gaussSigmas(3)};
+kern = threshPSF(kern.glPSF,0.04);
+BBoxSize = size(kern);
+% sampleData = genSyntheticSpots('useCase',1,'zSteps',40,'ru',150,'meanInt',21,'numSpots',100);
+detectedWPSF = findSpotsStageOne(sampleData.data,kern,ones(size(sampleData.data)));
+% find candidate spots
+BWmask = detectedWPSF.A > thresh;
+% make sure candidate spots have a certain volume
+BWmask = bwareaopen(BWmask, minVolume,6);
+stats = regionprops(BWmask);
+% find iterative MLE for every candidate
+clustCent = zeros(3,numel(stats));
+for i = 1:numel(stats)
+    curCorr = stats(i).Centroid;
+%     curData = getSubsetwCentroidANdBBoxSizeND(sampleData.data,curCorr,BBoxSize);
+%     curAest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.A,curCorr,BBoxSize);
+%     curBest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.B,curCorr,BBoxSize);
+%     startCoor = ind2subND(size(curAest),find(curAest == max(curAest(:))));
+%     Aest = curAest(startCoor{:});
+%     Best = curBest(startCoor{:});
+%     initParam = [Aest,Best,startCoor{:},kernSigmas{:}];
+%     useParam = [1,1,1,1,1,0,0,0];
+%     param = doGradientSearch(initParam,useParam,@DLogDTheta_Spot1,curData,'maxIter',2000,'stepSize',10,'plotFunc',[]);
+%     coorEst = param(3:5);
+%     plot3Dstack(detectedWPSF.A,'clustCent',curCorr([2,1,3])');
+clustCent(:,i) = curCorr([2,1,3])';
+end
+

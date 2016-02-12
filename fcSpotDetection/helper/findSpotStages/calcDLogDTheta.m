@@ -1,4 +1,4 @@
-function DLogDTheta = calcDLogDTheta(Aest,Best,startCoor,kernSigmas,data)
+function DLogDTheta = calcDLogDTheta(Aest,Best,startCoor,kernSigmas,data,varargin)
 %DLOGDTHETA Summary of this function goes here
 %   Detailed explanation goes here
 [xGrid,yGrid,zGrid] = ndgrid(1:size(data,1),1:size(data,2),1:size(data,3));
