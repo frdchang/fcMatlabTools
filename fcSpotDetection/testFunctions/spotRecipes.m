@@ -186,3 +186,11 @@ tic;
 [A1,B1,C1] = notInPlace(A,B,C);
 [A2,B1,C1] = notInPlace(A1,B1,C1);
 toc
+
+%% testing function speed
+tic;
+for i = 1:1000
+    if isempty(firstDerivatives)
+    end
+end
+toc
