@@ -70,7 +70,7 @@ switch nargin
         surf(x,y,double(planeimg),colorimg,'edgecolor','none' ,'facecolor','texture');
         hold on;
         
-        imgzposition = -1000;
+        imgzposition = -100000;
         
         % plot the image plane using surf.
         surf([min_x max_x],[min_y max_y],repmat(imgzposition, [2 2]),...
