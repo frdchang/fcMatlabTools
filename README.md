@@ -92,6 +92,10 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress:
+* 20160224 __gradient ascent__ actually doesn't really need inplace operations since memory allocation is very fast in 2015b.  (so not a big deal), but anonymous functions 
+* 20160220 __gradient ascent__ should take advantage of inplace operations since I shouldn't allocate memory for every step.  
+* 20160220 __gradient ascent__ should recieve nd-data flattened as column major vectors since the gradient calculation is a dot product anyways.    
+* 20160220 __thresholding likelihoood__ can be filtered by the minimal connected volume because there is a characteristic autocorrelation size associated with any pattern you are searching for.
 * 20160218 __multi emitter fitting__ needs pertubation on its initial conditions?  if two spots start at the same position in parameter space, won't they flow together?  or take a long time for the numerical error to diverge the solutions?  
 * 20160218 __multi emitter fitting__ basically entails a super position of the single emitter (a single gaussian).  DLambda/DTheta_i for n emitters is simply the sum of the n-1 gaussian with the remaining gaussian of interest being in its derivative form then added.  then take the dot product.  
 * 20160218 __gradient ascent__ of the log likelihood entails basically the dot product between DLogLike/DLambda and DLambda/DTheta_i: the first vector being the likelihood error vector between data and the model parameterized by the current set of parameters, and the second vector the derivative of the shape function w.r.t. theta_i.  This is just the chain rule, but having dot product geometry in mind helps.

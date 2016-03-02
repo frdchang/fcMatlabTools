@@ -2,6 +2,7 @@ function [] = exportSingleTifStack(filename,stack,varargin)
 %EXPORTSINGLETIFSTACK will save a 3d stack as filename
 % exportSingleTifStack('./file.tif',stack);
 % exportSingleTifStack('./file.tif',stack,'description');
+% will overwrite existing files
 %
 % fchang@fas.harvard.edu
 

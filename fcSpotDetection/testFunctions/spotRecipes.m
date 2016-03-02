@@ -144,3 +144,45 @@ for i = 1:numel(stats)
 clustCent(:,i) = curCorr([2,1,3])';
 end
 
+%% test speed of various approaches to dot products and formatting
+clear
+test = rand(100*100*20,8);
+kern = rand(100*100*20,1);
+tic
+output = sum(bsxfun(@times,test,kern));
+toc
+test1 = cell(8,1);
+for i = 1:8
+   test1{i} = rand(100*100*20,1); 
+end
+
+tic;
+output = zeros(8,1);
+for i =1:8
+    output(i) = test1{i}'*kern;
+end
+toc
+
+% cell array dot product is just as fast as the bsxfun approach...i think i
+% will do that way since i can use scalars as well.
+
+%% test passing by reference 
+test = rand(1000,1000,20);
+A = test;
+B = test;
+C = test;
+dataStruct.A = test;
+dataStruct.B = test;
+dataStruct.C = test;
+tic;
+for i = 1:10
+   dataStruct = inPlace(dataStruct);
+   dataStruct.A = dataStruct.A+1;
+   dataStruct.B = dataStruct.B+2;
+   dataStruct.C = dataStruct.C+3;
+end
+toc
+tic;
+[A1,B1,C1] = notInPlace(A,B,C);
+[A2,B1,C1] = notInPlace(A1,B1,C1);
+toc

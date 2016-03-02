@@ -6,11 +6,11 @@ function ndstack = norm0to1(ndstack)
 if isequal(ndstack,zeros(size(ndstack)))
    return;
 end
-
+ndstack = double(ndstack);
 maxValue = max(ndstack(:));
 minValue = min(ndstack(:));
-slope = double((maxValue - minValue));
-ndstack = double(double(ndstack) - minValue) / slope;
+slope = (maxValue - minValue);
+ndstack = (ndstack - minValue) / slope;
 
 end
 
