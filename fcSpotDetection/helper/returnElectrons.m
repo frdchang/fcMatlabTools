@@ -3,5 +3,3 @@ function [electrons] = returnElectrons(data,gain,meanBkgnd)
 data = double(data);
 electrons = bsxfun(@minus,data,meanBkgnd);
 electrons = bsxfun(@rdivide,electrons,gain);
-
-end
