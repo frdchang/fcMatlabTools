@@ -12,10 +12,15 @@ fctools consists of a set of matlab tools that i use for my research:
 - template function that allows parameter adjustment and passing to subfunctions.
   ```Matlab
 function output = funcName(varargin)
-%FUNCNAME does this
-% more description
-%   *param cascade  -> subFunc1
-%                   -> subFunc2
+%FUNCNAME does this and that.
+% 
+% arg1:     arg1 is this
+% arg2:     arg2 is that
+% 
+% [notes] - a heads up for the user
+% 
+% [param cascade] -> subFunc1
+%                 -> subFunc2
 %--parameters--------------------------------------------------------------
 params.default1     = 1;
 %--------------------------------------------------------------------------
@@ -38,11 +43,6 @@ end
 ./doFunc/testFunctions
 ./doFunc/doFunc.m
 ```
-- when doing MLE of fluorescent spot detection, note that for the stage one filtering, the data needs to be tranformed to electrons with the camera variance added to it.  reference mathematical notes (ref:x)
-
-
-
-
 
 ## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
@@ -77,8 +77,7 @@ for ideal use case (this fulfills MLE):
   1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}
   2. capture an experimental image (ADU units)
   3. transform image (ADU units) to electrons
-  4. add camera variance image (in electon units) to fulfill poisson approximation
-  5. apply stage one MLE 
+  4. apply stage one MLE 
 
 * for just-get-it-done case (empirically works well):
   1. capture image (in ADU units)

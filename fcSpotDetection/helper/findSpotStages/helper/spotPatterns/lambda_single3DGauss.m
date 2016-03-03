@@ -2,15 +2,15 @@ function lambdas = lambda_single3DGauss(theta,domains,maxThetas,dOrder)
 %LAMBDA_SINGLE3DGAUSS returns the lambda model based on a single 3d
 % gaussian.
 %
-% theta:    parameter values {x0,y0,z0,sigXsq,sigYsq,sigZsq,Amp,Bak}
-% domains:  domain values for each dimension {x,y,z} - traditionally
-%           the output of meshgrid.
-% maxThetas:logical index of which thetas to output for derivatives.
-%           non-zero maxTheta entries have zero derivatives
-% dOrder:   1 = jacobian vector, 2 = hessian matrix, else = lambda.
-%           the output is a cell matrix of numeric matrices
-%           *hessian matrix is symmetric and populated on both sides of the
-%            diagonal.  
+% theta:        parameter values {x0,y0,z0,sigXsq,sigYsq,sigZsq,Amp,Bak}
+% domains:      domain values for each dimension {x,y,z} - traditionally
+%               the output of meshgrid.
+% maxThetas:    logical index of which thetas to output for derivatives.
+%               non-zero maxTheta entries have zero derivatives
+% dOrder:       1 = jacobian vector, 2 = hessian matrix, else = lambda.
+%               the output is a cell matrix of numeric matrices
+%               *hessian matrix is symmetric and populated on both sides of 
+%               the diagonal.  
 %
 % notes - this function caches redundant calculations for the derivatives.
 
@@ -55,7 +55,7 @@ end
 
 switch dOrder
     case 1
-        % calculate jacobian vector permitted by maxThetas
+        % calculate gradient vector permitted by maxThetas
         lambdas = cell(numel(maxThetas),1);
         lambdas(:) = {0};
         for i = 1:numel(lambdas)
