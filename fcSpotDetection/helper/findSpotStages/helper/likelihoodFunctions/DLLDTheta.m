@@ -1,10 +1,11 @@
-function derivatives = DLLDTheta(DLLDLambda,lambda,data,readNoise,theta,domains,maxThetas,dOrder)
+function derivatives = DLLDTheta(LL,DLLDLambda,lambda,data,readNoise,theta,domains,maxThetas,dOrder)
 %DLLDTHETA calculates the derivative of the log likelihood w.r.t. thetas in
 % the lambda model using the chain rule DLL/DLambda * DLambda/DThetas.
 % This amounts to a dot product between the error vector Dll/DLambda, which
 % weighs the error appropriately with its likelihood assumptions and the
 % derivative vector DLambda/Dthetas.
 %
+% LL:           log likelihood function handle
 % DLLDLambda:   function handle to DLL/DLambda(data,lambda(theta,domains))
 % lambda:       function handle to lambda(theta,domains) and this function
 %               calculate the derivatives w.r.t. thetas
@@ -15,7 +16,7 @@ function derivatives = DLLDTheta(DLLDLambda,lambda,data,readNoise,theta,domains,
 %               the output of meshgrid.
 % maxThetas:    logical index of which thetas to output for derivatives.
 %               non-zero maxTheta entries have zero derivatives
-% dOrder:       1 = jacobian vector, 2 = hessian matrix, else = lambda.
+% dOrder:       1 = jacobian vector, 2 = hessian matrix, else = LogLike
 %               the output is a cell matrix of numeric matrices
 %               *hessian matrix is symmetric and populated on both sides of
 %               the diagonal.
@@ -53,11 +54,8 @@ switch dOrder
             derivatives(offDiag_j(i),offDiag_i(i)) = sum(getDLambdaDThetas.*getDLLDLambda{offDiag_j(i),offDiag_i(i)});
         end
     otherwise
-        % calculate likelihood? nah, throw error, the likelihood function
-        % depends on which likelihood, which requires additional info.  so
-        % restrict this function to only calculate derivatives of order 1
-        % or 2.
-        error('derivative order dOrder needs to be 1 or 2');
+        % calculate likelihood
+        derivatives = LL(data,lambda,sigmasq);
 end
 
 

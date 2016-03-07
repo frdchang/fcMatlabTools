@@ -91,6 +91,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress:
+* 20160302 __log likelihood__ with full poisson*gaussian can probably be amenable if the LL(d,lambda) is precalculated then interpolated by griddedInterpolant class
 * 20160224 __gradient ascent__ actually doesn't really need inplace operations since memory allocation is very fast in 2015b.  (so not a big deal), but anonymous functions 
 * 20160220 __gradient ascent__ should take advantage of inplace operations since I shouldn't allocate memory for every step.  
 * 20160220 __gradient ascent__ should recieve nd-data flattened as column major vectors since the gradient calculation is a dot product anyways.    
