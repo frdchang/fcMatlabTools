@@ -1,4 +1,4 @@
-function [detected] = findSpotsStageOne(data,spotKern,cameraVariance)
+function [detected] = findSpotsStage1(data,spotKern,cameraVariance)
 %FINDSPOTS Summary of this function goes here
 %   Detailed explanation goes here
 
