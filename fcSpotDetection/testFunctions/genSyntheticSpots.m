@@ -15,6 +15,11 @@ params.ru           = 10;
 params.pixelSize    = 6.5e-06;
 % magnficiation
 params.M            = 60;
+% use gibson lanni (realistic) or gaussian psf
+params.useRealistic = false;
+% if use gaussian psf these are the parameters
+params.sigmaxysq      = 0.9;
+params.sigmazsq       = 0.9;
 %--spot parameters---------------------------------------------------------
 params.bkgndVal     = 5;
 % useCase = 1 is to generate random spots
@@ -28,7 +33,7 @@ params.numSpots        = 10;
 spotParamStruct1.xp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.zp   = 0e-6;  %(units m in specimen plane)
-spotParamStruct1.amp  = 13;    %(number of electrons at peak)
+spotParamStruct1.amp  = 7;    %(number of electrons at peak)
 %spotParamStruct1.bak  = (will be assigned params.bkgndVal)
 % spotList = {spotParamStruct1,spotParamStruct2,...};
 params.spotList        = {spotParamStruct1};
@@ -68,6 +73,14 @@ switch params.useCase
         error('useCase needs to be 1 or 2');
 end
 
+% generate pixel unit coordinates
+for i = 1:numel(params.spotList)
+    params.spotList{i}.xPixel = round(((dataSetSize(1) )/(dataSetSize(1)*specimenPixSize))*(params.spotList{i}.xp - (-params.ru+1)*specimenPixSize) + 1);
+    params.spotList{i}.yPixel = round(((dataSetSize(2) )/(dataSetSize(2)*specimenPixSize))*(params.spotList{i}.yp - (-params.ru+1)*specimenPixSize) + 1);
+    params.spotList{i}.zPixel = round((params.spotList{i}.zp - params.z0) / params.dz + 1);
+    params.spotList{i}.bak    = params.bkgndVal;
+end
+
 % generate spot dataset given spotList
 syntheticSpots = zeros(dataSetSize);
 for i = 1:numel(params.spotList)
@@ -75,15 +88,16 @@ for i = 1:numel(params.spotList)
     genPSFParams.yp        = params.spotList{i}.yp;
     genPSFParams.zp        = params.spotList{i}.zp;
     % check if {x,y,z} are bounded by dataset
-    syntheticSpots = syntheticSpots + params.spotList{i}.amp*genPSF(updateParams(params,genPSFParams));
+    if params.useRealistic
+        syntheticSpots = syntheticSpots + params.spotList{i}.amp*genPSF(updateParams(params,genPSFParams));
+    else
+        gaussPSF = ndGauss(sqrt([params.sigmaxysq,params.sigmaxysq,params.sigmazsq]), dataSetSize,[params.spotList{i}.xPixel,params.spotList{i}.yPixel,params.spotList{i}.zPixel]-ceil(dataSetSize/2));;
+        gaussPSF = gaussPSF / max(gaussPSF(:));
+        syntheticSpots = syntheticSpots + params.spotList{i}.amp*gaussPSF;
+    end
 end
 
-% generate pixel unit coordinates
-for i = 1:numel(params.spotList)
-    params.spotList{i}.xPixel = ((dataSetSize(1) )/(dataSetSize(1)*specimenPixSize))*(params.spotList{i}.xp - (-params.ru+1)*specimenPixSize) + 1;
-    params.spotList{i}.yPixel = ((dataSetSize(2) )/(dataSetSize(2)*specimenPixSize))*(params.spotList{i}.yp - (-params.ru+1)*specimenPixSize) + 1;
-    params.spotList{i}.zPixel = (params.spotList{i}.zp - params.z0) / params.dz + 1;
-end
+
 
 % add background signal
 synSpotStruct.synAmp = syntheticSpots;

@@ -1,3 +1,102 @@
+%%test speed of indexing through matrix for processing
+test = rand(1024,1024,11);
+f = zeros(size(test));
+tic;
+for i = 1:numel(test)
+   f(i) = test(i)+1; 
+end
+toc
+%% i want to know if Loglikelihood is better than Lap of gaussian.
+N = 30000*50;
+saveFolder = '~/Desktop/LOGvsLLRatio';
+psfData = genPSF('onlyPSF',false,'plotProfiles',false);
+gaussKern = ndGauss(psfData.gaussSigmas,[7,7,7]);
+logKern = LOG3D(psfData.gaussSigmas.^2,[7,7,7]);
+LOGVals = zeros(N,1);
+LL1Vals = zeros(N,1);
+LL0Vals = zeros(N,1);
+AVals   = zeros(N,1);
+
+LOGVals0 = zeros(N,1);
+LL1Vals0 = zeros(N,1);
+LL0Vals0 = zeros(N,1);
+AVals0   = zeros(N,1);
+noSpotCoors = {15,10,16};
+mkdir(saveFolder);
+for i = 1:N
+    test = genSyntheticSpots('useCase',2);
+    spotCoors = {test.synSpotList{1}.xPixel,test.synSpotList{1}.yPixel,test.synSpotList{1}.zPixel};
+    data = returnElectrons(test.data,2.1,100);
+    detected = findSpotsStage1(data,gaussKern,1.6*ones(size(data)));
+    padData = padarray(data,size(logKern),'replicate');
+    logData = unpadarray(convFFTND(padData,logKern),size(data));
+    % with spot
+    LOGVals(i) = logData(spotCoors{:});
+    LL1Vals(i) = detected.LL1(spotCoors{:});
+    LL0Vals(i) = detected.LL0(spotCoors{:});
+    AVals(i) = detected.A1(spotCoors{:});
+    % without spot
+    LOGVals0(i) = logData(noSpotCoors{:});
+    LL1Vals0(i) = detected.LL1(noSpotCoors{:});
+    LL0Vals0(i) = detected.LL0(noSpotCoors{:});
+    AVals0(i) = detected.A1(noSpotCoors{:});
+    % save images
+    maxData = maxintensityproj(data,3);
+    maxA    = maxintensityproj(detected.A1,3);
+    maxLOG  = maxintensityproj(logData,3);
+    maxLLratio = maxintensityproj(detected.LL1-detected.LL0,3);
+    if mod(i,100)==0
+        display([num2str(i) ' of ' num2str(N)])
+%         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
+%         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
+%         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
+%         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
+    end
+end
+
+LOGdatas = genROC('Laplacian of Gaussian',LOGVals,LOGVals0);
+% Adatas = genROC('MLE of Amp',AVals,AVals0);
+LLratiodatas = genROC('Log(LikelihoodRatio)',LL1Vals-LL0Vals,LL1Vals0-LL0Vals0);
+%% test gradient ascent
+test = genSyntheticSpots('useCase',2);
+trueData = test.synAmp+test.synBak;
+data = returnElectrons(test.data,2.1,100);
+[x,y,z] = meshgrid(1:19,1:19,1:25);
+domains = {x,y,z};
+kern = ndGauss([0.9,0.9,0.9],[7,7,7]);
+detected = findSpotsStage1(data,kern,1.6*ones(size(data)));
+% filter stage 1 by likelihood
+
+trueTheta = {test.synSpotList{1}.xPixel,test.synSpotList{1}.yPixel,test.synSpotList{1}.zPixel,0.9,0.9,0.9,test.synSpotList{1}.amp,test.synSpotList{1}.bak};
+testTheta = {test.synSpotList{1}.xPixel+1,test.synSpotList{1}.yPixel+1,test.synSpotList{1}.zPixel+1,0.9,0.9,0.9,test.synSpotList{1}.amp-1,test.synSpotList{1}.bak+1};
+readNoise = 1.6*ones(size(data));
+state = MLEbyIteration(data,testTheta,readNoise,domains,3);
+
+
+%% test simple example to see if gradient and hessian functions are reporting correctly
+[x,y,z] = meshgrid(-10:0.1:10,0,0);
+amp = 10;
+bak = 4;
+data = amp*normpdf(x,0,2)+bak;
+domains = {x,y,z};
+theta = {0,0,0,2,0,0,amp,bak};
+readNoise = 1.6*ones(size(data));
+params.stepSize     = 1;
+params.numSteps     = 1000;
+params.lambda       = @lambda_single3DGauss;
+params.maxThetas    = [1 1 1 0 0 0 1 1];
+params.DLLDTheta    = @DLLDTheta;
+params.DLLDLambda   = @DLLDLambda_PoissPoiss;
+params.LogLike      = @logLike_PoissPoiss;
+
+
+% define gradient function
+gradFunc = @(theta,data) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,theta,domains,params.maxThetas,1);
+% define hessian function
+hessFunc = @(theta,data) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,theta,domains,params.maxThetas,2);
+
+
+
 %% test first stage MLE
 % it returns the parameters inputed to simulate the microscope
 N = 1000;
@@ -130,18 +229,18 @@ stats = regionprops(BWmask);
 clustCent = zeros(3,numel(stats));
 for i = 1:numel(stats)
     curCorr = stats(i).Centroid;
-%     curData = getSubsetwCentroidANdBBoxSizeND(sampleData.data,curCorr,BBoxSize);
-%     curAest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.A,curCorr,BBoxSize);
-%     curBest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.B,curCorr,BBoxSize);
-%     startCoor = ind2subND(size(curAest),find(curAest == max(curAest(:))));
-%     Aest = curAest(startCoor{:});
-%     Best = curBest(startCoor{:});
-%     initParam = [Aest,Best,startCoor{:},kernSigmas{:}];
-%     useParam = [1,1,1,1,1,0,0,0];
-%     param = doGradientSearch(initParam,useParam,@DLogDTheta_Spot1,curData,'maxIter',2000,'stepSize',10,'plotFunc',[]);
-%     coorEst = param(3:5);
-%     plot3Dstack(detectedWPSF.A,'clustCent',curCorr([2,1,3])');
-clustCent(:,i) = curCorr([2,1,3])';
+    %     curData = getSubsetwCentroidANdBBoxSizeND(sampleData.data,curCorr,BBoxSize);
+    %     curAest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.A,curCorr,BBoxSize);
+    %     curBest = getSubsetwCentroidANdBBoxSizeND(detectedWPSF.B,curCorr,BBoxSize);
+    %     startCoor = ind2subND(size(curAest),find(curAest == max(curAest(:))));
+    %     Aest = curAest(startCoor{:});
+    %     Best = curBest(startCoor{:});
+    %     initParam = [Aest,Best,startCoor{:},kernSigmas{:}];
+    %     useParam = [1,1,1,1,1,0,0,0];
+    %     param = doGradientSearch(initParam,useParam,@DLogDTheta_Spot1,curData,'maxIter',2000,'stepSize',10,'plotFunc',[]);
+    %     coorEst = param(3:5);
+    %     plot3Dstack(detectedWPSF.A,'clustCent',curCorr([2,1,3])');
+    clustCent(:,i) = curCorr([2,1,3])';
 end
 
 %% test speed of various approaches to dot products and formatting
@@ -153,7 +252,7 @@ output = sum(bsxfun(@times,test,kern));
 toc
 test1 = cell(8,1);
 for i = 1:8
-   test1{i} = rand(100*100*20,1); 
+    test1{i} = rand(100*100*20,1);
 end
 
 tic;
@@ -166,7 +265,7 @@ toc
 % cell array dot product is just as fast as the bsxfun approach...i think i
 % will do that way since i can use scalars as well.
 
-%% test passing by reference 
+%% test passing by reference
 test = rand(1000,1000,20);
 A = test;
 B = test;
@@ -176,10 +275,10 @@ dataStruct.B = test;
 dataStruct.C = test;
 tic;
 for i = 1:10
-   dataStruct = inPlace(dataStruct);
-   dataStruct.A = dataStruct.A+1;
-   dataStruct.B = dataStruct.B+2;
-   dataStruct.C = dataStruct.C+3;
+    dataStruct = inPlace(dataStruct);
+    dataStruct.A = dataStruct.A+1;
+    dataStruct.B = dataStruct.B+2;
+    dataStruct.C = dataStruct.C+3;
 end
 toc
 tic;
