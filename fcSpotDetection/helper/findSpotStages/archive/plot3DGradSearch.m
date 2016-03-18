@@ -1,6 +1,5 @@
 function h = plot3DGradSearch(param,data,iter)
-%PLOT3DGRADSEARCH Summary of this function goes here
-%   Detailed explanation goes here
+%PLOT3DGRADSEARCH 
 persistent oldParam;
 persistent prevIter;
 if iter == 0

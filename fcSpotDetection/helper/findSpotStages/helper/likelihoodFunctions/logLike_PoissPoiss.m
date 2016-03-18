@@ -1,4 +1,4 @@
-function LL = logLikelihood_PoissPoiss(data,lambda,sigmasq)
+function LL = logLike_PoissPoiss(data,lambda,sigmasq)
 %LOGLIKELIHOOD_POISSPOISS calculates the log likelihood of observing data
 %given lambda and the Poisson*Poisson noise model
 

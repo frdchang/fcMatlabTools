@@ -38,7 +38,7 @@ params.z0           = -1e-6;
 % threshold the psf, if so, put threshold value
 params.thresh       = []; %0.0002;
 % plot line profiles
-params.plotProfiles = false;
+params.plotProfiles = true;
 % fit gaussian shape
 params.fitGauss     = true;
 % only output psf for single output argument

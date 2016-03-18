@@ -20,20 +20,43 @@ function derivatives = DLLDTheta(LL,DLLDLambda,lambda,data,readNoise,theta,domai
 %               the output is a cell matrix of numeric matrices
 %               *hessian matrix is symmetric and populated on both sides of
 %               the diagonal.
+%
+% [note] - this function calculates the derivatives of the log likelihood by the chain rule:
+%   first deriv:    DLL/DLambda * DLambda/DTheta
+%   second deriv:   D2LL/D2Lambda * DLambda/DTheta_i * DLambda/DTheta_j + DLL/DLambda * D2Lambda/(DTheta_i DTheta_j)
+%
+% what is interesting is the DLL/DLambda can be defined for any noise
+% function.  The complicated poisson*gaussian noise function may have some
+% benefits and can probably be pre-calculated, cached and interpolated
+
+% todo: cache first order calculations for second order calculations
+% persistent thisLambda;
+% persistent getDLLDLambda;
+% persistent getDLambdaDThetas;
+% persistent prevTheta;
+% persistent prevData;
 
 switch dOrder
     case 1
         % return gradient vector
-        getDLLDLambda = DLLDLambda(data,lambda(theta,domains,maxThetas,0),readNoise);
+        thisLambda = lambda(theta,domains,maxThetas,0);
+        getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
         getDLambdaDThetas = lambda(theta,domains,maxThetas,dOrder);
         derivatives = zeros(numel(theta),1);
         for i = 1:numel(theta)
-            derivatives(i) = sum(getDLambdaDThetas.*getDLLDLambda{i});
+            temp = getDLLDLambda.*getDLambdaDThetas{i};
+            derivatives(i) = sum(temp(:));
         end
     case 2
         % return hessian matrix
-        getDLLDLambda = DLLDLambda(data,lambda(theta,domains,maxThetas,0),readNoise);
-        getDLambdaDThetas = lambda(theta,domains,maxThetas,dOrder);
+        thisLambda = lambda(theta,domains,maxThetas,0);
+        % calc first order derivative componenets
+        getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
+        getDLambdaDThetas = lambda(theta,domains,maxThetas,1);
+        % calc second order derivative components
+        getD2LLD2Lambda = DLLDLambda(data,thisLambda,readNoise,2);
+        getD2LambdaD2Thetas = lambda(theta,domains,maxThetas,2);
+        
         derivatives = zeros(numel(theta),numel(theta));
         % first generate diagonal and offdiagonal indices permitted by
         % maxThetas
@@ -43,19 +66,25 @@ switch dOrder
         % populate diagonal
         [diag_i,diag_j] = find(diagIndices);
         for i = 1:numel(diag_i)
-            derivatives(diag_i(i),diag_j(i)) = sum(getDLambdaDThetas.*getDLLDLambda{diag(i),diag_j(i)});
+            temp = getD2LLD2Lambda.*getDLambdaDThetas{diag_i(i)}.*getDLambdaDThetas{diag_j(i)} + getDLLDLambda.*getD2LambdaD2Thetas{diag_i(i),diag_j(i)};
+            derivatives(diag_i(i),diag_j(i)) = sum(temp(:));
         end
         % upper off diagonal entries
         upperOffDiagIndices = triu(hessianIndices,1);
         % populate off diagonal
         [offDiag_i,offDiag_j] = find(upperOffDiagIndices);
         for i = 1:numel(offDiag_i)
-            derivatives(offDiag_i(i),offDiag_j(i)) = sum(getDLambdaDThetas.*getDLLDLambda{offDiag_i(i),offDiag_j(i)});
-            derivatives(offDiag_j(i),offDiag_i(i)) = sum(getDLambdaDThetas.*getDLLDLambda{offDiag_j(i),offDiag_i(i)});
+            temp = getD2LLD2Lambda.*getDLambdaDThetas{offDiag_i(i)}.*getDLambdaDThetas{offDiag_j(i)} + getDLLDLambda.*getD2LambdaD2Thetas{offDiag_i(i),offDiag_j(i)};
+            sumtemp = sum(temp(:));
+            derivatives(offDiag_i(i),offDiag_j(i)) = sumtemp;
+            derivatives(offDiag_j(i),offDiag_i(i)) = sumtemp;
         end
     otherwise
         % calculate likelihood
-        derivatives = LL(data,lambda,sigmasq);
+        % return hessian matrix
+        thisLambda = lambda(theta,domains,maxThetas,0);
+        logLikelihood =LL(data,thisLambda,readNoise);
+        derivatives = sum(logLikelihood(:));
 end
 
 

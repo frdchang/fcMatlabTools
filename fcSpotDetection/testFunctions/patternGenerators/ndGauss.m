@@ -12,9 +12,9 @@ function [daGauss,separateComponents] = ndGauss(sigmaVector,sizeVector,varargin)
 % fchang@fas.harvard.edu
 
 if nargin == 2
-   muVector = zeros(size(sigmaVector)); 
+    muVector = zeros(size(sigmaVector));
 else
-   muVector = varargin{1};
+    muVector = varargin{1};
 end
 
 dims = numel(sigmaVector);
@@ -30,7 +30,7 @@ for i = 1:dims
     currGauss = reshape(currGauss,reshapeVec');
     separateComponents{i} = currGauss;
     if i == 1
-       daGauss = currGauss; 
+        daGauss = currGauss;
     else
         daGauss = convn(currGauss,daGauss);
     end
