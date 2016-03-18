@@ -6,6 +6,11 @@ function [] = exportSingleTifStack(filename,stack,varargin)
 %
 % fchang@fas.harvard.edu
 
+% check stack type
+if ~isa(stack,'uint16')
+   warning('exportSingleTifStack(): stack that is not uint16');
+end
+
 saveParams = {'tif', 'Compression', 'none'};
 [~,~,zL] = size(stack);
 
