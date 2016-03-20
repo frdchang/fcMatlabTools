@@ -1,12 +1,6 @@
-%%test speed of indexing through matrix for processing
-test = rand(1024,1024,11);
-f = zeros(size(test));
-tic;
-for i = 1:numel(test)
-   f(i) = test(i)+1; 
-end
-toc
+
 %% i want to know if Loglikelihood is better than Lap of gaussian.
+% yup, it is.  -fc
 N = 30000*50;
 saveFolder = '~/Desktop/LOGvsLLRatio';
 psfData = genPSF('onlyPSF',false,'plotProfiles',false);
