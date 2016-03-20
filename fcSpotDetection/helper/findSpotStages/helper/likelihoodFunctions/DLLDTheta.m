@@ -83,8 +83,7 @@ switch dOrder
         % calculate likelihood
         % return hessian matrix
         thisLambda = lambda(theta,domains,maxThetas,0);
-        logLikelihood =LL(data,thisLambda,readNoise);
-        derivatives = sum(logLikelihood(:));
+        derivatives =LL(data,thisLambda,readNoise);
 end
 
 
