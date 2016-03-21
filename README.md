@@ -21,6 +21,7 @@ function output = funcName(varargin)
 % 
 % [param cascade] -> subFunc1
 %                 -> subFunc2
+ 
 %--parameters--------------------------------------------------------------
 params.default1     = 1;
 %--------------------------------------------------------------------------
