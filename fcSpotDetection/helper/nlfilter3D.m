@@ -12,8 +12,8 @@ function b = nlfilter3D(cellDatas,nhood,fun,params,padval)
 %
 % e.g. b(nhood_i) = fun(data1(nhood_i),data2(nhood_i),...,params{:});
 %
-% [notes] - this function has been only tested for 3D datasets.  nD is not
-%           programmed in, and 2D has not been tested.
+% [notes] - i usually pad by -inf so the function recieving the patch knows
+%           what parts of the data was padded.
 %
 % fchang@fas.harvard.edu
 
