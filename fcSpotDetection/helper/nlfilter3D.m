@@ -46,7 +46,7 @@ b = repmat(feval(class(feval(fun,x{:},params{:})), 0), size(cellDatas{1}));
 
 % Apply fun to each neighborhood of cellDatas
 for i=1:ma
-    x = cell(numel(paddedCellDatas),1);
+    x = cell(numel(paddedCellDatas),1); 
     for j=1:na
         for k = 1:oa
             for l = 1:numel(paddedCellDatas)
