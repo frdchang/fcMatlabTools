@@ -7,6 +7,8 @@ function [daGauss,separateComponents] = ndGauss(sigmaVector,sizeVector,varargin)
 % daGauss is the nD numeric array that contains the nD gaussian
 % separateComponents is the separable components that can be used for
 % separable convolution
+% 
+% [notes] - sum of components = 1
 %
 %
 % fchang@fas.harvard.edu

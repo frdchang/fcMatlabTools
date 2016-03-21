@@ -1,56 +1,69 @@
 
 %% i want to know if Loglikelihood is better than Lap of gaussian.
 % yup, it is.  -fc
-N = 30000*50;
+N = 1200;
 saveFolder = '~/Desktop/LOGvsLLRatio';
 psfData = genPSF('onlyPSF',false,'plotProfiles',false);
-gaussKern = ndGauss(psfData.gaussSigmas,[7,7,7]);
-logKern = LOG3D(psfData.gaussSigmas.^2,[7,7,7]);
+kernSize = [7,7,7];
+gaussKern = ndGauss(psfData.gaussSigmas,kernSize);
+gaussKern = gaussKern / max(gaussKern(:));
+sigmasq = 1.6*ones(size(data));
+logKern = LOG3D(psfData.gaussSigmas.^2,kernSize);
 LOGVals = zeros(N,1);
 LL1Vals = zeros(N,1);
 LL0Vals = zeros(N,1);
 AVals   = zeros(N,1);
+LLRatioFull = zeros(N,1);
 
 LOGVals0 = zeros(N,1);
 LL1Vals0 = zeros(N,1);
 LL0Vals0 = zeros(N,1);
 AVals0   = zeros(N,1);
+LLRatioFull0 = zeros(N,1);
+
 noSpotCoors = {15,10,16};
 mkdir(saveFolder);
-for i = 1:N
+tic;
+parfor i = 1:N
     test = genSyntheticSpots('useCase',2);
     spotCoors = {test.synSpotList{1}.xPixel,test.synSpotList{1}.yPixel,test.synSpotList{1}.zPixel};
     data = returnElectrons(test.data,2.1,100);
-    detected = findSpotsStage1(data,gaussKern,1.6*ones(size(data)));
+    detected = findSpotsStage1(data,gaussKern,sigmasq);
     padData = padarray(data,size(logKern),'replicate');
     logData = unpadarray(convFFTND(padData,logKern),size(data));
+    LLRatioFullData = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcLogLikeOfPatch_PoissPoiss,{gaussKern},-inf);
     % with spot
     LOGVals(i) = logData(spotCoors{:});
     LL1Vals(i) = detected.LL1(spotCoors{:});
     LL0Vals(i) = detected.LL0(spotCoors{:});
     AVals(i) = detected.A1(spotCoors{:});
+    LLRatioFull(i) = LLRatioFullData(spotCoors{:});
     % without spot
     LOGVals0(i) = logData(noSpotCoors{:});
     LL1Vals0(i) = detected.LL1(noSpotCoors{:});
     LL0Vals0(i) = detected.LL0(noSpotCoors{:});
     AVals0(i) = detected.A1(noSpotCoors{:});
+    LLRatioFull0(i) =  LLRatioFullData(noSpotCoors{:});
     % save images
     maxData = maxintensityproj(data,3);
     maxA    = maxintensityproj(detected.A1,3);
     maxLOG  = maxintensityproj(logData,3);
     maxLLratio = maxintensityproj(detected.LL1-detected.LL0,3);
-    if mod(i,100)==0
-        display([num2str(i) ' of ' num2str(N)])
-%         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
-%         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
-%         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
-%         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
-    end
+    display(i)
+%     if mod(i,100)==0
+%         display([num2str(i) ' of ' num2str(N)])
+% %         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
+% %         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
+% %         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
+% %         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
+%     end
 end
+toc
 
 LOGdatas = genROC('Laplacian of Gaussian',LOGVals,LOGVals0);
 % Adatas = genROC('MLE of Amp',AVals,AVals0);
 LLratiodatas = genROC('Log(LikelihoodRatio)',LL1Vals-LL0Vals,LL1Vals0-LL0Vals0);
+LLratioFulldatas = genROC('Log(LikelihoodRatioFull)',LLRatioFull,LLRatioFull0);
 %% test gradient ascent
 test = genSyntheticSpots('useCase',2);
 trueData = test.synAmp+test.synBak;
