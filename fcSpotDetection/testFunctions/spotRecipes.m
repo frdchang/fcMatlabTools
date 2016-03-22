@@ -4,8 +4,9 @@
 N = 1200;
 saveFolder = '~/Desktop/LOGvsLLRatio';
 psfData = genPSF('onlyPSF',false,'plotProfiles',false);
+gaussSigmas = psfData.gaussSigmas;
 kernSize = [7,7,7];
-gaussKern = ndGauss(psfData.gaussSigmas,kernSize);
+gaussKern = ndGauss(gaussSigmas,kernSize);
 gaussKern = gaussKern / max(gaussKern(:));
 sigmasq = 1.6*ones(size(data));
 logKern = LOG3D(psfData.gaussSigmas.^2,kernSize);
@@ -32,6 +33,7 @@ parfor i = 1:N
     padData = padarray(data,size(logKern),'replicate');
     logData = unpadarray(convFFTND(padData,logKern),size(data));
     LLRatioFullData = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcLogLikeOfPatch_PoissPoiss,{gaussKern},-inf);
+    fullLLResults = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcMLEOfPatch_PoissPoiss,{gaussKern,gaussSigmas},-inf);
     % with spot
     LOGVals(i) = logData(spotCoors{:});
     LL1Vals(i) = detected.LL1(spotCoors{:});

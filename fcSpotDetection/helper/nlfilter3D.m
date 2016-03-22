@@ -1,13 +1,15 @@
-function b = nlfilter3D(cellDatas,nhood,fun,params,padval)
+function b = nlfilter3D(cellDatas,nhood,myFunc,params,padval)
 %NLFILTER3D is a modification of nlfilter but allows 3d data to be
 % processed by sliding box defined by nhood.
 %
 % cellDatas:        cell array of the datas to be passed {data1,data2,..}
 %                   assumes: size(data1) = size(data2) = ....
 % nhood:            size of the neighborhood to be slid
-% fun:              function to be applied on the nhood of cellDatas
+% myFunc            function to be applied on the nhood of cellDatas
 % params:           function parameters appended after datas
 % padval:           value of the padding
+% b:                a cell array holding the outputs of myFunc applied to
+%                   patches
 %
 %
 % e.g. b(nhood_i) = fun(data1(nhood_i),data2(nhood_i),...,params{:});
@@ -37,22 +39,30 @@ rows = 0:(nhood(1)-1);
 cols = 0:(nhood(2)-1);
 zs   = 0:(nhood(3)-1);
 
-% create b with class defined by function output.
+% create b with the cells corresponding to the number of outputs of myFunc
 x = cell(numel(paddedCellDatas),1);
 for l = 1:numel(paddedCellDatas)
     x{l} = paddedCellDatas{l}(1+rows,1+cols,1+zs);
 end
-b = repmat(feval(class(feval(fun,x{:},params{:})), 0), size(cellDatas{1}));
-
+numOutput = nargout(myFunc);
+b = cell(numOutput,1);
+for i = 1:numOutput
+    b{i} = zeros(size(cellDatas{1}));
+end
+outputCapture = cell(numOutput,1);
 % Apply fun to each neighborhood of cellDatas
 for i=1:ma
+    display(i)
     x = cell(numel(paddedCellDatas),1); 
     for j=1:na
         for k = 1:oa
             for l = 1:numel(paddedCellDatas)
                 x{l} = paddedCellDatas{l}(i+rows,j+cols,k+zs);
             end
-            b(i,j,k) = feval(fun,x{:},params{:});
+            [outputCapture{:}] = feval(myFunc,x{:},params{:});
+            for m = 1:numOutput
+                b{m}(i,j,k) = outputCapture{m};
+            end
         end
     end
 end
