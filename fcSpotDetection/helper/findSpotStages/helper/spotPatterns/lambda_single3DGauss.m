@@ -25,7 +25,8 @@ persistent prevDomains;
 
 % if parameter set changes from previous calculation, update heartFunc, the
 % redudant calculation that is used for calculating the derivatives.
-if ~isequal(prevTheta,theta) || ~isequal(domains,prevDomains)
+% actually only check the first 6 out of 8 parameters
+if isempty(prevTheta) || ~isequal([prevTheta{1:6}],[theta{1:6}]) || ~isequal(domains,prevDomains)
     heartFunc = exp(1).^((1/2).*((-1).*sigXsq.^(-1).*(x+(-1).*x0).^2+(...
         -1).*sigYsq.^(-1).*(y+(-1).*y0).^2+(-1).*sigZsq.^(-1).*(z+(-1).* ...
         z0).^2));

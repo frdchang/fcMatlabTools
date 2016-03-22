@@ -14,9 +14,17 @@ function LLratio = calcLogLikeOfPatch_PoissPoiss(data,sigmasq,A1,B1,B0,shapeData
 centerCoor = round(size(shapeData)/2);
 centerCoor = num2cell(centerCoor);
 
+if ~isscalar(A1)
 A1 = A1(centerCoor{:});
+end
+
+if ~isscalar(B1)
 B1 = B1(centerCoor{:});
+end
+
+if ~isscalar(B0)
 B0 = B0(centerCoor{:});
+end
 
 lambda1 = A1*shapeData+B1;
 lambda0 = B0*ones(size(shapeData));

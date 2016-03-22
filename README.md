@@ -92,6 +92,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress:
+* 20160322 __negative data values__ need to be checked against the log likelihoods? so far it seems to work without explicit checking, so revist in the future.
 * 20160321 __most sensitive detection__ is minimizing the variance of the estimated paremeters (provided by the likelihood) and finding spots by the log likelihood ratio between 1 spot and 0 spot model.  finding MLE of A and B can be done with fourier methods but the likelihood is truncated to make it amenable.  i wrote a function nlfitler3d that can find an estimate MLE{A,B} for every position in the dataset using the full likelihood model and then return the full log likelihood ratio.  at low snr regimes this can be helpful.  
 * 20160302 __log likelihood__ with full poisson*gaussian can probably be amenable if the LL(d,lambda) is precalculated then interpolated by griddedInterpolant class
 * 20160224 __gradient ascent__ actually doesn't really need inplace operations since memory allocation is very fast in 2015b.  (so not a big deal), but anonymous functions 

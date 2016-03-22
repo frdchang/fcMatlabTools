@@ -30,18 +30,24 @@ function derivatives = DLLDTheta(LL,DLLDLambda,lambda,data,readNoise,theta,domai
 % benefits and can probably be pre-calculated, cached and interpolated
 
 % todo: cache first order calculations for second order calculations
-% persistent thisLambda;
-% persistent getDLLDLambda;
-% persistent getDLambdaDThetas;
-% persistent prevTheta;
-% persistent prevData;
+persistent thisLambda;
+persistent getDLLDLambda;
+persistent getDLambdaDThetas;
+persistent prevTheta;
+persistent prevData;
+persistent prevMaxThetas;
 
 switch dOrder
     case 1
         % return gradient vector
-        thisLambda = lambda(theta,domains,maxThetas,0);
-        getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
-        getDLambdaDThetas = lambda(theta,domains,maxThetas,dOrder);
+        if isempty(prevTheta) || isempty(prevData) || isempty(prevMaxThetas) || ~isequal(prevTheta,theta) || ~isequal(prevData,data) || ~isequal(prevMaxThetas,maxThetas)
+            thisLambda = lambda(theta,domains,maxThetas,0);
+            getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
+            getDLambdaDThetas = lambda(theta,domains,maxThetas,dOrder);
+            prevTheta = theta;
+            prevData = data;
+            prevMaxThetas = maxThetas;
+        end
         derivatives = zeros(numel(theta),1);
         for i = 1:numel(theta)
             temp = getDLLDLambda.*getDLambdaDThetas{i};
@@ -49,10 +55,15 @@ switch dOrder
         end
     case 2
         % return hessian matrix
-        thisLambda = lambda(theta,domains,maxThetas,0);
-        % calc first order derivative componenets
-        getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
-        getDLambdaDThetas = lambda(theta,domains,maxThetas,1);
+        if isempty(prevTheta) || isempty(prevData) || isempty(prevMaxThetas) || ~isequal(prevTheta,theta) || ~isequal(prevData,data) || ~isequal(prevMaxThetas,maxThetas)
+            thisLambda = lambda(theta,domains,maxThetas,0);
+            % calc first order derivative componenets
+            getDLLDLambda = DLLDLambda(data,thisLambda,readNoise,1);
+            getDLambdaDThetas = lambda(theta,domains,maxThetas,1);
+            prevTheta = theta;
+            prevData = data;
+            prevMaxThetas = maxThetas;
+        end
         % calc second order derivative components
         getD2LLD2Lambda = DLLDLambda(data,thisLambda,readNoise,2);
         getD2LambdaD2Thetas = lambda(theta,domains,maxThetas,2);
