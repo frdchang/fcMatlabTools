@@ -34,6 +34,8 @@ dataI = data > -Inf;
 LLval1 = logLike_PoissPoiss(data(dataI),lambda1(dataI),sigmasq(dataI));
 LLval0 = logLike_PoissPoiss(data(dataI),lambda0(dataI),sigmasq(dataI));
 
+% this part checks if fourier method is the same as nlfitler3d of this
+% function.  it is correct - fc 
 % LLval1 = ((data(dataI)-lambda1(dataI)).^2)./(sigmasq(dataI));
 % LLval0 = ((data(dataI)-lambda0(dataI)).^2)./(sigmasq(dataI));
 % 
