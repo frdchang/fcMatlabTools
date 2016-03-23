@@ -51,6 +51,9 @@ if type == 2 || type == 3
     % do newton raphson or both, with gradient going first
     updateIndices = params.maxThetas>0;
     for i = 0:params.numStepsNR
+        if mod(i,params.doPloteveryN) == 0
+            plotMLESearch(mleTheta,data,i,'newton raphson MLE');
+        end
         thisGradient = gradFunc(num2cell(mleTheta));
         thisHessian = hessFunc(num2cell(mleTheta));
         try
@@ -59,9 +62,7 @@ if type == 2 || type == 3
             warning('hessian is not inverting well');
         end
         mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;
-        if mod(i,params.doPloteveryN) == 0
-            plotMLESearch(mleTheta,data,i,'newton raphson MLE');
-        end
+        
     end
 end
 
