@@ -16,11 +16,10 @@ function [detected] = findSpotsStage1(data,spotKern,cameraVariance)
 % model0 - zero spot model - B0
 % 
 % detected is an output structure with the estimated parameters
-% detected.A1:      MLE of A1
-% detected.B1:      MLE of B1
-% detected.LL1:     approximate log likelihood of model 1
-% detected.B0:      MLE of B0
-% detected.LL0:     approximate log likelihood of model 0
+% detected.A1:      MLE of A1 of 1 spot model
+% detected.B1:      MLE of B1 of 1 spot model
+% detected.B0:      MLE of B0 of 0 spot model
+% detected.LLRatio: approximate log likelihood ratio of model 1 vs model 0
 %
 % [notes] - this function caches results so next computation is faster.
 %           clear findSpotStage1 if memory needs to be opened.
@@ -55,12 +54,12 @@ k6 = convFFTND(dataNormed.*data,ones(size(spotKernSaved)));
 Normalization = k1.^2 - k5.*k3;
 
 % parameters given A*spotKern + B, model of 1 spot
-A1           = (k1.*k4 - k5.*k2 ) ./ Normalization;
-B1           = (k1.*k2 - k3.*k4)  ./ Normalization;
-LL1    = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 + k6);
+A1          = (k1.*k4 - k5.*k2 ) ./ Normalization;
+B1          = (k1.*k2 - k3.*k4)  ./ Normalization;
+LL1         = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 + k6);
 % parmeters given B only, model of 0 spot
-B0       = k4./k5;
-LL0   = -((B0.^2).*k5 - 2*B0.*k4 + k6);
+B0          = k4./k5;
+LL0         = -((B0.^2).*k5 - 2*B0.*k4 + k6);
 
 detected.A1         = unpadarray(A1,size(data));
 detected.B1         = unpadarray(B1,size(data));
