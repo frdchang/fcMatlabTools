@@ -62,11 +62,10 @@ LL1    = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 + k6);
 B0       = k4./k5;
 LL0   = -((B0.^2).*k5 - 2*B0.*k4 + k6);
 
-detected.A1     = unpadarray(A1,size(data));
-detected.B1     = unpadarray(B1,size(data));
-detected.LL1    = unpadarray(LL1,size(data));
-detected.B0     = unpadarray(B0,size(data));
-detected.LL0    = unpadarray(LL0,size(data));
+detected.A1         = unpadarray(A1,size(data));
+detected.B1         = unpadarray(B1,size(data));
+detected.B0         = unpadarray(B0,size(data));
+detected.LLRatio    = unpadarray(LL1-LL0,size(data));
 
 % historical note: previous version of my code outputed A as Abefore noted
 % below, which is incorrect.
