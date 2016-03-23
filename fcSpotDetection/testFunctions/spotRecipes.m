@@ -34,6 +34,7 @@ parfor i = 1:N
     logData = unpadarray(convFFTND(padData,logKern),size(data));
     LLRatioFullData = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcLogLikeOfPatch_PoissPoiss,{gaussKern},-inf);
     fullLLResults = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcMLEOfPatch_PoissPoiss,{gaussKern,gaussSigmas},-inf);
+    detectedRefined = findSpotsStage1refined(data,gaussKern,sigmasq,detected,gaussSigmas);
     % with spot
     LOGVals(i) = logData(spotCoors{:});
     LL1Vals(i) = detected.LL1(spotCoors{:});

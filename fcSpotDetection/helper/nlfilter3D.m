@@ -52,7 +52,6 @@ end
 outputCapture = cell(numOutput,1);
 % Apply fun to each neighborhood of cellDatas
 for i=1:ma
-    display(i)
     x = cell(numel(paddedCellDatas),1); 
     for j=1:na
         for k = 1:oa
