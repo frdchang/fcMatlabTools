@@ -539,7 +539,7 @@ end
 
 % --- Executes on button press in browsebutton.
 function browsebutton_Callback(hObject, eventdata, handles)
-cd datasets
+% cd datasets
 [filename, pathname] = uigetfile('*.mat','Select Image Stack Data to Load');
 fullpathname = [pathname, filename];
 if(ischar(fullpathname))
