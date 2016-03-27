@@ -1,4 +1,17 @@
-
+%% generic data generator
+% generate data
+test = genSyntheticSpots('useCase',2);
+data = returnElectrons(test.data,2.1,100);
+sigmasq = 1.6*ones(size(data));
+% generate spots
+psfData = genPSF('onlyPSF',false,'plotProfiles',false);
+gaussSigmas = psfData.gaussSigmas;
+kernSize = [7,7,7];
+gaussKern = ndGauss(gaussSigmas,kernSize);
+gaussKern = gaussKern / max(gaussKern(:));
+% detect spots
+detected = findSpotsStage1(data,gaussKern,sigmasq);
+candidates = findSpotsStage2(detected);
 %% i want to know if Loglikelihood is better than Lap of gaussian.
 % yup, it is.  -fc
 N = 1200;

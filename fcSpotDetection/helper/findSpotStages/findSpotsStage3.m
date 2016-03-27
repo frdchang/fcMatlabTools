@@ -1,4 +1,4 @@
-function [] = findSpotsStageTwo(data,varargin)
+function spotParamStruct = findSpotsStage3(data,varargin)
 %FINDSPOTSSTAGETHREE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,7 +7,5 @@ params.stepSize     = 1;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-initConditions  = [50,10,10,5];
 
-end
 
