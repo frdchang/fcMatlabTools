@@ -11,13 +11,25 @@ function candidates = findSpotsStage2(detected,varargin)
 params.LLRatioLocalPeak  = 15;
 params.minVol            = 15;
 params.kernSize          = [7 7 7];
+params.featherSize       = [5 5 5];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+% threshold LLratio
 peaks = detected.LLRatio.*(detected.LLRatio>params.LLRatioLocalPeak);
 
+% find non-zero peaks with a minum volume of pixels.  this number is the
+% autocorrelation size and depends on the SNR
 BWmask = bwareaopen(peaks>0, params.minVol,6);
-kernSizeBox = strel('arbitrary',ones(params.kernSize));
+
+% expand the volumes by feathersize.  
+featherSizeStrel = strel('arbitrary',ones(params.featherSize));
+BWmask = imdilate(BWmask,featherSizeStrel);
+
+% find kernel size regions
+kernSizeStrel = strel('arbitrary',ones(params.kernSize));
+BWmask = imopen(BWmask,kernSizeStrel);
+
 
 peaks = peaks.*BWmask;
 stats = regionprops(BWmask,'PixelIdxList','PixelList');
