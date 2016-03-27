@@ -16,3 +16,6 @@
 *.mov
 *.avi
 
+# ignore matlab mat files
+*.mat
+
