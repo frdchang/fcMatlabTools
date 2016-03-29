@@ -22,6 +22,21 @@ peaks = detected.LLRatio.*(detected.LLRatio>params.LLRatioLocalPeak);
 % autocorrelation size and depends on the SNR
 BWmask = bwareaopen(peaks>0, params.minVol,6);
 
+
+%% fulfill minimum criteria for kernSize
+% find centroids of each connected region and put a kernSize region there
+
+%% fulfill minimum criteria for skeleton
+% remove small regions that are bigger than kernSize in a given dimension
+% then dilate from there
+
+%% do the union of the above operations
+
+
+
+
+
+
 % expand the volumes by feathersize.  
 featherSizeStrel = strel('arbitrary',ones(params.featherSize));
 BWmask = imdilate(BWmask,featherSizeStrel);
