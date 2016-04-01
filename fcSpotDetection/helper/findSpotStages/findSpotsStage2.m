@@ -25,7 +25,6 @@ peaks = detected.LLRatio.*(detected.LLRatio>params.LLRatioLocalPeak);
 % autocorrelation size and depends on the SNR
 BWmask = bwareaopen(peaks>0, params.minVol,6);
 
-
 % feather accepted peaks
 BWmask = imdilate(BWmask,strel('arbitrary',ones(params.featherSize)));
 
