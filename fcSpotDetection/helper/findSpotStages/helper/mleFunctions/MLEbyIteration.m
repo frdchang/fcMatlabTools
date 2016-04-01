@@ -1,5 +1,5 @@
 function state = MLEbyIteration(data,theta0,readNoise,domains,type,varargin)
-%MLEBYGRADIENTASCENT executes MLE by gradient ascent.
+%MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % data:         the measured data
 % theta:        the initial parameters given the model lambda
