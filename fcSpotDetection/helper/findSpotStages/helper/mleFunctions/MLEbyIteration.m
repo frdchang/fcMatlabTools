@@ -36,7 +36,7 @@ hessFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.l
 % define log likehood function
 llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0);
 
-mleTheta = cell2mat(theta0)';
+mleTheta = cell2mat(theta0(:));
 if type == 1 || type == 3
     % do gradient or both, with gradient going first
     for i = 0:params.numStepsGrad

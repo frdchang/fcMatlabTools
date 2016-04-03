@@ -12,6 +12,7 @@ gaussKern = gaussKern / max(gaussKern(:));
 % detect spots
 detected = findSpotsStage1(data,gaussKern,sigmasq);
 candidates = findSpotsStage2(detected);
+adsf  = findSpotsStage3(data,gaussSigmas,sigmasq,detected,candidates);
 %% i want to know if Loglikelihood is better than Lap of gaussian.
 % yup, it is.  -fc
 N = 1200;

@@ -28,7 +28,6 @@ BWmask = bwareaopen(peaks>0, params.minVol,6);
 % feather accepted peaks
 BWmask = imdilate(BWmask,strel('arbitrary',ones(params.featherSize)));
 
-
 stats = regionprops(BWmask,'PixelIdxList','PixelList');
 
 candidates.peaks = peaks;
