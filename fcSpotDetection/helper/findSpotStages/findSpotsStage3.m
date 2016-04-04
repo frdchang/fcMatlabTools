@@ -29,7 +29,9 @@ for i = 1:numCandidates
     B1est  = detected.B1(maxIdx);
     B0est  = detected.B0(maxIdx);
     XYZest = {cellfun(@(x) x(maxIdxInPixelList),currDomains)};
-    theta0 = {XYZest{:},gaussSigmas(:)};
+    theta0 = num2cell([XYZest{:};gaussSigmas(:);A1est;B1est]);
+    % iterative MLE
+    state = MLEbyIteration(currData,theta0,currReadNoise,currDomains,3,params);
 end
 
-state = MLEbyIteration(data,theta0,readNoise,domains,type,params{:});
+

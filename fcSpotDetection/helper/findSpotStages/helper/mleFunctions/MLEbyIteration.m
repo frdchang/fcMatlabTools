@@ -42,7 +42,7 @@ if type == 1 || type == 3
     for i = 0:params.numStepsGrad
         mleTheta = mleTheta +params.stepSize*gradFunc(num2cell(mleTheta));
         if mod(i,params.doPloteveryN) == 0
-            plotMLESearch(mleTheta,data,i,'gradient MLE');
+            plotMLESearch(mleTheta,data,domains,i,'gradient MLE',type);
         end
     end
 end
@@ -52,7 +52,7 @@ if type == 2 || type == 3
     updateIndices = params.maxThetas>0;
     for i = 0:params.numStepsNR
         if mod(i,params.doPloteveryN) == 0
-            plotMLESearch(mleTheta,data,i,'newton raphson MLE');
+            plotMLESearch(mleTheta,data,domains,i,'newton raphson MLE',type);
         end
         thisGradient = gradFunc(num2cell(mleTheta));
         thisHessian = hessFunc(num2cell(mleTheta));
