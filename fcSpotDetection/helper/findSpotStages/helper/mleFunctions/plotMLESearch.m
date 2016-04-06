@@ -7,15 +7,19 @@ persistent prevIter;
 
 switch type
     case 1
-        close all;
+        if iter ==0
+            close all;
+        end
     case 2
-        close all;
+        if iter == 0
+            close all;
+        end
     case 3
         if isequal(titleText,'gradient MLE') && iter == 0
             close all;
             prevIter = 0;
-        else
-            iter = prevIter + iter;
+        elseif isequal(titleText,'newton raphson MLE')
+            iter = prevIter + iter+1;
         end
     otherwise
         error('type is not 1 2 or 3');

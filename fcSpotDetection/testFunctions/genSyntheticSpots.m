@@ -75,9 +75,9 @@ end
 
 % generate pixel unit coordinates
 for i = 1:numel(params.spotList)
-    params.spotList{i}.xPixel = round(((dataSetSize(1) )/(dataSetSize(1)*specimenPixSize))*(params.spotList{i}.xp - (-params.ru+1)*specimenPixSize) + 1);
-    params.spotList{i}.yPixel = round(((dataSetSize(2) )/(dataSetSize(2)*specimenPixSize))*(params.spotList{i}.yp - (-params.ru+1)*specimenPixSize) + 1);
-    params.spotList{i}.zPixel = round((params.spotList{i}.zp - params.z0) / params.dz + 1);
+    params.spotList{i}.xPixel = ((dataSetSize(1) )/(dataSetSize(1)*specimenPixSize))*(params.spotList{i}.xp - (-params.ru+1)*specimenPixSize) + 1;
+    params.spotList{i}.yPixel = ((dataSetSize(2) )/(dataSetSize(2)*specimenPixSize))*(params.spotList{i}.yp - (-params.ru+1)*specimenPixSize) + 1;
+    params.spotList{i}.zPixel = (params.spotList{i}.zp - params.z0) / params.dz + 1;
     params.spotList{i}.bak    = params.bkgndVal;
 end
 

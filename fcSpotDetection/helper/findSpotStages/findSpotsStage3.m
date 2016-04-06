@@ -1,4 +1,4 @@
-function spotParamStruct = findSpotsStage3(data,gaussSigmas,readNoise,detected,candidates,varargin)
+function spotParams = findSpotsStage3(data,gaussSigmas,readNoise,detected,candidates,varargin)
 %FINDSPOTSSTAGETHREE applies iterative MLE to each candidates.
 % 
 % data:             dataset
@@ -6,6 +6,8 @@ function spotParamStruct = findSpotsStage3(data,gaussSigmas,readNoise,detected,c
 % candidates:       output from findSpotsStage2
 % detected:         output struct from findSpotsStage1
 % spotParamStruct:  spot information per candidates
+%
+% [notes] - spotParams is an empty cell if there are no candidates
 %
 % [param cascade] -> MLEbyIteration
 
@@ -16,6 +18,7 @@ params = updateParams(params,varargin);
 
 % apply iterative MLE to every candidate
 numCandidates = numel(candidates.stats);
+spotParams = cell(numCandidates,1);
 for i = 1:numCandidates
     currStats   = candidates.stats(i);
     % extract relevant data and its domain
@@ -31,7 +34,8 @@ for i = 1:numCandidates
     XYZest = {cellfun(@(x) x(maxIdxInPixelList),currDomains)};
     theta0 = num2cell([XYZest{:};gaussSigmas(:);A1est;B1est]);
     % iterative MLE
-    state = MLEbyIteration(currData,theta0,currReadNoise,currDomains,3,params);
+    spotParams{i} = MLEbyIteration(currData,theta0,currReadNoise,currDomains,params);
 end
+
 
 

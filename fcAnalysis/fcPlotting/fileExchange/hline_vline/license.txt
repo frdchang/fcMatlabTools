@@ -1,4 +1,4 @@
-Copyright (c) 2016, Philip Kollmannsberger
+Copyright (c) 2001, Brandon Kuczenski
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

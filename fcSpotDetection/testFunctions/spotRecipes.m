@@ -1,8 +1,16 @@
 %% generic data generator
 % generate data
-test = genSyntheticSpots('useCase',2);
-data = returnElectrons(test.data,2.1,100);
-sigmasq = 1.6*ones(size(data));
+% if you want to use user defined spots
+spotParamStruct1.xp   = 0.45e-6;  %(units m in specimen plane)
+spotParamStruct1.yp   = 0.12e-6;  %(units m in specimen plane)
+spotParamStruct1.zp   = 0.11e-6;  %(units m in specimen plane)
+spotParamStruct1.amp  = 7;    %(number of electrons at peak)
+%spotParamStruct1.bak  = (will be assigned params.bkgndVal)
+% spotList = {spotParamStruct1,spotParamStruct2,...};
+spotList        = {spotParamStruct1};
+test = genSyntheticSpots('useCase',2,'spotList',spotList);
+[electrons, photons]= returnElectrons(test.data,2.1,100,0.7);
+sigmasq = 1.6*ones(size(photons));
 % generate spots
 psfData = genPSF('onlyPSF',false,'plotProfiles',false);
 gaussSigmas = psfData.gaussSigmas;
@@ -10,9 +18,52 @@ kernSize = [7,7,7];
 gaussKern = ndGauss(gaussSigmas,kernSize);
 gaussKern = gaussKern / max(gaussKern(:));
 % detect spots
-detected = findSpotsStage1(data,gaussKern,sigmasq);
-candidates = findSpotsStage2(detected);
-adsf  = findSpotsStage3(data,gaussSigmas,sigmasq,detected,candidates);
+detected = findSpotsStage1(photons,gaussKern,sigmasq);
+stats  = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',inf);
+%% test cramer rao bound
+N = 10000;
+% if you want to use user defined spots
+spotParamStruct1.xp   = 0.45657e-6;  %(units m in specimen plane)
+spotParamStruct1.yp   = 0.12246e-6;  %(units m in specimen plane)
+spotParamStruct1.zp   = 0.113245e-6;  %(units m in specimen plane)
+spotParamStruct1.amp  = 100;    %(number of electrons at peak)
+%spotParamStruct1.bak  = (will be assigned params.bkgndVal)
+% spotList = {spotParamStruct1,spotParamStruct2,...};
+spotList        = {spotParamStruct1};
+thetaMLE = cell(N,1);
+thetaVAR = cell(N,1);
+LLMLE    = cell(N,1);
+tic;
+for ii = 1:N
+    display(ii);
+    test = genSyntheticSpots('useCase',2,'spotList',spotList);
+    [electrons, photons]= returnElectrons(test.data,2.1,100,0.7);
+    sigmasq = 1.6*ones(size(photons));
+    % generate spots
+    psfData = genPSF('onlyPSF',false,'plotProfiles',false);
+    gaussSigmas = psfData.gaussSigmas;
+    kernSize = [7,7,7];
+    gaussKern = ndGauss(gaussSigmas,kernSize);
+    gaussKern = gaussKern / max(gaussKern(:));
+    % detect spots
+    detected = findSpotsStage1(photons,gaussKern,sigmasq);
+    stats  = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',10,'type',3);
+    % pluck out maximum logLike
+    if ~isempty(stats)
+        if ~isempty(stats{1}.thetaMLE)
+    logLike = cellfun(@(x) x.logLike, stats);
+    [~,maxI] = max(logLike);
+    stats = stats{maxI};
+    thetaMLE{ii} = stats.thetaMLE;
+    thetaVAR{ii} = stats.thetaVar;
+    LLMLE{ii}    = stats.logLike;
+        end
+    end
+end
+toc
+LLRatios = real([LLMLE{:}]);
+xPos = cellfun(@(x) x{1},thetaMLE(~findEmptyCells(thetaMLE)));
+xVar = cellfun(@(x) x(1),thetaVAR(~findEmptyCells(thetaVAR)));
 %% i want to know if Loglikelihood is better than Lap of gaussian.
 % yup, it is.  -fc
 N = 1200;
@@ -67,13 +118,13 @@ parfor i = 1:N
     maxLOG  = maxintensityproj(logData,3);
     maxLLratio = maxintensityproj(detected.LL1-detected.LL0,3);
     display(i)
-%     if mod(i,100)==0
-%         display([num2str(i) ' of ' num2str(N)])
-% %         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
-% %         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
-% %         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
-% %         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
-%     end
+    %     if mod(i,100)==0
+    %         display([num2str(i) ' of ' num2str(N)])
+    % %         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
+    % %         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
+    % %         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
+    % %         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
+    %     end
 end
 toc
 
