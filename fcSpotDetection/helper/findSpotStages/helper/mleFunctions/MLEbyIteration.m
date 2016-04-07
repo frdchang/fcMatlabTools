@@ -37,7 +37,21 @@ gradFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.l
 % define hessian function
 hessFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,2);
 % define log likehood function
-llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0);
+llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0); 
+%--define state structure--------------------------------------------------
+state.data          = data;
+state.theta0        = theta0;
+state.readNoise     = readNoise;
+state.domains       = domains;
+state.type          = params.type;
+state.thetaMLE      = [];
+state.thetaVar      = [];
+state.lambdaModel   = params.lambda;
+state.maxThetas     = params.maxThetas;
+state.gradFunc      = gradFunc;
+state.hessFunc      = hessFunc;
+state.logLike       = [];
+%--------------------------------------------------------------------------
 
 mleTheta = cell2mat(theta0(:));
 if params.type == 1 || params.type == 3
@@ -48,9 +62,9 @@ if params.type == 1 || params.type == 3
         end
         gradAtTheta = gradFunc(num2cell(mleTheta));
         if params.normGrad
-           gradAtTheta = gradAtTheta / norm(gradAtTheta); 
+            gradAtTheta = gradAtTheta / norm(gradAtTheta);
         end
-        mleTheta = mleTheta +params.stepSize*gradAtTheta; 
+        mleTheta = mleTheta +params.stepSize*gradAtTheta;
     end
 end
 
@@ -63,28 +77,27 @@ if params.type == 2 || params.type == 3
         end
         thisGradient = gradFunc(num2cell(mleTheta));
         thisHessian = hessFunc(num2cell(mleTheta));
-        try
-            updateMLE = thisHessian(any(thisHessian,2),any(thisHessian,1))\thisGradient(updateIndices);
-        catch exception
-            warning('hessian is not inverting well');
-            %--define state structure--------------------------------------------------
-            state.data          = data;
-            state.theta0        = theta0;
-            state.readNoise     = readNoise;
-            state.domains       = domains;
-            state.type          = params.type;
-            state.thetaMLE      = [];
-            state.thetaVar      = [];
-            state.lambdaModel   = params.lambda;
-            state.maxThetas     = params.maxThetas;
-            state.gradFunc      = gradFunc;
-            state.hessFunc      = hessFunc;
-            state.logLike       = [];
-            %--------------------------------------------------------------------------
+        % check if thisHessian is positive definite and condition number is
+        % good
+        selectedHessian = thisHessian(any(thisHessian,2),any(thisHessian,1));
+        [~,posDef] = chol(selectedHessian);
+        conditionNumber = rcond(selectedHessian);
+        if posDef ~= 1 && conditionNumber < eps
+            % this is a bad hessian matrix
+            warning('hessian is either not posDef or rconditinon number is < eps');
+            state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';
             return;
+        else
+            % this is a good hessian matrix
+            try
+                updateMLE = selectedHessian\thisGradient(updateIndices);
+            catch
+                warning('hessian is not inverting well');
+                state.thetaMLE = 'hessian inversion caused error';
+                return;
+            end
         end
-        mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;
-        
+        mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;  
     end
 end
 
@@ -98,18 +111,10 @@ thetaVar(params.maxThetas'*params.maxThetas>0) = inv(fischerInfo);
 % display mleTheta as a nice row and keep as cell array form since that is
 % what i pass into lambda anyways.
 mleTheta = num2cell(mleTheta)';
-%--define state structure--------------------------------------------------
-state.data          = data;
-state.theta0        = theta0;
-state.readNoise     = readNoise;
-state.domains       = domains;
-state.type          = params.type;
+
+%--update state structure--------------------------------------------------
 state.thetaMLE      = mleTheta;
 state.thetaVar      = thetaVar;
-state.lambdaModel   = params.lambda;
-state.maxThetas     = params.maxThetas;
-state.gradFunc      = gradFunc;
-state.hessFunc      = hessFunc;
 state.logLike       = llFunc(mleTheta);
 %--------------------------------------------------------------------------
 

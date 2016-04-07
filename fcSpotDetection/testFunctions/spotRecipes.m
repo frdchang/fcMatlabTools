@@ -33,9 +33,18 @@ spotList        = {spotParamStruct1};
 thetaMLE = cell(N,1);
 thetaVAR = cell(N,1);
 LLMLE    = cell(N,1);
+test = genSyntheticSpots('useCase',2,'spotList',spotList);
+BWmask = zeros(size(test.data));
+BWmask(round(test.synSpotList{1}.xPixel),round(test.synSpotList{1}.yPixel),round(test.synSpotList{1}.zPixel)) = 1;
+BWmask = imdilate(BWmask,strel('arbitrary',ones(7,7,7)));
+stats1 = regionprops(BWmask,'PixelIdxList','PixelList');
+candidates.BWmask   = BWmask;
+candidates.stats    = stats1;
 tic;
-for ii = 1:N
-    display(ii);
+fprintf('Progress:\n');
+fprintf(['\n' repmat('.',1,N) '\n\n']);
+parfor ii = 1:N
+    fprintf('\b|\n');
     test = genSyntheticSpots('useCase',2,'spotList',spotList);
     [electrons, photons]= returnElectrons(test.data,2.1,100,0.7);
     sigmasq = 1.6*ones(size(photons));
@@ -47,7 +56,8 @@ for ii = 1:N
     gaussKern = gaussKern / max(gaussKern(:));
     % detect spots
     detected = findSpotsStage1(photons,gaussKern,sigmasq);
-    stats  = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',10,'type',3);
+    %%%%%% candidates = the right stuff first
+    stats  = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',inf,'type',3);
     % pluck out maximum logLike
     if ~isempty(stats)
         if ~isempty(stats{1}.thetaMLE)
