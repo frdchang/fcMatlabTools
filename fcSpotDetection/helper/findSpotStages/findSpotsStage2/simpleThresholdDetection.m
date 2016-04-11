@@ -11,7 +11,6 @@ params = updateParams(params,varargin);
 
 % threshold by the value selected above
 % only select areas with A1 > 0
-
 peaks = detected.LLRatio.*(detected.LLRatio>params.LLRatioThresh).*(detected.A1>0);
 BWmask = peaks>0;
 

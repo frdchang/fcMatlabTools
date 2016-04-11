@@ -16,7 +16,7 @@ function state = MLEbyIteration(data,theta0,readNoise,domains,varargin)
 % 1 = gradient, 2 = newton raphson, 3 = both
 params.type         = 3;
 % gradient ascent parameters
-params.stepSize     = .05;
+params.stepSize     = .001;
 params.numStepsGrad = 1000;
 params.normGrad     = true;
 % newton raphson parameters
@@ -80,11 +80,11 @@ if params.type == 2 || params.type == 3
         % check if thisHessian is positive definite and condition number is
         % good
         selectedHessian = thisHessian(any(thisHessian,2),any(thisHessian,1));
-        [~,posDef] = chol(selectedHessian);
+        [~,posDefOfNegHess] = chol(-selectedHessian);
         conditionNumber = rcond(selectedHessian);
-        if posDef ~= 1 && conditionNumber < eps
+        if posDefOfNegHess > 0 || conditionNumber < 2e-16
             % this is a bad hessian matrix
-            warning('hessian is either not posDef or rconditinon number is < eps');
+%             warning('hessian is either not posDef or rconditinon number is < eps');
             state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';
             return;
         else

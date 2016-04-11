@@ -1,6 +1,6 @@
 
 %% test cramer rao bound
-N = 1000;
+N = 10000;
 % if you want to use user defined spots
 spotParamStruct1.xp   = 0.45657e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0.12246e-6;  %(units m in specimen plane)
@@ -15,6 +15,16 @@ test = genSyntheticSpots('useCase',2,'spotList',spotList);
 maskHolder = false(size(test.data,1),size(test.data,2),N);
 numPixHolder = zeros(N,1);
 otherHolder = cell(N,1);
+statHolderForLoose = cell(N,1);
+statHolderTight    = cell(N,1);
+% generate ideal 7x7x7 candidate
+BWmask = zeros(size(test.data));
+BWmask(round(test.synSpotList{1}.xPixel),round(test.synSpotList{1}.yPixel),round(test.synSpotList{1}.zPixel)) = 1;
+BWmask = imdilate(BWmask,strel('arbitrary',ones(7,7,7)));
+stats1 = regionprops(BWmask,'PixelIdxList','PixelList');
+candidates.BWmask   = BWmask;
+candidates.stats    = stats1;
+tic;
 parfor ii = 1:N
      fprintf('\b|\n');
     test = genSyntheticSpots('useCase',2,'spotList',spotList);
@@ -28,10 +38,13 @@ parfor ii = 1:N
     gaussKern = gaussKern / max(gaussKern(:));
     % detect spots
     detected = findSpotsStage1(photons,gaussKern,sigmasq);
-    candidates = simpleThresholdDetection(detected);
+    candidatesSimple = findSpotsStage2(detected);
     maskHolder(:,:,ii) = maxintensityproj(candidates.BWmask,3);
+    statHolderForLoose{ii} = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidatesSimple,'doPloteveryN',inf);
+    statHolderTight{ii} = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',inf);
 end
-
+toc
+checkCramerRaoBound(statHolderForLoose);
 
 %% generic data generator
 % generate data
