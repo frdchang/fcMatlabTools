@@ -1,4 +1,3 @@
-
 %% test cramer rao bound
 N = 10000;
 % if you want to use user defined spots
@@ -6,12 +5,9 @@ spotParamStruct1.xp   = 0.45657e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0.12246e-6;  %(units m in specimen plane)
 spotParamStruct1.zp   = 0.113245e-6;  %(units m in specimen plane)
 spotParamStruct1.amp  = 7;    %(number of electrons at peak)
-%spotParamStruct1.bak  = (will be assigned params.bkgndVal)
-% spotList = {spotParamStruct1,spotParamStruct2,...};
 spotList        = {spotParamStruct1};
-fprintf('Progress:\n');
-fprintf(['\n' repmat('.',1,N) '\n\n']);
 test = genSyntheticSpots('useCase',2,'spotList',spotList);
+% data holders
 maskHolder = false(size(test.data,1),size(test.data,2),N);
 numPixHolder = zeros(N,1);
 otherHolder = cell(N,1);
@@ -24,18 +20,21 @@ BWmask = imdilate(BWmask,strel('arbitrary',ones(7,7,7)));
 stats1 = regionprops(BWmask,'PixelIdxList','PixelList');
 candidates.BWmask   = BWmask;
 candidates.stats    = stats1;
+% generate spots
+kernSize = [7,7,7];
+gaussSigmas = [test.synSpotList{1}.sigmaxy,test.synSpotList{1}.sigmaxy,test.synSpotList{1}.sigmaz];
+gaussKern = ndGauss(gaussSigmas,kernSize);
+gaussKern = gaussKern / max(gaussKern(:));
+% generate read noise
+sigmasq = 1.6*ones(size(test.data));
+% find spots
+fprintf('Progress:\n');
+fprintf(['\n' repmat('.',1,N) '\n\n']);
 tic;
 parfor ii = 1:N
-     fprintf('\b|\n');
+    fprintf('\b|\n');
     test = genSyntheticSpots('useCase',2,'spotList',spotList);
     [~, photons]= returnElectrons(test.data,2.1,100,0.7);
-    sigmasq = 1.6*ones(size(photons));
-    % generate spots
-    psfData = genPSF('onlyPSF',false,'plotProfiles',false);
-    gaussSigmas = psfData.gaussSigmas;
-    kernSize = [7,7,7];
-    gaussKern = ndGauss(gaussSigmas,kernSize);
-    gaussKern = gaussKern / max(gaussKern(:));
     % detect spots
     detected = findSpotsStage1(photons,gaussKern,sigmasq);
     candidatesSimple = findSpotsStage2(detected);
@@ -44,7 +43,7 @@ parfor ii = 1:N
     statHolderTight{ii} = findSpotsStage3(photons,gaussSigmas,sigmasq,detected,candidates,'doPloteveryN',inf);
 end
 toc
-checkCramerRaoBound(statHolderForLoose);
+checkCramerRaoBound(statHolderForLoose,test.synSpotList{1},kernSize,sigmasq);
 
 %% generic data generator
 % generate data
@@ -109,12 +108,12 @@ parfor ii = 1:N
     % pluck out maximum logLike
     if ~isempty(stats)
         if ~isempty(stats{1}.thetaMLE)
-    logLike = cellfun(@(x) x.logLike, stats);
-    [~,maxI] = max(logLike);
-    stats = stats{maxI};
-    thetaMLE{ii} = stats.thetaMLE;
-    thetaVAR{ii} = stats.thetaVar;
-    LLMLE{ii}    = stats.logLike;
+            logLike = cellfun(@(x) x.logLike, stats);
+            [~,maxI] = max(logLike);
+            stats = stats{maxI};
+            thetaMLE{ii} = stats.thetaMLE;
+            thetaVAR{ii} = stats.thetaVar;
+            LLMLE{ii}    = stats.logLike;
         end
     end
 end

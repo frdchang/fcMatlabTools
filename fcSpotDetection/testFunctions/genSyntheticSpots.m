@@ -91,9 +91,11 @@ for i = 1:numel(params.spotList)
     if params.useRealistic
         syntheticSpots = syntheticSpots + params.spotList{i}.amp*genPSF(updateParams(params,genPSFParams));
     else
-        gaussPSF = ndGauss(sqrt([params.sigmaxysq,params.sigmaxysq,params.sigmazsq]), dataSetSize,[params.spotList{i}.xPixel,params.spotList{i}.yPixel,params.spotList{i}.zPixel]-ceil(dataSetSize/2));;
+        gaussPSF = ndGauss(sqrt([params.sigmaxysq,params.sigmaxysq,params.sigmazsq]), dataSetSize,[params.spotList{i}.xPixel,params.spotList{i}.yPixel,params.spotList{i}.zPixel]-ceil(dataSetSize/2));
         gaussPSF = gaussPSF / max(gaussPSF(:));
         syntheticSpots = syntheticSpots + params.spotList{i}.amp*gaussPSF;
+        params.spotList{i}.sigmaxy = sqrt(params.sigmaxysq);
+        params.spotList{i}.sigmaz  = sqrt(params.sigmazsq);
     end
 end
 
