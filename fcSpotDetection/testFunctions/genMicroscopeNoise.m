@@ -11,7 +11,7 @@ function sampledData = genMicroscopeNoise(trueData,varargin)
 %   correct in the future.
 
 %--parameters--------------------------------------------------------------
-params.readNoise     = 1;       % electrons (sigma)
+params.readNoise     = 1.6;     % electrons (sigma)
 params.gain          = 2.1;     % ADU/electrons
 params.offset        = 100;     % ADU units
 params.QE            = 0.7;     
