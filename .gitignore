@@ -20,3 +20,4 @@
 # ignore matlab mat files
 *.mat
 
+fcAnalysis/fcPlotting/fileExchange/iso2mesh-master/
