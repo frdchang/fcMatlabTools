@@ -1,30 +1,41 @@
-function spotParams = fcSpotDetection(dataSet,spotInfo,readNoise)
+function spotParams = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInElectrons)
 %FCSPOTDETECTION will detect spots in your dataset.
 % 
-% dataSet:      this is your dataset
-% spotInfo:     spotInfo.spotData = the numeric kernel 
-%               spotInfo.lambdaModel = @lambda_single3DGauss
-%               spotInfo.constTheta = [ 0.9 0.9 0.9];
-%               spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
-% readNoise:    this is your camera readNoise, which is the same size as
-%               your dataset
+% dataSetInElectrons:       this is your dataset
+% spotInfo:                 spotInfo.spotData = the numeric kernel 
+%                           spotInfo.lambdaModel = @lambda_single3DGauss
+%                           spotInfo.constThetaVals = [0.9 0.9 0.9];
+%                           spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
+%                           spotInfo.gaussSigmas = [0.9,0.9,0.9];
+% readNoiseInElectrons:     this is your camera readNoise, which is the 
+%                           same size as your dataset
 %
-% [notes] - i really only tested for 3D datasets
+% [notes] - i really only tested for 3D datasets.  
+%         - this function is not yet general for any patterns yet.
+%         gaussSigmas are really the constant parameters that need to be
+%         passed to the pattern.  in general any pattern has constant
+%         parameters that need to be passed and this will be called
+%         constThetaVals.  I need to propogate this nomenclature to the
+%         rest of the code.
 % 
-% [param cascade] -> subFunc1
-%                 -> subFunc2
+% [param cascade] -> findSpotStage2
+%                 -> findSpotStage3
+
  
 %--parameters--------------------------------------------------------------
-params.default1     = 1;
+params.doRefinedStageOne       = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 % stage 1 do fourier MLE
-
+detected = findSpotsStage1(dataInElectrons,spotInfo.spotData,readNoiseVarInElectrons);
 % stage 1 refined
-
+if params.doRefinedStageOne
+    detected = findSpotsStage1refined(dataInElectrons,...
+        spotInfo.spotData,readNoiseVarInElectrons,detected,spotInfo.constThetaVals);
+end
 % stage 2 select subset
-
+candidates = findSpotsStage2(detected,params{:});
 % stage 3 iterative 
-
+spotParams = findSpotsStage3(photons,spotInfo.constThetaVals,sigmasq,detected,candidates,params{:});
 
