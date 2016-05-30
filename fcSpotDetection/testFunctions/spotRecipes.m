@@ -1,3 +1,40 @@
+%% do spot detection
+% camera settings
+readNoise     = 1.0;     % electrons (sigma = rms)
+gain          = 2.1;     % ADU/electrons
+offset        = 100;     % ADU units
+QE            = 0.7;     
+% here is a single spot with parameters {xp,yp,zp,amp}, 
+spotParamStruct1.xp       = 0.45657e-6;          % (units m in specimen plane)
+spotParamStruct1.yp       = 0.12246e-6;          % (units m in specimen plane)
+spotParamStruct1.zp       = 0.113245e-6;         % (units m in specimen plane)
+spotParamStruct1.amp      = 7;                   % (number of electrons at peak)
+background                = 5;
+% generate that spot 
+spotList                  = {spotParamStruct1};
+sampleSpot                = genSyntheticSpots(...
+    'useCase',2,'spotList',spotList,'bkgndVal',background,'readNoise',readNoise,'gain',gain,'offset',offset,'QE',QE);
+% convert back to photons
+[electronData,photonData] = returnElectrons(sampleSpot.data,gain,offset,QE);
+% generate theta vector for that sample spot
+theta = genThetaFromSynSpotStruct_for_single3DGauss(sampleSpot.synSpotList{1});
+% generate domain of the sample spot
+domains = genDomainFromSampleSpot(sampleSpot);
+
+% setup spot info struct for spot detection
+sigmaSqVector = cell2mat(theta(4:6));
+sizeVector = [7 7 7];
+kernel = ndGauss(sigmaSqVector,sizeVector);
+% normalize kernele to peak height = 1
+kernel = kernel / max(kernel(:));
+spotInfo.spotData = kernel;
+spotInfo.lambdaModel = @lambda_single3DGauss;
+spotInfo.constThetaVals = sigmaSqVector;
+spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
+readNoiseData = readNoise*ones(size(electronData));
+% spot detection
+spotParams = fcSpotDetection(electronData,spotInfo,readNoiseData);
+
 %% test cramer rao bound
 N = 10000;
 % if you want to use user defined spots
@@ -150,7 +187,7 @@ tic;
 parfor i = 1:N
     test = genSyntheticSpots('useCase',2);
     spotCoors = {test.synSpotList{1}.xPixel,test.synSpotList{1}.yPixel,test.synSpotList{1}.zPixel};
-    data = returnElectrons(test.data,2.1,100);
+    data = returnElectrons(test.data,2.1,100,0.7);
     detected = findSpotsStage1(data,gaussKern,sigmasq);
     padData = padarray(data,size(logKern),'replicate');
     logData = unpadarray(convFFTND(padData,logKern),size(data));

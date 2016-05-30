@@ -1,4 +1,4 @@
-function detectedRefined = findSpotsStage1refined(data,spotKern,cameraVariance,detectedFromStage1,gaussSigmas)
+function estimatedRefined = findSpotsStage1refined(data,spotKern,cameraVariance,detectedFromStage1,gaussSigmas)
 %FINDSPOTSTAGE1REFINED will do further refinement of stage 1 MLE of
 % {A1,B1,B0,LLRatio} given 1 spot and 0 spot model with full likelihood
 % noise model.  
@@ -12,10 +12,10 @@ function detectedRefined = findSpotsStage1refined(data,spotKern,cameraVariance,d
 
 kernSize = size(spotKern);
 fullLLResults = nlfilter3D({data,cameraVariance,detectedFromStage1.A1,detectedFromStage1.B1,detectedFromStage1.B0},kernSize,@calcMLEOfPatch_PoissPoiss,{spotKern,gaussSigmas},-inf);
-detectedRefined.A1         = fullLLResults{1};
-detectedRefined.B1         = fullLLResults{2};
-detectedRefined.B0         = fullLLResults{3};
-detectedRefined.LLRatio    = fullLLResults{4};
+estimatedRefined.A1         = fullLLResults{1};
+estimatedRefined.B1         = fullLLResults{2};
+estimatedRefined.B0         = fullLLResults{3};
+estimatedRefined.LLRatio    = fullLLResults{4};
 
 end
 

@@ -1,6 +1,6 @@
-function [daGauss,separateComponents] = ndGauss(sigmaVector,sizeVector,varargin)
+function [daGauss,separateComponents] = ndGauss(sigmaSQVector,sizeVector,varargin)
 %MAKE3DGAUSS generates a nD gaussian parameterized by:
-% sigmaVector = [sigma_xx,sigma_y,sigma_z,....]
+% sigmaVector = [sigmasq_xx,sigmasq_y,sigmasq_z,....]
 % sizeVector  = [numPixels_x,numPixels_y,numPixels_z,...]
 % also a muVector can be defined as a last argument that defines the offset
 % e.g. stuff = ndGauss([sigmas],[sizes],[offsets]);
@@ -14,17 +14,17 @@ function [daGauss,separateComponents] = ndGauss(sigmaVector,sizeVector,varargin)
 % fchang@fas.harvard.edu
 
 if nargin == 2
-    muVector = zeros(size(sigmaVector));
+    muVector = zeros(size(sigmaSQVector));
 else
     muVector = varargin{1};
 end
 
-dims = numel(sigmaVector);
+dims = numel(sigmaSQVector);
 separateComponents = cell(dims,1);
 for i = 1:dims
     defineDomain = sizeVector(i)/2 - 0.5;
     currDomain = -defineDomain:defineDomain;
-    currGauss = normpdf(currDomain,muVector(i),sigmaVector(i));
+    currGauss = normpdf(currDomain,muVector(i),sqrt(sigmaSQVector(i)));
     % normalize each component, which normalizes total components
     currGauss = currGauss / sum(currGauss(:));
     reshapeVec = ones(dims,1);

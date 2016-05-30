@@ -1,4 +1,4 @@
-function spotParams = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInElectrons)
+function spotParams = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInElectrons,varargin)
 %FCSPOTDETECTION will detect spots in your dataset.
 % 
 % dataSetInElectrons:       this is your dataset
@@ -6,7 +6,6 @@ function spotParams = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInEle
 %                           spotInfo.lambdaModel = @lambda_single3DGauss
 %                           spotInfo.constThetaVals = [0.9 0.9 0.9];
 %                           spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
-%                           spotInfo.gaussSigmas = [0.9,0.9,0.9];
 % readNoiseInElectrons:     this is your camera readNoise, which is the 
 %                           same size as your dataset
 %
@@ -28,14 +27,9 @@ params.doRefinedStageOne       = false;
 params = updateParams(params,varargin);
 
 % stage 1 do fourier MLE
-detected = findSpotsStage1(dataInElectrons,spotInfo.spotData,readNoiseVarInElectrons);
-% stage 1 refined
-if params.doRefinedStageOne
-    detected = findSpotsStage1refined(dataInElectrons,...
-        spotInfo.spotData,readNoiseVarInElectrons,detected,spotInfo.constThetaVals);
-end
+estimated = findSpotsStage1(dataInElectrons,spotInfo.spotData,readNoiseVarInElectrons);
 % stage 2 select subset
-candidates = findSpotsStage2(detected,params{:});
+candidates = findSpotsStage2(estimated,params);
 % stage 3 iterative 
-spotParams = findSpotsStage3(photons,spotInfo.constThetaVals,sigmasq,detected,candidates,params{:});
+spotParams = findSpotsStage3(dataInElectrons,spotInfo.constThetaVals,readNoiseVarInElectrons,estimated,candidates,params);
 

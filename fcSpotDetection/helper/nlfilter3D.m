@@ -58,6 +58,7 @@ for i=1:ma
             for l = 1:numel(paddedCellDatas)
                 x{l} = paddedCellDatas{l}(i+rows,j+cols,k+zs);
             end
+            display([num2str(i) ',' num2str(j) ',' num2str(k)]);
             [outputCapture{:}] = feval(myFunc,x{:},params{:});
             for m = 1:numOutput
                 b{m}(i,j,k) = outputCapture{m};

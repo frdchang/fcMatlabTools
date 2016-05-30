@@ -20,12 +20,12 @@ subSigmaSq = sigmasq(dataI);
 subGausskern = gaussKern(dataI);
 
 % solve 1 spot model by MLE
-state1 = MLEbyIteration(subData,num2cell([centerCoor{:} gaussSigmas(:)' A1(centerCoor{:}) B1(centerCoor{:})]),subSigmaSq,{subX,subY,subZ},2,'maxThetas',[0 0 0 0 0 0 1 1],'numStepsNR',numIter,'doPloteveryN',inf);
+state1 = MLEbyIteration(subData,num2cell([centerCoor{:} gaussSigmas(:)' A1(centerCoor{:}) B1(centerCoor{:})]),subSigmaSq,{subX,subY,subZ},'type',2,'maxThetas',[0 0 0 0 0 0 1 1],'numStepsNR',numIter,'doPloteveryN',inf);
 A1_MLE = state1.thetaMLE{7};
 B1_MLE = state1.thetaMLE{8};
 
 % solve 0 spot model by MLE
-state0 = MLEbyIteration(subData,num2cell([centerCoor{:} gaussSigmas(:)' 0 B0(centerCoor{:})]),subSigmaSq,{subX,subY,subZ},2,'maxThetas',[0 0 0 0 0 0 0 1],'numStepsNR',numIter,'doPloteveryN',inf);
+state0 = MLEbyIteration(subData,num2cell([centerCoor{:} gaussSigmas(:)' 0 B0(centerCoor{:})]),subSigmaSq,{subX,subY,subZ},'type',2,'maxThetas',[0 0 0 0 0 0 0 1],'numStepsNR',numIter,'doPloteveryN',inf);
 B0_MLE = state0.thetaMLE{8};
 
 % calculate LLRatio

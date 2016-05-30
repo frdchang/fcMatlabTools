@@ -14,7 +14,7 @@ function candidates = findSpotsStage2(detected,varargin)
 
 %--parameters--------------------------------------------------------------
 params.LLRatioThresh     = 50;
-params.minVol            = 10;
+params.minVol            = 3;
 params.featherSize       = [3 3 3];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
