@@ -26,7 +26,7 @@ params.bkgndVal     = 5;
 % useCase = 2 is to use user defined spots
 params.useCase         = 1;
 % if you want to generate random spots
-params.meanInt         = 50;
+params.meanInt         = 10;
 params.stdInt          = 0;
 params.numSpots        = 10;
 % if you want to use user defined spots

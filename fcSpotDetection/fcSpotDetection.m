@@ -1,4 +1,4 @@
-function spotParams = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInElectrons,varargin)
+function [spotParams,estimated,candidates] = fcSpotDetection(dataInElectrons,spotInfo,readNoiseVarInElectrons,varargin)
 %FCSPOTDETECTION will detect spots in your dataset.
 % 
 % dataSetInElectrons:       this is your dataset

@@ -19,6 +19,7 @@ params.type         = 3;
 params.stepSize     = .001;
 params.numStepsGrad = 1000;
 params.normGrad     = true;
+params.gradScale    = [ 1 1 1 1 1 1 10 10];
 % newton raphson parameters
 params.numStepsNR   = 100;
 % plotting parameters
@@ -37,7 +38,7 @@ gradFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.l
 % define hessian function
 hessFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,2);
 % define log likehood function
-llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0); 
+llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0);
 %--define state structure--------------------------------------------------
 state.data          = data;
 state.theta0        = theta0;
@@ -64,6 +65,9 @@ if params.type == 1 || params.type == 3
         if params.normGrad
             gradAtTheta = gradAtTheta / norm(gradAtTheta);
         end
+        if ~isempty(params.gradScale)
+            gradAtTheta = gradAtTheta.*params.gradScale(:);
+        end
         mleTheta = mleTheta +params.stepSize*gradAtTheta;
     end
 end
@@ -84,7 +88,7 @@ if params.type == 2 || params.type == 3
         conditionNumber = rcond(selectedHessian);
         if posDefOfNegHess > 0 || conditionNumber < 2e-16
             % this is a bad hessian matrix
-%             warning('hessian is either not posDef or rconditinon number is < eps');
+            %             warning('hessian is either not posDef or rconditinon number is < eps');
             state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';
             return;
         else
@@ -97,7 +101,7 @@ if params.type == 2 || params.type == 3
                 return;
             end
         end
-        mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;  
+        mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;
     end
 end
 

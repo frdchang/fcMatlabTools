@@ -2,7 +2,7 @@ function datatempConv = convFFTND(data,template)
 %CONVFFTND executes FFT convolution
 % convFFTND(T,I) zero pads Totsize = size(data) + size(template) - 1
 % note: -tested against matlab's conv2 function
-%       -added feature in which template dimension does not have to be
+%       -[not completed]added feature in which template dimension does not have to be
 %        equal to data dimension.  this function will simply apply the
 %        template convultion to the dimensions that are left over
 % fchang@fas.harvard.edu
