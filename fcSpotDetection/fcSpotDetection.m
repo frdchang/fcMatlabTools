@@ -29,7 +29,7 @@ params = updateParams(params,varargin);
 % stage 1 do fourier MLE
 estimated = findSpotsStage1(dataInElectrons,spotInfo.spotData,readNoiseVarInElectrons);
 % stage 2 select subset
-candidates = findSpotsStage2(estimated,params);
+candidates = findSpotsStage2(estimated,spotInfo.spotData,params);
 % stage 3 iterative 
 spotParams = findSpotsStage3(dataInElectrons,spotInfo.constThetaVals,readNoiseVarInElectrons,estimated,candidates,params);
 
