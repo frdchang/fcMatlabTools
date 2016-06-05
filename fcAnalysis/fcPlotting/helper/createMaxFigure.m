@@ -3,7 +3,7 @@ function h = createMaxFigure()
 %resolution
 %
 % fchang@fas.harvard.edu
-shrinkFactor = 0.95;
+shrinkFactor = 1;
 set(0,'units','pixels');  
 BBoxScreen = get(0,'screensize');
 width = BBoxScreen(3);
