@@ -11,7 +11,7 @@ function varargout = phase_rec_GUI(varargin)
 %
 %      PHASE_REC_GUI('Property','Value',...) creates a new PHASE_REC_GUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before phase_rec_GUI_OpeningFcn gets called.  An
+%      applied to the GUI before phase_rec_GUI_OpeningFcn gets calledGP.  An
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to phase_rec_GUI_OpeningFcn via varargin.
 %

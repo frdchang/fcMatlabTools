@@ -57,6 +57,7 @@ for k=1:Nsl
  Sigmal=SigmalStack(k);
  Sigman=SigmanStack(k);
  Sigmaf=SigmafStack(k);
+
 [dIdz Coeff Coeff2]=GPRegression(Ividmeas, zfocus,z,Sigmaf,Sigmal,Sigman); %GP regression
 
 dIdz=2*pi/(lambda)*ps^2*dIdz;
