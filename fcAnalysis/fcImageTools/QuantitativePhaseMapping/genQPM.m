@@ -1,5 +1,6 @@
-function [qpm] = genQPM(stack)
-
+function [correctedQPM,qpm] = genQPM(stack)
+offset = 10;
+multiplier = 1000000000;
 % these parameters seem good for yeast
 Nsl         = 50;
 lambda      = 514e-9;
@@ -14,18 +15,13 @@ reflect = 0;
 nFocus = findBestFocus(stack);
 display(['getQPM():best focus found at slice ' num2str(nFocus)]);
 
-
-
 zSteps = 1:zL;
 zSteps = zSteps - nFocus;
 zSteps = zSteps * dz;
 
-tic;
 qpm = RunGaussionProcess(double(stack),nFocus,zSteps',lambda,ps,Nsl,eps1,eps2,reflect);
-toc
-
 se = strel('ball',100,100);
-correctedQPM = imtophat(qpm,se);
+correctedQPM = imtophat(multiplier*(qpm+offset),se);
 % need to figure out rolling ball subtraction for matlba
 % switch doBgkndSub
 %     case 'rollingBall'
