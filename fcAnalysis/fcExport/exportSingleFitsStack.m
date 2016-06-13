@@ -12,7 +12,10 @@ function [] = exportSingleFitsStack(filename,stack)
 %% first process filename to be what the fits library likes
 % replace '~/' with full path to home directory since fitswrite does not
 % like this notation
-filename = regexprep(filename,'^~',getHomeDir);
+% filename = regexprep(filename,'^~',getHomeDir);
+if isequal(filename(1),'~')
+    filename = [getHomeDir filename(2:end)];
+end
 % append fits extension
 % filename = updateFileExtension(filename,'fits');
 % checkParen = regexp(filename,'[(|)]','ONCE');
@@ -20,7 +23,7 @@ filename = regexprep(filename,'^~',getHomeDir);
 %     display('exportSingleFitsStack():REMOVING PARENTHESIS IN FILEPATH');
 % end
 % filename = regexprep(filename,'[(|)]','-');
-
+filename = curateFileSeparators(filename);
 % check if filename exists
 if exist(filename,'file')
     display(['overwriting file: ' filename ]);
