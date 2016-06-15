@@ -28,7 +28,7 @@ params = updateParams(params,varargin);
 % smooth LLRatio
 [~,sepKernel] = ndGauss(params.smoothingKernel,params.smoothingSize);
 smoothLLRatio = convSeparableND(detected.LLRatio,sepKernel);
-
+smoothLLRatio = unpadarray(smoothLLRatio,size(detected.LLRatio));
 % threshold by the value selected above
 % only select areas with A1 > 0
 peaks = smoothLLRatio.*(detected.LLRatio>params.LLRatioThresh).*(detected.A1>0);
