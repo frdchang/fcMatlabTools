@@ -107,9 +107,10 @@ syntheticSpots = syntheticSpots + params.bkgndVal;
 synSpotStruct.synBak = params.bkgndVal*ones(size(syntheticSpots)); 
 % simulate microscope dataset
 if params.simMicroscope
-    syntheticSpots = genMicroscopeNoise(syntheticSpots,params);
+    [syntheticSpots,poissonNoiseOnly] = genMicroscopeNoise(syntheticSpots,params);
 end
 
+synSpotStruct.poissonNoiseOnly = poissonNoiseOnly;
 synSpotStruct.data = syntheticSpots;
 synSpotStruct.synSpotList = params.spotList;
 

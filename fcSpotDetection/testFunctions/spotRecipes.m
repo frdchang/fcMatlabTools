@@ -1,9 +1,8 @@
 %% check broken pixel correction
-%% do spot detection
 % camera settings
 sampleSpot                = genSyntheticSpots(...
     'useCase',1);
-readNoiseData = repmat(lognrnd(1.6,1,size(sampleSpot.data(:,:,1))),[1 1 size(sampleSpot.data,3)]);
+readNoiseData = repmat(lognrnd(1.6,1.1,size(sampleSpot.data(:,:,1))),[1 1 size(sampleSpot.data,3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
 QE            = 0.7;     

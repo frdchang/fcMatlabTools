@@ -1,4 +1,4 @@
-function sampledData = genMicroscopeNoise(trueData,varargin)
+function [sampledData,poissonNoiseOnly] = genMicroscopeNoise(trueData,varargin)
 %GENMICROSCOPENOISE will take trueData as the poisson level, and sample it
 %   in a poisson distribution, then add gaussian read noise to simulate a
 %   typical microscope with a scmos or ccd camera.
@@ -22,6 +22,7 @@ params = updateParams(params,varargin);
 sampledData = double(trueData)*params.QE;
 % quantum noise
 sampledData = poissrnd(sampledData);
+poissonNoiseOnly = sampledData;
 % read noise
 if isscalar(params.readNoise)
     sampledData = sampledData + normrnd(0,params.readNoise,size(trueData));
