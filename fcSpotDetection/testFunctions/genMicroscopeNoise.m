@@ -24,6 +24,8 @@ sampledData = double(trueData)*params.QE;
 sampledData = poissrnd(sampledData);
 poissonNoiseOnly = sampledData;
 % read noise
+% if read noise value is infinity just put large number
+params.readNoise(params.readNoise==inf) = 10000;
 if isscalar(params.readNoise)
     sampledData = sampledData + normrnd(0,params.readNoise,size(trueData));
 else

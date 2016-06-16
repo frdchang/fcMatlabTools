@@ -7,7 +7,7 @@ function synSpotStruct = genSyntheticSpots(varargin)
 
 %--data set parameters-----------------------------------------------------
 params.dz           = 0.25e-6;
-params.zSteps       = 25;
+params.zSteps       = 11;
 params.z0           = -1e-6;
 % FOV in pixels
 params.ru           = 10;

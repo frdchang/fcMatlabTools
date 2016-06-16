@@ -39,12 +39,47 @@ spotInfo.constThetaVals = sigmaSqVector;
 spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
 
 % spot detection
-estimated = findSpotsStage1(electronData,spotInfo.spotData,readNoiseData);
-plot3Dstack(estimated.LLRatio);
-plot3Dstack(sampleSpot.synAmp);
-plot3Dstack(readNoiseData);
-estimatedNAIVE = findSpotsStage1(electronData,spotInfo.spotData,1.6*ones(size(sampleSpot.data)));
-plot3Dstack(estimatedNAIVE.LLRatio);
+% estimated = findSpotsStage1(electronData,spotInfo.spotData,readNoiseData);
+% plot3Dstack(estimated.LLRatio);
+% plot3Dstack(sampleSpot.synAmp);
+% plot3Dstack(readNoiseData);
+% estimatedNAIVE = findSpotsStage1(electronData,spotInfo.spotData,1.6*ones(size(sampleSpot.data)));
+% plot3Dstack(estimatedNAIVE.LLRatio);
+
+% simulate spots many times and see what it looks like variable camera
+% noise looks like
+saveFolder = '~/Desktop/variableReadNoiseSim';
+mkdir(saveFolder);
+N = 100;
+I = imread('rice.png');
+breakNumPixels = 10;
+truthData = sampleSpot.synAmp + sampleSpot.synBak;
+selectPixel = randperm(numel(truthData));
+selectPixel = selectPixel(1:breakNumPixels);
+readNoiseData(selectPixel) = inf;
+for i = 1:N
+    sampledData = genMicroscopeNoise(truthData,'readNoise',readNoiseData,'gain',gain,'offset',offset,'QE',QE);
+    % break the pixels
+%     sampledData(selectPixel) =  100;
+    [electronData,photonData] = returnElectrons(sampledData,gain,offset,QE);
+    electronData(selectPixel) = 100;
+    estimated = findSpotsStage1(electronData,spotInfo.spotData,readNoiseData);
+    estimatedNAIVE = findSpotsStage1(electronData,spotInfo.spotData,1.6*ones(size(sampledData)));
+    
+    estimatedLLRatio = return3Views(estimated.LLRatio,-1);
+    estimatedNAIVELLRatio = return3Views(estimatedNAIVE.LLRatio,-1);
+    electronData = return3Views(electronData,-1);
+    
+    exportSingleFitsStack([saveFolder filesep 'electronData' num2str(i)],electronData);
+    exportSingleFitsStack([saveFolder filesep 'estimatedNAIVELLRatio' num2str(i)],estimatedNAIVELLRatio);
+    exportSingleFitsStack([saveFolder filesep 'estimatedLLRatio' num2str(i)],estimatedLLRatio);
+end
+
+% simulate many times and see how broken pixels look like
+exportSingleFitsStack([saveFolder filesep 'truthData'],return3Views(sampleSpot.synAmp));
+exportSingleFitsStack([saveFolder filesep 'readNoise'],return3Views(readNoiseData));
+
+
 %% do spot detection
 % camera settings
 readNoise     = 1.0;     % electrons (sigma = rms)
