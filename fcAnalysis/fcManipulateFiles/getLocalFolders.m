@@ -6,7 +6,7 @@ if isunix
     cmdout = textscan(cmdout,'%s','delimiter','\n');
     cmdout = cmdout{1};
     % match dir at beging of line, this filters non folder statements
-    folderList =  keepCertainStrings(cmdout,['^' dirName]);
+    folderList =  keepCertainStringsUnion(cmdout,['^' dirName]);
     if ~isempty(varargin)
         regexpFilterkey = varargin{1};
         folderList = keepCertainStringsUnion(folderList,regexpFilterkey);
