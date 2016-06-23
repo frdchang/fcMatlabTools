@@ -6,8 +6,9 @@ function synSpotStruct = genSyntheticSpots(varargin)
 %                   -> genPSF
 
 %--data set parameters-----------------------------------------------------
+params.dataSetSize  = [19 19 11];
 params.dz           = 0.25e-6;
-params.zSteps       = 11;
+
 params.z0           = -1e-6;
 % FOV in pixels
 params.ru           = 10;
@@ -40,8 +41,13 @@ params.spotList        = {spotParamStruct1};
 params.simMicroscope   = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
-dataSetSize = [params.ru*2-1,params.ru*2-1,params.zSteps];
+params.zSteps       = params.dataSetSize(3);
+% make sure dataset fov is odd and symetric
+if params.dataSetSize(1) ~= params.dataSetSize(2) || mod(params.dataSetSize(1),2)==0
+   error('make sure the fov is symmetric and odd'); 
+end
+params.ru           = (params.dataSetSize(1)+1)/2;
+dataSetSize = params.dataSetSize;
 specimenPixSize = params.pixelSize / params.M;
 
 % generate spotList

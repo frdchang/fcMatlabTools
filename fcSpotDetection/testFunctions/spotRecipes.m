@@ -1,3 +1,12 @@
+%% generate a bunch of spots at different As and Bs then test spot detection codeon those datasets
+dataSetSize = [21,21,11];
+readNoiseData = repmat(lognrnd(1.6,1.1,dataSetSize),[1 1 dataSetSize(3)]);
+gain          = 2.1;     % ADU/electrons
+offset        = 100;     % ADU units
+QE            = 0.7;   
+params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'offset',offset,'QE',QE};
+genDataSetGivenAB(1000,1,params{:});
+
 %% test recall rate and localization error at a given A,B value
 A = 100;
 B = 5;

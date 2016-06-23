@@ -5,6 +5,17 @@ function params = updateParams(params,userParams)
 % 1) {'name',value,...}
 % 2) struct
 % 3) {struct}
+% 4) {'name', value, struct}
+
+% if ~isempty(userParams)
+%    if iscell(userParams)
+%        % are there structs 
+%    elseif isstruct(userParams)
+%         params = setstructfields(params,userParams);
+%    else
+%       error('userParams is neither a cell or a struct');
+%    end
+% end
 
 if ~isempty(userParams)
    if iscell(userParams)

@@ -33,7 +33,7 @@ subFunc1(updateParams(params,subFunc1Params));
 subFunc1(updateParams(params,'param1',1));
 % or 
 params.addParams1 = 1;
-subFunc1(params);
+subFunc1(params{:});
 end
 ```
 
