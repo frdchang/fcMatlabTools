@@ -35,7 +35,19 @@ if iscell(userParams)
     % delete the param structs
     userParams(findTheParamStructs) = [];
     % update the named value pairs
-    params = parsepropvalFC(params,userParams{:});
+    if isodd(numel(userParams))
+        % if it is odd
+        if numel(userParams) == 1
+            flattendParams = flattenCellArray(userParams);
+            params = parsepropvalFC(params,flattendParams{:});
+        else
+           error('named value pairs is not even'); 
+        end
+        
+    else
+       params = parsepropvalFC(params,userParams{:}); 
+    end
+    
     
 elseif isstruct(userParams)
     params = setstructfields(params,userParams);

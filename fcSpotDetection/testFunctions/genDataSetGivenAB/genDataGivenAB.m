@@ -20,7 +20,7 @@ sampleSpot                = genSyntheticSpots(...
     'useCase',2,'bkgndVal',B,params);
 
 groundTruthData = sampleSpot.synAmp + sampleSpot.synBak;
-cameraNoiseData = genCameraNoiseOnly(groundTruthData,params{:});
+cameraNoiseData = genCameraNoiseOnly(groundTruthData,params);
 
 end
 
