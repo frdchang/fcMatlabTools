@@ -1,7 +1,7 @@
 function [] = genBatteryOfABs(varargin)
 %GENBATTERYOFABS will generate a battery of A and B conditions
 
-A = 1:1000;
+A = [10,1000];
 B = 10;
 
 for AA = A

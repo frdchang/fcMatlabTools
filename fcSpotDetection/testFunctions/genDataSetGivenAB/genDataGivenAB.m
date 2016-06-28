@@ -17,7 +17,7 @@ spotParamStruct1.zp       = 0.113245e-6;         % (units m in specimen plane)
 spotParamStruct1.amp      = A;                   % (number of electrons at peak)
 spotList                  = {spotParamStruct1};
 sampleSpot                = genSyntheticSpots(...
-    'useCase',2,'bkgndVal',B,params);
+    'useCase',2,'bkgndVal',B,'spotList',spotList,params);
 
 groundTruthData = sampleSpot.synAmp + sampleSpot.synBak;
 cameraNoiseData = genCameraNoiseOnly(groundTruthData,params);
