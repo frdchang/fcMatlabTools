@@ -50,22 +50,33 @@ end
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
   * for synthetic spot generation it is organized like so:
 {spotParamStruct1,spotParamStruct2,...}
-  * for parameters of different models extract for many patches of data it is organized like so:
-{{spotParamStruct1forPatch1,spotParamStruct2,...},{spotParamStruct1,spotParamStruct2,...}
+each struct corresponding to each synthetic spot.
+  * However, for detecting spots in a given dataset i for timepoint i, I need to account for testing multiple hypothesis for a given patch/candidate of data, whether it is 0 spot, 1 spot, 2 spots, etc.
+so it will be:
+{{spotParamStructFor0Spots_candidate1,spotParamStructFor1Spots_candidate1,spotParamStructFor2Spots_candidate1,...},{spotParamStructFor0Spots_candidate2,spotParamStructFor1Spots_candidate2,spotParamStructFor2Spots_candidate2,...},...}
 
-  a sample spot param data structure may look like the following:
+  a sample spot param data structure will be subsets of the following:
   ```
 spotParamStruct.xp          = x position in the specimen plane (m)
 spotParamStruct.yp          = y position in the specimen plane (m)
 spotParamStruct.zp          = z position in the specimen plane (m)
-spotParamStruct.xPixel      = x position in pixel units
-spotParamStruct.yPixel      = y position in pixel units
-spotParamStruct.zPixel      = z position in slice number units
+
+spotParamStruct.xPixel1      = x position in pixel units
+spotParamStruct.yPixel1      = y position in pixel units
+spotParamStruct.zPixel1      = z position in slice number units
 spotParamStruct.amp1        = value of peak amplitude given 1 spot
 spotParamStruct.bak1        = value of the background given 1 spot
-spotParamStruct.logLike1    = Likelihood of Fit given 1 spot
+
+spotParamStruct.xPixel2      = x position in pixel units
+spotParamStruct.yPixel2      = y position in pixel units
+spotParamStruct.zPixel2      = z position in slice number units
+spotParamStruct.amp2        = value of peak amplitude given 2 spot
+spotParamStruct.bak2        = value of the background given 2 spot
+
+spotParamStruct.logLike    = log Likelihood 
+
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
-spotParamStruct.logLike0    = likelihood of fit given background only model (0 spot)
+
   ```
 
 
