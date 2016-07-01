@@ -48,7 +48,7 @@ spotInfo.spotData = kernel;
 spotInfo.lambdaModel = @lambda_single3DGauss;
 spotInfo.constThetaVals = sigmaSqVector;
 spotInfo.constThetaSet = [0 0 0 1 1 1 0 0];
-[spotParams,estimated,candidates] = fcSpotDetection(electronData,spotInfo,readNoiseData);
+[spotParams,estimated,candidates] = fcSpotDetection(electronData);
 %% check broken pixel correction
 % camera settings
 sampleSpot                = genSyntheticSpots(...

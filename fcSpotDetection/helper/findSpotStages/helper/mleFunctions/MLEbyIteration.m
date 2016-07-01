@@ -23,7 +23,7 @@ params.gradScale    = [ 1 1 1 1 1 1 10 10];
 % newton raphson parameters
 params.numStepsNR   = 100;
 % plotting parameters
-params.doPloteveryN = 10;
+params.doPloteveryN = inf;
 % MLE functions
 params.lambda       = @lambda_single3DGauss;
 params.maxThetas    = [1 1 1 0 0 0 1 1];

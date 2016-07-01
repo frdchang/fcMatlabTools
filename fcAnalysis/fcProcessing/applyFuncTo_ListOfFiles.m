@@ -27,6 +27,7 @@ if params.doParallel
     
 else
     for ii = 1:numFiles
+        display(ii);
         extractedVariables = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
         funcOutput         = myFunc(extractedVariables{:},myFuncParams{:});
         saveFunc(listOfFiles{ii},myFunc,myFuncParams,funcOutput,saveFuncParams{:});
