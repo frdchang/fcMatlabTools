@@ -8,7 +8,7 @@ params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'o
 % genDataSetGivenAB(1000,1,params{:});
 genBatteryOfABs(params);
 % analyzeDataSet('/home/fchang/Desktop/matlabGenerated/fcData/genData');
-analyzeDataSet('/Users/fchang/Desktop/matlabGenerated');
+analyzeDataSet('/Users/fchang/Desktop/matlabGenerated/fcProcessed');
 %% test recall rate and localization error at a given A,B value
 A = 100;
 B = 5;
