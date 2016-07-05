@@ -40,5 +40,9 @@ for i = 1:numCandidates
     end
 end
 
+% curate away those spots that did not converg
+badConvergence = cellfun(@(x) isempty(x.logLike),spotParams);
+spotParams(badConvergence) = [];
+
 
 
