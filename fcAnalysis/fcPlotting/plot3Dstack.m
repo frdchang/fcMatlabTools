@@ -53,6 +53,7 @@ p.addParamValue('toDisk',false,@(x) true);
 p.addParamValue('forPoster',false,@(x)true);
 p.addParamValue('MLEtraj',[],@(x)true);
 p.addParamValue('colorCodeProj',false,@(x) true);
+p.addParamValue('spotParams',[],@(x) true);
 
 p.parse(varargin{:});
 
@@ -78,6 +79,7 @@ snake       = input.snake;
 forPoster   = input.forPoster;
 MLEtraj     = input.MLEtraj;
 colorCodeProj = input.colorCodeProj;
+spotParams  = input.spotParams;
 
 if forPoster
     border = 0.02;
@@ -311,6 +313,19 @@ if ~isempty(MLEtraj)
     plot(x(1),y(1),'r.','MarkerSize',10);
     plot(x(end),y(end),'g.','MarkerSize',10);
 end
+
+if ~isempty(spotParams)
+    hold on;
+    numSpots = numel(spotParams);
+    colorSpots =  cool(numSpots);
+    logLikeHoods = [spotParams.logLike];
+    [logSorted,sortedI] = sort(logLikeHoods);
+    for ii = 1:numSpots
+       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+       coordinate = thetaMLE(1:3);
+       hold on; plot(coordinate(1),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+    end
+end
 %% PLOT XZ-----------------------------------------------------------------
 subplot('Position',[3*border+relYDirY,1 - (2*border + relXDirX),relYDirZ,relXDirX]);
 if isempty(stackRed) && isempty(stackBlue)
@@ -397,6 +412,22 @@ if ~isempty(MLEtraj)
     plot(z(1),x(1),'r.','MarkerSize',10);
     plot(z(end),x(end),'g.','MarkerSize',10);
 end
+
+
+if ~isempty(spotParams)
+    hold on;
+    numSpots = numel(spotParams);
+    colorSpots =  cool(numSpots);
+    logLikeHoods = [spotParams.logLike];
+    [logSorted,sortedI] = sort(logLikeHoods);
+    for ii = 1:numSpots
+       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+       coordinate = thetaMLE(1:3);
+       hold on; plot(coordinate(3),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+    end
+end
+
+
 %% PLOT ZY-----------------------------------------------------------------
 subplot('Position',[2*border,1 - (3*border + relXDirZ + relXDirX),relYDirY,relXDirZ]);
 if isempty(stackRed) && isempty(stackBlue)
@@ -476,6 +507,22 @@ if ~isempty(MLEtraj)
     plot(y(1),z(1),'r.','MarkerSize',10);
     plot(y(end),z(end),'g.','MarkerSize',10);
 end
+
+
+if ~isempty(spotParams)
+    hold on;
+    numSpots = numel(spotParams);
+    colorSpots =  cool(numSpots);
+    logLikeHoods = [spotParams.logLike];
+    [logSorted,sortedI] = sort(logLikeHoods);
+    for ii = 1:numSpots
+       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+       coordinate = thetaMLE(1:3);
+       hold on; plot(coordinate(1),coordinate(3), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+    end
+end
+
+
 
 %% last quadrant volume rendering------------------------------------------
 if ~isempty(nucVol)

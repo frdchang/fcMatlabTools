@@ -23,6 +23,11 @@ params = updateParams(params,varargin);
 
 numFiles = numel(listOfFiles);
 
+if numFiles == 0
+   warning('no files to apply func to!');
+   return;
+end
+
 if params.doParallel
     
 else

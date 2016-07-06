@@ -34,6 +34,8 @@ subFunc1(updateParams(params,'param1',1));
 % or 
 params.addParams1 = 1;
 subFunc1(params{:});
+% or
+subFunc1('name',value,params)
 end
 ```
 
@@ -44,6 +46,21 @@ end
 ./doFunc/testFunctions
 ./doFunc/doFunc.m
 ```
+- note:filesystem convetions folder and filenames cannot exceed 255 characters.
+- raw data should be separate from processed data; {fcData,fcTest,fcCheckout} specifies the types of folders that holds the raw data, while {fcProcessed} specifies data that has been processed, with the function handle that did the processing appended on as follows:
+.../{fcData|fcTest|fcCheckout}/.../.../data1.ext
+when calling a function to data1.ext it will go to
+.../fcProcessed/.../[functionName-its parameter set hashed]/[functionName-itsparameterset hashed](data1.ext1).ext2
+this convention allows one to find the original raw data reference by removing [] and mapping fcProcessed -> {fcData|...}
+
+multi argument function calls should be handled as follows:
+inputs
+.../fcProcessed/.../[functionName1-its parameter set hashed]/[functionName1-itsparameterset hashed](data1.ext1).ext2
+.../fcProcessed/.../[functionName2-its parameter set hashed]/[functionName2-itsparameterset hashed](data2.ext1).ext2
+outputs
+.../fcProcessed/.../[functionName3-its parameter set hashed]/[functionName3-itsparameterset hashed]([functionName1-itsparameterset hashed](data1.ext1).ext2,[functionName2-itsparameterset hashed](data2.ext1).ext2).ext2
+
+
 
 ## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.

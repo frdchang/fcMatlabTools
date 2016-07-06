@@ -43,6 +43,8 @@ end
 % curate away those spots that did not converg
 badConvergence = cellfun(@(x) isempty(x.logLike),spotParams);
 spotParams(badConvergence) = [];
+% convert to struct array
+spotParams = cell2mat(spotParams);
 
 
 

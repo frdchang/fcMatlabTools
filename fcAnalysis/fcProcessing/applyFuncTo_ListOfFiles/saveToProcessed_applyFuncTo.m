@@ -5,7 +5,7 @@ function [] = saveToProcessed_applyFuncTo(filePath,myFunc,myFuncParams,funcOutpu
 pathOnly = returnFilePath(filePath);
 fileName = returnFileName(filePath);
 savePath = createProcessedDir(pathOnly);
-functionName = char(myFunc);
+functionName = ['[' char(myFunc) ']'];
 paramHash = DataHash(myFuncParams);
 
 saveFolder = [functionName '-' paramHash];

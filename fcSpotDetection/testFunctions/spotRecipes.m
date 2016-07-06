@@ -3,12 +3,15 @@ dataSetSize = [21,21,11];
 readNoiseData = repmat(lognrnd(1.6,1.1,dataSetSize),[1 1 dataSetSize(3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
-QE            = 0.7;   
-params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'offset',offset,'QE',QE};
+QE            = 0.7;  
+Nsamples      = 10;
+params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'offset',offset,'QE',QE,'Nsamples',Nsamples};
 % genDataSetGivenAB(1000,1,params{:});
 genBatteryOfABs(params);
-% analyzeDataSet('/home/fchang/Desktop/matlabGenerated/fcData/genData');
-analyzeDataSet('/Users/fchang/Desktop/matlabGenerated/fcProcessed');
+% CHECK IF READNOISE IS BEING PASSED TO FCSPOTDETECTION3
+doSpotDetectionOnDataSet('~/Desktop/matlabGenerated/fcData/genData');
+% analyzeDataSet('/Users/fchang/Desktop/matlabGenerated/fcProcessed');
+analyzeDetectedSpots('~/Desktop/matlabGenerated/fcProcessed');
 %% test recall rate and localization error at a given A,B value
 A = 100;
 B = 5;
