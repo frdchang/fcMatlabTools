@@ -29,8 +29,10 @@ if numFiles == 0
 end
 
 if params.doParallel
-        parfor ii = 1:numFiles
-        display(ii);
+    fprintf('Progress:\n');
+fprintf(['\n' repmat('.',1,numFiles) '\n\n']);
+    parfor ii = 1:numFiles
+        fprintf('\b|\n');
         extractedVariables = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
         funcOutput         = myFunc(extractedVariables{:},myFuncParams{:});
         saveFunc(listOfFiles{ii},myFunc,myFuncParams,funcOutput,saveFuncParams{:});

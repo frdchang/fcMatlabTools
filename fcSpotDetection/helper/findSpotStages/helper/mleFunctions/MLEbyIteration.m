@@ -96,7 +96,7 @@ if params.type == 2 || params.type == 3
             try
                 updateMLE = selectedHessian\thisGradient(updateIndices);
             catch
-                warning('hessian is not inverting well');
+%                 warning('hessian is not inverting well');
                 state.thetaMLE = 'hessian inversion caused error';
                 return;
             end
