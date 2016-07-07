@@ -3,7 +3,8 @@ function yourNumberAfterYourText = returnNumberFromMatch(str,theTextBeforeNumber
 %theTextBeforeNumber using regexp. 
 
 matchTheText = regexp(str,[theTextBeforeNumber '[0-9]+' theTextAfterNumber],'match');
-yourNumberAfterYourText = str2double(regexp('A10','[0-9]+','match'));
+number = regexp(matchTheText,'[0-9]+','match');
+yourNumberAfterYourText = str2double(number{1});
 
 end
 

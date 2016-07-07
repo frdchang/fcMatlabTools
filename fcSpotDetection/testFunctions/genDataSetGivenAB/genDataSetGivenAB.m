@@ -16,5 +16,5 @@ for i = 1:params.Nsamples
 end
 
 theta = genThetaFromSynSpotStruct_for_single3DGauss(truth.synSpotList{1});
-save([saveFolder 'theta'],'theta');
+save([saveFolder 'theta-' params.rootFileName],'theta');
 
