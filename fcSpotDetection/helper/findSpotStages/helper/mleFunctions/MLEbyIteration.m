@@ -86,7 +86,7 @@ if params.type == 2 || params.type == 3
         selectedHessian = thisHessian(any(thisHessian,2),any(thisHessian,1));
         [~,posDefOfNegHess] = chol(-selectedHessian);
         conditionNumber = rcond(selectedHessian);
-        if posDefOfNegHess > 0 || conditionNumber < 2e-16
+        if posDefOfNegHess > 0 || conditionNumber < 3e-16
             % this is a bad hessian matrix
             %             warning('hessian is either not posDef or rconditinon number is < eps');
             state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';

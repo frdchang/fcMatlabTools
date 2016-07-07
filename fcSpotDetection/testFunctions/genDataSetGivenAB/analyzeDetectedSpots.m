@@ -40,20 +40,22 @@ for ii = 1:numExperiments
     allthetaVar = {};
     allLLRatios = [];
     sensitivity = zeros(numel(currDatas),1);
-  
+    
     for jj = 1:numel(currDatas)
         currSpotParams = currDatas{jj}.funcOutput;
-        for kk = 1:numel(currSpotParams)
-            allthetaMLE{end+1} = [currSpotParams(kk).thetaMLE{relevantMLEThetas}]';
-            estimatedVars = diag(currSpotParams(kk).thetaVar);
-            estimatedVars(relevantMLEThetas);
-            allthetaVar{end+1} = [estimatedVars(relevantMLEThetas)];
-            allLLRatios(end+1) = currSpotParams(kk).logLike;
-        end
-        currentAllMLEs = cell2mat(cellfunNonUniformOutput(@(x) cell2mat(x)',{currSpotParams.thetaMLE}));
-        distancesAllMLEs = pdist2(currentAllMLEs(relevantXYZCoor,:)',truthTheta(relevantXYZCoor));
-        if sum(distancesAllMLEs<maxDist) > 0
-            sensitivity(jj) = 1;
+        if ~isempty(currSpotParams)
+            for kk = 1:numel(currSpotParams)
+                allthetaMLE{end+1} = [currSpotParams(kk).thetaMLE{relevantMLEThetas}]';
+                estimatedVars = diag(currSpotParams(kk).thetaVar);
+                estimatedVars(relevantMLEThetas);
+                allthetaVar{end+1} = [estimatedVars(relevantMLEThetas)];
+                allLLRatios(end+1) = currSpotParams(kk).logLike;
+            end
+            currentAllMLEs = cell2mat(cellfunNonUniformOutput(@(x) cell2mat(x)',{currSpotParams.thetaMLE}));
+            distancesAllMLEs = pdist2(currentAllMLEs(relevantXYZCoor,:)',truthTheta(relevantXYZCoor));
+            if sum(distancesAllMLEs<maxDist) > 0
+                sensitivity(jj) = 1;
+            end
         end
     end
     allthetaMLE = cell2mat(allthetaMLE);
