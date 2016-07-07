@@ -6,9 +6,9 @@ pathOnly = returnFilePath(filePath);
 fileName = returnFileName(filePath);
 savePath = createProcessedDir(pathOnly);
 functionName = ['[' char(myFunc) ']'];
-paramHash = DataHash(myFuncParams);
+% paramHash = DataHash(myFuncParams);
 
-saveFolder = [functionName '-' paramHash];
+saveFolder = [functionName];
 
 saveProcessedFileAt = [savePath filesep saveFolder filesep functionName '-' fileName];
 makeDIRforFilename(saveProcessedFileAt);
