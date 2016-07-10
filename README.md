@@ -117,7 +117,6 @@ spotParamStruct.bak2        = value of the background given 2 spot
 spotParamStruct.logLike    = log Likelihood 
 
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
-
 ```
 
 
