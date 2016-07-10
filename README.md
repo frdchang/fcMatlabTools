@@ -59,7 +59,7 @@ end
   * only limitation is that filenames need to be less than 255 chars.
 
   ```Matlab
-%% example data
+%% example data------------------------------------------------------------
 .../fcData../data-w1-t1.tif
 .../fcData../data-w1-t2.tif
 .../fcData../data-w1-t3.tif
@@ -68,7 +68,7 @@ end
 .../fcData../data-w2-t2.tif
 .../fcData../data-w2-t3.tif
 
-%% example processed data
+%% example processed data--------------------------------------------------
 % processing phase
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2).fits
@@ -85,11 +85,28 @@ end
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t1)).fits
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t2)).fits
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t3)).fits
+
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t1)).fits
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t2)).fits
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t3)).fits
 ...
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t1).fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t2).fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t3).fits
 
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-genQPM(data-w1-t1).fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-genQPM(data-w1-t2).fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-genQPM(data-w1-t3).fits
+...
+
+.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t1.fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t2.fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t3.fits
+
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-data-w1-t1.fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-data-w1-t2.fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-data-w1-t3.fits
+...
 ```
 
 
