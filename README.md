@@ -40,12 +40,13 @@ end
 ```
 
 - complicated functions with sub-functions should be organized by the following folder hierarchy.
-  ``` 
+  ```Matlab
 ./doFunc
 ./doFunc/helper
 ./doFunc/testFunctions
 ./doFunc/doFunc.m
 ```
+
 - For processing large batches of data, like a list of image files I will follow the following convetion.
   * raw data is stored in           .../fcData/.../data1_t1.tif
   * processed data in which a function is applied to a single data1_t1.tif is mirrored 
@@ -54,7 +55,7 @@ end
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
 
-```
+  ```Matlab
 %% example data
 .../fcData../data-w1-t1.tif
 .../fcData../data-w1-t2.tif
