@@ -47,12 +47,32 @@ end
 ./doFunc/doFunc.m
 ```
 - For processing large batches of data, like a list of image files I will follow the following convetion.
-  * raw data is stored in           .../fcdata/.../data1_t1.tif
+  * raw data is stored in           .../fcData/.../data1_t1.tif
   * processed data in which a function is applied to a single data1_t1.tif is mirrored 
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
    the parameter hash keeps different function calls with different parameter sets saved in different folders.
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
+
+```
+%% example data
+.../fcData../data-w1-t1.tif
+.../fcData../data-w1-t2.tif
+.../fcData../data-w1-t3.tif
+
+.../fcData../data-w2-t1.tif
+.../fcData../data-w2-t2.tif
+.../fcData../data-w2-t3.tif
+
+%% example processed data
+% processing phase
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1.tif).fits
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2.tif).fits
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3.tif).fits
+
+```
+
+
 ## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
