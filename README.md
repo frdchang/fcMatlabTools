@@ -82,7 +82,6 @@ end
 .../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t2)).tif
 .../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t3)).tif
 % extract cells given segmentation data for both w1 and w2
-
 ```
 
 
