@@ -71,6 +71,15 @@ end
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1.tif).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2.tif).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3.tif).fits
+% processing spot detection on entire FOV
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t1.tif).mat
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t2.tif).mat
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t3.tif).mat
+% segmentation on phase
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t1.tif).fits).tif
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t2.tif).fits).tif
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t3.tif).fits).tif
+
 ```
 
 
