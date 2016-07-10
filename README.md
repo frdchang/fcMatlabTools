@@ -40,6 +40,7 @@ end
 ```
 
 - complicated functions with sub-functions should be organized by the following folder hierarchy.
+
   ```Matlab
 ./doFunc
 ./doFunc/helper
@@ -55,7 +56,7 @@ end
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
 
-  ```Matlab
+
 %% example data
 .../fcData../data-w1-t1.tif
 .../fcData../data-w1-t2.tif
@@ -71,7 +72,6 @@ end
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2.tif).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3.tif).fits
 
-```
 
 
 ## datastructures used in the code:
@@ -85,7 +85,8 @@ so it will be:
 {{spotParamStructFor0Spots_candidate1,spotParamStructFor1Spots_candidate1,spotParamStructFor2Spots_candidate1,...},{spotParamStructFor0Spots_candidate2,spotParamStructFor1Spots_candidate2,spotParamStructFor2Spots_candidate2,...},...}
 
   a sample spot param data structure will be subsets of the following:
-  ```
+
+  ```Matlab
 spotParamStruct.xp          = x position in the specimen plane (m)
 spotParamStruct.yp          = y position in the specimen plane (m)
 spotParamStruct.zp          = z position in the specimen plane (m)
@@ -106,7 +107,7 @@ spotParamStruct.logLike    = log Likelihood
 
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
 
-  ```
+```
 
 
 
