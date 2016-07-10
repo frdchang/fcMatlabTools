@@ -46,20 +46,7 @@ end
 ./doFunc/testFunctions
 ./doFunc/doFunc.m
 ```
-- note:filesystem convetions folder and filenames cannot exceed 255 characters.
-- raw data should be separate from processed data; {fcData,fcTest,fcCheckout} specifies the types of folders that holds the raw data, while {fcProcessed} specifies data that has been processed, with the function handle that did the processing appended on as follows:
-.../{fcData|fcTest|fcCheckout}/.../.../data1.ext
-when calling a function to data1.ext it will go to
-.../fcProcessed/.../[functionName-its parameter set hashed]/[functionName-itsparameterset hashed](data1.ext1).ext2
-this convention allows one to find the original raw data reference by removing [] and mapping fcProcessed -> {fcData|...}
-
-multi argument function calls should be handled as follows:
-inputs
-.../fcProcessed/.../[functionName1-its parameter set hashed]/[functionName1-itsparameterset hashed](data1.ext1).ext2
-.../fcProcessed/.../[functionName2-its parameter set hashed]/[functionName2-itsparameterset hashed](data2.ext1).ext2
-outputs
-.../fcProcessed/.../[functionName3-its parameter set hashed]/[functionName3-itsparameterset hashed]([functionName1-itsparameterset hashed](data1.ext1).ext2,[functionName2-itsparameterset hashed](data2.ext1).ext2).ext2
-
+- For processing large batches of data, like a list of image files I will follow the following convetion.
 
 
 ## datastructures used in the code:

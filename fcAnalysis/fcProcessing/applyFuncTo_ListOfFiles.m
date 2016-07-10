@@ -24,13 +24,13 @@ params = updateParams(params,varargin);
 numFiles = numel(listOfFiles);
 
 if numFiles == 0
-   warning('no files to apply func to!');
-   return;
+    warning('no files to apply func to!');
+    return;
 end
 
 if params.doParallel
     fprintf('Progress:\n');
-fprintf(['\n' repmat('.',1,numFiles) '\n\n']);
+    fprintf(['\n' repmat('.',1,numFiles) '\n\n']);
     parfor ii = 1:numFiles
         fprintf('\b|\n');
         extractedVariables = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
