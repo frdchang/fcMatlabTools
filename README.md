@@ -56,7 +56,7 @@ end
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
 
-
+  ```Matlab
 %% example data
 .../fcData../data-w1-t1.tif
 .../fcData../data-w1-t2.tif
@@ -71,7 +71,7 @@ end
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1.tif).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2.tif).fits
 .../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3.tif).fits
-
+```
 
 
 ## datastructures used in the code:
