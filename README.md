@@ -90,6 +90,8 @@ end
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t2)).fits
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t3)).fits
 ...
+
+
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t1).fits
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t2).fits
 .../fcProcessed/.../extractCells-paramHash/cell1/cell1-genQPM(data-w1-t3).fits
@@ -99,9 +101,11 @@ end
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-genQPM(data-w1-t3).fits
 ...
 
-.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t1.fits
-.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t2.fits
-.../fcProcessed/.../extractCells-paramHash/cell2/cell1-data-w1-t3.fits
+
+
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-data-w1-t1.fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-data-w1-t2.fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-data-w1-t3.fits
 
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-data-w1-t1.fits
 .../fcProcessed/.../extractCells-paramHash/cell2/cell2-data-w1-t2.fits
