@@ -47,8 +47,12 @@ end
 ./doFunc/doFunc.m
 ```
 - For processing large batches of data, like a list of image files I will follow the following convetion.
-
-
+  * raw data is stored in           .../fcdata/.../data1_t1.tif
+  * processed data in which a function is applied to a single data1_t1.tif is mirrored 
+   .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
+   the parameter hash keeps different function calls with different parameter sets saved in different folders.
+  * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
+   .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
 ## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
