@@ -82,6 +82,14 @@ end
 .../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t2)).tif
 .../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t3)).tif
 % extract cells given segmentation data for both w1 and w2
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t1)).fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t2)).fits
+.../fcProcessed/.../extractCells-paramHash/cell1/cell1-fcSpotDetection(data-w2-t3)).fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t1)).fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t2)).fits
+.../fcProcessed/.../extractCells-paramHash/cell2/cell2-fcSpotDetection(data-w2-t3)).fits
+...
+
 ```
 
 
