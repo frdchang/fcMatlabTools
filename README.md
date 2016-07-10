@@ -55,6 +55,8 @@ end
    the parameter hash keeps different function calls with different parameter sets saved in different folders.
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
+  * this convention below uses the filesystem as a data holder rather than specifying the data holder apriori (such as hdf5) because the filesystem can grow organically.
+  * only limitation is that filenames need to be less than 255 chars.
 
   ```Matlab
 %% example data
@@ -68,17 +70,18 @@ end
 
 %% example processed data
 % processing phase
-.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1.tif).fits
-.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2.tif).fits
-.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3.tif).fits
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t1).fits
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t2).fits
+.../fcProcessed/.../genQPM-paramHash/genQPM(data-w1-t3).fits
 % processing spot detection on entire FOV
-.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t1.tif).mat
-.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t2.tif).mat
-.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2.t3.tif).mat
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2-t1).mat
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2-t2).mat
+.../fcProcessed/.../fcSpotDetection-paramHash/fcSpotDetection(data-w2-t3).mat
 % segmentation on phase
-.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t1.tif).fits).tif
-.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t2.tif).fits).tif
-.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t3.tif).fits).tif
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t1)).tif
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t2)).tif
+.../fcProcessed/.../yeastSeg-paramHash/yeastSeg(genQPM(data-w1-t3)).tif
+% extract cells given segmentation data for both w1 and w2
 
 ```
 
