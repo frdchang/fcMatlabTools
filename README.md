@@ -52,14 +52,21 @@ end
   * raw data is stored in           .../fcData/.../data1_t1.tif
   * processed data in which a function is applied to a single data1_t1.tif is mirrored 
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
-   the parameter hash keeps different function calls with different parameter sets AND different datalists saved in different folders.
+   the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
   * this convention below uses the filesystem as a data holder rather than specifying the data holder apriori (such as hdf5) because the filesystem can grow organically.
   * only limitation is that filenames need to be less than 255 chars.
+  * so if a func grows too big, like func(input1,input2,....inputn) > 255 characters, just hash the input to be func(inputhash)
+  * every operation below is about processing a list of files then save as an output or list of outputs that mirror the list of inputs.  
+      dominant use case 
+    * {list of inputs}n -func(params)-> {list of outputs}n  // like filtering 
+    * {list of inputs}n -func(params)-> 1 output // like segmentation
+    * {list of inputs}n -func(params)-> {list of outputs}m // like extracting cells
 
   ```Matlab
-%% example data------------------------------------------------------------
+%%==example data===========================================================
+
 .../fcData../data-w1-t1.tif
 .../fcData../data-w1-t2.tif
 .../fcData../data-w1-t3.tif
@@ -68,59 +75,81 @@ end
 .../fcData../data-w2-t2.tif
 .../fcData../data-w2-t3.tif
 
-%% example processed data--------------------------------------------------
-% processing phase 
-.../fcProcessed/.../genQPM(paramHash)/genQPM(data-w1-t1).fits
-.../fcProcessed/.../genQPM(paramHash)/genQPM(data-w1-t2).fits
-.../fcProcessed/.../genQPM(paramHash)/genQPM(data-w1-t3).fits
+%%==example processed data=================================================
 
-% correct stage movement in one channel (phase channel -> stage aligned that master channel with xy alignment information)
-.../fcProcessed/.../alignStage(paramHash)/alignStage(genQPM(data-w1-t1)).fits ...
-.../fcProcessed/.../alignStage(paramHash)/alignStage(paramHash).mat
+%--processing phase-------------------------------------------------------- 
+.../fcProcessed/.../genQPM(paramHash1,pathsHash1)/genQPM(data-w1-t1).fits ...
 
-% processing spot detection on entire FOV
-.../fcProcessed/.../fcSpotDetection(paramHash)/fcSpotDetection(data-w2-t1).mat
-.../fcProcessed/.../fcSpotDetection(paramHash)/fcSpotDetection(data-w2-t2).mat
-.../fcProcessed/.../fcSpotDetection(paramHash)/fcSpotDetection(data-w2-t3).mat
+%--processing spot detection on entire FOV---------------------------------
+.../fcProcessed/.../fcSpotDetection(paramHash2,pathsHash2)/fcSpotDetection_ThetaMLE/fcSpotDetection_ThetaMLE(data-w2-t1).mat ...
+.../fcProcessed/.../fcSpotDetection(paramHash2,pathsHash2)/fcSpotDetection_A1/fcSpotDetection_A1(data-w2-t1).fits ...
+.../fcProcessed/.../fcSpotDetection(paramHash2,pathsHash2)/fcSpotDetection_LLRatio/fcSpotDetection_LLRatio(data-w2-t1).fits ...
+.../fcProcessed/.../fcSpotDetection(paramHash2,pathsHash2)/fcSpotDetection_Conv/fcSpotDetection_Conv(data-w2-t1).fits ...
 
-% segmentation on phase
-.../fcProcessed/.../yeastSeg(paramHash)/yeastSeg(alignStage(genQPM(data-w1-t1))).tif
-.../fcProcessed/.../yeastSeg(paramHash)/yeastSeg(alignStage(genQPM(data-w1-t2))).tif
-.../fcProcessed/.../yeastSeg(paramHash)/yeastSeg(alignStage(genQPM(data-w1-t3))).tif
-.../fcProcessed/.../yeastSeg(paramHash)/yeastSeg(paramHash).mat
+%--correct stage movement in one channel-----------------------------------
+.../fcProcessed/.../alignStage(paramHash3,pathsHash3)/alignStage(genQPM(data-w1-t1)).fits ... alignStage(paramHash).mat
 
-% extract cells given segmentation data for both w1 and w2
-.../fcProcessed/.../extractCells(paramHash)/cell1/cell1-fcSpotDetection(data-w2-t1)).fits ...
-.../fcProcessed/.../extractCells(paramHash)/cell2/cell2-fcSpotDetection(data-w2-t1)).fits ...
+%--do channel alignment on fov---------------------------------------------
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash1)/alignChannels(data-w1-t1).tif ... alignChannels(paramHash4,pathsHash1).mat
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash2)/alignChannels(data-w2-t1).tif ... alignChannels(paramHash4,pathsHash2).mat
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash3)/alignChannels(alignStage(genQPM(data-w1-t1))).tif ... alignChannels(paramHash4,pathsHash3).mat
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash4)/alignChannels(fcSpotDetection_A1(data-w2-t1)).fits ... alignChannels(paramHash4,pathsHash4).mat
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash5)/alignChannels(fcSpotDetection_LLRatio(data-w2-t1)).fits ... alignChannels(paramHash4,pathsHash5).mat
+.../fcProcessed/.../alignChannels(paramHash4,pathsHash6)/alignChannels(fcSpotDetection_Conv(data-w2-t1)).fits ... alignChannels(paramHash4,pathsHash6).mat
+
+%--do spot detection alignment---------------------------------------------
+.../fcProcessed/.../alignSpotDetection(paramHash5,pathsHash7)/.../alignSpotDetection(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...
+
+%--segmentation on phase---------------------------------------------------
+.../fcProcessed/.../yeastSeg(paramHash6,pathsHash8)/yeastSeg(alignChannels(alignStage(genQPM(data-w1-t1)))).tif ... yeastSeg(paramHash6,pathsHash8).mat
+
+%--extract cells given segmentation data-----------------------------------
+.../fcProcessed/.../extractCells(paramHash9,pathsHash9)/extractCells_1/extractCell_1(alignChannels(data-w1-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash10)/extractCells_1/extractCell_1(alignChannels(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash11)/extractCells_1/extractCell_1(alignChannels(alignStage(genQPM(data-w1-t1)))).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash12)/extractCells_1/extractCell_1(fcSpotDetection_A1(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash13)/extractCells_1/extractCell_1(fcSpotDetection_LLRatio(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash14)/extractCells_1/extractCell_1(fcSpotDetection_Conv(data-w2-t1)).fits ...
+
+.../fcProcessed/.../extractCells(paramHash9,pathsHash9)/extractCells_2/extractCell_2(alignChannels(data-w1-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash10)/extractCells_2/extractCell_2(alignChannels(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash11)/extractCells_2/extractCell_2(alignChannels(alignStage(genQPM(data-w1-t1)))).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash12)/extractCells_2/extractCell_2(fcSpotDetection_A1(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash13)/extractCells_2/extractCell_2(fcSpotDetection_LLRatio(data-w2-t1)).fits ...
+.../fcProcessed/.../extractCells(paramHash9,pathsHash14)/extractCells_2/extractCell_2(fcSpotDetection_Conv(data-w2-t1)).fits ...
+
 ...
+%--extract thetaMLE given segmentation data--------------------------------
+.../fcProcessed/.../extractThetaMLE(paramHash10,pathsHash15)/extractThetaMLE_1/extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...
 
-.../fcProcessed/.../extractCells(paramHash)/cell1/cell1-genQPM(data-w1-t1).fits ...
-.../fcProcessed/.../extractCells(paramHash)/cell2/cell2-genQPM(data-w1-t1).fits ...
+.../fcProcessed/.../extractThetaMLE(paramHash10,pathsHash15)/extractThetaMLE_2/extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...
+
 ...
+%--segment nuclear fuzz for each cell--------------------------------------
+.../fcProcessed/.../segmentNucFuzz(params11,pathsHash16)/extractCells_1/segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t1))).tif ...
 
-.../fcProcessed/.../extractCells(paramHash)/cell1/cell1-data-w1-t1.tif ....
-.../fcProcessed/.../extractCells(paramHash)/cell2/cell2-data-w1-t1.tif ....
+.../fcProcessed/.../segmentNucFuzz(params11,pathsHash16)/extractCells_2/segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t1))).tif ...
+
 ...
+%--segment nuclear fuzz for entire fov-------------------------------------
+.../fcProcessed/.../segmentNucFuzz(params12,pathsHash17)/segmentNucFuzz(alignChannels(fcSpotDetection_Conv(data-w2-t1))).tif ...
 
-% do spot tracking on each cell
-.../fcProcessed/.../spotTracking(paramHash)/cell1/cell1-spotTracking(fcSpotDetection(data-w2-t[1-3])).mat
-.../fcProcessed/.../spotTracking(paramHash)/cell2/cell2-spotTracking(fcSpotDetection(data-w2-t[1-3])).mat
+%--do spot tracking on each cell-------------------------------------------
+% many inputs to one file will either take the first file as the name or do something like t[1-1-100]
+.../fcProcessed/.../spotTracking(paramHash12,pathsHash17)/extractCells_1/spotTracking(extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t[1-3]))).mat 
+
+.../fcProcessed/.../spotTracking(paramHash12,pathsHash17)/extractCells_2/spotTracking(extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t[1-3]))).mat 
+
 ...
+%--find replication timing for each cell-----------------------------------
+.../fcProcessed/.../findRepTiming(paramHash13,pathsHash18)/extractThetaMLE_1/findRepTiming(extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t[1-3]))).mat
 
+.../fcProcessed/.../findRepTiming(paramHash13,pathsHash18)/extractThetaMLE_2/findRepTiming(extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t[1-3]))).mat
 
+...
+%--plot data for each cell-------------------------------------------------
 
-% do channel alignment on fov (color channel alignment, master alignment) -> (stage/aligned channels)
-.../fcProcessed/.../alignChannels(paramHash)/alignChannels(data-w1-t1).tif ...
-.../fcProcessed/.../alignChannels(paramHash)/alignChannels(data-w2-t1).tif ...
-.../fcProcessed/.../alignChannels(paramHash)/alignChannels(genQPM(data-w1-t1)).tif ...
-.../fcProcessed/.../alignChannels(paramHash)/alignChannels(genQPM(fcSpotDetection(data-w2-t1)).tif ...
-.../fcProcessed/.../alignChannels(paramHash)/alignChannels(paramHash).mat
-
-% do spot detection alignment 
-.../fcProcessed/.../alignSpotDetection(paramHash)/.../alignSpotDetection(fcSpotDetection(data-w2-t1)).mat ...
-
-% output data
-
+%%=========================================================================
 ```
 
 
