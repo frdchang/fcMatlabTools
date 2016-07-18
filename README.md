@@ -49,7 +49,10 @@ end
 ```
 
 - For processing large batches of data, like a list of image files I will follow the following convetion.
-  * raw data is stored in           .../fcData/.../data1_t1.tif
+  * raw data is stored in
+    ```           
+    .../fcData/.../data1_t1.tif
+    ```
   * processed data in which a function is applied to a single data1_t1.tif is mirrored 
    .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
    the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
