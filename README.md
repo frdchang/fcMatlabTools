@@ -10,6 +10,7 @@ fctools consists of a set of matlab tools that i use for my research:
 
 ##rules of the code:
 - template function that allows parameter adjustment and passing to subfunctions.
+
   ```Matlab
 function output = funcName(varargin)
 %FUNCNAME does this and that.
@@ -55,11 +56,19 @@ end
     .../fcData/.../data1_t1.tif
     ```
 
-  * processed data in which a function is applied to a single data1_t1.tif is mirrored 
-   .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
-   the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
+  * processed data in which a function is applied to a single data1_t1.tif is mirrored
+
+    ```
+    .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
+    ```
+
+  * the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
-   .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
+
+    ```
+    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
+    ```
+
   * this convention below uses the filesystem as a data holder rather than specifying the data holder apriori (such as hdf5) because the filesystem can grow organically.
   * only limitation is that filenames need to be less than 255 chars.
   * so if a func grows too big, like func(input1,input2,....inputn) > 255 characters, just hash the input to be func(inputhash)
