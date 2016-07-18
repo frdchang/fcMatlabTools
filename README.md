@@ -49,6 +49,7 @@ end
 ./doFunc/doFunc.m
 ```
 
+##processing files:
 - For processing large batches of data, like a list of image files I will follow the following convetion.
   * raw data is stored in
 
