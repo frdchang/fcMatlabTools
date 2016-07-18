@@ -123,13 +123,32 @@ alignSpotDetection.output = {{alignSpotDetection(fcSpotDetection_ThetaMLE(data-w
 yeastSeg.input = {alignChanenls.output{the one with QPM}};
 yeastSeg.output = {{yeastSeg(alignChannels(alignStage(genQPM(data-w1-t1)))).tif, ... , yeastSeg(paramHash6,pathsHash8).mat}};
 
-extractCells.input = {alignChannels.output},
-                       ...};
-extractCells.output = {{extractCell_1(alignChannels(data-w1-t1)),...},
-                       {extractCell_1(alignChannels(data-w2-t1)),...},
-                        ...
-                       {extractCell_2(alignChannels(data-w1-t1)),...},
-                        ...};
+extractCells.input = {alignChannels.output}
+extractCells.output = {
+                        {
+                            % extract cells in first data battery (like time series)
+                            % cell number is its index.  so if a cell dissapears or more cells appear it is represented as follows:
+                            {cell1,cell2,cell3,cell4},
+                            {[],cell2,cell3,cell4,cell5},
+                            {cell1,[],cell3,cell4,cell5}
+                        },
+                        {
+                            extract cells in second data battery (like another time series)
+                        }
+                       };
+extractCells.output = {
+                        {
+                            {extractCell_1(alignChannels(data-w1-t1)).fits,extractCell_2(alignChannels(data-w1-t1)).fits, ...},
+                            {extractCell_1(alignChannels(data-w1-t2)).fits,extractCell_2(alignChannels(data-w1-t2)).fits, ...},    
+                            {extractCell_1(alignChannels(data-w1-t3)).fits,extractCell_2(alignChannels(data-w1-t3)).fits, ...}
+                        },
+                        {
+                            {extractCell_1(alignChannels(data-w2-t1)).fits,extractCell_2(alignChannels(data-w2-t1)).fits, ...},
+                            {extractCell_1(alignChannels(data-w2-t2)).fits,extractCell_2(alignChannels(data-w2-t2)).fits, ...},    
+                            {extractCell_1(alignChannels(data-w2-t3)).fits,extractCell_2(alignChannels(data-w2-t3)).fits, ...}
+                        },
+                        ... 
+                      };
 
 extractThetaMLE.input = {spotDetection.output{the one with ThetaMLE},
                          yeastSeg.output};
@@ -137,7 +156,26 @@ extractThetaMLE.output = {{extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t1
                           {extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...},    
                           ....}
 
+segmentNucFuzz.input = {
+                        {
+                            {extractCell_1(alignChannels(data-w2-t1)).fits,extractCell_2(alignChannels(data-w2-t1)).fits, ...},
+                            {extractCell_1(alignChannels(data-w2-t2)).fits,extractCell_2(alignChannels(data-w2-t2)).fits, ...},    
+                            {extractCell_1(alignChannels(data-w2-t3)).fits,extractCell_2(alignChannels(data-w2-t3)).fits, ...}
+                        }
+                       };
+segmentNucFuzz.output = {
+                          {
+                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t1))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t1))).tif,...},
+                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t2))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t2))).tif,...},
+                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t3))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t3))).tif,...}
+                          }
+                        };
 
+spotTracking.input = 
+spotTracking.output =
+
+findRepTiming.input = 
+findRepTiming.output = 
 ```
 
 ```Matlab
