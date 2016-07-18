@@ -120,8 +120,23 @@ alignChannels.output = {{alignChannels(data-w1-t1),...,alignChannels(paramHash4,
 alignSpotDetection.input = {{fcSpotDetection_ThetaMLE(data-w2-t1),...}}
 alignSpotDetection.output = {{alignSpotDetection(fcSpotDetection_ThetaMLE(data-w2-t1)),...}}
 
-yeastSeg.input = {{alignChannels(alignStage(genQPM(data-w1-t1))),...,alignChannels(paramHash4,pathsHash3).mat}};
+yeastSeg.input = {alignChanenls.output{the one with QPM}};
 yeastSeg.output = {{yeastSeg(alignChannels(alignStage(genQPM(data-w1-t1)))).tif, ... , yeastSeg(paramHash6,pathsHash8).mat}};
+
+extractCells.input = {alignChannels.output},
+                       ...};
+extractCells.output = {{extractCell_1(alignChannels(data-w1-t1)),...},
+                       {extractCell_1(alignChannels(data-w2-t1)),...},
+                        ...
+                       {extractCell_2(alignChannels(data-w1-t1)),...},
+                        ...};
+
+extractThetaMLE.input = {spotDetection.output{the one with ThetaMLE},
+                         yeastSeg.output};
+extractThetaMLE.output = {{extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...},
+                          {extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...},    
+                          ....}
+
 
 ```
 
