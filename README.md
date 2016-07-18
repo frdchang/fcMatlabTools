@@ -60,7 +60,7 @@ end
   * processed data in which a function is applied to a single data1_t1.tif is mirrored
 
     ```
-    .../fcProcessed/.../funcName-paramhash/funcName(data1_t1.tif).ext
+    .../fcProcessed/.../funcName(paramHash,pathHash)/funcName(data1_t1.tif).ext
     ```
 
   * the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
@@ -75,9 +75,22 @@ end
   * so if a func grows too big, like func(input1,input2,....inputn) > 255 characters, just hash the input to be func(inputhash)
   * every operation below is about processing a list of files then save as an output or list of outputs that mirror the list of inputs.  
       dominant use case 
-    * {list of inputs}n -func(params)-> {list of outputs}n  // like filtering 
+    * {list of inputs}n -func(params)-> {list of outputs}n  // like filtering
+        * save as func(input_i).ext
     * {list of inputs}n -func(params)-> 1 output // like segmentation
+        
     * {list of inputs}n -func(params)-> {list of outputs}m // like extracting cells
+
+    * {list of inputs}n, {list of inputs}m , ... -> func(params) -> {list of outputs}a, {list of ouputs}b
+        * /func(paramHash,pathsHash)/func_outputa({list of inputs}n,{list of inputs}m)
+        * /func(paramHash,pathsHash)/func_outputb({list of inputs}n,{list of inputs}m)
+        * ...
+    * each operation returns to workspace:
+        - {{list of inputs}n} (ordered)
+        - {{list of outputs}m} (ordered)
+        - {func3, func2, func1,...}
+        - {param3,param2,param1}
+
 
   ```Matlab
 %%==example data===========================================================
