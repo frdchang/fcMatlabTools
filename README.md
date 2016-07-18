@@ -91,7 +91,7 @@ end
         * output function: myFunc
         * parameters: myParams
 
-    ```Matlab
+```Matlab
 % paths were dropped for clariy
 %%==example data lists=====================================================
 w1 >> {data-w1-t1.tif,data-w1-t2.tif,data-w1-t3.tif}
@@ -102,13 +102,30 @@ genQPM.output = {genQPM(data-w1-t1),genQPM(data-w1-t2),genQPM(data-w1-t3)}
 
 spotDetection.input = {data-w2-t1.tif,data-w2-t2.tif,data-w2-t3.tif}
 spotDetection.output = {
-                        {fcSpotDetection_ThetaMLE(data-w2-t1),fcSpotDetection_ThetaMLE(data-w2-t2),fcSpotDetection_ThetaMLE(data-w2-t3)},
-                        {fcSpotDetection_A1(data-w2-t1),fcSpotDetection_A1(data-w2-t1),fcSpotDetection_A1(data-w2-t1)},
-                        ...,...,...
+                        {fcSpotDetection_ThetaMLE(data-w2-t1),...},
+                        {fcSpotDetection_A1(data-w2-t1),...},
+                        {...},{...},{...}
                         };
-    ```
 
-    ```Matlab
+alignStage.input = {genQPM(data-w1-t1),genQPM(data-w1-t2),genQPM(data-w1-t3)}
+alignStage.output = {{alignStage(genQPM(data-w1-t1)),...},{alignStage(paramHash).mat}}
+
+alignChannels.input = {{data-w1-t1,...},
+                       {data-w2-t1,...},    
+                       {alignStage(genQPM(data-w1-t1)),...},
+                       {fcSpotDetection_A1(data-w2-t1),...},...};
+alignChannels.output = {{alignChannels(data-w1-t1),...,alignChannels(paramHash4,pathsHash1).mat},   
+                        {...},{...},...};
+
+alignSpotDetection.input = {{fcSpotDetection_ThetaMLE(data-w2-t1),...}}
+alignSpotDetection.output = {{alignSpotDetection(fcSpotDetection_ThetaMLE(data-w2-t1)),...}}
+
+yeastSeg.input = {{alignChannels(alignStage(genQPM(data-w1-t1))),...,alignChannels(paramHash4,pathsHash3).mat}};
+yeastSeg.output = {{yeastSeg(alignChannels(alignStage(genQPM(data-w1-t1)))).tif, ... , yeastSeg(paramHash6,pathsHash8).mat}};
+
+```
+
+```Matlab
 %%==example data===========================================================
 
 .../fcData../data-w1-t1.tif
@@ -194,7 +211,7 @@ spotDetection.output = {
 %--plot data for each cell-------------------------------------------------
 
 %%=========================================================================
-    ```
+```
 
 
 ## datastructures used in the code:
