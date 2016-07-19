@@ -133,7 +133,7 @@ extractCells.output = {
                             {cell1,[],cell3,cell4,cell5}
                         },
                         {
-                            extract cells in second data battery (like another time series)
+                            %extract cells in second data battery (like another time series)
                         }
                        };
 extractCells.output = {
