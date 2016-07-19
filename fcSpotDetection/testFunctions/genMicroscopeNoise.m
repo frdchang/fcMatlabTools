@@ -11,7 +11,7 @@ function [sampledData,poissonNoiseOnly] = genMicroscopeNoise(trueData,varargin)
 %   correct in the future.
 
 %--parameters--------------------------------------------------------------
-params.readNoise     = 1.6;     % electrons (sigma)
+params.readNoiseData     = 1.6;     % electrons (sigma)
 params.gain          = 2.1;     % ADU/electrons
 params.offset        = 100;     % ADU units
 params.QE            = 0.7;
@@ -25,11 +25,11 @@ sampledData = poissrnd(sampledData);
 poissonNoiseOnly = sampledData;
 % read noise
 % if read noise value is infinity just put large number
-params.readNoise(params.readNoise==inf) = 10000;
-if isscalar(params.readNoise)
-    sampledData = sampledData + normrnd(0,params.readNoise,size(trueData));
+params.readNoise(params.readNoiseData==inf) = 10000;
+if isscalar(params.readNoiseData)
+    sampledData = sampledData + normrnd(0,params.readNoiseData,size(trueData));
 else
-    sampledData = sampledData + normrnd(0,params.readNoise);
+    sampledData = sampledData + normrnd(0,params.readNoiseData);
 end
 % convert from electrons to ADU
 sampledData = sampledData.*params.gain + params.offset;

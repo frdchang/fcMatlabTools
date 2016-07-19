@@ -1,10 +1,10 @@
 %% generate a bunch of spots at different As and Bs then test spot detection codeon those datasets
 dataSetSize = [21,21,11];
-readNoiseData = repmat(lognrnd(1.6,1.1,dataSetSize),[1 1 dataSetSize(3)]);
+readNoiseData = repmat(lognrnd(1.6,1.1,[dataSetSize(1),dataSetSize(2)]),[1 1 dataSetSize(3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
 QE            = 0.7;  
-Nsamples      = 1000;
+Nsamples      = 10;
 params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'offset',offset,'QE',QE,'Nsamples',Nsamples};
 % genDataSetGivenAB(1000,1,params{:});
 genBatteryOfABs(params);

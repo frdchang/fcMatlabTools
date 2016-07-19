@@ -96,13 +96,16 @@ for i = 1:numel(params.spotList)
     % check if {x,y,z} are bounded by dataset
     if params.useRealistic
         syntheticSpots = syntheticSpots + params.spotList{i}.amp*genPSF(updateParams(params,genPSFParams));
+        spotUsed = genPSF(updateParams(params,genPSFParams));
     else
         gaussPSF = ndGauss(sqrt([params.sigmaxysq,params.sigmaxysq,params.sigmazsq]), dataSetSize,[params.spotList{i}.xPixel,params.spotList{i}.yPixel,params.spotList{i}.zPixel]-ceil(dataSetSize/2));
         gaussPSF = gaussPSF / max(gaussPSF(:));
         syntheticSpots = syntheticSpots + params.spotList{i}.amp*gaussPSF;
         params.spotList{i}.sigmaxy = sqrt(params.sigmaxysq);
         params.spotList{i}.sigmaz  = sqrt(params.sigmazsq);
+        spotUsed = gaussPSF;
     end
+    
 end
 
 
@@ -119,7 +122,7 @@ end
 synSpotStruct.poissonNoiseOnly = poissonNoiseOnly;
 synSpotStruct.data = syntheticSpots;
 synSpotStruct.synSpotList = params.spotList;
-
+synSpotStruct.kernel = spotUsed;
 
 
 end
