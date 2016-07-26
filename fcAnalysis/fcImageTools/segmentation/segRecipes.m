@@ -1,6 +1,9 @@
 %% for cyano segmentation
-brightZstack = importStack('/Users/fchang/Dropbox/Public/examplesFromAndrian/AGH42example.ome.tiff - T=0 C=2.tif');
-edgeProfileZ = [16962 17033 17319 17392 18426 21676 23678 24500 24320];
-[L,stats,qpm] = cyanoSeg(brightZstack,edgeProfileZ);
+brightZstack = importStack('/Users/fchang/Dropbox/Public/examplesFromAndrian/ex3cult-IP-Channel Alignment-04.czi - T=0 C=0.tif');
+% when you run cyano seg it will ask you to 
+% 1) select a zoomed area to closer inspection
+% 2) select a handful of points that define the edge (the bright halo
+% around the cell)
+[L,stats,qpm] = cyanoSeg(brightZstack);
 [~,rgbSegmented]= plotLabels(qpm,stats,L);
-imshow(rgbSegmented);
+figure;imshow(rgbSegmented);
