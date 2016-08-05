@@ -17,13 +17,17 @@ function candidates = findSpotsStage2(detected,spotData,varargin)
 % [param cascade] -> simpleThresholdDetection
 
 %--parameters--------------------------------------------------------------
-params.LLRatioThresh     = 50;
+params.LLRatioThresh     = []; 
 params.minVol            = 3;
 params.smoothingKernel   = [0.9,0.9,0.9];
 params.smoothingSize     = [7 7 7];
 % params.featherSize       = [3 3 3];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
+
+if isempty(params.LLRatioThresh)
+    [params.LLRatioThresh, ~, ~] = threshold(multithresh(detected.LLRatio(:)), max(detected.LLRatio(:)), maxintensityproj(detected.LLRatio,3));
+end
 
 % smooth LLRatio
 [~,sepKernel] = ndGauss(params.smoothingKernel,params.smoothingSize);

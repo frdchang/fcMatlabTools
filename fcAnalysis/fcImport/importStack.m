@@ -12,6 +12,7 @@ switch ext
         error('do not recognize file extension');
 end
 
+stack = double(stack);
 
 end
 
