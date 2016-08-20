@@ -12,6 +12,7 @@ for eachSpot = 1:numel(spotParams)
             currCoor = currTheta([2 1]);
             currCoor = cellfun(@round,currCoor);
             currCoor = num2cell(currCoor);
+            % need to check if currCorr is within domain
             spots(currCoor{:}) = eachSpot;
         elseif ndims(L) == 3
             currCoor = currTheta([2 1 3]);

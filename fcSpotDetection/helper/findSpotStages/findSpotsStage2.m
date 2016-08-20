@@ -37,7 +37,7 @@ smoothLLRatio = unpadarray(smoothLLRatio,size(detected.LLRatio));
 % only select areas with A1 > 0
 peaks = smoothLLRatio.*(detected.LLRatio>params.LLRatioThresh).*(detected.A1>0);
 BWmask = peaks>0;
-
+BWmask = imclearborder(BWmask);
 % find non-zero peaks with a minum volume of pixels.  this number is the
 % autocorrelation size and depends on the SNR
 BWmask = bwareaopen(BWmask, params.minVol,6);
