@@ -298,74 +298,104 @@ toc
 LLRatios = real([LLMLE{:}]);
 xPos = cellfun(@(x) x{1},thetaMLE(~findEmptyCells(thetaMLE)));
 xVar = cellfun(@(x) x(1),thetaVAR(~findEmptyCells(thetaVAR)));
-%% i want to know if Loglikelihood is better than Lap of gaussian.
+%% i want to know if Loglikelihood is better than Lap of gaussian vs NCC vs MLEA 
 % yup, it is.  -fc
-N = 1200;
-saveFolder = '~/Desktop/LOGvsLLRatio';
-psfData = genPSF('onlyPSF',false,'plotProfiles',false);
-gaussSigmas = psfData.gaussSigmas;
+N = 1000000;
+saveFolder = '~/Desktop/LOGvsMLEAvsLLRatio';
+
+gaussSigmas = [0.9,0.9,0.9];
 kernSize = [7,7,7];
 gaussKern = ndGauss(gaussSigmas,kernSize);
 gaussKern = gaussKern / max(gaussKern(:));
-sigmasq = 1.6*ones(size(data));
-logKern = LOG3D(psfData.gaussSigmas.^2,kernSize);
+test = genSyntheticSpots('useCase',2);
+% read noise definition
+%sigmasq = 1.6*ones(size(test.data));
+sigmasq = genLogNormalNoiseVar(size(test.data),'extrudeInZ',true);
+
+logKern = LOG3D(gaussSigmas.^2,kernSize);
+
+sizeData = size(test.data);
+
 LOGVals = zeros(N,1);
-LL1Vals = zeros(N,1);
-LL0Vals = zeros(N,1);
 AVals   = zeros(N,1);
+AWONoiseVals   = zeros(N,1);
 LLRatioFull = zeros(N,1);
+NCCVals  = zeros(N,1);
+convVals = zeros(N,1);
 
 LOGVals0 = zeros(N,1);
-LL1Vals0 = zeros(N,1);
-LL0Vals0 = zeros(N,1);
 AVals0   = zeros(N,1);
+AWONoiseVals0   = zeros(N,1);
 LLRatioFull0 = zeros(N,1);
+NCCVals0   = zeros(N,1);
+convVals0 = zeros(N,1);
 
-noSpotCoors = {15,10,16};
-mkdir(saveFolder);
+noSpotCoors = {16,10,5};
+
+[~,~,~] = mkdir(saveFolder);
+[~,~,~] = mkdir([saveFolder filesep 'data']);
+[~,~,~] = mkdir([saveFolder filesep 'A']);
+[~,~,~] = mkdir([saveFolder filesep 'AWONoise']);
+[~,~,~] = mkdir([saveFolder filesep 'LOG']);
+[~,~,~] = mkdir([saveFolder filesep 'LLratio']);
+[~,~,~] = mkdir([saveFolder filesep 'NCC']);
+[~,~,~] = mkdir([saveFolder filesep 'readNoise']);
+[~,~,~] = mkdir([saveFolder filesep 'convData']);
 tic;
+
 parfor i = 1:N
-    test = genSyntheticSpots('useCase',2);
+    display(i);
+    sigmasq = genLogNormalNoiseVar(sizeData,'extrudeInZ',true);
+    test = genSyntheticSpots('useCase',2,'readNoiseData',sigmasq);
     spotCoors = {test.synSpotList{1}.xPixel,test.synSpotList{1}.yPixel,test.synSpotList{1}.zPixel};
+    spotCoors = cellfunNonUniformOutput(@round,spotCoors);
     data = returnElectrons(test.data,2.1,100,0.7);
     detected = findSpotsStage1(data,gaussKern,sigmasq);
+    detectedWONoise = findSpotsStage1(data,gaussKern,ones(size(test.data)));
     padData = padarray(data,size(logKern),'replicate');
     logData = unpadarray(convFFTND(padData,logKern),size(data));
-    LLRatioFullData = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcLogLikeOfPatch_PoissPoiss,{gaussKern},-inf);
-    fullLLResults = nlfilter3D({data,sigmasq,detected.A1,detected.B1,detected.B0},kernSize,@calcMLEOfPatch_PoissPoiss,{gaussKern,gaussSigmas},-inf);
-    detectedRefined = findSpotsStage1refined(data,gaussKern,sigmasq,detected,gaussSigmas);
+    convData = unpadarray(convFFTND(padData,gaussKern),size(data));
+    NCC = normxcorr3FFT(gaussKern,data);
     % with spot
     LOGVals(i) = logData(spotCoors{:});
-    LL1Vals(i) = detected.LL1(spotCoors{:});
-    LL0Vals(i) = detected.LL0(spotCoors{:});
     AVals(i) = detected.A1(spotCoors{:});
-    LLRatioFull(i) = LLRatioFullData(spotCoors{:});
+    AWONoiseVals(i) = detectedWONoise.A1(spotCoors{:});
+    LLRatioFull(i) = detected.LLRatio(spotCoors{:});
+    convVals(i) = convData(spotCoors{:});
+    NCCVals(i) = NCC(spotCoors{:});
     % without spot
     LOGVals0(i) = logData(noSpotCoors{:});
-    LL1Vals0(i) = detected.LL1(noSpotCoors{:});
-    LL0Vals0(i) = detected.LL0(noSpotCoors{:});
     AVals0(i) = detected.A1(noSpotCoors{:});
-    LLRatioFull0(i) =  LLRatioFullData(noSpotCoors{:});
+    AWONoiseVals0(i) = detectedWONoise.A1(noSpotCoors{:});
+    LLRatioFull0(i) = detected.LLRatio(noSpotCoors{:});
+    NCCVals0(i) = NCC(noSpotCoors{:});
+    convVals0(i) = convData(noSpotCoors{:});
     % save images
     maxData = maxintensityproj(data,3);
     maxA    = maxintensityproj(detected.A1,3);
+    maxAWONoise = maxintensityproj(detectedWONoise.A1,3);
     maxLOG  = maxintensityproj(logData,3);
-    maxLLratio = maxintensityproj(detected.LL1-detected.LL0,3);
-    display(i)
-    %     if mod(i,100)==0
-    %         display([num2str(i) ' of ' num2str(N)])
-    % %         fits_write([saveFolder filesep 'data' num2str(i) '.fits'],maxData);
-    % %         fits_write([saveFolder filesep 'A' num2str(i) '.fits'],maxA);
-    % %         fits_write([saveFolder filesep 'LOG' num2str(i) '.fits'],maxLOG);
-    % %         fits_write([saveFolder filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
-    %     end
+    maxLLratio = maxintensityproj(detected.LLRatio,3);
+    maxNCC  = maxintensityproj(NCC,3);
+    maxNoise = maxintensityproj(sigmasq,3);
+    maxConv  = maxintensityproj(convData,3);
+    
+%     fits_write([saveFolder filesep 'data' filesep 'data' num2str(i) '.fits'],maxData);
+%     fits_write([saveFolder filesep 'A' filesep 'A' num2str(i) '.fits'],maxA);
+%     fits_write([saveFolder filesep 'LOG' filesep 'LOG' num2str(i) '.fits'],maxLOG);
+%     fits_write([saveFolder filesep 'LLratio' filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
+%     fits_write([saveFolder filesep 'NCC' filesep 'NCC' num2str(i) '.fits'],maxNCC);
+%     fits_write([saveFolder filesep 'AWONoise' filesep 'AWONoise' num2str(i) '.fits'],maxAWONoise);
+%     fits_write([saveFolder filesep 'readNoise' filesep 'readNoise' num2str(i) '.fits'],maxNoise);
+%     fits_write([saveFolder filesep 'convData' filesep 'convData' num2str(i) '.fits'],maxConv);
 end
 toc
-
-LOGdatas = genROC('Laplacian of Gaussian',LOGVals,LOGVals0);
-% Adatas = genROC('MLE of Amp',AVals,AVals0);
-LLratiodatas = genROC('Log(LikelihoodRatio)',LL1Vals-LL0Vals,LL1Vals0-LL0Vals0);
-LLratioFulldatas = genROC('Log(LikelihoodRatioFull)',LLRatioFull,LLRatioFull0);
+% fits_write([saveFolder filesep 'truth.fits'],maxintensityproj(test.synAmp,3));
+save([saveFolder filesep 'data'],'LOGVals','AVals','AWONoiseVals','LLRatioFull','NCCVals','convVals','LOGVals0','AVals0','AWONoiseVals0','LLRatioFull0','NCCVals0','convVals0');
+% LOGdatas = genROC('Laplacian of Gaussian',LOGVals,LOGVals0);
+% % Adatas = genROC('MLE of Amp',AVals,AVals0);
+% LLratiodatas = genROC('Log(LikelihoodRatio)',LL1Vals-LL0Vals,LL1Vals0-LL0Vals0);
+% LLratioFulldatas = genROC('Log(LikelihoodRatioFull)',LLRatioFull,LLRatioFull0);
 %% test gradient ascent
 test = genSyntheticSpots('useCase',2);
 trueData = test.synAmp+test.synBak;
