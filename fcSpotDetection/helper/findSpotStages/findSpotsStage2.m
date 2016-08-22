@@ -1,8 +1,7 @@
 function candidates = findSpotsStage2(detected,spotData,varargin)
 %FINDSPOTSSTAGE2 find candidate regions among the processed output of the
-% data from findSpotsStage1 by thresholding the Log Likelihood Ratio and
-% feathering that output.  
-% 
+% data from findSpotsStage1
+%
 % detected:     output struct from findSpotsStage1
 % candidates:   output data structure organized as ...
 %
@@ -10,46 +9,65 @@ function candidates = findSpotsStage2(detected,spotData,varargin)
 %           does not have to be rectangular bounding boxes.  this
 %           accomodates the fitting of spots to complex shapes.
 %         - this function filters the LLRATIO > thresh and A parameter > 0,
-%           then smooths it to do hdome local maxima search.  
+%           then smooths it to do hdome local maxima search.
 %         - then for those connected objects smaller than some value gives
-%         
+%
 %
 % [param cascade] -> simpleThresholdDetection
 
 %--parameters--------------------------------------------------------------
-params.LLRatioThresh     = []; 
-params.minVol            = 3;
-params.smoothingKernel   = [0.9,0.9,0.9];
+% you can just use simple 'threshold' or 'hdome'
+params.strategy          = 'hdome';
+%==universal parameters====================================================
+params.smoothingKernel   = [0.9,0.9,0.9];   % smooths LLRatio
 params.smoothingSize     = [7 7 7];
-% params.featherSize       = [3 3 3];
+% params.minVol            = 3;             % make sure candidate is > minVol
+params.Athreshold        = 0;               % select regions where A > Athreshold
+params.clearBorder       = true;            % clear border?
+%==hdome specific parameters===============================================
+params.hdomeH            = 1e5;
+params.thresholdHDome    = 'otsu';  %{'otsu',thresholdValue}
+%==threshold specific parameters===========================================
+params.LLRatioThresh     = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-if isempty(params.LLRatioThresh)
-    [params.LLRatioThresh, ~, ~] = threshold(multithresh(detected.LLRatio(:)), max(detected.LLRatio(:)), maxintensityproj(detected.LLRatio,3));
-end
-
-% smooth LLRatio
+%% universal computation
 [~,sepKernel] = ndGauss(params.smoothingKernel,params.smoothingSize);
 smoothLLRatio = convSeparableND(detected.LLRatio,sepKernel);
 smoothLLRatio = unpadarray(smoothLLRatio,size(detected.LLRatio));
-% threshold by the value selected above
-% only select areas with A1 > 0
-peaks = smoothLLRatio.*(detected.LLRatio>params.LLRatioThresh).*(detected.A1>0);
-BWmask = peaks>0;
-BWmask = imclearborder(BWmask);
-% find non-zero peaks with a minum volume of pixels.  this number is the
-% autocorrelation size and depends on the SNR
-BWmask = bwareaopen(BWmask, params.minVol,6);
+Athresholded = detected.A1 > params.Athreshold;
 
-% fill holes
-BWmask = imfill(BWmask,'holes');
 
-% % feather
-% BWmask = imdilate(BWmask,strel('arbitrary',ones(params.featherSize)));
+%% user specified computation
+switch params.strategy
+    case 'hdome'
+        selectedRegions = hdome(smoothLLRatio,params.hdomeH);
+        if strcmp(params.thresholdHDome,'otsu')
+            params.thresholdHDome = multithresh(selectedRegions(:));
+        end
+        selectedRegions = selectedRegions > params.thresholdHDome;
+    case 'threshold'
+        if isempty(params.LLRatioThresh)
+            [params.LLRatioThresh, ~, ~] = threshold(multithresh(detected.LLRatio(:)), max(detected.LLRatio(:)), maxintensityproj(detected.LLRatio,3));
+        end
+        selectedRegions = smoothLLRatio > params.LLRatioThresh;
+    otherwise
+        error('unrecognized strategy');
+end
 
-% segment and output
-stats = regionprops(BWmask,'PixelIdxList','PixelList');
-candidates.peaks    = peaks;
+%% universal computation
+BWmask = Athresholded.*selectedRegions;
+
+if params.clearBorder
+    BWmask = imclearborder(BWmask);
+end
+
+
+
+% segment spots
+stats = regionprops(BWmask,'PixelIdxList','PixelList','Centroid');
+newStats = defineBBBoxOnCentroids(stats,BBox);
+
 candidates.BWmask   = BWmask;
 candidates.stats    = stats;
