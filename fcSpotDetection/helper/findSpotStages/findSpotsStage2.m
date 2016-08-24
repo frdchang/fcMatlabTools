@@ -17,7 +17,7 @@ function candidates = findSpotsStage2(detected,spotData,varargin)
 
 %--parameters--------------------------------------------------------------
 % you can just use simple 'threshold' or 'hdome'
-params.strategy          = 'hdome';
+params.strategy          = 'hdome';         % {'hdome','threshold','autoSpotFindingThreshold'}
 %==universal parameters====================================================
 params.smoothingKernel   = [0.9,0.9,0.9];   % smooths LLRatio
 params.smoothingSize     = [7 7 7];
@@ -52,6 +52,8 @@ switch params.strategy
             [params.LLRatioThresh, ~, ~] = threshold(multithresh(detected.LLRatio(:)), max(detected.LLRatio(:)), maxintensityproj(detected.LLRatio,3));
         end
         selectedRegions = smoothLLRatio > params.LLRatioThresh;
+    case 'autoSpotFindingThreshold'
+        
     otherwise
         error('unrecognized strategy');
 end

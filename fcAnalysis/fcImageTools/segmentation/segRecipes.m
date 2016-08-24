@@ -1,6 +1,10 @@
 %% for cyano segmentation
-brightZstack = importStack('/Users/fchang/Desktop/Error in returnSpotParamsInL/AGH42-every20m-first4darkCropped.tif - T=58 C=2.tif');
-spotStack    = importStack('/Users/fchang/Desktop/Error in returnSpotParamsInL/AGH42-every20m-first4darkCropped.tif - T=58 C=1.tif');
+% brightZstack = importStack('/Users/fchang/Desktop/Error in returnSpotParamsInL/AGH42-every20m-first4darkCropped.tif - T=58 C=2.tif');
+% spotStack    = importStack('/Users/fchang/Desktop/Error in returnSpotParamsInL/AGH42-every20m-first4darkCropped.tif - T=58 C=1.tif');
+
+brightZstack = importStack('/home/fchang/Dropbox/Public/examplesFromAndrian/not working/AGH42-od02mixWT-02_Aligned.czi - T=0 C=2.tif');
+spotStack    = importStack('/home/fchang/Dropbox/Public/examplesFromAndrian/not working/AGH42-od02mixWT-02_Aligned.czi - T=0 C=1.tif');
+
 % when you run cyano seg it will ask you to 
 % 1) select a zoomed area to closer inspection
 % 2) select a handful of points that define the edge (the bright halo
