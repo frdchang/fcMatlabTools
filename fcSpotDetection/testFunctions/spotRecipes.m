@@ -1,9 +1,68 @@
+%% generate figure of noise
+
+QE = 0.7;
+offset = 100;
+gain = 1/0.49;
+synTest = genSyntheticSpots('useCase',2);
+background = synTest.synBak;
+spots = synTest.synAmp;
+% background = padarray(synTest.synBak,[6,6,6]);
+% spots      = padarray(synTest.synAmp,[6,6,6]);
+
+dataSetSize = size(spots);
+kernel = synTest.kernel;
+kernel = kernel / sum(kernel(:));
+kernel = threshPSF(kernel,0.000015);
+kernel = kernel / sum(kernel(:));
+background = convn(background,kernel);
+background = unpadarray(background,size(spots));
+kernel = kernel/max(kernel(:));
+cameraNoise = genLogNormalNoiseVar(size(spots(:,:,1)))*1/gain^2;
+cameraNoise = repmat(cameraNoise,[1 1 size(spots,3)]);
+%cameraNoise = repmat(lognrnd(1.6,1.1,[dataSetSize(1),dataSetSize(2)]),[1 1 dataSetSize(3)]);
+logKern = LOG3D([0.9,0.9,0.9].^2,[7 7 7]);
+
+for i = 1:4
+    bkgndPoiss = poissrnd(background);
+    spotsPoiss = poissrnd(spots);
+    bothPoiss = bkgndPoiss+spotsPoiss;
+    sampledCameraNoise = normrnd(0,sqrt(cameraNoise));
+    ADUdata = (bothPoiss+sampledCameraNoise)*QE*gain + offset;
+    electronData = returnElectrons(ADUdata,gain,offset,QE);
+    detected = findSpotsStage1(electronData,kernel,cameraNoise);
+    detectedSans = findSpotsStage1(electronData,kernel,ones(size(cameraNoise)));
+    logged = filterND(electronData,logKern);
+    totalOutput = cat(2,spotsPoiss,bkgndPoiss,sampledCameraNoise,bothPoiss+sampledCameraNoise);
+    exportSingleFitsStack(['~/Desktop/totalOutput' num2str(i)],xyMaxProjND(totalOutput));
+    exportSingleFitsStack(['~/Desktop/LLRatio' num2str(i)],xyMaxProjND(detected.LLRatio));
+    exportSingleFitsStack(['~/Desktop/log' num2str(i)],xyMaxProjND(logged));
+end
+
+
+
+electronData = returnElectrons(sampledData,cameraParams.gain,cameraParams.offset,cameraParams.QE);
+detected = findSpotsStage1(electronData,kernel,cameraNoise);
+detectedSans = findSpotsStage1(electronData,kernel,ones(size(cameraNoise)));
+
+plot3Dstack(detected.LLRatio)
+
+exportSingleFitsStack('~/Desktop/data',xyMaxProjND(sampledData));
+exportSingleFitsStack('~/Desktop/truth',xyMaxProjND(spots));
+exportSingleFitsStack('~/Desktop/bak',xyMaxProjND(background));
+exportSingleFitsStack('~/Desktop/noise',xyMaxProjND(cameraNoise));
+exportSingleFitsStack('~/Desktop/poisson',xyMaxProjND(poissonNoiseOnly));
+exportSingleFitsStack('~/Desktop/LLRatio',xyMaxProjND(detected.LLRatio));
+exportSingleFitsStack('~/Desktop/LLRatioSansNoiseModel',xyMaxProjND(detectedSans.LLRatio));
+exportSingleFitsStack('~/Desktop/B',xyMaxProjND(detected.B1));
+exportSingleFitsStack('~/Desktop/A',xyMaxProjND(detected.A1));
+exportSingleFitsStack('~/Desktop/B0',xyMaxProjND(detected.B0));
+exportSingleFitsStack('~/Desktop/truthBak',xyMaxProjND(trueData));
 %% generate a bunch of spots at different As and Bs then test spot detection codeon those datasets
 dataSetSize = [21,21,11];
 readNoiseData = repmat(lognrnd(1.6,1.1,[dataSetSize(1),dataSetSize(2)]),[1 1 dataSetSize(3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
-QE            = 0.7;  
+QE            = 0.7;
 Nsamples      = 10;
 params = {'dataSetSize',dataSetSize,'readNoiseData',readNoiseData,'gain',gain,'offset',offset,'QE',QE,'Nsamples',Nsamples};
 % genDataSetGivenAB(1000,1,params{:});
@@ -21,9 +80,9 @@ sampleSpot                = genSyntheticSpots(...
 readNoiseData = repmat(lognrnd(1.6,1.1,size(sampleSpot.data(:,:,1))),[1 1 size(sampleSpot.data,3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
-QE            = 0.7;     
+QE            = 0.7;
 
-% here is a single spot with parameters {xp,yp,zp,amp}, 
+% here is a single spot with parameters {xp,yp,zp,amp},
 spotParamStruct1.xp       = 0.45657e-6;          % (units m in specimen plane)
 spotParamStruct1.yp       = 0.12246e-6;          % (units m in specimen plane)
 spotParamStruct1.zp       = 0.113245e-6;         % (units m in specimen plane)
@@ -34,7 +93,7 @@ sampleSpot                = genSyntheticSpots(...
 
 groundTruthData = sampleSpot.synAmp + sampleSpot.synBak;
 cameraNoiseData = genCameraNoiseOnly(groundTruthData,'readNoise',readNoiseData,'gain',gain,'offset',offset,'QE',QE);
- [electronData,photonData] = returnElectrons(cameraNoiseData,gain,offset,QE);
+[electronData,photonData] = returnElectrons(cameraNoiseData,gain,offset,QE);
 
 % generate theta vector for that sample spot
 theta = genThetaFromSynSpotStruct_for_single3DGauss(sampleSpot.synSpotList{1});
@@ -59,14 +118,14 @@ sampleSpot                = genSyntheticSpots(...
 readNoiseData = repmat(lognrnd(1.6,1.1,size(sampleSpot.data(:,:,1))),[1 1 size(sampleSpot.data,3)]);
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
-QE            = 0.7;     
-% % here is a single spot with parameters {xp,yp,zp,amp}, 
+QE            = 0.7;
+% % here is a single spot with parameters {xp,yp,zp,amp},
 % spotParamStruct1.xp       = 0.45657e-6;          % (units m in specimen plane)
 % spotParamStruct1.yp       = 0.12246e-6;          % (units m in specimen plane)
 % spotParamStruct1.zp       = 0.113245e-6;         % (units m in specimen plane)
 % spotParamStruct1.amp      = 7;                   % (number of electrons at peak)
 background                = 5;
-% % generate that spot 
+% % generate that spot
 % spotList                  = {spotParamStruct1};
 %  sampleSpot                = genSyntheticSpots(...
 %     'useCase',2,'spotList',spotList,'bkgndVal',background,'readNoise',readNoise,'gain',gain,'offset',offset,'QE',QE);
@@ -114,7 +173,7 @@ readNoiseData(selectPixel) = inf;
 for i = 1:N
     sampledData = genMicroscopeNoise(truthData,'readNoise',readNoiseData,'gain',gain,'offset',offset,'QE',QE);
     % break the pixels
-%     sampledData(selectPixel) =  100;
+    %     sampledData(selectPixel) =  100;
     [electronData,photonData] = returnElectrons(sampledData,gain,offset,QE);
     electronData(selectPixel) = 100;
     estimated = findSpotsStage1(electronData,spotInfo.spotData,readNoiseData);
@@ -139,14 +198,14 @@ exportSingleFitsStack([saveFolder filesep 'readNoise'],return3Views(readNoiseDat
 readNoise     = 1.0;     % electrons (sigma = rms)
 gain          = 2.1;     % ADU/electrons
 offset        = 100;     % ADU units
-QE            = 0.7;     
-% % here is a single spot with parameters {xp,yp,zp,amp}, 
+QE            = 0.7;
+% % here is a single spot with parameters {xp,yp,zp,amp},
 % spotParamStruct1.xp       = 0.45657e-6;          % (units m in specimen plane)
 % spotParamStruct1.yp       = 0.12246e-6;          % (units m in specimen plane)
 % spotParamStruct1.zp       = 0.113245e-6;         % (units m in specimen plane)
 % spotParamStruct1.amp      = 7;                   % (number of electrons at peak)
 background                = 5;
-% % generate that spot 
+% % generate that spot
 % spotList                  = {spotParamStruct1};
 %  sampleSpot                = genSyntheticSpots(...
 %     'useCase',2,'spotList',spotList,'bkgndVal',background,'readNoise',readNoise,'gain',gain,'offset',offset,'QE',QE);
@@ -298,7 +357,7 @@ toc
 LLRatios = real([LLMLE{:}]);
 xPos = cellfun(@(x) x{1},thetaMLE(~findEmptyCells(thetaMLE)));
 xVar = cellfun(@(x) x(1),thetaVAR(~findEmptyCells(thetaVAR)));
-%% i want to know if Loglikelihood is better than Lap of gaussian vs NCC vs MLEA 
+%% i want to know if Loglikelihood is better than Lap of gaussian vs NCC vs MLEA
 % yup, it is.  -fc
 N = 1000000;
 saveFolder = '~/Desktop/LOGvsMLEAvsLLRatio';
@@ -380,14 +439,14 @@ parfor i = 1:N
     maxNoise = maxintensityproj(sigmasq,3);
     maxConv  = maxintensityproj(convData,3);
     
-%     fits_write([saveFolder filesep 'data' filesep 'data' num2str(i) '.fits'],maxData);
-%     fits_write([saveFolder filesep 'A' filesep 'A' num2str(i) '.fits'],maxA);
-%     fits_write([saveFolder filesep 'LOG' filesep 'LOG' num2str(i) '.fits'],maxLOG);
-%     fits_write([saveFolder filesep 'LLratio' filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
-%     fits_write([saveFolder filesep 'NCC' filesep 'NCC' num2str(i) '.fits'],maxNCC);
-%     fits_write([saveFolder filesep 'AWONoise' filesep 'AWONoise' num2str(i) '.fits'],maxAWONoise);
-%     fits_write([saveFolder filesep 'readNoise' filesep 'readNoise' num2str(i) '.fits'],maxNoise);
-%     fits_write([saveFolder filesep 'convData' filesep 'convData' num2str(i) '.fits'],maxConv);
+    %     fits_write([saveFolder filesep 'data' filesep 'data' num2str(i) '.fits'],maxData);
+    %     fits_write([saveFolder filesep 'A' filesep 'A' num2str(i) '.fits'],maxA);
+    %     fits_write([saveFolder filesep 'LOG' filesep 'LOG' num2str(i) '.fits'],maxLOG);
+    %     fits_write([saveFolder filesep 'LLratio' filesep 'LLratio' num2str(i) '.fits'],maxLLratio);
+    %     fits_write([saveFolder filesep 'NCC' filesep 'NCC' num2str(i) '.fits'],maxNCC);
+    %     fits_write([saveFolder filesep 'AWONoise' filesep 'AWONoise' num2str(i) '.fits'],maxAWONoise);
+    %     fits_write([saveFolder filesep 'readNoise' filesep 'readNoise' num2str(i) '.fits'],maxNoise);
+    %     fits_write([saveFolder filesep 'convData' filesep 'convData' num2str(i) '.fits'],maxConv);
 end
 toc
 % fits_write([saveFolder filesep 'truth.fits'],maxintensityproj(test.synAmp,3));

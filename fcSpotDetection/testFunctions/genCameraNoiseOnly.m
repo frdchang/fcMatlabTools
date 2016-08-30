@@ -1,4 +1,4 @@
-function [sampledData] = genCameraNoiseOnly(trueData,varargin)
+function [sampledData,cameraParams,sampledCameraNoise] = genCameraNoiseOnly(trueData,varargin)
 %GENCAMERANOISEONLY will take trueData as the poisson level, then add gaussian read noise to simulate a with a scmos or ccd camera.
 %
 %   note for fred: in the future if the user provides a string file link
@@ -9,7 +9,7 @@ function [sampledData] = genCameraNoiseOnly(trueData,varargin)
 %   correct in the future.
 
 %--parameters--------------------------------------------------------------
-params.readNoise     = 1.6;     % electrons (sigma)
+params.readNoiseData     = 1.6;     % electrons^2 (sigma)
 params.gain          = 2.1;     % ADU/electrons
 params.offset        = 100;     % ADU units
 params.QE            = 0.7;
@@ -23,14 +23,19 @@ sampledData = double(trueData)*params.QE;
 % poissonNoiseOnly = sampledData;
 % read noise
 % if read noise value is infinity just put large number
-params.readNoise(params.readNoise==inf) = 10000;
-if isscalar(params.readNoise)
-    sampledData = sampledData + normrnd(0,params.readNoise,size(trueData));
+params.readNoiseData(params.readNoiseData==inf) = 10000;
+if isscalar(params.readNoiseData);
+    sampledCameraNoise = normrnd(0,sqrt(params.readNoiseData),size(trueData));
+    sampledData = sampledData + sampledCameraNoise;
 else
-    sampledData = sampledData + normrnd(0,params.readNoise);
+    sampledCameraNoise = normrnd(0,sqrt(params.readNoiseData));
+    sampledData = sampledData + sampledCameraNoise;
 end
 % convert from electrons to ADU
 sampledData = sampledData.*params.gain + params.offset;
-end
+cameraParams.readNoiseData = params.readNoiseData;
+cameraParams.gain          = params.gain;
+cameraParams.offset        = params.offset;
+cameraParams.QE            = params.QE;
 
 

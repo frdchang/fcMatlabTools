@@ -22,19 +22,19 @@ params.useRealistic = false;
 params.sigmaxysq      = 0.9;
 params.sigmazsq       = 0.9;
 %--spot parameters---------------------------------------------------------
-params.bkgndVal     = 5;
+params.bkgndVal     = 10;
 % useCase = 1 is to generate random spots
 % useCase = 2 is to use user defined spots
 params.useCase         = 1;
 % if you want to generate random spots
-params.meanInt         = 10;
+params.meanInt         = 15;
 params.stdInt          = 0;
-params.numSpots        = 10;
+params.numSpots        = 5;
 % if you want to use user defined spots
 spotParamStruct1.xp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.yp   = 0e-6;  %(units m in specimen plane)
 spotParamStruct1.zp   = 0e-6;  %(units m in specimen plane)
-spotParamStruct1.amp  = 13;    %(number of electrons at peak)
+spotParamStruct1.amp  = 10;    %(number of electrons at peak)
 %spotParamStruct1.bak  = (will be assigned params.bkgndVal)
 % spotList = {spotParamStruct1,spotParamStruct2,...};
 params.spotList        = {spotParamStruct1};
@@ -103,7 +103,7 @@ for i = 1:numel(params.spotList)
         syntheticSpots = syntheticSpots + params.spotList{i}.amp*gaussPSF;
         params.spotList{i}.sigmaxy = sqrt(params.sigmaxysq);
         params.spotList{i}.sigmaz  = sqrt(params.sigmazsq);
-        spotUsed = gaussPSF;
+        spotUsed =  ndGauss(sqrt([params.sigmaxysq,params.sigmaxysq,params.sigmazsq]), dataSetSize,[0,0,0]);
     end
     
 end
