@@ -17,13 +17,13 @@ function candidates = findSpotsStage2(detected,spotData,varargin)
 
 %--parameters--------------------------------------------------------------
 % you can just use simple 'threshold' or 'hdome'
-params.strategy          = 'hdome';         % {'hdome','threshold','autoSpotFindingThreshold'}
+params.strategy          = 'threshold';         % {'hdome','threshold','autoSpotFindingThreshold'}
 %==universal parameters====================================================
 params.smoothingKernel   = [0.9,0.9,0.9];   % smooths LLRatio
 params.smoothingSize     = [7 7 7];
 % params.minVol            = 3;             % make sure candidate is > minVol
 params.Athreshold        = 0;               % select regions where A > Athreshold
-params.clearBorder       = true;            % clear border?
+params.clearBorder       = true;            % clear border on xy perimeter
 %==hdome specific parameters===============================================
 params.hdomeH            = 1e5;
 params.thresholdHDome    = 'otsu';  %{'otsu',thresholdValue}
@@ -62,14 +62,14 @@ end
 BWmask = Athresholded.*selectedRegions;
 
 if params.clearBorder
-    BWmask = imclearborder(BWmask);
+    BWmask = clearXYBorder(BWmask);
 end
 
 
 
 % segment spots
-stats = regionprops(BWmask,'PixelIdxList','PixelList','Centroid');
-newStats = defineBBBoxOnCentroids(stats,BBox);
+stats = regionprops(BWmask>0,'PixelIdxList','PixelList','Centroid');
+% newStats = defineBBBoxOnCentroids(stats,BBox);
 
 candidates.BWmask   = BWmask;
 candidates.stats    = stats;
