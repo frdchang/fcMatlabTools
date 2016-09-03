@@ -2,7 +2,7 @@ function [] = openExplorer(myDir)
 %OPENEXPLORER will open local explorer for myDIR
 % Just as an example; current dir
 
-myDir = [ returnFilePath(myDir) filesep];
+myDir = [ returnFilePath([myDir filesep]) filesep];
 % Windows PC    
 if ispc
     C = evalc(['!explorer ' myDir]);
@@ -16,19 +16,19 @@ elseif isunix
 
     % Linux
     else
-        fMs = {...
-            'xdg-open'   % most generic one
-            'gvfs-open'  % successor of gnome-open
-            'gnome-open' % older gnome-based systems               
-            'kde-open'   % older KDE systems
-           };
-        C = '.';
-        ii = 1;
-        while ~isempty(C)                
-            C = evalc(['!' fMs{ii} ' ' myDir]);
-            ii = ii +1;
-        end
-
+%         fMs = {...
+%             'xdg-open'   % most generic one
+%             'gvfs-open'  % successor of gnome-open
+%             'gnome-open' % older gnome-based systems               
+%             'kde-open'   % older KDE systems
+%            };
+%         C = '.';
+%         ii = 1;
+%         while ~isempty(C)                
+%             C = evalc(['!' fMs{ii} ' ' myDir]);
+%             ii = ii +1;
+%         end
+C = evalc(['!' 'gvfs-open' ' ' myDir]);
     end
 else
     error('Unrecognized operating system.');

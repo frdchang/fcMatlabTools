@@ -1,14 +1,21 @@
-function cameraNoiseVar = genLogNormalNoiseVar(sizes,varargin)
+function cameraNoiseVar = genSCMOSNoise(sizes,varargin)
 %GENLOGNORMALNOISEVAR will generate scmos noise from an empiricle
-%distriubtion measured from our camera.
+% distribution measured from our camera ID001486 Cooler on. 
+% calibration file is from 2016
+% calibration was done for fast scan and slow scan
+% 
+
+% dead pixel percentile calculated by doing a mean variance curve, fitting
+% a line, then plotting the histogram of the mean sq error and measuring
+% the area at the tail.  
+percentDeadPixels = 0.0093;
 
 %--parameters--------------------------------------------------------------
 params.extrudeInZ     = true;
-params.standardScanFactor = 1.2500;  %the histogram below was measured using slow scan, this is the factor to estimate the fast scan median 1.0 / median 0.8
+params.scanType       = 'fast';  % {'slow','fast'}
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-display('USING SLOW SCAN data and estimating fast scan!');
 
 % these are empiracal histogram values of read noise rms at slow scan mode of
 % our scmos camera
