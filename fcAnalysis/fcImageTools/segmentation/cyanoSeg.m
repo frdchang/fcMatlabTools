@@ -23,7 +23,7 @@ if isempty(params.edgeProfileZ)
     end
     params.edgeProfileZ = mean(edgeProfileZ);
     
-    display(['''edgeProfileZ'', ' mat2str(edgeProfileZ)]);
+    display(['''edgeProfileZ'', ' mat2str( params.edgeProfileZ)]);
 end
 
 qpm = genQPM(brightZstack,'ballSize',20);
