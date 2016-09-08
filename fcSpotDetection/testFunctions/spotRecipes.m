@@ -1,3 +1,32 @@
+%% explore poisson * gaussian noise
+electronDOM = -20:1:100;
+findDOM = 0:0.01:100;
+offset = 0;
+sigma = 5;
+lambda = 1;
+poiss = poisspdf(electronDOM,lambda);
+gaussDOM = -round(sigma*4)+offset:round(sigma*4)+offset;
+gauss = normpdf(gaussDOM,offset,sigma);
+gauss = gauss / sum(gauss(:));
+poissGauss = conv(poiss,gauss,'same');
+
+poissPoiss = poisspdf(electronDOM+sigma^2,lambda+sigma^2);
+figure;stem(electronDOM,poiss);hold on;stem(gaussDOM,gauss);stem(electronDOM,poissGauss);legend('poisson','gaussian','poissGauss');title(['lambda:' num2str(lambda)]);
+figure;stem(electronDOM,poissGauss);hold on;stem(electronDOM,poissPoiss);legend('poissGauss','poissPoiss');
+
+figure;plot(findDOM,contPoissPDF(findDOM,lambda));hold on; plot(findDOM,DPoissDLambdaPDF(findDOM,lambda));
+
+lambdaDOM = 0:0.1:35;
+datum = 5;
+poiss = contPoissPDF(datum,lambdaDOM);
+poissGauss = conv(poiss,gauss,'same');
+figure;plot(lambdaDOM,poiss);hold on;plot(lambdaDOM,poissGauss);legend('poisson','poiss*gauss');
+figure;hold on;
+for datum = 0:5:20;
+    poiss = contPoissPDF(datum,lambdaDOM);
+    poissGauss = conv(poiss,gauss,'same');
+    plot(lambdaDOM,poissGauss);
+end
 %% generate figure of noise
 
 QE = 0.7;

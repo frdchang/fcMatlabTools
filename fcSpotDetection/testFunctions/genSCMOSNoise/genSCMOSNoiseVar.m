@@ -1,13 +1,15 @@
 function cameraNoiseVar = genSCMOSNoiseVar(sizes,varargin)
-%GENLOGNORMALNOISEVAR will generate scmos noise from an empiricle
+%GENLOGNORMALNOISEVAR will generate scmos noise map from an empiricle
 % distribution measured from our camera ID001486 - Cooler Air.
 % calibration file is from 20160625 of the center 1024x1024 ROI
 % calibration was done for fast scan and slow scan
 % gain of this camera is = 0.49 electrons/count
-
+%
 % dead pixel percentile calculated by doing a mean variance curve, fitting
 % a line, then plotting the histogram of the mean sq error and measuring
 % the area at the tail.
+% 
+% dead pixels are assigned infinite variance.
 
 %--constants---------------------------------------------------------------
 percentDeadPixels = 0.0093;
@@ -40,32 +42,27 @@ end
 %% sample from measured distribution of camera noise per pixel and break pixels accordingly
 if isscalar(sizes)
     electronNoise = sampleFromEmpiricalDistribution(values,edges,sizes);
+    electronNoise = genBrokenPixels(electronNoise,percentDeadPixels);
 else
     if numel(sizes) == 2
         electronNoise =  sampleFromEmpiricalDistribution(values,edges,prod(sizes));
+        electronNoise = genBrokenPixels(electronNoise,percentDeadPixels);
         electronNoise = reshape(electronNoise,sizes);
     elseif numel(sizes) == 3
         if params.extrudeInZ
             electronNoise =  sampleFromEmpiricalDistribution(values,edges,prod(sizes(1:2)));
+            electronNoise = genBrokenPixels(electronNoise,percentDeadPixels);
             electronNoise = reshape(electronNoise,sizes(1:2));
-%             % generate broken pixels
-%             Npixels = numel(electronNoise);
-%             numBrokenPixels = Npixels*percentDeadPixels;
-%             sampledBrokenPixels = poissrnd(numBrokenPixels);
-%             selectPixelBrokenPixel = randperm(Npixels);
-%             selectPixelBrokenPixel = selectPixelBrokenPixel(1:sampledBrokenPixels);
-            
             electronNoise = repmat(electronNoise,[1 1 sizes(3)]);
         else
             electronNoise =  sampleFromEmpiricalDistribution(values,edges,prod(sizes));
+            electronNoise = genBrokenPixels(electronNoise,percentDeadPixels);
             electronNoise = reshape(electronNoise,sizes);
         end
     else
         error('did not write the case of more than 3 dimensions');
     end
 end
-
-
 
 %% convert to requested units
 switch params.units
@@ -79,3 +76,16 @@ end
 
 %% return in variance
 cameraNoiseVar = cameraNoise.^2;
+
+end
+
+
+function electronNoise = genBrokenPixels(electronNoise,percentDeadPixels)
+Npixels = numel(electronNoise);
+numBrokenPixels = Npixels*percentDeadPixels;
+sampledBrokenPixels = poissrnd(numBrokenPixels);
+selectPixelBrokenPixel = randperm(Npixels);
+selectPixelBrokenPixel = selectPixelBrokenPixel(1:sampledBrokenPixels);
+electronNoise(selectPixelBrokenPixel) = inf;
+end
+
