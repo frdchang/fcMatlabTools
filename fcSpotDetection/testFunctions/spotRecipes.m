@@ -1,3 +1,29 @@
+%% explore probability landscape of data and lambda
+[datas,lambdas] = meshgrid(-10:10,0:0.1:10);
+
+
+surf(datas,lambdas,contPoissPDF(datas,lambdas))
+figure;surf(datas,lambdas,DPoissDLambdaPDF(datas,lambdas));
+%% explore poisson gaussian noise fast
+offset = 0;
+sigma = 5;
+lambda = 1;
+
+electronDOM = -20:1:100;
+gaussDOM = -round(sigma*4)+offset:round(sigma*4)+offset;
+poiss = poisspdf(electronDOM,lambda);
+gauss = normpdf(gaussDOM,offset,sigma);
+gauss = gauss / sum(gauss(:));
+poissGauss = conv(poiss,gauss,'same');
+figure;stem(electronDOM,poissGauss);
+
+test = [];
+Dtest = [];
+for i=electronDOM
+   test(end+1) = calcPoissGauss(i,lambda,sigma);
+   Dtest(end+1) = DPoissGaussDLambda(i,lambda,sigma);
+end
+
 %% explore poisson * gaussian noise
 electronDOM = -20:1:100;
 findDOM = 0:0.01:100;
