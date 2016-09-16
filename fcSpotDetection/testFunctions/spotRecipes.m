@@ -5,7 +5,9 @@ sigmas = 1.6*ones(size(datas));
 surf(datas,lambdas,contPoissPDF(datas,lambdas))
 figure;surf(datas,lambdas,DPoissDLambdaPDF(datas,lambdas));
 figure;surf(datas,lambdas,calcPoissGauss(datas,lambdas,sigmas));
-figure;surf(datas,lambdas,calcD PoissGauss(datas,lambdas,sigmas));
+figure;contour(datas,lambdas,calcDPoissGaussDLambda(datas,lambdas,sigmas),'LineWidth',3,'ShowText','on');
+figure;surf(datas,lambdas,calcD2PoissGaussDLambda2(datas,lambdas,sigmas));
+figure;surf(datas,lambdas,calcDPoissGaussDLambda(datas,lambdas,sigmas));
 %% explore poisson gaussian noise fast
 offset = 0;
 sigma = 5;
