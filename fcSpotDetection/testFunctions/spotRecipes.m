@@ -1,9 +1,11 @@
 %% explore probability landscape of data and lambda
 [datas,lambdas] = meshgrid(-10:10,0:0.1:10);
-
+sigmas = 1.6*ones(size(datas));
 
 surf(datas,lambdas,contPoissPDF(datas,lambdas))
 figure;surf(datas,lambdas,DPoissDLambdaPDF(datas,lambdas));
+figure;surf(datas,lambdas,calcPoissGauss(datas,lambdas,sigmas));
+figure;surf(datas,lambdas,calcD PoissGauss(datas,lambdas,sigmas));
 %% explore poisson gaussian noise fast
 offset = 0;
 sigma = 5;
