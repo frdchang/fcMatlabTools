@@ -1,6 +1,38 @@
 %% explore probability landscape of data and lambda
-[datas,lambdas] = meshgrid(-10:10,0:0.1:10);
+[datas,lambdas] = meshgrid(-10:20,0:0.1:20);
 sigmas = 1.6*ones(size(datas));
+
+poissGauss = calcPoissGauss(datas,lambdas,sigmas);
+DPoissGaussDLambda = calcDPoissGaussDLambda(datas,lambdas,sigmas);
+D2PoissGaussDLambda2 = calcD2PoissGaussDLambda2(datas,lambdas,sigmas);
+
+% calculate poisson*gaussian by convolution and check, -fc ok.  only edge
+% effects at corner of data and lambda. and the fold error goes lower for 
+% the convolution below because of truncated domain.  so far looks good.
+% also checked the derivatives against the numerically calculated version
+% and it looks good.  20160918 -fc
+
+
+stripDatas = -10:20;
+stripLambdas = 0:0.1:20;
+sigma = 1.6;
+offset = 0;
+convPoissGauss = zeros(size(poissGauss));
+DconvPoissGaussDLambda = zeros(size(poissGauss));
+D2convPoissGaussDLambda2 = zeros(size(poissGauss));
+for i = 1:numel(stripLambdas)
+    poiss = poisspdf(stripDatas,stripLambdas(i));
+    gaussDOM = -round(sigma*4)+offset:round(sigma*4)+offset;
+gauss = normpdf(gaussDOM,offset,sigma);
+poissGaussNew = conv(poiss,gauss,'same');
+
+convPoissGauss(i,:) = poissGaussNew(:);
+end
+
+for i = 1:numel(stripDatas)
+   DconvPoissGaussDLambda(:,i) = central_diff(convPoissGauss(:,i),stripLambdas); 
+   D2convPoissGaussDLambda2(:,i) = central_diff(DconvPoissGaussDLambda(:,i),stripLambdas);
+end
 
 surf(datas,lambdas,contPoissPDF(datas,lambdas))
 figure;surf(datas,lambdas,DPoissDLambdaPDF(datas,lambdas));
@@ -8,6 +40,10 @@ figure;surf(datas,lambdas,calcPoissGauss(datas,lambdas,sigmas));
 figure;contour(datas,lambdas,calcDPoissGaussDLambda(datas,lambdas,sigmas),'LineWidth',3,'ShowText','on');
 figure;surf(datas,lambdas,calcD2PoissGaussDLambda2(datas,lambdas,sigmas));
 figure;surf(datas,lambdas,calcDPoissGaussDLambda(datas,lambdas,sigmas));
+
+
+
+
 %% explore poisson gaussian noise fast
 offset = 0;
 sigma = 5;
