@@ -1,3 +1,15 @@
+%%  lets see how discrete version compares to functional version of gaussian
+sigmaSq = [5,5,5];
+domain = nearestOdd(sigmaSq*4);
+[x,y,z] = meshgrid(1:domain(1),1:domain(2),1:domain(3));
+position = round(domain/2);
+sizeOfGauss = num2cell(sigmaSq);
+theta = {position(1),position(2),position(3),sizeOfGauss{:},1,0};
+lambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 1 1 1 1 1],0);
+kern = ndGauss(sigmaSq,domain);
+plot3Dstack(kern);
+
+Dlambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 0 0],1);
 %% explore probability landscape of data and lambda
 [datas,lambdas] = meshgrid(-10:20,0:0.1:20);
 sigmas = 1.6*ones(size(datas));
