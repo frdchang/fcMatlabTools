@@ -1,4 +1,4 @@
-function [binned] = binData(data,patchSize)
+function [binned] = NDbinData(data,patchSize)
 %BINDATA will take data and sum blocks by patchSize.  so dims of patchSize
 %must equal data and each dimension of patchSize needs to be a divisor of
 %each dimension of data.
