@@ -1,15 +1,39 @@
 %%  lets see how discrete version compares to functional version of gaussian
-sigmaSq = [5,5,5];
+sigmaSq = [5,5,5]*5;
 domain = nearestOdd(sigmaSq*4);
 [x,y,z] = meshgrid(1:domain(1),1:domain(2),1:domain(3));
 position = round(domain/2);
 sizeOfGauss = num2cell(sigmaSq);
 theta = {position(1),position(2),position(3),sizeOfGauss{:},1,0};
 lambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 1 1 1 1 1],0);
-kern = ndGauss(sigmaSq,domain);
-plot3Dstack(kern);
 
-Dlambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 0 0],1);
+Dlambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 1 1],1);
+
+Dlambdas2 = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 1 1],2);
+meshBasket = genMeshFromData(lambdas);
+[gradData,hessData] =NDgradientAndHessian(lambdas,meshBasket);
+
+% titrate sigmasq and see how error changes between discrete and continuous
+errorBasket = [];
+for i = 1:0.5:40
+    display(i)
+    sigmaSq = [5,5,5]*i;
+    domain = nearestOdd(round(sqrt(sigmaSq*8)));
+    [x,y,z] = meshgrid(1:domain(1),1:domain(2),1:domain(3));
+    position = round(domain/2);
+    sizeOfGauss = num2cell(sigmaSq);
+    theta = {position(1),position(2),position(3),sizeOfGauss{:},1,0};
+    lambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 1 1 1 1 1],0);
+    Dlambdas = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 1 1],1);
+    
+    Dlambdas2 = lambda_single3DGauss(theta,{x,y,z},[1 1 1 0 0 0 1 1],2);
+    meshBasket = genMeshFromData(lambdas);
+    [gradData,hessData] =NDgradientAndHessian(lambdas,meshBasket);
+    errorBasket(end+1) = sqrt(mean((Dlambdas{1}(:) - gradData{1}(:)).^2));
+end
+
+% error goes down as discrete gaussian gets smoother!  so it is working for
+% at least gradData{1} -fc 9/27/16
 %% explore probability landscape of data and lambda
 [datas,lambdas] = meshgrid(-10:20,0:0.1:20);
 sigmas = 1.6*ones(size(datas));
@@ -19,7 +43,7 @@ DPoissGaussDLambda = calcDPoissGaussDLambda(datas,lambdas,sigmas);
 D2PoissGaussDLambda2 = calcD2PoissGaussDLambda2(datas,lambdas,sigmas);
 
 % calculate poisson*gaussian by convolution and check, -fc ok.  only edge
-% effects at corner of data and lambda. and the fold error goes lower for 
+% effects at corner of data and lambda. and the fold error goes lower for
 % the convolution below because of truncated domain.  so far looks good.
 % also checked the derivatives against the numerically calculated version
 % and it looks good.  20160918 -fc
@@ -35,15 +59,15 @@ D2convPoissGaussDLambda2 = zeros(size(poissGauss));
 for i = 1:numel(stripLambdas)
     poiss = poisspdf(stripDatas,stripLambdas(i));
     gaussDOM = -round(sigma*4)+offset:round(sigma*4)+offset;
-gauss = normpdf(gaussDOM,offset,sigma);
-poissGaussNew = conv(poiss,gauss,'same');
-
-convPoissGauss(i,:) = poissGaussNew(:);
+    gauss = normpdf(gaussDOM,offset,sigma);
+    poissGaussNew = conv(poiss,gauss,'same');
+    
+    convPoissGauss(i,:) = poissGaussNew(:);
 end
 
 for i = 1:numel(stripDatas)
-   DconvPoissGaussDLambda(:,i) = central_diff(convPoissGauss(:,i),stripLambdas); 
-   D2convPoissGaussDLambda2(:,i) = central_diff(DconvPoissGaussDLambda(:,i),stripLambdas);
+    DconvPoissGaussDLambda(:,i) = central_diff(convPoissGauss(:,i),stripLambdas);
+    D2convPoissGaussDLambda2(:,i) = central_diff(DconvPoissGaussDLambda(:,i),stripLambdas);
 end
 
 surf(datas,lambdas,contPoissPDF(datas,lambdas))
@@ -72,8 +96,8 @@ figure;stem(electronDOM,poissGauss);
 test = [];
 Dtest = [];
 for i=electronDOM
-   test(end+1) = calcPoissGauss(i,lambda,sigma);
-   Dtest(end+1) = DPoissGaussDLambda(i,lambda,sigma);
+    test(end+1) = calcPoissGauss(i,lambda,sigma);
+    Dtest(end+1) = DPoissGaussDLambda(i,lambda,sigma);
 end
 
 %% explore poisson * gaussian noise
