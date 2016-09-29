@@ -1,3 +1,23 @@
+%% lets see if we can get the field from the gradient by integration;
+
+I = double(imread('rice.png'));
+[dx,dy] = gradient(I);
+cav = curl(dx,dy); 
+% there is no curl on gradient if there is no noise.
+fhat = intgrad2(dx,dy);
+% fhat is the same as I with offset
+% if there is noise in the gradient estimation this integration will be
+% affected.
+I = double(imread('rice.png')) + normrnd(0,100,size(I));
+[dx,dy] = gradient(I);
+cav = curl(dx,dy); 
+% there is no curl on gradient if there is no noise.
+fhat = intgrad2(dx,dy);
+close all;
+imshow(I,[]);
+figure;imshow(fhat,[]);
+figure;imshow(cav,[]);
+% the reconstruction looks as good as the input data.  
 %%  lets see how discrete version compares to functional version of gaussian
 sigmaSq = [5,5,5]*5;
 domain = nearestOdd(sigmaSq*4);
