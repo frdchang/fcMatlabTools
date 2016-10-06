@@ -267,6 +267,26 @@ findRepTiming.output =
 ```
 
 
+try again
+
+```Matlab
+%%==example data===========================================================
+
+.../fcData../data-w1-t1.tif
+.../fcData../data-w1-t2.tif
+.../fcData../data-w1-t3.tif
+
+.../fcData../data-w2-t1.tif
+.../fcData../data-w2-t2.tif
+.../fcData../data-w2-t3.tif
+
+%%==example processed data=================================================
+
+%--processing phase-------------------------------------------------------- 
+.../fcProcessed/.../genQPM(paramHash1,pathsHash1)/genQPM(data-w1-t1).fits ...
+```
+
+
 ## datastructures used in the code:
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
