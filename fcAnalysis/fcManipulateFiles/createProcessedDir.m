@@ -1,9 +1,6 @@
 function [processedFilePath,processedPathOnly] = createProcessedDir(fullPathToFile,varargin)
 %CREATEPROCESSEDDIR will take a full path such as:
-% 1) /.../fcData/.../filename 
-% or 
-% 2) /.../fcTest/.../filename
-% 3) /.../fcCheckout/.../filename
+% 1) /.../fcDataStorage/.../filename 
 % 
 % and return /.../processedData/.../filename
 %            /.../processedTestData/.../filename
@@ -12,7 +9,7 @@ function [processedFilePath,processedPathOnly] = createProcessedDir(fullPathToFi
 
 fullPathToFile = regexprep(fullPathToFile,'^~',getHomeDir);
 
-processedPath = regexprep(fullPathToFile,{'/fcData/','fcTest/','fcCheckout/'},{'/fcProcessed/'});
+processedPath = regexprep(fullPathToFile,{'fcDataStorage'},{'fcProcessed'});
 processedPathOnly = returnFilePath(processedPath);
 
 if isempty(varargin)
