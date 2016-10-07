@@ -30,29 +30,28 @@ if numApplications == 0
 end
 
 % generate hash for data inputs and param inputs
-hashMyFuncParams = DataHash(myFuncParams,params.hashOptions);
-hashInputs = DataHash(listOfFiles,params.hashOptions);
+if isempty(myFuncParams)
+    hashMyFuncParams = {};
+else
+    hashMyFuncParams = DataHash(myFuncParams,params.hashOptions);
+end
 
 outputFiles = cell(numApplications,1);
 
 if params.doParallel
-    fprintf('Progress:\n');
-    fprintf(['\n' repmat('.',1,numApplications) '\n\n']);
     parfor ii = 1:numApplications
-        fprintf('\b|\n');
         extractedVariables  = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
-        outputFiles{ii}     = saveFunc(listOfFiles{ii},myFunc,myFuncParams,funcOutput,hashMyFuncParams,hashInputs,saveFuncParams{:});
+        outputFiles{ii}     = saveFunc(listOfFiles{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
-    
 else
     for ii = 1:numApplications
         display(ii);
         extractedVariables  = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
-        outputFiles{ii}     = saveFunc(listOfFiles{ii},myFunc,myFuncParams,funcOutput,hashMyFuncParams,hashInputs,saveFuncParams{:});
+        outputFiles{ii}     = saveFunc(listOfFiles{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
 end
 

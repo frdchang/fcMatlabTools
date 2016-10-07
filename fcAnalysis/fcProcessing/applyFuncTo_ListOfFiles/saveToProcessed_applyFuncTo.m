@@ -1,27 +1,25 @@
-function saveProcessedFileAt = saveToProcessed_applyFuncTo(filePath,myFunc,myFuncParams,funcOutput,paramHash,inputHash,varargin)
-%SAVETOPROCESSED_APPLYFUNCTO simply savest he funcOuptut as a mat file with
-% filepath =  .../fcData/..../data.ext to
-% .../fcProcessed/.../funcName-paramHash/funcName(data.ext).mat
-% or
-% .../fcProcessed/.../funcName-paramHash/funcName(data1.ext,data2.ext).mat
-% if the filePath is a cell list of
-% {.../fcData/..../data1.ext,.../fcData/..../data2.ext}
-% and the filepath modifies data1.ext's path
+function saveProcessedFileAt = saveToProcessed_applyFuncTo(filePathOfInput,funcOutput,myFunc,funcParamHash,varargin)
+%SAVETOPROCESSED_APPLYFUNCTO will save funcOutput that came from myFunc
+%applied to the inputs coming from filePathOfInput to a modified path of
+%filePathOfInput.  
+% 
+% .../fcData/.../input
+%
+% .../fcProcessed/.../[myFunc(paramHash)]/myFunc(input).mat
 
-
-
-if isempty(varargin)
-    fileName = returnFileName(filePath);
-    functionName = ['[' char(myFunc) ']'];
-    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')'];
-    save(saveProcessedFileAt,'funcOutput');
+pathOnly        = returnFilePath(filePathOfInput);
+fileName        = returnFileName(filePathOfInput);
+savePath        = createProcessedDir(pathOnly);
+functionName    =  char(myFunc);
+if isempty(funcParamHash)
+    saveFolder = ['[' functionName ']'];
 else
-    pathOnly = returnFilePath(filePath);
-    savePath = createProcessedDir(pathOnly);
-    functionName = ['[' char(myFunc) ']'];
-
-    saveFolder = [functionName '(' paramHash ',' inputHash ')'];
-    saveFolder = [savePath filesep saveFolder];
-    [~,~,~] = mkdir(saveFolder);
-    return;
+    saveFolder = ['[' functionName '(' funcParamHash ')]'];
 end
+saveFolder = [savePath filesep saveFolder];
+[~,~,~] = mkdir(saveFolder);
+
+saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')'];
+save(saveProcessedFileAt,'funcOutput');
+
+
