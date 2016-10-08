@@ -1,4 +1,4 @@
-function [parent] = getParentDirecotory(filePath)
+function [parent] = getParentDirectory(filePath)
 %GETPARENTDIRECOTORY returns the parent directory
 %
 % /fred/chang/boy.file

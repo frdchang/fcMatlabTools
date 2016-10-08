@@ -9,3 +9,4 @@ spotFiles = getAllFiles(expFolder,spotRegexp);
 test = applyFuncTo_ListOfFiles(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{},@saveToProcessed_images,{},'doParallel',true);
 
 
+
