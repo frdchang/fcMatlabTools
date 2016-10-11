@@ -32,7 +32,7 @@ seeds = seeds.*bwMask;
 %         doGraphCutSeg(detHessian,'seeds',seeds,'bwMask',bwMask);
 Lcurated = curateSegmentation(L,curateSegmentationParams{:});
 Lcurated = bwlabel(Lcurated);
-output = doCellTracking(timeLapseFiles,'lastFrameSegmented',Lcurated,doCellTrackingParams{:});
+output = doCellTracking(timeLapseFiles,lastTimePointSegmented)
 % save output function
 end
 

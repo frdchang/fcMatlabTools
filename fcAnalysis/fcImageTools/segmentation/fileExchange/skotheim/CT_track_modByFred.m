@@ -42,29 +42,26 @@ max_allowed_cell_size=max_size_vs_largest_cell.*max(tmp_sizes);
 %---start of main iterative loops---
 Lcells=LcellsO; %start by setting the previous labeled image as the current
 [xL,yL] = size(LcellsO);
-Lbasket = zeros(xL,yL,no_obj,'uint8');
+Lbasket = zeros(xL,yL,no_obj,'uint16');
 cell_exists_basket = cell(no_obj,1);
 cell_area_basket = zeros(no_obj,numbM);
-I=imread(orderedFileList{end});
+I=importStack(orderedFileList{end});
 close all;
 hImage = imshow(plotLabels(I,[],Lcells));
 drawnow;
 if doParallel
-    initMatlabPool();
     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
         I=importStack(orderedFileList{c_time});
-        display(['timepoint:' num2str(c_time) ' inverting and normalizing phase image to [0,255]']);
+        display(['timepoint:' num2str(c_time)]);
         I = uint8(norm0to1(-double(I))*255);
-       
-        ppm = setupParForMon(no_obj,1,['timepoint: ' num2str(c_time) ' ']);
+        fprintf(['\n' repmat('.',1,no_obj) '\n\n']);
         parfor i = 1:no_obj
             [new_c_Image2,newcell_exists]  = fastTracker_modByFred(cell_exists,i,I,Lcells,c_time,params,max_allowed_cell_size);
             cell_area_basket(i,c_time) = sum(sum(new_c_Image2>0));
             Lbasket(:,:,i) = new_c_Image2;
             cell_exists_basket{i} = newcell_exists;
-            ppm.increment();
+            fprintf('\b|\n');
         end
-        ppm.delete();
         % update cell_exists with all the ones i tried. multiply all of them to
         % get the global update
         cell_exists = ones(no_obj,2);
@@ -78,9 +75,9 @@ if doParallel
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
         rgbLabels = plotLabels(-double(I),[],Lcells);
-        display(c_time);
         set(hImage,'CData',rgbLabels);
         title(['timepoint' num2str(c_time) ' ']);
+        fprintf('\n');
         drawnow;
     end %end time point loop
 else
