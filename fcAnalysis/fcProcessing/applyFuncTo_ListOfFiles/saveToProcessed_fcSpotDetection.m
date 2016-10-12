@@ -1,4 +1,4 @@
-function [ output_args ] = saveToProcessed_fcSpotDetection(filePathOfInput,funcOutput,myFunc,funcParamHash,varargin)
+function output = saveToProcessed_fcSpotDetection(filePathOfInput,funcOutput,myFunc,funcParamHash,varargin)
 %SAVETOPROCESSED_IMAGES will save funcOutput as a bunch of images
 % funcOutput = [spotParams,estimated,candidates]
 %
@@ -21,19 +21,42 @@ end
 saveFolder = [savePath filesep saveFolder];
 [~,~,~] = mkdir(saveFolder);
 
-if isempty(varargin)
-   varargin = 1:numel(funcOutput); 
-   varargin = strread(num2str(varargin),'%s');
-end
-output = cell(numel(funcOutput),1);
+
+output = cell(3,1);
 % loop over funcOutput and save
-for ii = 1:numel(funcOutput)
-   currImage = funcOutput{ii};
-   saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
-   output{ii} = saveProcessedFileAt;
-   if isinteger(currImage)
-      exportSingleTifStack(saveProcessedFileAt,currImage);
-   else
-      exportSingleFitsStack(saveProcessedFileAt,currImage);
-   end
+% for ii = 1:numel(funcOutput)
+%    currImage = funcOutput{ii};
+%    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
+%    output{ii} = saveProcessedFileAt;
+%    if isinteger(currImage)
+%       exportSingleTifStack(saveProcessedFileAt,currImage);
+%    else
+%       exportSingleFitsStack(saveProcessedFileAt,currImage);
+%    end
+% end
+
+% save first func output
+outputName = 'MLE_thetas';
+saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+makeDIRforFilename(saveProcessedFileAt);
+output{1} = saveProcessedFileAt;
+spotMLEstructArray = funcOutput{1};
+try
+    save(saveProcessedFileAt,'-v6','spotMLEstructArray');
+catch
 end
+
+outputName = 'MLE_A1';
+saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+makeDIRforFilename(saveProcessedFileAt);
+output{2} = saveProcessedFileAt;
+saveOutput = funcOutput{2}.A1;
+exportStack(saveProcessedFileAt,saveOutput);
+
+outputName = 'MLE_LLRatio';
+saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+makeDIRforFilename(saveProcessedFileAt);
+output{3} = saveProcessedFileAt;
+saveOutput = funcOutput{2}.LLRatio;
+exportStack(saveProcessedFileAt,saveOutput);
+

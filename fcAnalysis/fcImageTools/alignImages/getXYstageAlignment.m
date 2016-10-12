@@ -18,9 +18,10 @@ refFrame = importStack(refFrame);
 refFrameMAX = xyMaxProjND(refFrame);
 xyAlignments(1,:) = [0,0];
 fftRefFrame = fft2(refFrameMAX);
-    if ~isempty(params.saveToLocation)
-       exportStack(genSaveFile(params.saveToLocation,returnFileName(fileList{1})),refFrame);
-    end
+
+if ~isempty(params.saveToLocation)
+    exportStack(genSaveFile(params.saveToLocation,returnFileName(fileList{1})),refFrame);
+end
 
 for ii = 2:numel(fileList)
     display(['getXYstageAlignment(' returnFileName(fileList{ii}) ')_' num2str(ii) ' of ' num2str(numel(fileList))]);
@@ -31,7 +32,7 @@ for ii = 2:numel(fileList)
     fftRefFrame = shiftedFrame;
     xyAlignments(ii,:) = output(3:end);
     if ~isempty(params.saveToLocation)
-       exportStack(genSaveFile(params.saveToLocation,returnFileName(fileList{ii})),real(ifft2(shiftedFrame)));
+        exportStack(genSaveFile(params.saveToLocation,returnFileName(fileList{ii})),real(ifft2(shiftedFrame)));
     end
 end
 

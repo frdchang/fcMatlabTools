@@ -20,7 +20,7 @@ no_obj = double(max(LcellsO(:)));
 cell_exists=ones(no_obj,2); %matrix with each row = new cell with first col. exist or not sec col = time of birth
 
 %-----define out-variables to struc 'all_obj'------------------
-all_obj.cells  = zeros([size(LcellsO) numbM],'uint8'); %saves the segmentation, this is the only necessary output from the program
+all_obj.cells  = zeros([size(LcellsO) numbM],'uint16'); %saves the segmentation, this is the only necessary output from the program
 
 % example definition of morphological parameter
 all_obj.cell_area            =zeros(no_obj,numbM);
@@ -52,9 +52,9 @@ drawnow;
 if doParallel
     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
         I=importStack(orderedFileList{c_time});
-        display(['timepoint:' num2str(c_time)]);
+        display(['timepoint:' num2str(c_time) ' file:' orderedFileList{c_time}]);
         I = uint8(norm0to1(-double(I))*255);
-        fprintf(['\n' repmat('.',1,no_obj) '\n\n']);
+        fprintf([repmat('.',1,no_obj) '\n\n']);
         parfor i = 1:no_obj
             [new_c_Image2,newcell_exists]  = fastTracker_modByFred(cell_exists,i,I,Lcells,c_time,params,max_allowed_cell_size);
             cell_area_basket(i,c_time) = sum(sum(new_c_Image2>0));
@@ -70,7 +70,7 @@ if doParallel
         end
         logicalLbasket = Lbasket > 0;
         checkOverlap = sum(logicalLbasket,3);
-        overlapSet = uint8(checkOverlap == 1);
+        overlapSet = uint16(checkOverlap == 1);
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
