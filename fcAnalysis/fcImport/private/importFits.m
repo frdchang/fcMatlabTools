@@ -1,22 +1,27 @@
 function [fitsData] = importFits(filename)
-%IMPORTFITS Summary of this function goes here
-%   Detailed explanation goes here
+%IMPORTFITS will import a fits file format but take care regarding special
+%characters = {'(',')','[',']'}
 
-% import matlab.io.*
-% fptr = fits.openFile(filename);
-% fitsData = fits.readImg(fptr);
-% fits.closeFile(fptr);
-
-filename = regexprep(filename,'^~',getHomeDir);
+specialCharacters = {'(',')','[',']'};
+homeDIR = getHomeDir;
+filename = regexprep(filename,'^~',homeDIR);
 % append fits extension
 filename = updateFileExtension(filename,'fits');
-checkParen = regexp(filename,'[(|)]','ONCE');
-if ~isempty(checkParen)
-    display('!!! REMOVING PARENTHESIS IN FILEPATH!!!!!');
-end
-filename = regexprep(filename,'[(|)]','-');
 
-fitsData = flipud(fits_read(filename));
-
+checkForSpecialChar = regexp(filename,specialCharacters);
+if sum(cellfun(@isempty,checkForSpecialChar)) > 0
+    % there is special characters so copy the file to a neutral location,
+    % rename the file without special characters, and load it, then delete
+    % it
+    cleanFilename = returnFileName(regexprep(filename,specialCharacters,''));
+    cleanFilename = [homeDIR filesep cleanFilename];
+    copyfile(filename,cleanFilename);
+    fitsData = flipud(fits_read(cleanFilename));
+    delete(cleanFilename);   
+else
+    % there is no special characters, so just load it
+    fitsData = flipud(fits_read(filename));
 end
+
+
 

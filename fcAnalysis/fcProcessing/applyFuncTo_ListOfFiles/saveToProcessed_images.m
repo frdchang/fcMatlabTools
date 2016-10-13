@@ -29,11 +29,13 @@ output = cell(numel(funcOutput),1);
 for ii = 1:numel(funcOutput)
    currImage = funcOutput{ii};
    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
-   output{ii} = saveProcessedFileAt;
+   
    if isinteger(currImage)
       exportSingleTifStack(saveProcessedFileAt,currImage);
+      output{ii} = [saveProcessedFileAt '.tif'];
    else
       exportSingleFitsStack(saveProcessedFileAt,currImage);
+      output{ii} = [saveProcessedFileAt '.fits'];
    end
 end
 

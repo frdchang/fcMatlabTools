@@ -9,7 +9,16 @@ switch ext
     case {'.tif','.TIF'}
          stack = importSingleTiffStack(filename);
     otherwise
-        error('do not recognize file extension');
+       
+        try
+            stack = importSingleTiffStack(filename);
+        catch
+           try
+               stack = importFits(filename);
+           catch
+               error('do not recognize file extension'); 
+           end
+        end
 end
 
 stack = double(stack);
