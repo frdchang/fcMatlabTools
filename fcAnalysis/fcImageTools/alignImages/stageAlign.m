@@ -1,4 +1,4 @@
-function [xyAlignments] = getXYstageAlignment(fileList,varargin)
+function [xyAlignments] = stageAlign(fileList,varargin)
 %ALIGNSTAGE will load each nd image from fileList and align from frame 1
 % and will only align the maximum intensity projected in XY.
 
@@ -12,7 +12,7 @@ params = updateParams(params,varargin);
 xyAlignments = zeros(numel(fileList),2);
 
 
-
+display(['stageAlign(' returnFileName(fileList{1}) ')     ' num2str(1) ' of ' num2str(numel(fileList))]);
 refFrame = fileList{1};
 refFrame = importStack(refFrame);
 refFrameMAX = xyMaxProjND(refFrame);
@@ -24,7 +24,7 @@ if ~isempty(params.saveToLocation)
 end
 
 for ii = 2:numel(fileList)
-    display(['getXYstageAlignment(' returnFileName(fileList{ii}) ')_' num2str(ii) ' of ' num2str(numel(fileList))]);
+    display(['stageAlign(' returnFileName(fileList{ii}) ')     ' num2str(ii) ' of ' num2str(numel(fileList))]);
     currFrame = importStack(fileList{ii});
     currFrameMAX = xyMaxProjND(currFrame);
     fftCurrFrame = fft2(currFrameMAX);

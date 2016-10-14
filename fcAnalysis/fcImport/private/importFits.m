@@ -9,7 +9,7 @@ filename = regexprep(filename,'^~',homeDIR);
 filename = updateFileExtension(filename,'fits');
 
 checkForSpecialChar = regexp(filename,specialCharacters);
-if sum(cellfun(@isempty,checkForSpecialChar)) > 0
+if sum(~cellfun(@isempty,checkForSpecialChar)) > 0
     % there is special characters so copy the file to a neutral location,
     % rename the file without special characters, and load it, then delete
     % it

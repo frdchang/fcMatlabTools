@@ -11,6 +11,11 @@ qpmImages = cellfunNonUniformOutput(@(x) x{1},processQPM.outputFiles);
 qpmImagesByStages = groupByRegexp(qpmImages,'_s[0-9]+');
 qpmImagesByStagesOrdered = ncellfun(@orderListByTimePoints,qpmImagesByStages);
 
-alignQpmImages = applyFuncTo_ListOfFiles(qpmImagesByStagesOrdered,@openData_passThru,{},@getXYstageAlignment,{},@saveToProcessed_getXYstageAlignment,{},'doParallel',false);
+alignQpmImages = applyFuncTo_ListOfFiles(qpmImagesByStagesOrdered,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',true);
 
-spots = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',1250},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+spots = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',1250},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
+
+% apply stage alignment to other channels
+
+% apply stage alignment to spots mle
+
