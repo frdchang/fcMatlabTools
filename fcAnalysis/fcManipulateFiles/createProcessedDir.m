@@ -9,7 +9,7 @@ function [processedFilePath,processedPathOnly] = createProcessedDir(fullPathToFi
 
 fullPathToFile = regexprep(fullPathToFile,'^~',getHomeDir);
 
-processedPath = regexprep(fullPathToFile,{'fcData'},{'fcProcessed'});
+processedPath = regexprep(fullPathToFile,{'fcDataStorage'},{'fcProcessed'});
 processedPathOnly = returnFilePath(processedPath);
 
 if isempty(varargin)
