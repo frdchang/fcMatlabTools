@@ -29,6 +29,7 @@ for i = 1:numel(uniqueNames)
     firstNames = regexprep(first_uniqueName{i},'[\[\$\^\.\\\*\+\[\]\(\)\{\}\?\|\]]', '\\$0');
     secondNames = regexprep(second_uniqueName{i},'[\[\$\^\.\\\*\+\[\]\(\)\{\}\?\|\]]', '\\$0');
     subMatch = keepCertainStringsUnion(fileList,[firstNames dx secondNames]);
+    daListOrganized{i}.nonVaryingPart = [first_uniqueName{i} second_uniqueName{i}];
     [daListOrganized{i}.subMatch, daListOrganized{i}.dxTrack] = getOrderedList(subMatch,dx,mode);
     daListOrganized{i}.varying = dx;
 end

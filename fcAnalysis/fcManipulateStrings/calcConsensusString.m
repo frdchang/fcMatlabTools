@@ -4,6 +4,11 @@ function consensusString = calcConsensusString(listOfStrings)
 %the strings have different length, this function will do the consensus up
 %to the shortest one.
 
+if ~iscell(listOfStrings)
+    consensusString = listOfStrings;
+   return; 
+end
+
 numElements = min(cellfun(@(x) numel(x),listOfStrings));
 consensusString = '';
 for ii = 1:numElements
