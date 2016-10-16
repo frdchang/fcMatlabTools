@@ -19,6 +19,7 @@ function inputsOutputs = applyFuncTo_ListOfFiles(listOfFiles,openFileFunc,openFi
 %--parameters--------------------------------------------------------------
 params.doParallel     = false;
 params.hashOptions    = struct('Format', 'base64', 'Method', 'MD5');
+params.hashLength     = 5;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -34,6 +35,7 @@ if isempty(myFuncParams)
     hashMyFuncParams = {};
 else
     hashMyFuncParams = DataHash(myFuncParams,params.hashOptions);
+    hashMyFuncParams = hashMyFuncParams(end-params.hashLength:end);
 end
 
 outputFiles = cell(numApplications,1);
