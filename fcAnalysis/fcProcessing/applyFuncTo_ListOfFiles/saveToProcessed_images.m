@@ -25,7 +25,7 @@ if isempty(varargin)
         varargin{1} = '';
     else
         varargin = 1:numel(funcOutput);
-        varargin = strread(num2str(varargin),'%s');
+        varargin = strread(num2str(varargin),'_%s');
     end
     
 end
@@ -33,7 +33,7 @@ output = cell(numel(funcOutput),1);
 % loop over funcOutput and save
 for ii = 1:numel(funcOutput)
     currImage = funcOutput{ii};
-    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
+    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')' varargin{ii}];
     
     if isinteger(currImage)
         exportSingleTifStack(saveProcessedFileAt,currImage);

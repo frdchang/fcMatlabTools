@@ -6,7 +6,7 @@ function consensusString = calcConsensusString(listOfStrings)
 
 if ~iscell(listOfStrings)
     consensusString = listOfStrings;
-   return; 
+    return;
 end
 
 numElements = min(cellfun(@(x) numel(x),listOfStrings));
@@ -14,18 +14,20 @@ consensusString = '';
 for ii = 1:numElements
     consensChar = unique(cellfun(@(x) x(ii), listOfStrings));
     if numel(consensChar) > 1
-        if sum(~isstrprop(consensChar,'digit')) == 0
-            % they are all digits
-            theDigits = str2num(consensChar);
-            minDigit = num2str(min(theDigits));
-            maxDigit = num2str(max(theDigits));
-            jumpDigit = num2str(mean(diff(theDigits)));
-            consensChar = ['|' minDigit '<' jumpDigit '>' maxDigit '|'];
-        else
-        consensChar = ['|' consensChar' '|'];
-        end
+        %         if sum(~isstrprop(consensChar,'digit')) == 0
+        %             % they are all digits
+        %             theDigits = str2num(consensChar);
+        %             minDigit = num2str(min(theDigits));
+        %             maxDigit = num2str(max(theDigits));
+        %             jumpDigit = num2str(mean(diff(theDigits)));
+        %             consensChar = ['|' minDigit '<' jumpDigit '>' maxDigit '|'];
+        %         else
+        %         consensChar = ['|' consensChar' '|'];
+        %         end
+        consensusString = [ consensusString 'x'];
+    else
+        consensusString = [ consensusString consensChar];
     end
-    consensusString = [ consensusString consensChar];
 end
 
 

@@ -2,20 +2,32 @@ function saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,varar
 %GENPROCESSEDFILENAME creates the appropriate filepath for processed files
 % you can provide a parameter hash for varargin
 
-pathOnly        = returnFilePath(filePathOfInput);
+pathOnly        = calcConsensusString(returnFilePath(filePathOfInput));
 fileName        = calcConsensusString(returnFileName(filePathOfInput));
 savePath        = createProcessedDir(pathOnly);
-savePath        = calcConsensusString(savePath);
 functionName    =  char(myFunc);
-if isempty(varargin)
-    saveFolder = ['[' functionName ']'];
+if isempty(varargin) || isempty(varargin{1})
+    saveFolder = [filesep '[' functionName ']' filesep];
 else
-    saveFolder = ['[' functionName '(' varargin{1} ')]'];
+    saveFolder = [filesep '[' functionName '(' varargin{1} ')]' filesep];
 end
-saveFolder = [savePath filesep saveFolder];
-[~,~,~] = mkdir(saveFolder);
+newFileName     = [functionName '(' fileName ')'];
 
-saveProcessedFileAt = removeDoubleFileSep([saveFolder filesep functionName '(' fileName ')']);
+% history of applied functions are in the bracketed portions of filepath
+grabHistory     = regexp(savePath,'\[(.*?)\]','match');
+grabRest        = regexp(savePath,'\[(.*?)\]','split');
+history         = {strjoin(grabHistory,'')};
+% history         = regexprep(history,'\]\[','');
+% append current function to first part of grabHistory
+grabRest{1} = [grabRest{1} saveFolder];
+
+
+
+pathToProcessedSaveFolder = interleave(grabRest,history);
+pathToProcessedSaveFolder = strcat(pathToProcessedSaveFolder{:});
+[~,~,~] = mkdir(pathToProcessedSaveFolder);
+
+saveProcessedFileAt = removeDoubleFileSep([pathToProcessedSaveFolder filesep newFileName]);
 
 end
 
