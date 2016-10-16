@@ -1,4 +1,4 @@
-function [correctedQPM,qpm] = genQPM(stack,varargin)
+function [correctedQPM] = genQPM(stack,varargin)
 %GENQPM will take a brightfield zstack and convert it to a phase map
 %
 % stack:    your brightfield z stack

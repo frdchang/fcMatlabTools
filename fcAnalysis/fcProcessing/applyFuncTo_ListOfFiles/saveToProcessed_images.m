@@ -21,22 +21,27 @@ saveFolder = [savePath filesep saveFolder];
 [~,~,~] = mkdir(saveFolder);
 
 if isempty(varargin)
-   varargin = 1:numel(funcOutput); 
-   varargin = strread(num2str(varargin),'%s');
+    if numel(funcOutput) == 1
+        varargin{1} = '';
+    else
+        varargin = 1:numel(funcOutput);
+        varargin = strread(num2str(varargin),'%s');
+    end
+    
 end
 output = cell(numel(funcOutput),1);
 % loop over funcOutput and save
 for ii = 1:numel(funcOutput)
-   currImage = funcOutput{ii};
-   saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
-   
-   if isinteger(currImage)
-      exportSingleTifStack(saveProcessedFileAt,currImage);
-      output{ii} = [saveProcessedFileAt '.tif'];
-   else
-      exportSingleFitsStack(saveProcessedFileAt,currImage);
-      output{ii} = [saveProcessedFileAt '.fits'];
-   end
+    currImage = funcOutput{ii};
+    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')_' varargin{ii}];
+    
+    if isinteger(currImage)
+        exportSingleTifStack(saveProcessedFileAt,currImage);
+        output{ii} = [saveProcessedFileAt '.tif'];
+    else
+        exportSingleFitsStack(saveProcessedFileAt,currImage);
+        output{ii} = [saveProcessedFileAt '.fits'];
+    end
 end
 
 

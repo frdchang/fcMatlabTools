@@ -1,8 +1,6 @@
-function outputFiles = translateSeq(containerInput,varargin)
+function outputFiles = translateSeq(listOfData,translationSequence,varargin)
 %TRANSLATETIMELAPSE Summary of this function goes here
 %   Detailed explanation goes here
-listOfData = containerInput{1};
-translationSequence = containerInput{2};
 outputFiles = cell(numel(listOfData),1);
 if ischar(translationSequence)
    translationSequence = load(translationSequence); 

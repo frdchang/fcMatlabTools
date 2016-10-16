@@ -22,7 +22,7 @@ stageAlignments = applyFuncTo_ListOfFiles(qpmImages,@openData_passThru,{},@stage
 alignXYs        = sort_nat(stageAlignments.outputFiles);
 
 % apply stage alignment to other channels
-alignedQPM = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',false);
+alignedQPM = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 
 save('~/Desktop/tempProcessing');
