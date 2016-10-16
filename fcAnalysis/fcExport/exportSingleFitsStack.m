@@ -26,7 +26,7 @@ end
 filename = curateFileSeparators(filename);
 % check if filename exists
 if exist(filename,'file')
-    display(['overwriting file: ' filename ]);
+    display(['overwritingFITS: ' filename ]);
     delete(filename);
 end
 
@@ -47,5 +47,5 @@ end
 % fits.closeFile(fptr);
 % fitsdisp(filename);
 makeDIRforFilename(filename);
-display(['writing fits file:' filename]);
+display(['writingFITS: ' filename]);
 fits_write(filename,flipud(stack));
