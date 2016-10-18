@@ -2,8 +2,20 @@ function saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,varar
 %GENPROCESSEDFILENAME creates the appropriate filepath for processed files
 % you can provide a parameter hash for varargin
 
-pathOnly        = calcConsensusString(returnFilePath(filePathOfInput));
-fileName        = calcConsensusString(returnFileName(filePathOfInput));
+if ischar(filePathOfInput)
+    filePathOfInput = {filePathOfInput};
+end
+% save to the first argument
+if all(cellfun(@ischar, filePathOfInput))
+    
+else
+    filePathOfInput = flattenCellArray(filePathOfInput);
+end
+pathOnly        = unique(returnFilePath(filePathOfInput),'stable');
+pathOnly        = pathOnly{1};
+% get filenames of all arguments
+
+fileName        = cellfunNonUniformOutput(@(x)calcConsensusString(returnFileName(x)),filePathOfInput);
 savePath        = createProcessedDir(pathOnly);
 functionName    =  char(myFunc);
 if isempty(varargin) || isempty(varargin{1})
@@ -11,7 +23,7 @@ if isempty(varargin) || isempty(varargin{1})
 else
     saveFolder = [filesep '[' functionName '(' varargin{1} ')]' filesep];
 end
-newFileName     = [functionName '(' fileName ')'];
+newFileName     = [functionName '(' strjoin(fileName,',') ')'];
 
 % history of applied functions are in the bracketed portions of filepath
 grabHistory     = regexp(savePath,'\[(.*?)\]','match');

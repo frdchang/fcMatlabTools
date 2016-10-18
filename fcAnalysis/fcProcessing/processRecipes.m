@@ -26,8 +26,12 @@ alignedQPM = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@open
 % apply stage alignment to other channels
 alignedspot_A1s = applyFuncTo_ListOfFiles(glueCellArguments(spot_A1s,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
-alignedSpots_Thetas = applyFuncTo_ListOfFiles(glueCellArguments(spot_Thetas,alignXYs),@openData_nakedPassThru,{},@translateSpots,{},@ saveToProcessed_passThru,{},'doParallel',false);
+alignedSpots_Thetas = applyFuncTo_ListOfFiles(glueCellArguments(spot_Thetas,alignXYs),@openData_nakedPassThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
 
+%% grab the rois
+roiZips       = grabFromListOfCells(alignedQPM.outputFiles,{'@(x) x{1}'});
+roiZips       = returnFilePath(roiZips);
+roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'RoiSet.zip']),roiZips);
 
-
+segmented = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,roiZips),@openData_nakedPassThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
 save('~/Desktop/tempProcessing');

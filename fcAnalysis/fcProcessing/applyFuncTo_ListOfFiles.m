@@ -41,6 +41,10 @@ end
 outputFiles = cell(numApplications,1);
 
 if params.doParallel
+    try;
+    parpool();
+    catch
+    end
     parfor ii = 1:numApplications
         display(['      applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')']);
         extractedVariables  = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
