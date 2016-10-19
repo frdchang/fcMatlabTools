@@ -3,7 +3,7 @@ function saveCellFilePaths = extractCells(listOfFiles,segMatFile,varargin)
 %segMatFile, assume it is 2D.
 
 %--parameters--------------------------------------------------------------
-params.borderXY    = 5;
+params.borderVector    = [20 20];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -23,12 +23,19 @@ for ii = 1:numTimePoints
     display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
     currStack = importStack(listOfFiles{ii});
     currSeg   = segmentation.all_obj.cells(:,:,ii);
-    allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,params.borderXY);
+    % if it is a qpm file extract cell using qpm highlighting
+    if ~isempty(strfind(returnFileName(listOfFiles{ii}),'genQPM'))
+        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,params.borderVector,2);
+    else
+        % otherwise mask data by -inf
+        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,params.borderVector,1);
+    end
+    
     for jj = 1:numCells
         if ~isempty(allTheCells{jj})
             saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
             saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-            exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj}); 
+            exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
             saveCellFilePaths{ii,jj} = saveProcessedFileAtWithCellFolder;
         else
             saveCellFilePaths{ii,jj} = {};

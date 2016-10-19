@@ -1,4 +1,4 @@
-function spotParamsInL = returnSpotParamsInL(spotParams,L)
+function spotParamsInL = returnSpotParamsInL(spotParams,L,varargin)
 %UNIONBWMASKANDSPOTPARAMS will return the spot params in L
 
 spots = zeros(size(L));
@@ -20,7 +20,7 @@ for eachSpot = 1:numel(spotParams)
             currCoor = currTheta([2 1 3]);
             currCoor = cellfun(@round,currCoor);
             currCoor = num2cell(currCoor);
-            spots(currCoor{:}) =eachSpot;
+            spots(currCoor{:}) = eachSpot;
         else
            error('number of dimensions of L is not coded in this functino'); 
         end

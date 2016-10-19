@@ -1,4 +1,71 @@
-function [subImg] = getSubsetwBBoxND(varargin)
+function [subImg] = getSubsetwBBoxND(ndData,myBBox,varargin)
+%EXTRACTBBOXND will extract out the data defined by BBox.  if BBox
+% dimension is less than ndData, it will extrude out the rest.  a frame can
+% be defined.  if BBox goes outside the data, it will be padded with -inf
+% if borderVector dimension is < dimension of data, then it will not frame
+% the rest
+
+%--parameters--------------------------------------------------------------
+params.borderVector     = [];
+params.padValue         = -inf;
+%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
+ndData = double(ndData);
+BBoxSize = genSizeFromBBox(myBBox);
+% update BBoxSize for border vector
+if ~isempty(params.borderVector)
+    if numel(params.borderVector) > 1
+        indices = 1:numel(params.borderVector);
+        indices(2) = 1;
+        indices(1) = 2;
+        params.borderVector = params.borderVector(indices);
+    end
+    for i = 1:numel(params.borderVector);
+        BBoxSize(i) = BBoxSize(i)+ params.borderVector(i);
+    end
+end
+% pad array to account for edge cropping.
+paddedNdData = padarray(ndData,BBoxSize,params.padValue);
+
+carveSpace = myBBox;
+numDimsBox = length(carveSpace)/2;
+% flip dimensions of x and y to follow convention
+carveSpace([1,2]) = carveSpace([2,1]);
+carveSpace([1+numDimsBox,2+numDimsBox]) = carveSpace([2+numDimsBox,1+numDimsBox]);
+carveSpace = round(carveSpace);
+numDims = ndims(ndData);
+
+coorDomains = cell(numDims,1);
+
+frame = zeros(numDimsBox,1);
+if ~isempty(params.borderVector)
+    for i = 1:numel(params.borderVector)
+        frame(i) = params.borderVector(i);
+    end
+end
+
+% convert carveSpace coors into nD matrix coors and populate coorDomains
+% argument
+for i = 1:numDims
+    if i <= numDimsBox
+        lowerLimit = carveSpace(i) + BBoxSize(i) - frame(i);
+        upperLimit = carveSpace(i)+carveSpace(i+ numDimsBox)-1+frame(i) + BBoxSize(i);
+        coorDomains{i} = lowerLimit:upperLimit;
+    else
+        coorDomains{i} = 1:size(ndData,i);
+    end
+end
+
+% carveout nD matrix with coorDomains
+subImg = paddedNdData(coorDomains{:});
+
+
+
+
+
+
+
+
 %GETSUBSET carve out a subset of an nDOjbect with carveSpace
 % carveSpace = [x0,y0,...,xLength,yLength,...]
 % note image tools in matlab map x coordinates into the row space (across
@@ -16,38 +83,41 @@ function [subImg] = getSubsetwBBoxND(varargin)
 %
 % fchang@fas.harvard.edu
 
-dataND = varargin{1};
-boundingBox = varargin{2};
-switch (nargin)
-    case 2
-        frame = zeros(length(boundingBox)/2,1);
-    case 3
-        frame = varargin{3};
-    otherwise
-end
-carveSpace = boundingBox;
-carveSpace([1,2]) = carveSpace([2,1]);
 
 
-carveSpace = round(carveSpace);
-numDims = ndims(dataND);
-numDimsBox = length(carveSpace)/2;
-coorDomains = cell(numDims,1);
-
-% convert carveSpace coors into nD matrix coors and populate coorDomains
-% argument
-for i = 1:numDims
-    if i <= numDimsBox
-        lowerLimit = max(carveSpace(i)-frame(i),1);
-        upperLimit = min(carveSpace(i)+carveSpace(i+ numDimsBox)-1+frame(i),size(dataND,i));
-        coorDomains{i} = lowerLimit:upperLimit;
-    else
-        coorDomains{i} = 1:size(dataND,i);
-    end
-end
-
-% carveout nD matrix with coorDomains
-subImg = dataND(coorDomains{:});
-
-end
-
+% 
+% dataND = varargin{1};
+% boundingBox = varargin{2};
+% switch (nargin)
+%     case 2
+%         frame = zeros(length(boundingBox)/2,1);
+%     case 3
+%         frame = varargin{3};
+%     otherwise
+% end
+% carveSpace = boundingBox;
+% carveSpace([1,2]) = carveSpace([2,1]);
+% 
+% 
+% carveSpace = round(carveSpace);
+% numDims = ndims(dataND);
+% numDimsBox = length(carveSpace)/2;
+% coorDomains = cell(numDims,1);
+% 
+% % convert carveSpace coors into nD matrix coors and populate coorDomains
+% % argument
+% for i = 1:numDims
+%     if i <= numDimsBox
+%         lowerLimit = max(carveSpace(i)-frame(i),1);
+%         upperLimit = min(carveSpace(i)+carveSpace(i+ numDimsBox)-1+frame(i),size(dataND,i));
+%         coorDomains{i} = lowerLimit:upperLimit;
+%     else
+%         coorDomains{i} = 1:size(dataND,i);
+%     end
+% end
+% 
+% % carveout nD matrix with coorDomains
+% subImg = dataND(coorDomains{:});
+% 
+% end
+% 

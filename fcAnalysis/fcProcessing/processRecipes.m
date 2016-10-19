@@ -22,11 +22,16 @@ stageAlignments = applyFuncTo_ListOfFiles(qpmImages,@openData_passThru,{},@stage
 alignXYs        = sort_nat(stageAlignments.outputFiles);
 
 % apply stage alignment to other channels
-alignedQPM = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',false);
+alignedQPM          = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',false);
 % apply stage alignment to other channels
-alignedspot_A1s = applyFuncTo_ListOfFiles(glueCellArguments(spot_A1s,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
+alignedspot_A1s     = applyFuncTo_ListOfFiles(glueCellArguments(spot_A1s,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 alignedSpots_Thetas = applyFuncTo_ListOfFiles(glueCellArguments(spot_Thetas,alignXYs),@openData_nakedPassThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
+
+
+
+
+
 
 %% grab the rois
 roiZips       = grabFromListOfCells(alignedQPM.outputFiles,{'@(x) x{1}'});
@@ -36,5 +41,13 @@ roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'Roi
 segmented = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,roiZips),@openData_nakedPassThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
 
 % extract cells
+segmentedMatFiles   = cellfunNonUniformOutput(@(x) x.segMatFile,segmented.outputFiles);
+extractedQPM        = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
+extractedA1         = applyFuncTo_ListOfFiles(glueCellArguments(alignedspot_A1s.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
+
+% extract Spots
+extractedSpots      = applyFuncTo_ListOfFiles(glueCellArguments(alignedSpots_Thetas.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
+
+
 
 save('~/Desktop/tempProcessing');

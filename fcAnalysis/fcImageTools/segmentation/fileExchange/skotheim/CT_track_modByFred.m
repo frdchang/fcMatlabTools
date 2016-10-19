@@ -47,7 +47,7 @@ cell_exists_basket = cell(no_obj,1);
 cell_area_basket = zeros(no_obj,numbM);
 I=importStack(orderedFileList{end});
 close all;
-hImage = imshow(plotLabels(I,[],Lcells));
+hImage = imshow(plotLabels(I,Lcells,'showTextLabels',true,'showPlot',false));
 drawnow;
 if doParallel
     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
@@ -74,7 +74,7 @@ if doParallel
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
-        rgbLabels = plotLabels(-double(I),[],Lcells);
+        rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
         set(hImage,'CData',rgbLabels);
         title(['timepoint' num2str(c_time) ' ']);
         fprintf('\n');
@@ -104,7 +104,7 @@ else
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
-        rgbLabels = plotLabels(-double(I),[],Lcells);
+        rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
         set(hImage,'CData',rgbLabels);
     end %end time point loop
 end
