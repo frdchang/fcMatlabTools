@@ -4,5 +4,6 @@ function output = saveToProcessed_stageAlign(filePathOfInput,funcOutput,myFunc,f
 
 saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,funcParamHash);
 xyAlignment = funcOutput{1};
+makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'xyAlignment');
 output = saveProcessedFileAt;

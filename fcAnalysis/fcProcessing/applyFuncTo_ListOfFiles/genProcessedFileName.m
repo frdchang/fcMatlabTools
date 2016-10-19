@@ -37,7 +37,7 @@ grabRest{1} = [grabRest{1} saveFolder];
 
 pathToProcessedSaveFolder = interleave(grabRest,history);
 pathToProcessedSaveFolder = strcat(pathToProcessedSaveFolder{:});
-[~,~,~] = mkdir(pathToProcessedSaveFolder);
+% [~,~,~] = mkdir(pathToProcessedSaveFolder);
 
 saveProcessedFileAt = removeDoubleFileSep([pathToProcessedSaveFolder filesep newFileName]);
 

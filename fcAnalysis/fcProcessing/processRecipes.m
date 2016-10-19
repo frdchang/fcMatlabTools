@@ -34,4 +34,7 @@ roiZips       = returnFilePath(roiZips);
 roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'RoiSet.zip']),roiZips);
 
 segmented = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,roiZips),@openData_nakedPassThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
+
+% extract cells
+
 save('~/Desktop/tempProcessing');
