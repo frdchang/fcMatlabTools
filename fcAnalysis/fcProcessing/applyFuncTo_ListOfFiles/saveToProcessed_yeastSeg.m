@@ -4,6 +4,7 @@ function output = saveToProcessed_yeastSeg(filePathOfInput,funcOutput,myFunc,fun
 saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,funcParamHash);
 segOutput = funcOutput{1};
 % save individual mat
+makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'segOutput');
 % save timelapse of segmentation
 inputFiles = filePathOfInput{1};

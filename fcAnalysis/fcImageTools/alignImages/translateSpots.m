@@ -20,6 +20,7 @@ for ii = 1:numel(listOfSpots)
        shiftedSpots(jj).thetaMLE = num2cell(currThetaShifted);
    end
    saveProcessedFileAt = genProcessedFileName(listOfSpots{ii},'translateSpots');
+   makeDIRforFilename(saveProcessedFileAt);
    save(saveProcessedFileAt,'shiftedSpots');
    outputFiles{ii} = saveProcessedFileAt;
 end
