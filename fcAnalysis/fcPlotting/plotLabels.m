@@ -1,13 +1,19 @@
-function [rgbLabel,rgbLabelandText] = plotLabels(image,stats,L)
-%PLOTLABELS Summary of this function goes here
-%   Detailed explanation goes here
-% varargout{1} = rgbLabel (if stats isempty)
-% varargout{2} = rgbLbaelandText (if stats is provided)
+function [rgbLabel,rgbLabelandText] = plotLabels(dataND,L,varargin)
+%PLOTLABELS will provide rgbLabeling of ndData which will be shown by xy
+% maximum intensity projection
 
+%--parameters--------------------------------------------------------------
+params.showTextLabels    = true;
+params.showPlot          = true;
+%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
+
+dataND = xyMaxProjND(dataND);
 alpha = 0.3;
-rgbLabel = uint8(255.*norm0to1(image));
+rgbLabel = uint8(255.*norm0to1(dataND));
 cmap = distinguishable_colors(max(L(:)),[1 1 1; 0 0 0]);
-Lrgb = label2rgb(double(L),cmap,'k');
+cmap = linspecer(double(max(L(:))));
+Lrgb = label2rgb(double(L),cmap,'k','shuffle');
 hitIndex = find(bwperim(L>0)>0);
 insideIndex = find(L>0);
 R = Lrgb(:,:,1);
@@ -24,22 +30,27 @@ RI(hitIndex) = R(hitIndex);
 GI(hitIndex) = G(hitIndex);
 BI(hitIndex) = B(hitIndex);
 rgbLabel = cat(3,RI,GI,BI);
-varargout{1} = rgbLabel;
 
-if isempty(stats)
-    
-else
+if params.showTextLabels
+    stats = regionprops(L);
     % generate text mask
-%     h = figure('Visible','off');
-%     set(h, 'PaperPositionMode','auto');
-%     imshow(rgbLabel);
-    textImg = labelBWstack(image,stats);
+    %     h = figure('Visible','off');
+    %     set(h, 'PaperPositionMode','auto');
+    %     imshow(rgbLabel);
+    textImg = labelBWstack(dataND,stats);
     textImg = cat(3,textImg,textImg,textImg);
     rgbLabelandText = rgbLabel;
     rgbLabelandText(textImg>0) = 255;
-%     rgbLabelandText = hardcopy(h, '-dzbuffer', '-r0');
-    varargout{2} = rgbLabelandText;
+    %     rgbLabelandText = hardcopy(h, '-dzbuffer', '-r0');
+    if params.showPlot
+        imshow(rgbLabelandText)
+    end
+else
+    if params.showPlot
+        imshow(rgbLabel)
+    end
 end
+
 
 
 end
