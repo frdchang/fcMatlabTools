@@ -46,11 +46,12 @@ for ii = 1:numel(needToBreakUp)
    currMask  = getSubsetwBBoxND(mask,stats(breakI).BoundingBox);
    currData = getSubsetwBBoxND(data,stats(breakI).BoundingBox);
    Ld = doWaterShedSplitting(currData,currSeed,currMask);
-   splitIds = unique(Ld(:));
+   Ld = -double(Ld);
+   splitIds = unique(Ld(Ld<0));
    % give the first split to the current id
-   Ld(Ld==1) = breakI;
+   Ld(Ld==-1) = breakI;
    for jj = 2:numel(splitIds)
-       Ld(Ld==jj) = nextMaxId;
+       Ld(Ld==-jj) = nextMaxId;
        nextMaxId = nextMaxId + 1;
    end
    newL(stats(breakI).SubarrayIdx{:}) = Ld;

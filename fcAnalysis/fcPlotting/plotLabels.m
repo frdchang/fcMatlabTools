@@ -44,11 +44,11 @@ if params.showTextLabels
     rgbLabelandText(textImg>0) = 255;
     %     rgbLabelandText = hardcopy(h, '-dzbuffer', '-r0');
     if params.showPlot
-        imshow(rgbLabelandText)
+        imshow(rgbLabelandText);
     end
 else
     if params.showPlot
-        imshow(rgbLabel)
+        imshow(rgbLabel);
     end
 end
 

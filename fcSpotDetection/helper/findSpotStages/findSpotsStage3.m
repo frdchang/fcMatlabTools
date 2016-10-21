@@ -39,7 +39,7 @@ for i = 1:numCandidates
         spotParams{i} = MLEbyIteration(currData,theta0,currReadNoise,currDomains,params);
     end
 end
-
+spotParams = removeEmptyCells(spotParams);
 % curate away those spots that did not converg
 badConvergence = cellfun(@(x) isempty(x.logLike),spotParams);
 spotParams(badConvergence) = [];
