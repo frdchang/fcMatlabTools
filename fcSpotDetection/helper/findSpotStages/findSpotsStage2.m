@@ -21,10 +21,11 @@ params.strategy          = 'threshold';         % {'hdome','threshold','autoSpot
 %==universal parameters====================================================
 params.smoothingKernel   = [0.9,0.9,0.9];   % smooths LLRatio
 params.smoothingSize     = [7 7 7];
+params.minBBox           = [6 6 6];
 % params.minVol            = 3;             % make sure candidate is > minVol
 params.Athreshold        = 0;               % select regions where A > Athreshold
 params.clearBorder       = true;            % clear border on xy perimeter
-%==hdome specific parameters===============================================
+%==hdome specific parameters==========?=====================================
 params.hdomeH            = 1e5;
 params.thresholdHDome    = 'otsu';  %{'otsu',thresholdValue}
 %==threshold specific parameters===========================================
@@ -58,18 +59,31 @@ switch params.strategy
         error('unrecognized strategy');
 end
 
-%% universal computation
+%% universal computations
 BWmask = Athresholded.*selectedRegions;
 
 if params.clearBorder
     BWmask = clearXYBorder(BWmask);
 end
 
+%% enforce minimal bounding box volumes
+BWmask = BWmask > 0;
+CC = bwconncomp(BWmask);
+L = labelmatrix(CC);
+stats = regionprops(L,'PixelIdxList','PixelList','Centroid','BoundingBox','Area');
+
+% for those small volumes, give them minimum boundingBox
+centroidMask = genSpotsFromCentroids(size(detected.A1),stats);
+minBBoxMask = imdilate(centroidMask,strel(ones(params.minBBox)));
+% combine the min mask with the current bwmask
+BWmask = BWmask | minBBoxMask;
+% split masks by meanshift
+[L,stats,~] = breakApartMasks(smoothLLRatio,BWmask);
 
 
-% segment spots
-stats = regionprops(BWmask>0,'PixelIdxList','PixelList','Centroid');
-% newStats = defineBBBoxOnCentroids(stats,BBox);
 
+
+% need to have minimum volume 
+candidates.L        = L;
 candidates.BWmask   = BWmask;
 candidates.stats    = stats;

@@ -9,6 +9,7 @@ params.showPlot          = true;
 params = updateParams(params,varargin);
 
 dataND = xyMaxProjND(dataND);
+L = xyMaxProjND(L);
 alpha = 0.3;
 rgbLabel = uint8(255.*norm0to1(dataND));
 % cmap = distinguishable_colors(max(L(:)),[1 1 1; 0 0 0]);

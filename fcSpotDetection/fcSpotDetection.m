@@ -67,3 +67,6 @@ candidates = findSpotsStage2(estimated,params.spotData,params);
 % stage 3 iterative
 spotParams = findSpotsStage3(data,params.constThetaVals,params.readNoiseVar,estimated,candidates,params);
 
+end
+
+

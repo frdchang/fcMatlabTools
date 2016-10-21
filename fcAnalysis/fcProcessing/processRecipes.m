@@ -10,7 +10,7 @@ processQPM      = applyFuncTo_ListOfFiles(phaseFiles,@openImage_applyFuncTo,{},@
 qpmImages       = grabFromListOfCells(processQPM.outputFiles,{'@(x) x{1}'});
 qpmImages       = groupByTimeLapses(qpmImages);
 
-spots           = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
+spots           = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(spots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(spots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(spots.outputFiles,{'@(x) x{3}'});
@@ -48,6 +48,7 @@ extractedA1         = applyFuncTo_ListOfFiles(glueCellArguments(alignedspot_A1s.
 % extract Spots
 extractedSpots      = applyFuncTo_ListOfFiles(glueCellArguments(alignedSpots_Thetas.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
 
+% make kymograph
 
 
 save('~/Desktop/tempProcessing');
