@@ -1,3 +1,4 @@
+tic;
 %% processing data
 phaseRegexp     = 'BrightFieldTTL';
 spotRegexp      = {'FITC\(WhiteTTL\)'};
@@ -10,7 +11,7 @@ processQPM      = applyFuncTo_ListOfFiles(phaseFiles,@openImage_applyFuncTo,{},@
 qpmImages       = grabFromListOfCells(processQPM.outputFiles,{'@(x) x{1}'});
 qpmImages       = groupByTimeLapses(qpmImages);
 
-spots           = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+spots           = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
 spot_Thetas     = grabFromListOfCells(spots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(spots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(spots.outputFiles,{'@(x) x{3}'});
@@ -27,7 +28,7 @@ alignedQPM          = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignX
 alignedspot_A1s     = applyFuncTo_ListOfFiles(glueCellArguments(spot_A1s,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 alignedSpots_Thetas = applyFuncTo_ListOfFiles(glueCellArguments(spot_Thetas,alignXYs),@openData_nakedPassThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
-
+toc
 
 
 

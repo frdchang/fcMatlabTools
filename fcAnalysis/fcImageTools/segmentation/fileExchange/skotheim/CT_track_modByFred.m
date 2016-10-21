@@ -54,6 +54,7 @@ if doParallel
         I=importStack(orderedFileList{c_time});
         display(['timepoint:' num2str(c_time) ' file:' orderedFileList{c_time}]);
         I = uint8(norm0to1(-double(I))*255);
+        initMatlabParallel();
         fprintf([repmat('.',1,no_obj) '\n\n']);
         parfor i = 1:no_obj
             [new_c_Image2,newcell_exists]  = fastTracker_modByFred(cell_exists,i,I,Lcells,c_time,params,max_allowed_cell_size);

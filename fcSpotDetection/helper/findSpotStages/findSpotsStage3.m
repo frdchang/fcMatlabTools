@@ -19,6 +19,8 @@ params = updateParams(params,varargin);
 % apply iterative MLE to every candidate
 numCandidates = numel(candidates.stats);
 spotParams = cell(numCandidates,1);
+
+setupParForProgress(numCandidates);
 for i = 1:numCandidates
     currStats   = candidates.stats(i);
     % extract relevant data and its domain
@@ -38,6 +40,7 @@ for i = 1:numCandidates
         % iterative MLE
         spotParams{i} = MLEbyIteration(currData,theta0,currReadNoise,currDomains,params);
     end
+    incrementParForProgress();
 end
 spotParams = removeEmptyCells(spotParams);
 % curate away those spots that did not converg
