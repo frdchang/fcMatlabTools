@@ -1,11 +1,13 @@
-function glued = glueCellArguments(cellArray1,cellArray2)
+function glued = glueCellArguments(varargin)
 %GLUECELLARRAYS will glue cell arrays together that have the same structure
 
-numElements = numel(cellArray1);
+numArguments = numel(varargin);
+
+numElements = numel(varargin{1});
 glued = cell(numElements,1);
 
 for ii = 1:numElements
-    glued{ii} = {cellArray1{ii}{:},cellArray2{ii}{:}}; 
+    glued{ii} = cellfunNonUniformOutput(@(x) x{ii}{:},varargin);
 end
 
 
