@@ -28,7 +28,7 @@ for ii = 1:numTimePoints
     for jj = 1:numCells
         saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
         saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-        saveSpotsFilePaths{ii,jj} = saveProcessedFileAtWithCellFolder;
+        saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
         spotInCell = spotParamsInL{jj};
         makeDIRforFilename(saveProcessedFileAtWithCellFolder);
         save(saveProcessedFileAtWithCellFolder,'spotInCell');

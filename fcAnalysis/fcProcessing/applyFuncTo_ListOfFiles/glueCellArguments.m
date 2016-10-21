@@ -5,7 +5,7 @@ numElements = numel(cellArray1);
 glued = cell(numElements,1);
 
 for ii = 1:numElements
-    glued{ii} = {cellArray1{ii},cellArray2{ii}}; 
+    glued{ii} = {cellArray1{ii}{:},cellArray2{ii}{:}}; 
 end
 
 

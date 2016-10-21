@@ -7,49 +7,61 @@ expFolder       = '/Users/fchang/Dropbox/Public/smalldataset/fcDataStorage/20160
 phaseFiles      = getAllFiles(expFolder,phaseRegexp);
 spotFiles       = getAllFiles(expFolder,spotRegexp);
 
-processQPM      = applyFuncTo_ListOfFiles(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{},@saveToProcessed_images,{},'doParallel',true);
-qpmImages       = grabFromListOfCells(processQPM.outputFiles,{'@(x) x{1}'});
-qpmImages       = groupByTimeLapses(qpmImages);
+% convert list of files to listOfListOfArguments
+phaseFiles      = convertListToListofArguments(phaseFiles);
+spotFiles       = convertListToListofArguments(spotFiles);
 
-spots           = applyFuncTo_ListOfFiles(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
-spot_Thetas     = grabFromListOfCells(spots.outputFiles,{'@(x) x{1}'});
-spot_A1s        = grabFromListOfCells(spots.outputFiles,{'@(x) x{2}'});
-spot_LLRatios   = grabFromListOfCells(spots.outputFiles,{'@(x) x{3}'});
+processQPM      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{},@saveToProcessed_images,{},'doParallel',true);
+qpmImages       = groupByTimeLapses(processQPM.outputFiles);
+qpmImages       = convertListToListofArguments(qpmImages);
+
+processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
+spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
+spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
+spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
 spot_A1s        = groupByTimeLapses(spot_A1s);
 spot_LLRatios   = groupByTimeLapses(spot_LLRatios);
 spot_Thetas     = groupByTimeLapses(spot_Thetas);
+spot_A1s        = convertListToListofArguments(spot_A1s);
+spot_LLRatios   = convertListToListofArguments(spot_LLRatios);
+spot_Thetas     = convertListToListofArguments(spot_Thetas);
 
-stageAlignments = applyFuncTo_ListOfFiles(qpmImages,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',false);
-alignXYs        = sort_nat(stageAlignments.outputFiles);
+processAlignments = applyFuncTo_listOfListOfArguments(qpmImages,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',false);
+alignXYs        = sort_nat(processAlignments.outputFiles);
+alignXYs        = convertListToListofArguments(alignXYs);
 
 % apply stage alignment to other channels
-alignedQPM          = applyFuncTo_ListOfFiles(glueCellArguments(qpmImages,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',false);
+processAlignedQPM          = applyFuncTo_listOfListOfArguments(glueCellArguments(qpmImages,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to other channels
-alignedspot_A1s     = applyFuncTo_ListOfFiles(glueCellArguments(spot_A1s,alignXYs),@openData_nakedPassThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
+processAlignedspot_A1s     = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_A1s,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
-alignedSpots_Thetas = applyFuncTo_ListOfFiles(glueCellArguments(spot_Thetas,alignXYs),@openData_nakedPassThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
-toc
+processAlignedSpots_Thetas = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_Thetas,alignXYs),@openData_passThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
 
+alignedQPM = convertListToListofArguments(processAlignedQPM.outputFiles);
+alignedSpot_A1s = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
+alignedSpots_Thetas = convertListToListofArguments(processAlignedSpots_Thetas.outputFiles);
 
-
+toc;
 
 
 %% grab the rois
-roiZips       = grabFromListOfCells(alignedQPM.outputFiles,{'@(x) x{1}'});
+roiZips       = grabFromListOfCells(processAlignedQPM.outputFiles,{'@(x) x{1}'});
 roiZips       = returnFilePath(roiZips);
 roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'RoiSet.zip']),roiZips);
+roiZips       = convertListToListofArguments(roiZips);
 
-segmented = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,roiZips),@openData_nakedPassThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
+segmented = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,roiZips),@openData_passThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
 
 % extract cells
 segmentedMatFiles   = cellfunNonUniformOutput(@(x) x.segMatFile,segmented.outputFiles);
-extractedQPM        = applyFuncTo_ListOfFiles(glueCellArguments(alignedQPM.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
-extractedA1         = applyFuncTo_ListOfFiles(glueCellArguments(alignedspot_A1s.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
+segmentedMatFiles   = convertListToListofArguments(segmentedMatFiles);
+extractedQPM        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
+extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpot_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
 
 % extract Spots
-extractedSpots      = applyFuncTo_ListOfFiles(glueCellArguments(alignedSpots_Thetas.outputFiles,segmentedMatFiles),@openData_nakedPassThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
+extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
 
 % make kymograph
 
-
+toc
 save('~/Desktop/tempProcessing');

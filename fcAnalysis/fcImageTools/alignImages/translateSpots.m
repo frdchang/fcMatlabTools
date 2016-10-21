@@ -9,7 +9,7 @@ if ischar(translationSequence)
 end
 for ii = 1:numel(listOfSpots)
    shiftedSpots = load(listOfSpots{ii});
-   shiftedSpots = shiftedSpots.spotMLEstructArray;
+   shiftedSpots = shiftedSpots.spotParams;
    for jj = 1:numel(shiftedSpots)
        currTheta = shiftedSpots(jj).thetaMLE;
        currTheta = cell2mat(currTheta);
@@ -22,7 +22,7 @@ for ii = 1:numel(listOfSpots)
    saveProcessedFileAt = genProcessedFileName(listOfSpots{ii},'translateSpots');
    makeDIRforFilename(saveProcessedFileAt);
    save(saveProcessedFileAt,'shiftedSpots');
-   outputFiles{ii} = saveProcessedFileAt;
+   outputFiles{ii} = [saveProcessedFileAt '.mat'];
 end
 
 

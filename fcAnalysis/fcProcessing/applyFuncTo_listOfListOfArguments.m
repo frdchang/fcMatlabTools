@@ -1,7 +1,7 @@
-function inputsOutputs = applyFuncTo_ListOfFiles(listOfFiles,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,saveFuncParams,varargin)
+function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,saveFuncParams,varargin)
 %APPLYFUNCTO_LISTOFFILES will apply a function to a list of files
 %
-% listOfFiles:          a cell list of all the files to be processed
+% listOfListOfArguments:a list of argument lists
 % openFileFunc:         function that opens the file and extracts relevant
 %                       variables.
 %                       eg. [stack] = openImages4applyFunc(filePath)
@@ -23,7 +23,7 @@ params.hashLength     = 5;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-numApplications = numel(listOfFiles);
+numApplications = numel(listOflistOfArguments);
 
 if numApplications == 0
     warning('no files to apply func to!');
@@ -41,28 +41,25 @@ end
 outputFiles = cell(numApplications,1);
 
 if params.doParallel
-    try;
-    parpool();
-    catch
-    end
+    initMatlabParallel();
     parfor ii = 1:numApplications
         display(['      applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')']);
-        extractedVariables  = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
+        extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
-        outputFiles{ii}     = saveFunc(listOfFiles{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
+        outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
 else
     for ii = 1:numApplications
         display(['      applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')']);
-        extractedVariables  = openFileFunc(listOfFiles{ii},openFileFuncParams{:});
+        extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
-        outputFiles{ii}     = saveFunc(listOfFiles{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
+        outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
 end
 
-inputsOutputs.inputFiles    = listOfFiles;
+inputsOutputs.inputFiles    = listOflistOfArguments;
 inputsOutputs.outputFiles   = outputFiles;
 inputsOutputs.myFuncParams  = myFuncParams;
 inputsOutputs.myFunc        = myFunc;

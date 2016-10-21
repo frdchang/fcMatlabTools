@@ -1,5 +1,5 @@
-function filePath = openData_passThru(filePath,varargin)
+function filePath = openData_passThru(varargin)
 %OPENDATA_PASSTHRU just passes the filePath throughs
-filePath = {filePath};
+filePath = varargin;
 end
 

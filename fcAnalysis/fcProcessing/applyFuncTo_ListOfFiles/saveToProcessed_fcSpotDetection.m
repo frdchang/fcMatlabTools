@@ -1,4 +1,4 @@
-function output = saveToProcessed_fcSpotDetection(filePathOfInput,funcOutput,myFunc,funcParamHash,varargin)
+function output = saveToProcessed_fcSpotDetection(listOfFileInputPaths,funcOutput,myFunc,funcParamHash,varargin)
 %SAVETOPROCESSED_IMAGES will save funcOutput as a bunch of images
 % funcOutput = [spotParams,estimated,candidates]
 %
@@ -7,20 +7,7 @@ function output = saveToProcessed_fcSpotDetection(filePathOfInput,funcOutput,myF
 %
 % .../fcProcessed/.../[myFunc(paramHash)]/myFunc(input).fits
 % if the image is a uint8 or 16 it will save as tif
-
-
-pathOnly        = returnFilePath(filePathOfInput);
-fileName        = returnFileName(filePathOfInput);
-savePath        = createProcessedDir(pathOnly);
-functionName    =  char(myFunc);
-if isempty(funcParamHash)
-    saveFolder = ['[' functionName ']'];
-else
-    saveFolder = ['[' functionName '(' funcParamHash ')]'];
-end
-saveFolder = [savePath filesep saveFolder];
-[~,~,~] = mkdir(saveFolder);
-
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash);
 
 output = cell(3,1);
 % loop over funcOutput and save
@@ -37,26 +24,25 @@ output = cell(3,1);
 
 % save first func output
 outputName = 'MLE_thetas';
-saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash,'appendFolder',outputName);
 makeDIRforFilename(saveProcessedFileAt);
-output{1} = saveProcessedFileAt;
-spotMLEstructArray = funcOutput{1};
+output{1} = [saveProcessedFileAt '.mat'];
+spotParams = funcOutput{1};
 try
-    save(saveProcessedFileAt,'-v6','spotMLEstructArray');
+    save(saveProcessedFileAt,'-v6','spotParams');
 catch
 end
 
 outputName = 'MLE_A1';
-saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash,'appendFolder',outputName);
+
 makeDIRforFilename(saveProcessedFileAt);
-output{2} = saveProcessedFileAt;
 saveOutput = funcOutput{2}.A1;
-exportStack(saveProcessedFileAt,saveOutput);
+output{2} = exportStack(saveProcessedFileAt,saveOutput);
 
 outputName = 'MLE_LLRatio';
-saveProcessedFileAt = [saveFolder filesep outputName filesep outputName '(' fileName ')'];
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash,'appendFolder',outputName);
 makeDIRforFilename(saveProcessedFileAt);
-output{3} = saveProcessedFileAt;
 saveOutput = funcOutput{2}.LLRatio;
-exportStack(saveProcessedFileAt,saveOutput);
+output{3} = exportStack(saveProcessedFileAt,saveOutput);
 

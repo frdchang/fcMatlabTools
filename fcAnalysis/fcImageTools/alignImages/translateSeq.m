@@ -10,7 +10,6 @@ for ii = 1:numel(listOfData)
    currStack = importStack(listOfData{ii});
    shiftStack = translateImage(currStack,translationSequence(ii,1),translationSequence(ii,2));
    saveProcessedFileAt = genProcessedFileName(listOfData{ii},'translateSeq');
-   exportStack(saveProcessedFileAt,shiftStack);
-   outputFiles{ii} = saveProcessedFileAt;
+   outputFiles{ii} = exportStack(saveProcessedFileAt,shiftStack);
 end
 

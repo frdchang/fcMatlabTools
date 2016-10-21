@@ -1,4 +1,4 @@
-function output = saveToProcessed_images(filePathOfInput,funcOutput,myFunc,funcParamHash,varargin)
+function outputFileName = saveToProcessed_images(listOfFileInputPaths,funcOutput,myFunc,funcParamHash,varargin)
 %SAVETOPROCESSED_IMAGES will save funcOutput as a bunch of images
 % if desired, varargin should contain the name of the files to be appended
 % .../fcData/.../input
@@ -8,40 +8,31 @@ function output = saveToProcessed_images(filePathOfInput,funcOutput,myFunc,funcP
 % s
 
 
-pathOnly        = returnFilePath(filePathOfInput);
-fileName        = returnFileName(filePathOfInput);
-savePath        = createProcessedDir(pathOnly);
-functionName    =  char(myFunc);
-if isempty(funcParamHash)
-    saveFolder = ['[' functionName ']'];
-else
-    saveFolder = ['[' functionName '(' funcParamHash ')]'];
-end
-saveFolder = [savePath filesep saveFolder];
-[~,~,~] = mkdir(saveFolder);
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash);
 
 if isempty(varargin)
     if numel(funcOutput) == 1
-        varargin{1} = '';
+        appendString{1} = '';
     else
-        varargin = 1:numel(funcOutput);
-        varargin = strread(num2str(varargin),'_%s');
+        appendString = 1:numel(funcOutput);
+        appendString = textscan(num2str(appendString),'%s');
+        appendString = appendString{1};
     end
-    
+else
+   appendString = varargin{1}; 
 end
-output = cell(numel(funcOutput),1);
-% loop over funcOutput and save
+outputFileName = cell(numel(funcOutput),1);
+
+
 for ii = 1:numel(funcOutput)
     currImage = funcOutput{ii};
-    saveProcessedFileAt = [saveFolder filesep functionName '(' fileName ')' varargin{ii}];
-    
-    if isinteger(currImage)
-        exportSingleTifStack(saveProcessedFileAt,currImage);
-        output{ii} = [saveProcessedFileAt '.tif'];
+    if isempty(appendString{ii})
+        outputFileName = saveProcessedFileAt;
+        
     else
-        exportSingleFitsStack(saveProcessedFileAt,currImage);
-        output{ii} = [saveProcessedFileAt '.fits'];
+        outputFileName = [saveProcessedFileAt '_' appendString{ii}];
     end
+    outputFileName = exportStack(outputFileName,currImage);
 end
 
 

@@ -22,7 +22,7 @@ end
 % check if filename exists
 if ~exist(filename,'file')
     [~,~,~] = mkdir(returnFilePath(filename));
-    display(['writing: ' filename ]);
+%     display(['writing: ' filename ]);
     if isempty(varargin)
         for i = 1:zL
             imwrite(stack(:,:,i), filename ,saveParams{:}, 'WriteMode', 'append');
@@ -34,7 +34,7 @@ if ~exist(filename,'file')
         end
     end
 else
-    display(['overwriting: ' filename ]);
+%     display(['overwriting: ' filename ]);
     delete(filename);
     if isempty(varargin)
         for i = 1:zL

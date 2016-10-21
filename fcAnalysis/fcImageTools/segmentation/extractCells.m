@@ -35,8 +35,7 @@ for ii = 1:numTimePoints
         if ~isempty(allTheCells{jj})
             saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
             saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-            exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
-            saveCellFilePaths{ii,jj} = saveProcessedFileAtWithCellFolder;
+            saveCellFilePaths{ii,jj} = exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
         else
             saveCellFilePaths{ii,jj} = {};
         end

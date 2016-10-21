@@ -2,8 +2,8 @@ function output = saveToProcessed_stageAlign(filePathOfInput,funcOutput,myFunc,f
 %SAVETOPROCESSED_GETXYSTAGEALIGNMENT Summary of this function goes here
 %   Detailed explanation goes here
 
-saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,funcParamHash);
+saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,'paramHash',funcParamHash);
 xyAlignment = funcOutput{1};
 makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'xyAlignment');
-output = saveProcessedFileAt;
+output = [saveProcessedFileAt '.mat'];

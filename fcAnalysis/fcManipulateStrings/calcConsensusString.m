@@ -24,7 +24,7 @@ for ii = 1:numElements
         %         else
         %         consensChar = ['|' consensChar' '|'];
         %         end
-        consensusString = [ consensusString 'x'];
+%         consensusString = [ consensusString 'x'];
     else
         consensusString = [ consensusString consensChar];
     end
