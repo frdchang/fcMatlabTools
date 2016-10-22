@@ -2,7 +2,7 @@ function stack = importStack(filename)
 %IMPORTSTACK imports either tif or fits stack.
 
 [~,~,ext] = fileparts(filename);
-if exists(filename) == 0
+if exist(filename) == 0
    stack = [];
    return;
 end
