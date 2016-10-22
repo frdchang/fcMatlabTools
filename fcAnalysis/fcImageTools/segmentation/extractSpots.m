@@ -22,15 +22,17 @@ for ii = 1:numTimePoints
     spotParamsInL = returnSpotParamsInL(currSpotMLE,currSeg);
     numSpotsInCurr = max(currSeg(:));
     if numel(spotParamsInL) < numCells
-         spotParamsInL{numCells} = [];
+        spotParamsInL{numCells} = [];
     end
-   
+    
     for jj = 1:numCells
-        saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
-        saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-        saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
-        spotInCell = spotParamsInL{jj};
-        makeDIRforFilename(saveProcessedFileAtWithCellFolder);
-        save(saveProcessedFileAtWithCellFolder,'spotInCell');
+        if ~isempty(spotParamsInL{jj})
+            saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
+            saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
+            saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
+            spotInCell = spotParamsInL{jj};
+            makeDIRforFilename(saveProcessedFileAtWithCellFolder);
+            save(saveProcessedFileAtWithCellFolder,'spotInCell');
+        end
     end
 end

@@ -26,21 +26,23 @@ spot_A1s        = convertListToListofArguments(spot_A1s);
 spot_LLRatios   = convertListToListofArguments(spot_LLRatios);
 spot_Thetas     = convertListToListofArguments(spot_Thetas);
 
-processAlignments = applyFuncTo_listOfListOfArguments(qpmImages,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',false);
-alignXYs        = sort_nat(processAlignments.outputFiles);
-alignXYs        = convertListToListofArguments(alignXYs);
+processAlignments   = applyFuncTo_listOfListOfArguments(qpmImages,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',false);
+alignXYs            = sort_nat(processAlignments.outputFiles);
+alignXYs            = convertListToListofArguments(alignXYs);
 
 % apply stage alignment to other channels
 processAlignedQPM          = applyFuncTo_listOfListOfArguments(glueCellArguments(qpmImages,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to other channels
 processAlignedspot_A1s     = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_A1s,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',true);
+processAlignedSpots_LLRatios = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_LLRatios,alignXYs),@openData_passThru,{},@translateSeq,{},@saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 processAlignedSpots_Thetas = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_Thetas,alignXYs),@openData_passThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
 
-alignedQPM = convertListToListofArguments(processAlignedQPM.outputFiles);
-alignedSpot_A1s = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
-alignedSpots_Thetas = convertListToListofArguments(processAlignedSpots_Thetas.outputFiles);
 
+alignedQPM              = convertListToListofArguments(processAlignedQPM.outputFiles);
+alignedSpots_A1s         = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
+alignedSpots_Thetas     = convertListToListofArguments(processAlignedSpots_Thetas.outputFiles);
+alignedSpots_LLRatios   = convertListToListofArguments(processAlignedSpots_LLRatios.outputFiles);
 toc;
 
 
@@ -56,12 +58,15 @@ segmented = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,roiZi
 segmentedMatFiles   = cellfunNonUniformOutput(@(x) x.segMatFile,segmented.outputFiles);
 segmentedMatFiles   = convertListToListofArguments(segmentedMatFiles);
 extractedQPM        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
-extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpot_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
-
+extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
+extractedLLRatio    = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_LLRatios,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',false);
 % extract Spots
 extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
-
-% make kymograph
-
+toc
+save('~/Desktop/tempProcessing');
+% make 3D visualization
+process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
+% make kymo
+processKymo         = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@makeKymo_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
 toc
 save('~/Desktop/tempProcessing');
