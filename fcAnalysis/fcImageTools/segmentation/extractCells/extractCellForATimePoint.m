@@ -22,7 +22,7 @@ for ii = 1:numCells
     currCellinL = (currSeg == ii);
     if any(currCellinL(:))
         % there is that ii cell
-        currStats           = regionprops(currCellinL,'Centroid','BoundingBox');
+        currStats           = regionprops(bwconvhull(currCellinL),'Centroid','BoundingBox');
         currBBox            = centroidWSize2BBox(currStats.Centroid,maxBBoxForEachCell{ii});
               
         [currCell,allTheBBox{ii}] = getSubsetwBBoxND(currStack,currBBox,'borderVector',borders);
