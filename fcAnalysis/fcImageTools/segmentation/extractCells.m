@@ -3,7 +3,7 @@ function saveCellFilePaths = extractCells(listOfFiles,segMatFile,varargin)
 %segMatFile, assume it is 2D.
 
 %--parameters--------------------------------------------------------------
-params.borderVector    = [20 20];
+params.borderVector    = [20 20];  % make sure this matches extractSpots!!!!
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -24,7 +24,7 @@ for ii = 1:numTimePoints
     currStack = importStack(listOfFiles{ii});
     currSeg   = segmentation.all_obj.cells(:,:,ii);
     % if it is a qpm file extract cell using qpm highlighting
-    if ~isempty(strfind(returnFileName(listOfFiles{ii}),'genQPM'))
+    if ~isempty(strfind(returnFileName(listOfFiles{ii}),'genQPM')) || ~isempty(strfind(returnFileName(listOfFiles{ii}),'gnQPM'))
         allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,params.borderVector,2);
     else
         % otherwise mask data by -inf

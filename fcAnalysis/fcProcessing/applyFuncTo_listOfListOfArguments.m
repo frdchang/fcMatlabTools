@@ -43,7 +43,7 @@ outputFiles = cell(numApplications,1);
 if params.doParallel
     initMatlabParallel();
     parfor ii = 1:numApplications
-        display(['      applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')']);
+        display(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
@@ -51,7 +51,7 @@ if params.doParallel
     end
 else
     for ii = 1:numApplications
-        display(['      applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')']);
+        display(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});

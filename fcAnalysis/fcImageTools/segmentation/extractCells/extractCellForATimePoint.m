@@ -1,4 +1,4 @@
-function allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borders,howToMask)
+function [allTheCells,allTheBBox] = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borders,howToMask)
 %EXTRACTCELLFORATIMEPOINT will extract each cell and output them as a cell
 % array.  will mask out non segmented portion as -inf.
 %
@@ -17,15 +17,15 @@ colorPerimeter = [1 1 1];
 
 numCells = numel(maxBBoxForEachCell);
 allTheCells = cell(numCells,1);
-fprintf([repmat('.',1,numCells) '\n\n']);
+allTheBBox = cell(numCells,1);
 for ii = 1:numCells
-    fprintf('\b|\n');
     currCellinL = (currSeg == ii);
     if any(currCellinL(:))
         % there is that ii cell
         currStats           = regionprops(currCellinL,'Centroid','BoundingBox');
         currBBox            = centroidWSize2BBox(currStats.Centroid,maxBBoxForEachCell{ii});
-        currCell            = getSubsetwBBoxND(currStack,currBBox,'borderVector',borders);
+              
+        [currCell,allTheBBox{ii}] = getSubsetwBBoxND(currStack,currBBox,'borderVector',borders);
         switch howToMask
             case 0
                 maskedCell = currCell;

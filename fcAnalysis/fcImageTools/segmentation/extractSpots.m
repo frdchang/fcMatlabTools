@@ -2,6 +2,7 @@ function saveSpotsFilePaths  = extractSpots(listOfSpotMLEs,segMatFile,varargin)
 %EXTRACTSPOTS will extract spots for each cell given a matfile
 %--parameters--------------------------------------------------------------
 params.LLRatioThreshold     = 0;
+params.borderVector         = [20 20];  % make sure this matches extractCELL!!
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -11,7 +12,8 @@ segmentation = segmentation.segOutput;
 numCells = max(segmentation.all_obj.cells(:));
 numTimePoints = numel(listOfSpotMLEs);
 
-
+%% find the largest bounding box that enapsulates the cell over the timelapse
+maxBBoxForEachCell = findMaxBBoxForSeq(segmentation.all_obj.cells,segmentation.all_obj.cell_area);
 %% extract spots using that bounding box found above and save
 saveSpotsFilePaths = cell(numTimePoints,numCells);
 
@@ -20,7 +22,9 @@ for ii = 1:numTimePoints
     currSpotMLE = loadAndTakeFirstField(listOfSpotMLEs{ii});
     currSeg   = segmentation.all_obj.cells(:,:,ii);
     spotParamsInL = returnSpotParamsInL(currSpotMLE,currSeg);
-    numSpotsInCurr = max(currSeg(:));
+    
+    [allTheCells,allTheBBox] = extractCellForATimePoint(currSeg,currSeg,maxBBoxForEachCell,params.borderVector,1);
+    
     if numel(spotParamsInL) < numCells
         spotParamsInL{numCells} = [];
     end
@@ -30,7 +34,7 @@ for ii = 1:numTimePoints
             saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
             saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
             saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
-            spotInCell = spotParamsInL{jj};
+            spotInCell = BBoxCorrectSpotParams(spotParamsInL{jj},allTheBBox{jj});
             makeDIRforFilename(saveProcessedFileAtWithCellFolder);
             save(saveProcessedFileAtWithCellFolder,'spotInCell');
         end
