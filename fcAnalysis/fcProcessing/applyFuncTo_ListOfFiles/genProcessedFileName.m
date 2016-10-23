@@ -3,15 +3,16 @@ function saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,
 % you can provide a parameter hash for varargin
 
 %--parameters--------------------------------------------------------------
-params.paramHash     = [];
-params.appendFolder  = [];
+params.paramHash      = [];
+params.appendFolder   = [];
+params.deleteHistory  = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 if ischar(listOfFileInputPaths)
     listOfFileInputPaths = {listOfFileInputPaths};
 end
-
+listOfFileInputPaths = removeEmptyCells(listOfFileInputPaths);
 allThePaths = cellfunNonUniformOutput(@(x) calcConsensusString(returnFilePath(x)),listOfFileInputPaths);
 allTheFileNames = cellfunNonUniformOutput(@(x) calcConsensusString(returnFileName(x)),listOfFileInputPaths);
 allTheFileNamesDroppedVowels = dropVowels(allTheFileNames);
@@ -34,8 +35,13 @@ end
 % history of applied functions are in the bracketed portions of filepath
 grabHistory     = regexp(savePath,'\[(.*?)\]','match');
 grabRest        = regexp(savePath,'\[(.*?)\]','split');
-history         = {strjoin(grabHistory,'')};
-history         = dropVowels(history);
+if params.deleteHistory
+    history = '';
+else
+    history         = {strjoin(grabHistory,'')};
+    history         = dropVowels(history);
+end
+
 % history         = regexprep(history,'\]\[','');
 % append current function to first part of grabHistory
 grabRest{1} = [grabRest{1} saveFolder];

@@ -8,7 +8,7 @@ params.spotParams       = [];
 params.zMulti           = 3;
 params.upRezFactor      = 1;
 params.border           = 1;
-params.bkgndGrey        = -inf;
+params.bkgndGrey        = 0.2;
 params.phaseAppend      = [];
 params.spotColor1       = [1 0 0];
 params.spotColor2ormore = [0 1 0];
@@ -69,10 +69,15 @@ views(1:xL1,yL1+params.border+1:end,:) = view2;
 % generate the appending phase channel if it exists
 if ~isempty(params.phaseAppend)
     phaseAppend = xyMaxProjND(params.phaseAppend);
-    phaseAppending = zeros(size(phaseAppend,1),size(views,2));
+    phaseAppending = params.bkgndGrey*ones(size(phaseAppend,1),size(views,2));
     phaseAppending(1:size(phaseAppend,1),1:size(phaseAppend,2)) = phaseAppend;
     phaseAppending = bw2rgb(phaseAppending);
-    views = cat(1,phaseAppending,views);
+    offset = params.bkgndGrey*ones(params.border,size(views,2));
+    offset = bw2rgb(offset);
+    views = cat(1,phaseAppending,offset,views);
+    theViews.phase = bw2rgb(phaseAppend);
+else
+    theViews.phase = []; 
 end
 
 
@@ -83,4 +88,5 @@ end
 theViews.view1 = view1;
 theViews.view2 = view2;
 theViews.view3 = view3;
+
 
