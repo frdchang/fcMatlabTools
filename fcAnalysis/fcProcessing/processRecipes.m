@@ -1,7 +1,7 @@
 %% processing multiple experiments
 expFolders = {  '/Volumes/robin/fcDataStorage/20160201-test-adf',...
-                '/Volumes/robin/fcDataStorage/20160201-test-adf copy 2',...
-                '/Volumes/robin/fcDataStorage/20160202-test-adf copy'};
+                '/Volumes/robin/fcDataStorage/20160201-test-adfasdf',...
+                '/Volumes/robin/fcDataStorage/20160202-test-adfahgaga'};
             
 for ii=1:numel(expFolders)
     part1(expFolders{ii});

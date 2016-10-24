@@ -5,7 +5,7 @@ function [] = part1(expFolder)
 %% processing data
 phaseRegexp     = 'BrightFieldTTL';
 spotRegexp      = {'FITC\(WhiteTTL\)'};
-%expFolder      = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20160915-mitosis-BWY804_4-4/doTimeLapse_1';
+
 phaseFiles      = getAllFiles(expFolder,phaseRegexp);
 spotFiles       = getAllFiles(expFolder,spotRegexp);
 
@@ -39,7 +39,6 @@ processAlignedspot_A1s     = applyFuncTo_listOfListOfArguments(glueCellArguments
 processAlignedSpots_LLRatios = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_LLRatios,alignXYs),@openData_passThru,{},@translateSeq,{},@saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 processAlignedSpots_Thetas = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_Thetas,alignXYs),@openData_passThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
-save(expFolder);
 
 alignedQPM              = convertListToListofArguments(processAlignedQPM.outputFiles);
 alignedSpots_A1s         = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
