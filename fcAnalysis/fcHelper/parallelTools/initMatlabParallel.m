@@ -5,7 +5,6 @@ function [] = initMatlabParallel()
 poolobj = gcp('nocreate');
 
 if isempty(poolobj)
-   display('starting parallel resource');
    parpool(); 
 else
     

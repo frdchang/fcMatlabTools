@@ -30,8 +30,7 @@ saveFiles.ViewsSansSpots = {};
 saveFiles.kymo = {};
 saveFiles.kymoSansSpots = {};
 
-distBasket = cell(numSeq,1);
-ampBasket = cell(numSeq,1);
+spotParamBasket = cell(numSeq,1);
 for ii = 1:numSeq
     currFluor = importStack(fluorPaths{ii});
     currPhase = importStack(phasePaths{ii});
@@ -53,8 +52,10 @@ for ii = 1:numSeq
         theViewsSanSpots = structFieldFun(theViewsSanSpots,convert2uint8,{'view','phase'});
         % save the 3d views
         saveFiles.Views{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','views');
+        makeDIRforFilename(saveFiles.Views{ii});
         imwrite(views,[saveFiles.Views{ii} '.tif'],'tif');
         saveFiles.ViewsSansSpots{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','viewsSansSpots');
+        makeDIRforFilename(saveFiles.ViewsSansSpots{ii});
         imwrite(viewsSansSpots,[saveFiles.ViewsSansSpots{ii} '.tif'],'tif');
         % populate kymos
         kymoInX(:,ii,:) = maxintensityproj(theViews.view1,1);
@@ -69,8 +70,6 @@ for ii = 1:numSeq
         
         % calculate distance
     end
-    distBasket{ii} = returnPairWiseDists(currSpotParams);
-    ampBasket{ii} = returnAmplitudes(currSpotParams);
 end
 
 % save the kymos

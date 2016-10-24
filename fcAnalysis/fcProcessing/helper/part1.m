@@ -1,20 +1,10 @@
-%% processing multiple experiments
-expFolders = {  '/Volumes/robin/fcDataStorage/20160201-test-adf',...
-                '/Volumes/robin/fcDataStorage/20160201-test-adf copy 2',...
-                '/Volumes/robin/fcDataStorage/20160202-test-adf copy'};
-            
-for ii=1:numel(expFolders)
-    part1(expFolders{ii});
-end
+function [] = part1(expFolder)
+%PART1 Summary of this function goes here
+%   Detailed explanation goes here
 
-% segment last time points
-for ii=1:numel(expFolders)
-    part2(expFolders{ii});
-end
 %% processing data
 phaseRegexp     = 'BrightFieldTTL';
 spotRegexp      = {'FITC\(WhiteTTL\)'};
-expFolder       = '/Users/fchang/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 %expFolder      = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20160915-mitosis-BWY804_4-4/doTimeLapse_1';
 phaseFiles      = getAllFiles(expFolder,phaseRegexp);
 spotFiles       = getAllFiles(expFolder,spotRegexp);
@@ -49,6 +39,7 @@ processAlignedspot_A1s     = applyFuncTo_listOfListOfArguments(glueCellArguments
 processAlignedSpots_LLRatios = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_LLRatios,alignXYs),@openData_passThru,{},@translateSeq,{},@saveToProcessed_passThru,{},'doParallel',true);
 % apply stage alignment to spots mle
 processAlignedSpots_Thetas = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_Thetas,alignXYs),@openData_passThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
+save(expFolder);
 
 alignedQPM              = convertListToListofArguments(processAlignedQPM.outputFiles);
 alignedSpots_A1s         = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
@@ -56,29 +47,3 @@ alignedSpots_Thetas     = convertListToListofArguments(processAlignedSpots_Theta
 alignedSpots_LLRatios   = convertListToListofArguments(processAlignedSpots_LLRatios.outputFiles);
 
 save([expFolder filesep 'processingState']);
-
-
-%% grab the rois
-roiZips       = grabFromListOfCells(processAlignedQPM.outputFiles,{'@(x) x{1}'});
-roiZips       = returnFilePath(roiZips);
-roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'RoiSet.zip']),roiZips);
-roiZips       = convertListToListofArguments(roiZips);
-
-segmented = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,roiZips),@openData_passThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
-
-% extract cells
-segmentedMatFiles   = cellfunNonUniformOutput(@(x) x.segMatFile,segmented.outputFiles);
-segmentedMatFiles   = convertListToListofArguments(segmentedMatFiles);
-extractedQPM        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
-extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
-extractedLLRatio    = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_LLRatios,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
-% extract Spots
-extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
-
-
-% make 3D visualization
-process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
-% make kymo
-processKymo         = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@makeKymo_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
-toc
-save('~/Desktop/tempProcessing');
