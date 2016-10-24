@@ -58,7 +58,7 @@ for i = 1:numDims
     else
         coorDomains{i} = 1:size(ndData,i);
         newBBox(i) = 1;
-        newBBox(i+numDims) = size(nData,i);
+        newBBox(i+numDims) = size(ndData,i);
     end
 end
 newBBox([1,2]) = newBBox([2,1]);
