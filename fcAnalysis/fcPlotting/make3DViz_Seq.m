@@ -1,9 +1,16 @@
-function outputPath = make3DViz_Seq(fluorPaths,spotParamPaths,phasePaths,varargin)
+function saveFiles = make3DViz_Seq(fluorPaths,spotParamPaths,phasePaths,varargin)
 %MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
 % phasePath can be empty if not needed
 %--parameters--------------------------------------------------------------
 params.zMulti           = 3; % make sure this is integers
 params.bkgndGrey        = 0.2;
+params.spacerHeight     = 5;
+params.pixelHeight      = 2;
+params.units            = [0.1083,0.1083,0.300];
+params.pairingHeight    = 5;
+params.upRezHeight      = 20;
+params.markerSize       = 0;
+params.pairingHeight    = 20;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -27,8 +34,6 @@ convert2uint8 = @(x) uint8(255*x);
 
 saveFiles.Views = {};
 saveFiles.ViewsSansSpots = {};
-saveFiles.kymo = {};
-saveFiles.kymoSansSpots = {};
 
 spotParamBasket = cell(numSeq,1);
 for ii = 1:numSeq
@@ -68,14 +73,28 @@ for ii = 1:numSeq
         
         phaseKymoInX(:,ii,:) = maxintensityproj(theViews.phase,1);
         
-        % calculate distance
+        % save the spotParams
+        spotParamBasket{ii} = currSpotParams;
     end
 end
 
-% save the kymos
+% generate kymos
+spacer = params.bkgndGrey*ones(params.spacerHeight,numSeq,3);
+% generate amplitude and distance plots
+distPlotBMP = bw2rgb(bitmapPlotSeq(spotParamBasket,@returnPairWiseDistsOfSpotParams,params));
+ampPlotBMP = bw2rgb(bitmapPlotSeq(spotParamBasket,@returnAmplitudes,params,'pixelHeight',[]));
+pairingPlotBMP = genPairingPlotBMP(spotParamBasket,'height',params.pairingHeight);
 
+accessoryPlots = uint8(255*(cat(1,pairingPlotBMP,spacer,ampPlotBMP,spacer,distPlotBMP)));
 
-outputPath = saveFiles;
+kymoInXYZ = cat(1,phaseKymoInX,spacer,kymoInX,spacer,kymoInY,spacer,kymoInZ,spacer,accessoryPlots);
+kymoInXYZsansSpots =  cat(1,phaseKymoInX,spacer,kymoInXsansSpots,spacer,kymoInYsansSpots,spacer,kymoInZsansSpots,spacer,accessoryPlots);
+
+% generate top phase plot
+phasePlotOnTop = genPhasePlotOnTop(phasePaths,numSeq);
+
+saveFiles.kymoSansSpots = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymoSansSpots');
+saveFiles.kymo = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymo');
 
 end
 

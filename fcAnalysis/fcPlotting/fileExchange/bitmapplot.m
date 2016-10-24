@@ -152,19 +152,22 @@ if(~isempty(options.Marker))
     % Make marker pixels (center 0,0)
     switch(options.Marker)
         case '+'
-            markerx=[-(options.MarkerSize/2):(options.MarkerSize/2) zeros(1,options.MarkerSize+1)];
-            markery=[zeros(1,options.MarkerSize+1) -(options.MarkerSize/2):(options.MarkerSize/2)]; 
+            markerx=[-(options.MarkerSize/2):(options.MarkerSize/2) zeros(1,options.MarkerSize+1) 0 ];
+            markery=[zeros(1,options.MarkerSize+1) -(options.MarkerSize/2):(options.MarkerSize/2) 0 ]; 
         case '*'
             markerx=[-(options.MarkerSize/2):(options.MarkerSize/2) zeros(1,options.MarkerSize+1)];
             markery=[zeros(1,options.MarkerSize+1) -(options.MarkerSize/2):(options.MarkerSize/2)]; 
-            markerx=[markerx -(options.MarkerSize/2):(options.MarkerSize/2) -(options.MarkerSize/2):(options.MarkerSize/2)];
-            markery=[markery -(options.MarkerSize/2):(options.MarkerSize/2) (options.MarkerSize/2):-1:-(options.MarkerSize/2)];
+            markerx=[markerx -(options.MarkerSize/2):(options.MarkerSize/2) -(options.MarkerSize/2):(options.MarkerSize/2) 0 ];
+            markery=[markery -(options.MarkerSize/2):(options.MarkerSize/2) (options.MarkerSize/2):-1:-(options.MarkerSize/2) 0 ];
         case 'o'
             step=360/(2*pi*options.MarkerSize);
             markerx=options.MarkerSize/2*sind(0:step:90);
             markery=options.MarkerSize/2*cosd(0:step:90);
             markerx=[markerx -markerx markerx -markerx];
             markery=[markery markery -markery -markery];
+        case '.'
+            markerx = 0;
+            markery = 0;
     end
     % Add all line markers to the marker image
     isColorTable=size(options.MarkerColor,1)==length(x);

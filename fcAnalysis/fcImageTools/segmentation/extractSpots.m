@@ -30,13 +30,13 @@ for ii = 1:numTimePoints
     end
     
     for jj = 1:numCells
-        if ~isempty(spotParamsInL{jj})
+%         if ~isempty(spotParamsInL{jj})
             saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
             saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
             saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
             spotInCell = BBoxCorrectSpotParams(spotParamsInL{jj},allTheBBox{jj});
             makeDIRforFilename(saveProcessedFileAtWithCellFolder);
             save(saveProcessedFileAtWithCellFolder,'spotInCell');
-        end
+%         end
     end
 end

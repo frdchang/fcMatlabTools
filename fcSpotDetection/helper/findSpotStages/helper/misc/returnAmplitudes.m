@@ -1,4 +1,4 @@
-function amplitudes = returnAmplitudes(spotParams)
+function amplitudes = returnAmplitudes(spotParams,varargin)
 %RETURNAMPLITUDES returns amplitudes, which are by definition second to
 %last entry
 
