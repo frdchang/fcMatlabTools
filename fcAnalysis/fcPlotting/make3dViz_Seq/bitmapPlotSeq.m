@@ -31,12 +31,22 @@ if isempty(params.pixelHeight)
         currMaxDistances = max(myFunc(cellOfSpotParams{ii},params));
         maxDist = max(maxDist,currMaxDistances);
     end
-    bmpPlotHeight = round(maxDist*params.heightBuffer);
+    if isempty(maxDist)
+        bmpPlotHeight = params.recHeightPixels;
+    else
+        bmpPlotHeight = round(maxDist*params.heightBuffer);
+    end
+    
 else
     bmpPlotHeight = params.pixelHeight;
 end
-upRezHeight = params.recHeightPixels/bmpPlotHeight;
-plotBkgnd = params.bkgndGrey*ones(bmpPlotHeight*upRezHeight ,bmpPlotLength);
+if isempty(bmpPlotHeight)
+    upRezHeight = 1;
+else
+    upRezHeight = params.recHeightPixels/bmpPlotHeight;
+end
+
+plotBkgnd = params.bkgndGrey*ones(round(bmpPlotHeight*upRezHeight) ,bmpPlotLength);
 
 % extract distances
 seqIndex = [];

@@ -91,10 +91,13 @@ kymoInXYZ = cat(1,phaseKymoInX,spacer,kymoInX,spacer,kymoInY,spacer,kymoInZ,spac
 kymoInXYZsansSpots =  cat(1,phaseKymoInX,spacer,kymoInXsansSpots,spacer,kymoInYsansSpots,spacer,kymoInZsansSpots,spacer,accessoryPlots);
 
 % generate top phase plot
-phasePlotOnTop = genPhasePlotOnTop(phasePaths,numSeq);
+% phasePlotOnTop = genPhasePlotOnTop(phasePaths,numSeq);
 
 saveFiles.kymoSansSpots = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymoSansSpots');
+makeDIRforFilename(saveFiles.kymoSansSpots);
+imwrite(kymoInXYZsansSpots,[saveFiles.kymoSansSpots '.tif'],'tif');
 saveFiles.kymo = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymo');
-
+makeDIRforFilename(saveFiles.kymo);
+imwrite(kymoInXYZ,[saveFiles.kymo '.tif'],'tif');
 end
 

@@ -19,11 +19,14 @@ else
     bmpPlotLength = params.pixelLength;
 end
 
-pairingPlotBMP = params.bkgndGrey*ones(params.pairingHeight,bmpPlotLength,3);
+pairingPlotBMP = params.bkgndGrey*ones(params.pairingHeight,bmpPlotLength);
 
 for ii = 1:bmpPlotLength
     currAmps = returnAmplitudes(spotParamsBasket{ii});
     if numel(currAmps) == 1
-       pairingPlotBMP(:,ii,:) = params.color; 
+       pairingPlotBMP(:,ii,:) = 1; 
     end
 end
+
+pairingPlotBMP = bw2rgb(pairingPlotBMP);
+pairingPlotBMP(:,:,~params.color) = 0;

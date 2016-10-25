@@ -34,7 +34,7 @@ processQPM      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyF
 qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',true);
+processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
@@ -81,9 +81,9 @@ extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(aligne
 extractedLLRatio    = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_LLRatios,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
 % extract Spots
 extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
+save([expFolder filesep 'processingState'],'-append');
 
-
-% make 3D visualization
+% make 3D v´?isualization
 process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
 % make kymo
 processKymo         = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@makeKymo_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
