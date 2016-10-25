@@ -34,7 +34,7 @@ processQPM      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyF
 qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',700},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',200},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
@@ -62,7 +62,7 @@ alignedSpots_A1s         = convertListToListofArguments(processAlignedspot_A1s.o
 alignedSpots_Thetas     = convertListToListofArguments(processAlignedSpots_Thetas.outputFiles);
 alignedSpots_LLRatios   = convertListToListofArguments(processAlignedSpots_LLRatios.outputFiles);
 
-save([expFolder filesep 'processingState']);
+save([expFolder filesep 'processingState'],'-append');
 
 
 %% grab the rois
