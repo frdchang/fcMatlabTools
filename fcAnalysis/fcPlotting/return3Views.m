@@ -43,19 +43,25 @@ if ~isempty(params.spotParams)
     yCoors = round(thetaMLEs(:,1));
     xCoors = round(thetaMLEs(:,2));
     zCoors = round(thetaMLEs(:,3));
-    if numSpots == 2
-        spotColor = params.spotColor2ormore;
-    else
+    if numSpots == 1
         spotColor = params.spotColor1;
+    else
+        spotColor = params.spotColor2ormore;
     end
     for ii = 1:numSpots
+        if xCoors(ii) <= xL1 && yCoors(ii) <= yL1 && xCoors(ii) >= 1 && yCoors(ii) >= 1
         view1(xCoors(ii),yCoors(ii),:) = reshape(spotColor,1,1,3);
+        end
     end
     for ii = 1:numSpots
+        if xCoors(ii) <= xL2 && zCoors(ii)*params.zMulti <=yL2 && xCoors(ii) >= 1 && zCoors(ii)*params.zMulti >= 1
         view2(xCoors(ii),zCoors(ii)*params.zMulti,:) = reshape(spotColor,1,1,3);
+        end
     end
     for ii = 1:numSpots
+        if zCoors(ii)*params.zMulti <= xL3 && yCoors(ii) <=yL3 && zCoors(ii)*params.zMulti >= 1 && yCoors(ii) >= 1
         view3(zCoors(ii)*params.zMulti,yCoors(ii),:) = reshape(spotColor,1,1,3);
+        end
     end
 end
 

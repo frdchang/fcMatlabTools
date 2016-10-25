@@ -83,8 +83,8 @@ extractedLLRatio    = applyFuncTo_listOfListOfArguments(glueCellArguments(aligne
 extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
 save([expFolder filesep 'processingState'],'-append');
 
-% make 3D v´?isualization
-process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
+% make 3D visualization
+process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',true);
 % make kymo
 processKymo         = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@makeKymo_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
 toc

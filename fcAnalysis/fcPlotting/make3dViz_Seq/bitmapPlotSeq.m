@@ -8,11 +8,12 @@ params.recHeightPixels = 90;  % make it this tall
 params.markerColor     = [1 1 1 1];
 params.marker           = '*';
 params.markerSize      = 1;
-params.LineWidth       = 0;
+params.LineWidth       = 1;
 params.heightBuffer    = 1.2;
 params.units           = 1;
 params.bkgndGrey       = 0.2;
 params.axisColor       = 0.75;
+params.fillColor       = [1 1 1 0.5];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 

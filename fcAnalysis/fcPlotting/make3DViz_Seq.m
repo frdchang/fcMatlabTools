@@ -14,6 +14,16 @@ params.pairingHeight    = 20;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+validTimepoints = find(~cellfun(@isempty,fluorPaths));
+if isempty(validTimepoints)
+   saveFiles = [];
+   return;
+else
+    fluorPaths = fluorPaths(validTimepoints);
+    spotParamPaths= spotParamPaths(validTimepoints);
+    phasePaths = phasePaths(validTimepoints);
+end
+display(['make3Dviz_Seq(): for ' calcConsensusString(fluorPaths)]);
 numSeq = numel(fluorPaths);
 fluorExtremas = getMaxMinOfSeq(fluorPaths);
 phaseExtremas = getMaxMinOfSeq(phasePaths);
