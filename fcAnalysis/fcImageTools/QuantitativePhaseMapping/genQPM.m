@@ -37,7 +37,7 @@ se = strel('ball',params.ballSize,params.ballSize);
 % padd array by replciate
 correctedQPM = padarray(qpm,[params.ballSize params.ballSize],'replicate');
 correctedQPM = imtophat(params.multiplier*(correctedQPM+params.offset),se);
-correctedQPM = uint16(unpadarray(correctedQPM,size(qpm)));
+correctedQPM = unpadarray(correctedQPM,size(qpm));
 % need to figure out rolling ball subtraction for matlba
 % switch doBgkndSub
 %     case 'rollingBall'
