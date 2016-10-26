@@ -68,10 +68,10 @@ for ii = 1:numSeq
         % save the 3d views
         saveFiles.Views{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','views');
         makeDIRforFilename(saveFiles.Views{ii});
-        imwrite(views,[saveFiles.Views{ii} '.tif'],'tif');
+        imwrite(views,[returnFilePath(saveFiles.Views{ii}) filesep 'cell' sprintf('%04d',ii) '.tif'],'tif');
         saveFiles.ViewsSansSpots{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','viewsSansSpots');
         makeDIRforFilename(saveFiles.ViewsSansSpots{ii});
-        imwrite(viewsSansSpots,[saveFiles.ViewsSansSpots{ii} '.tif'],'tif');
+        imwrite(viewsSansSpots,[returnFilePath(saveFiles.ViewsSansSpots{ii}) filesep 'cell' sprintf('%04d',ii) '.tif'],'tif');
         % populate kymos
         kymoInX(:,ii,:) = maxintensityproj(theViews.view1,1);
         kymoInY(:,ii,:) = maxintensityproj(theViews.view1,2);
