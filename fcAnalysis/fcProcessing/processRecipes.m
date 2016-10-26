@@ -75,6 +75,8 @@ segmented = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,roiZi
 
 % extract cells
 segmentedMatFiles   = cellfunNonUniformOutput(@(x) x.segMatFile,segmented.outputFiles);
+segmentedIMGFiles   = cellfunNonUniformOutput(@(x) x.segSequenceFiles,segmented.outputFiles);
+segmentedIMGFiles   = convertListToListofArguments(segmentedIMGFiles);
 segmentedMatFiles   = convertListToListofArguments(segmentedMatFiles);
 extractedQPM        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
 extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
@@ -85,7 +87,8 @@ save([expFolder filesep 'processingState'],'-append');
 
 % make 3D visualization
 process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',true);
-% make kymo
-processKymo         = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@makeKymo_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
+
+% make segmentation vis
+segmentedViz        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedIMGFiles),@openData_passThru,{},@makeSegViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);
 toc
 save([expFolder filesep 'processingState'],'-append');
