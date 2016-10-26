@@ -11,7 +11,7 @@ segmentation = load(segMatFile);
 segmentation = segmentation.segOutput;
 
 numCells = max(segmentation.all_obj.cells(:));
-numTimePoints = numel(listOfFiles);
+numTimePoints = size(segmentation.all_obj.cells,3);
 
 %% find the largest bounding box that enapsulates the cell over the timelapse
 maxBBoxForEachCell = findMaxBBoxForSeq(segmentation.all_obj.cells,segmentation.all_obj.cell_area);
