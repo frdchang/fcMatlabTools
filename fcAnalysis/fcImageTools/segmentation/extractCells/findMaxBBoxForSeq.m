@@ -8,7 +8,7 @@ maxBBoxForEachCell = cell(numCells,1);
 for ii = 1:numCells
     getTimeIndexOfMaxSize = indexOfMaxArea(ii);
     segmenationOfMaxSize = Lseq(:,:,getTimeIndexOfMaxSize);
-    stats = regionprops(segmenationOfMaxSize==ii);
+    stats = regionprops(bwconvhull(segmenationOfMaxSize==ii));
     maxBBoxForEachCell{ii} = genSizeFromBBox(stats.BoundingBox);
 end
 
