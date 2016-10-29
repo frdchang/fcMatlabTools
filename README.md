@@ -5,7 +5,13 @@ fctools consists of a set of matlab tools that i use for my research:
 - nD experiment processing
 - microscope control
 
-
+##to do:
+- multi-emmiter fitting
+- start yeast seg at user defined timepoint
+- try seg yeast using edge
+- fold in camera parameters
+- LLRatio at stage ii
+- pad aligning channels
 
 
 ##rules of the code:
