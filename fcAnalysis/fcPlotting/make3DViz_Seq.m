@@ -46,6 +46,8 @@ saveFiles.Views = {};
 saveFiles.ViewsSansSpots = {};
 
 spotParamBasket = cell(numSeq,1);
+phaseBasket = zeros(sizeDatas(1),sizeDatas(2),ceil(numSeq/sizeDatas(2)));
+index = 1;
 for ii = 1:numSeq
     currFluor = importStack(fluorPaths{ii});
     currPhase = importStack(phasePaths{ii});
@@ -86,8 +88,18 @@ for ii = 1:numSeq
         % save the spotParams
         spotParamBasket{ii} = currSpotParams;
     end
+    if ~isempty(currPhase)
+        if mod(ii,sizeDatas(2))==1
+           phaseBasket(:,:,index) =  xyMaxProjND(currPhase);
+           index = index+1;
+        end
+    end
 end
-
+phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);
+phaseMontage = phaseMontage.CData;
+phaseMontage = bw2rgb(uint8(255*phaseMontage));
+phaseMontage = phaseMontage(:,1:numSeq,:);
+close all;
 % generate kymos
 spacer = params.bkgndGrey*ones(params.spacerHeight,numSeq,3);
 % generate amplitude and distance plots
@@ -97,17 +109,18 @@ pairingPlotBMP = genPairingPlotBMP(spotParamBasket,'height',params.pairingHeight
 
 accessoryPlots = uint8(255*(cat(1,pairingPlotBMP,spacer,ampPlotBMP,spacer,distPlotBMP)));
 
-kymoInXYZ = cat(1,phaseKymoInX,spacer,kymoInX,spacer,kymoInY,spacer,kymoInZ,spacer,accessoryPlots);
-kymoInXYZsansSpots =  cat(1,phaseKymoInX,spacer,kymoInXsansSpots,spacer,kymoInYsansSpots,spacer,kymoInZsansSpots,spacer,accessoryPlots);
+kymoInXYZ = cat(1,kymoInX,spacer,kymoInY,spacer,kymoInZ,spacer,accessoryPlots);
+kymoInXYZsansSpots =  cat(1,kymoInXsansSpots,spacer,kymoInYsansSpots,spacer,kymoInZsansSpots);
 
 % generate top phase plot
 % phasePlotOnTop = genPhasePlotOnTop(phasePaths,numSeq);
-
-saveFiles.kymoSansSpots = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymoSansSpots');
-makeDIRforFilename(saveFiles.kymoSansSpots);
-imwrite(kymoInXYZsansSpots,[saveFiles.kymoSansSpots '.tif'],'tif');
+% 
+% saveFiles.kymoSansSpots = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymoSansSpots');
+% makeDIRforFilename(saveFiles.kymoSansSpots);
+% imwrite(kymoInXYZsansSpots,[saveFiles.kymoSansSpots '.tif'],'tif');
 saveFiles.kymo = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymo');
 makeDIRforFilename(saveFiles.kymo);
+kymoInXYZ = cat(1,phaseMontage,spacer,kymoInXYZsansSpots,spacer,kymoInXYZ);
 imwrite(kymoInXYZ,[saveFiles.kymo '.tif'],'tif');
 end
 

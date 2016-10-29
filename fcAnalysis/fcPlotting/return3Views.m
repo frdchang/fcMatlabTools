@@ -43,6 +43,9 @@ if ~isempty(params.spotParams)
     yCoors = round(thetaMLEs(:,1));
     xCoors = round(thetaMLEs(:,2));
     zCoors = round(thetaMLEs(:,3));
+    xCoors = imposeBounds(xCoors,1,xL);
+    yCoors = imposeBounds(yCoors,1,yL);
+    zCoors = imposeBounds(zCoors,1,zL);
     if numSpots == 1
         spotColor = params.spotColor1;
     else
