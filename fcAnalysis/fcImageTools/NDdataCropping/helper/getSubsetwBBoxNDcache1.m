@@ -1,4 +1,4 @@
-function [subImg,newBBox] = getSubsetwBBoxND(ndData,myBBox,varargin)
+function [subImg,newBBox] = getSubsetwBBoxNDcache1(ndData,myBBox,varargin)
 %EXTRACTBBOXND will extract out the data defined by BBox.  if BBox
 % dimension is less than ndData, it will extrude out the rest.  a frame can
 % be defined.  if BBox goes outside the data, it will be padded with -inf

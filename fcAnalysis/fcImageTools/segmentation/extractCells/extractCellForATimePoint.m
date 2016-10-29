@@ -25,15 +25,15 @@ for ii = 1:numCells
         currStats           = regionprops(bwconvhull(currCellinL),'Centroid','BoundingBox');
         currBBox            = centroidWSize2BBox(currStats.Centroid,maxBBoxForEachCell{ii});
               
-        [currCell,allTheBBox{ii}] = getSubsetwBBoxND(currStack,currBBox,'borderVector',borders);
+        [currCell,allTheBBox{ii}] = getSubsetwBBoxNDcache1(currStack,currBBox,'borderVector',borders);
         switch howToMask
             case 0
                 maskedCell = currCell;
             case 1
-                currL               = getSubsetwBBoxND(currCellinL,currBBox,'borderVector',borders);
+                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders);
                 maskedCell          = maskDataND(currCell,currL);
             case 2
-                currL               = getSubsetwBBoxND(currCellinL,currBBox,'borderVector',borders);
+                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders);
                 maskedCell          = imoverlay(uint8(currCell),bwperim(currL),colorPerimeter);
             otherwise
                 
