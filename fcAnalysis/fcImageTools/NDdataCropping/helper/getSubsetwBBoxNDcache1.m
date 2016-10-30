@@ -26,7 +26,7 @@ if ~isempty(params.borderVector)
         BBoxSize(i) = BBoxSize(i)+ params.borderVector(i);
     end
 end
-if ~isequal(ndData(:,:,1),ndDataPrev(:,:,1)) || any(BBoxSize > myBBoxSizePrev) || isempty(myBBoxSizePrev)
+if ~isequal(ndData(:,:,1),ndDataPrev(:,:,1)) || any(BBoxSize(:) > myBBoxSizePrev(:)) || isempty(myBBoxSizePrev)
     % pad array to account for edge cropping.
     paddedNdData = padarray(ndData,BBoxSize,params.padValue);
     ndDataPrev = ndData;

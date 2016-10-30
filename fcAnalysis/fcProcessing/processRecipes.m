@@ -61,7 +61,7 @@ processAlignedSpots_LLRatios = applyFuncTo_listOfListOfArguments(glueCellArgumen
 processAlignedSpots_Thetas = applyFuncTo_listOfListOfArguments(glueCellArguments(spot_Thetas,alignXYs),@openData_passThru,{},@translateSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
 
 alignedQPM              = convertListToListofArguments(processAlignedQPM.outputFiles);
-alignedSpots_A1s         = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
+alignedSpots_A1s        = convertListToListofArguments(processAlignedspot_A1s.outputFiles);
 alignedSpots_Thetas     = convertListToListofArguments(processAlignedSpots_Thetas.outputFiles);
 alignedSpots_LLRatios   = convertListToListofArguments(processAlignedSpots_LLRatios.outputFiles);
 

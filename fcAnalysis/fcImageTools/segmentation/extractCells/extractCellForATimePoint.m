@@ -18,14 +18,21 @@ colorPerimeter = [1 1 1];
 numCells = numel(maxBBoxForEachCell);
 allTheCells = cell(numCells,1);
 allTheBBox = cell(numCells,1);
+
+maxBBoxSize =  max(cat(1,maxBBoxForEachCell{:}));
+% setup cache
+maxBBox = zeros(1,numel(maxBBoxSize)*2);
+maxBBox(numel(maxBBox)/2+1:end) = maxBBoxSize;
+getSubsetwBBoxNDcache1(currStack,maxBBox,'borderVector',borders);
 for ii = 1:numCells
     currCellinL = (currSeg == ii);
     if any(currCellinL(:))
         % there is that ii cell
-        currStats           = regionprops(bwconvhull(currCellinL),'Centroid','BoundingBox');
-        currBBox            = centroidWSize2BBox(currStats.Centroid,maxBBoxForEachCell{ii});
+%         currStats           = regionprops(bwconvhull(currCellinL),'Centroid','BoundingBox');
+        currCentroid                = calcCentroidofBW(currCellinL); % this is faster
+        currBBox                    = centroidWSize2BBox(currCentroid,maxBBoxForEachCell{ii});
               
-        [currCell,allTheBBox{ii}] = getSubsetwBBoxNDcache1(currStack,currBBox,'borderVector',borders);
+        [currCell,allTheBBox{ii}]   = getSubsetwBBoxNDcache1(currStack,currBBox,'borderVector',borders);
         switch howToMask
             case 0
                 maskedCell = currCell;
