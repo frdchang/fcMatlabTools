@@ -19,7 +19,7 @@ maxBBoxForEachCell = findMaxBBoxForSeq(segmentation.all_obj.cells,segmentation.a
 %% extract cells using that bounding box found above and save
 saveCellFilePaths = cell(numTimePoints,numCells);
 
-for ii = 1:numTimePoints
+parfor ii = 1:numTimePoints
     display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
     currStack = importStack(listOfFiles{ii});
     currSeg   = segmentation.all_obj.cells(:,:,ii);
