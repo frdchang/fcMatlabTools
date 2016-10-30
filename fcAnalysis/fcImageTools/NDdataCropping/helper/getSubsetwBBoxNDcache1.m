@@ -10,6 +10,7 @@ persistent myBBoxSizePrev;
 %--parameters--------------------------------------------------------------
 params.borderVector     = [];
 params.padValue         = -inf;
+params.skipCacheCheck   = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 % ndData = double(ndData);
@@ -26,11 +27,14 @@ if ~isempty(params.borderVector)
         BBoxSize(i) = BBoxSize(i)+ params.borderVector(i);
     end
 end
-if ~isequal(ndData(:,:,1),ndDataPrev(:,:,1)) || any(BBoxSize(:) > myBBoxSizePrev(:)) || isempty(myBBoxSizePrev)
-    % pad array to account for edge cropping.
-    paddedNdData = padarray(ndData,BBoxSize,params.padValue);
-    ndDataPrev = ndData;
-    myBBoxSizePrev = BBoxSize;
+
+if ~params.skipCacheCheck
+    if ~isequal(ndData,ndDataPrev) || any(BBoxSize(:) > myBBoxSizePrev(:)) || isempty(myBBoxSizePrev)
+        % pad array to account for edge cropping.
+        paddedNdData = padarray(ndData,BBoxSize,params.padValue);
+        ndDataPrev = ndData;
+        myBBoxSizePrev = BBoxSize;
+    end
 end
 
 carveSpace = myBBox;

@@ -23,7 +23,7 @@ maxBBoxSize =  max(cat(1,maxBBoxForEachCell{:}));
 % setup cache
 maxBBox = zeros(1,numel(maxBBoxSize)*2);
 maxBBox(numel(maxBBox)/2+1:end) = maxBBoxSize;
-getSubsetwBBoxNDcache1(currStack,maxBBox,'borderVector',borders);
+getSubsetwBBoxNDcache1(currStack,maxBBox,'borderVector',borders,'skipCacheCheck',false);
 for ii = 1:numCells
     currCellinL = (currSeg == ii);
     if any(currCellinL(:))
@@ -32,15 +32,15 @@ for ii = 1:numCells
         currCentroid                = calcCentroidofBW(currCellinL); % this is faster
         currBBox                    = centroidWSize2BBox(currCentroid,maxBBoxForEachCell{ii});
               
-        [currCell,allTheBBox{ii}]   = getSubsetwBBoxNDcache1(currStack,currBBox,'borderVector',borders);
+        [currCell,allTheBBox{ii}]   = getSubsetwBBoxNDcache1(currStack,currBBox,'borderVector',borders,'skipCacheCheck',true);
         switch howToMask
             case 0
                 maskedCell = currCell;
             case 1
-                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders);
+                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders,'skipCacheCheck',false);
                 maskedCell          = maskDataND(currCell,currL);
             case 2
-                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders);
+                currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders,'skipCacheCheck',false);
                 outline = bwperim(currL);
                 maskedCell = currCell;
                 maskedCell(outline) = inf;
