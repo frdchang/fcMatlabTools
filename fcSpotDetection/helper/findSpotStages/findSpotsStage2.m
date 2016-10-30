@@ -22,7 +22,7 @@ params.strategy          = 'threshold';         % {'hdome','threshold','autoSpot
 params.smoothingKernel   = [0.9,0.9,0.9];   % smooths LLRatio
 params.smoothingSize     = [7 7 7];
 params.minBBox           = [6 6 6];
-% params.minVol            = 3;             % make sure candidate is > minVol
+params.minVol            = 3;             % make sure candidate is > minVol
 params.Athreshold        = 0;               % select regions where A > Athreshold
 params.clearBorder       = true;            % clear border on xy perimeter
 %==hdome specific parameters==========?=====================================
@@ -78,12 +78,12 @@ minBBoxMask = imdilate(centroidMask,strel(ones(params.minBBox)));
 % combine the min mask with the current bwmask
 BWmask = BWmask | minBBoxMask;
 % split masks by meanshift
-[L,stats,~] = breakApartMasks(smoothLLRatio,BWmask);
+[L,~,~] = breakApartMasks(smoothLLRatio,BWmask);
 
-
-
-
+% filter stats that have low volume
+ L = bwareaopen(L,params.minVol);
+ L = bwlabeln(L>0);
 % need to have minimum volume 
 candidates.L        = L;
-candidates.BWmask   = BWmask;
-candidates.stats    = stats;
+% candidates.BWmask   = BWmask;
+% candidates.stats    = stats;

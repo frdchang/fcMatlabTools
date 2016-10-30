@@ -7,8 +7,8 @@ params.Nsamples         = 2000;
 params.meanShiftSize    = 3;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
-stats = regionprops(mask,'PixelIdxList','PixelList','SubarrayIdx','BoundingBox');
+newL = bwlabeln(mask);
+stats = regionprops(newL,'PixelIdxList','PixelList','SubarrayIdx','BoundingBox','Centroid');
 
 % define seeds by mean shift
 seeds = zeros(size(data));
@@ -36,17 +36,17 @@ for ii = 1:numel(stats)
     end
 end
 
-newL = bwlabeln(mask);
+
 nextMaxId = max(newL(:))+1;
-stats = regionprops(newL,'BoundingBox','SubarrayIdx');
+% stats = regionprops(newL,'BoundingBox','SubarrayIdx');
 % break apart mask by watershed using seeds
 for ii = 1:numel(needToBreakUp)
    breakI = needToBreakUp(ii);
-   currSeed = getSubsetwBBoxND(seeds,stats(breakI).BoundingBox);
-   currMask  = getSubsetwBBoxND(mask,stats(breakI).BoundingBox);
-   currData = getSubsetwBBoxND(data,stats(breakI).BoundingBox);
+   currSeed = seeds(stats(breakI).SubarrayIdx{:});
+   currMask  = mask(stats(breakI).SubarrayIdx{:});
+   currData = data(stats(breakI).SubarrayIdx{:});
    Ld = doWaterShedSplitting(currData,currSeed,currMask);
-   Ld = -double(Ld);
+   Ld = -abs(double(Ld));
    splitIds = unique(Ld(Ld<0));
    % give the first split to the current id
    Ld(Ld==-1) = breakI;
@@ -58,4 +58,4 @@ for ii = 1:numel(needToBreakUp)
 end
 
 
-stats = regionprops(newL,'PixelIdxList','PixelList','SubarrayIdx','BoundingBox');
+stats = regionprops(newL,'PixelIdxList','PixelList','SubarrayIdx','BoundingBox','Area');

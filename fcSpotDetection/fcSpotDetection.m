@@ -43,7 +43,12 @@ params.readNoiseVar            = [];
 % kernel
 if isempty(params.spotData) && isequal(params.lambdaModel,@lambda_single3DGauss)
     threshold = 0.00015;
-    params.spotData = genSpotDataFromLambda_single3Dgauss(params.constThetaVals(1),params.constThetaVals(3),threshold);
+    myKernel = genSpotDataFromLambda_single3Dgauss(params.constThetaVals(1),params.constThetaVals(3),threshold);
+    % in the future check if a gaussian
+    [~,myGaussKernel] = ndGauss(params.constThetaVals,size(myKernel));
+    myGaussKernel = cellfunNonUniformOutput(@(x) x./max(x(:)),myGaussKernel);
+    params.spotData = myGaussKernel;
+%     params.spotData = myKernel;
 else
     error('params.spotData is not empty, or it is but you are not using lambda_single3Dgauss');
 end

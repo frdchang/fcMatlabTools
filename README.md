@@ -12,7 +12,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - fold in camera parameters
 - LLRatio at stage ii
 - pad aligning channels
-
+- crashed at subImg = paddedNdData(coorDomains{:}); why?
 
 ##rules of the code:
 - template function that allows parameter adjustment and passing to subfunctions.

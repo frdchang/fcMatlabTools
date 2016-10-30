@@ -318,8 +318,8 @@ if ~isempty(spotParams)
     hold on;
     numSpots = numel(spotParams);
     colorSpots =  cool(numSpots);
-    logLikeHoods = [spotParams.logLike];
-    [logSorted,sortedI] = sort(logLikeHoods);
+    logLikeHoodsRatio = [spotParams.LLRatio];
+    [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
        coordinate = thetaMLE(1:3);
@@ -418,8 +418,8 @@ if ~isempty(spotParams)
     hold on;
     numSpots = numel(spotParams);
     colorSpots =  cool(numSpots);
-    logLikeHoods = [spotParams.logLike];
-    [logSorted,sortedI] = sort(logLikeHoods);
+    logLikeHoodsRatio = [spotParams.logLike];
+    [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
        coordinate = thetaMLE(1:3);
@@ -513,8 +513,8 @@ if ~isempty(spotParams)
     hold on;
     numSpots = numel(spotParams);
     colorSpots =  cool(numSpots);
-    logLikeHoods = [spotParams.logLike];
-    [logSorted,sortedI] = sort(logLikeHoods);
+    logLikeHoodsRatio = [spotParams.logLike];
+    [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
        coordinate = thetaMLE(1:3);

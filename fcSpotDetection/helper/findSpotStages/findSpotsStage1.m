@@ -36,20 +36,32 @@ persistent k1;
 persistent k3;
 persistent k5;
 
+if iscell(spotKern)
+    % convolution is separable
+    convFunc = @convSeparableND;
+    sqSpotKern = cellfunNonUniformOutput(@(x) x.^2,spotKern);
+    onesSizeSpotKern = genSeparableOnes(cellfun(@(x) numel(x),spotKern));
+else
+    % otherwise just do fft
+    convFunc = @convFFTND;
+    sqSpotKern = spotKern.^2;
+    onesSizeSpotKern = ones(size(spotKern));
+end
+
 % if spotKern || cameraVariance changes, update transformation matrix
 if ~isequal(spotKernSaved,spotKern) || ~isequal(cameraVarianceSaved,cameraVariance)
     invVar = 1./cameraVariance;
-    k1 = convFFTND(invVar,spotKern);
-    k3 = convFFTND(invVar,spotKern.^2);
-    k5 = convFFTND(invVar,ones(size(spotKern)));
+    k1 = convFunc(invVar,spotKern);
+    k3 = convFunc(invVar,sqSpotKern);
+    k5 = convFunc(invVar,onesSizeSpotKern);
     spotKernSaved = spotKern;
     cameraVarianceSaved = cameraVariance;
 end
 
 dataNormed = data.*invVar;
-k2 = convFFTND(dataNormed,spotKernSaved);
-k4 = convFFTND(dataNormed,ones(size(spotKernSaved)));
-k6 = convFFTND(dataNormed.*data,ones(size(spotKernSaved)));
+k2 = convFunc(dataNormed,spotKern);
+k4 = convFunc(dataNormed,onesSizeSpotKern);
+k6 = convFunc(dataNormed.*data,onesSizeSpotKern);
 
 Normalization = k1.^2 - k5.*k3;
 
