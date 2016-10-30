@@ -23,7 +23,7 @@ for ii = 1:numTimePoints
     currSeg   = segmentation.all_obj.cells(:,:,ii);
     spotParamsInL = returnSpotParamsInL(currSpotMLE,currSeg);
     
-    [allTheCells,allTheBBox] = extractCellForATimePoint(currSeg,currSeg,maxBBoxForEachCell,params.borderVector,1);
+    [~,allTheBBox] = extractCellForATimePoint(currSeg,currSeg,maxBBoxForEachCell,params.borderVector,0);
     
     if numel(spotParamsInL) < numCells
         spotParamsInL{numCells} = [];

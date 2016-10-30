@@ -34,7 +34,9 @@ for ii = 1:numCells
                 maskedCell          = maskDataND(currCell,currL);
             case 2
                 currL               = getSubsetwBBoxNDcache2(currCellinL,currBBox,'borderVector',borders);
-                maskedCell          = imoverlay(uint8(currCell),bwperim(currL),colorPerimeter);
+                outline = bwperim(currL);
+                maskedCell = currCell;
+                maskedCell(outline) = inf;
             otherwise
                 
         end

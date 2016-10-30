@@ -50,7 +50,7 @@ display('first');
 setupParForProgress(numCandidates);
 parfor i = 1:numCandidates
     currL               = imdilateByONE(candidates.L==i);
-    currStatBasket{i}          = regionprops(currL,'PixelIdxList','PixelList');
+    currStatBasket{i}          = regionprops(currL,'PixelIdxList','PixelList','BoundingBox');
     %     currStats           = candidates.stats(i);
     %     currStatBasket{i}   = currStats;
     incrementParForProgress();

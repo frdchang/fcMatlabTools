@@ -75,9 +75,9 @@ for ii = 1:numSeq
         makeDIRforFilename(saveFiles.ViewsSansSpots{ii});
         imwrite(viewsSansSpots,[returnFilePath(saveFiles.ViewsSansSpots{ii}) filesep 'cell' sprintf('%04d',ii) '.tif'],'tif');
         % populate kymos
-        kymoInX(:,ii,:) = maxintensityproj(theViews.view1,1);
-        kymoInY(:,ii,:) = maxintensityproj(theViews.view1,2);
-        kymoInZ(:,ii,:) = maxintensityproj(theViews.view2,1);
+        kymoInX(:,ii,:) = maxintensityproj4RGB(theViews.view1,1);
+        kymoInY(:,ii,:) = maxintensityproj4RGB(theViews.view1,2);
+        kymoInZ(:,ii,:) = maxintensityproj4RGB(theViews.view2,1);
         
         kymoInXsansSpots(:,ii,:) = maxintensityproj(theViewsSanSpots.view1,1);
         kymoInYsansSpots(:,ii,:) = maxintensityproj(theViewsSanSpots.view1,2);

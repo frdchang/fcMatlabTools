@@ -35,6 +35,7 @@ params.constThetaVals          = [0.9,0.9,0.9];
 params.constThetaSet           = [0 0 0 1 1 1 0 0];
 % read noise data
 params.readNoiseVar            = [];
+params.pathToCalibration       = '../fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 %--------------------------------------------------------------------------
 
 %-pre-calculations---------------------------------------------------------

@@ -7,8 +7,9 @@ itsMin = inf;
 
 for ii = 1:numel(listOfFiles)
    currStack = importStack(listOfFiles{ii});
-   itsMax = max(itsMax,max(currStack(currStack>-inf)));
-   itsMin = min(itsMin,min(currStack(currStack>-inf)));
+   subSet = currStack(currStack > -inf & currStack < inf);
+   itsMax = max(itsMax,max(subSet));
+   itsMin = min(itsMin,min(subSet));
 end
 
 itsExtremas.max = itsMax;
