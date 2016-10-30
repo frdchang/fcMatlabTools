@@ -66,11 +66,23 @@ if params.convert2Electrons
    [electronData,photonData] = returnElectrons(data,params.gain,params.offset,params.QE); 
 end
 
+if ~isempty(params.pathToCalibration)
+    display(['fcSpotDetection(): loading calibration ' params.pathToCalibration]);
+    calibration = load(params.pathToCalibration);
+    data = returnElectrons(data,1/calibration.gainElectronPerCount,calibration.offsetInAdu,1);
+    readNoiseInElectrons = calibration.cameraVarianceInADU*(calibration.gainElectronPerCount)^2;
+    readNoiseInElectrons(calibration.brokenPixel) = inf;
+    readNoiseInElectrons = repmat(readNoiseInElectrons,[1 1 size(data,3)]);
+    params.readNoiseVar = readNoiseInElectrons;
+end
+
 % stage 1 do fourier MLE
+display('fcSpotDetection(): stage 1');
 estimated = findSpotsStage1(data,params.spotData,params.readNoiseVar);
 % stage 2 select subset
 candidates = findSpotsStage2(estimated,params.spotData,params);
 % stage 3 iterative
+display('fcSpotDetection(): stage 2');
 spotParams = findSpotsStage3(data,params.constThetaVals,params.readNoiseVar,estimated,candidates,params);
 
 end

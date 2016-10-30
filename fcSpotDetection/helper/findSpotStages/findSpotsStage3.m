@@ -100,6 +100,8 @@ parfor i = 1:numCandidates
         if ~isempty(spotParams{i}.logLike)
             zeroSpotParams = MLEbyIteration(currData,b0Theta0,currReadNoise,currDomains,'maxThetas',[0 0 0 0 0 0 0 1],'type',2);
             spotParams{i}.LLRatio = spotParams{i}.logLike-zeroSpotParams.logLike;
+        else
+           spotParams{i}.LLRatio = []; 
         end
     end
     incrementParForProgress();

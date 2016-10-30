@@ -1,6 +1,7 @@
 %% multi-emitter spot detection
 stack = importStack('/Users/fchang/Dropbox/Public/BWY764_w2-FITC(WhiteTTL)_s1_t1.tif');
 stack = importStack('/Volumes/robin/fcDataStorage/20160201-test-adf/s1/BWY819-14_w1-mCherry(WhiteTTL)_s1_t1.tif');
+stack = importStack('/Volumes/robin/fcDataStorage/20160201-test-adf/s1/BWY819-14_w2-FITC(WhiteTTL)_s1_t4.tif');
 [spotParams,estimated,candidates] = fcSpotDetection(stack,'LLRatioThresh',400);
 plot3Dstack(estimated.A1,'spotParams',spotParams);
 %% lets see if we can get the field from the gradient by integration;

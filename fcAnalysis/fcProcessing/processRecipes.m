@@ -35,7 +35,7 @@ qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 save([expFolder filesep 'processingState']);
 
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',400},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',300},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
@@ -85,7 +85,7 @@ extractedQPM        = applyFuncTo_listOfListOfArguments(glueCellArguments(aligne
 extractedA1         = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_A1s,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
 extractedLLRatio    = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_LLRatios,segmentedMatFiles),@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},'doParallel',true);
 % extract Spots
-extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',false);
+extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedSpots_Thetas,segmentedMatFiles),@openData_passThru,{},@extractSpots,{},@saveToProcessed_passThru,{},'doParallel',true);
 save([expFolder filesep 'processingState'],'-append');
 
 % make 3D visualization
