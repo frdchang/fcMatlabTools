@@ -17,7 +17,7 @@ function state = MLEbyIteration(data,theta0,readNoise,domains,varargin)
 params.type         = 3;
 % gradient ascent parameters
 params.stepSize     = .001;
-params.numStepsGrad = 1000;
+params.numStepsGrad =  500;
 params.normGrad     = true;
 params.gradScale    = [ 1 1 1 1 1 1 10 10];
 % newton raphson parameters
