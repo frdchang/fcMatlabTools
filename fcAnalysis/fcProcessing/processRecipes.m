@@ -112,7 +112,7 @@ roiZips       = grabFromListOfCells(processAlignedQPM.outputFiles,{'@(x) x{1}'})
 roiZips       = returnFilePath(roiZips);
 roiZips       = cellfunNonUniformOutput(@(x) removeDoubleFileSep([x filesep 'RoiSet.zip']),roiZips);
 roiZips       = convertListToListofArguments(roiZips);
-
+tic;
 segmented = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,roiZips),@openData_passThru,{},@yeastSeg,{},@saveToProcessed_yeastSeg,{},'doParellel',false);
 
 % extract cells
@@ -128,7 +128,7 @@ extractedSpots      = applyFuncTo_listOfListOfArguments(glueCellArguments(aligne
 save([expFolder filesep 'processingState'],'-append');
 
 % make 3D visualization
-process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',true);
+process3DViz        = applyFuncTo_listOfListOfArguments(convert2CellBasedOrdering(extractedA1,extractedSpots,extractedQPM,extractedLLRatio),@openData_passThru,{},@make3DViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',true);
 
 % make segmentation vis
 segmentedViz        = applyFuncTo_listOfListOfArguments(glueCellArguments(alignedQPM,segmentedIMGFiles),@openData_passThru,{},@makeSegViz_Seq,{},@saveToProcessed_passThru,{},'doParallel',false);

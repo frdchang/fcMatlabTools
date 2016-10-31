@@ -26,7 +26,7 @@ params.userMin     = [];
 params.userMax     = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
+permissive = ndstack > -inf & ndstack < inf;
 if isequal(ndstack,zeros(size(ndstack)))
    return;
 end
@@ -34,15 +34,17 @@ ndstack = double(ndstack);
 if ~isempty(params.userMax)
     maxValue = params.userMax;
 else
-    maxValue = max(ndstack(:));
+    maxValue = max(ndstack(permissive));
 end
 
 if ~isempty(params.userMin)
     minValue = params.userMin;
 else
-    minValue = min(ndstack(:));
+    minValue = min(ndstack(permissive));
 end
 
 slope = (maxValue - minValue);
 ndstack = (ndstack - minValue) / slope;
+ndstack(ndstack==-inf) = 0;
+ndstack(ndstack==inf) = 1;
 end
