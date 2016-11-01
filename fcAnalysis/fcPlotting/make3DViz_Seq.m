@@ -120,8 +120,9 @@ for ii = 1:numSeq
         end
     end
 end
-phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);
-phaseMontage = phaseMontage.CData;
+% phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);
+% phaseMontage = phaseMontage.CData;
+phaseMontage = makeLinearMontage(phaseBasket);
 phaseMontage = bw2rgb(uint8(255*phaseMontage));
 phaseMontage = phaseMontage(:,1:numSeq,:);
 close all;

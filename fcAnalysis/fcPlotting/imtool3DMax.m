@@ -3,7 +3,7 @@ function [] = imtool3DMax(data)
 %   Detailed explanation goes here
 
 h = createMaxFigure();
-imtool3D(data,[0,0,1,1],h);
+imtool3D(double(data),[0,0,1,1],h);
 
 end
 
