@@ -66,14 +66,14 @@ end
   * processed data in which a function is applied to a single data1_t1.tif is mirrored
 
     ```
-    .../fcProcessed/.../funcName(paramHash,pathHash)/funcName(data1_t1.tif).ext
+    .../fcProcessed/.../funcName(paramHash)/funcName(data1_t1.tif).ext
     ```
 
   * the parameter hash keeps different function calls with different parameter and a hash for different datalists saved in different folders.  even better would to automatically glob the list of paths so the user knows what is in there.
   * processed in data in which a function is applied to a plurality of data1_t1,data1_t2,...,data1_tn
 
     ```
-    .../fcProcessed/.../funcName-paramhash/funcName(data1_t[1-n].tif).ext
+    .../fcProcessed/.../funcName-paramhash/funcName(data1_tx.tif).ext
     ```
 
   * this convention below uses the filesystem as a data holder rather than specifying the data holder apriori (such as hdf5) because the filesystem can grow organically.
@@ -98,95 +98,6 @@ end
         * parameters: myParams
 
 ```Matlab
-% paths were dropped for clariy
-%%==example data lists=====================================================
-w1 >> {data-w1-t1.tif,data-w1-t2.tif,data-w1-t3.tif}
-w2 >> {data-w2-t1.tif,data-w2-t2.tif,data-w2-t3.tif}
-%%==example processed lists================================================
-genQPM.input = {data-w1-t1.tif,data-w1-t2.tif,data-w1-t3.tif}
-genQPM.output = {genQPM(data-w1-t1),genQPM(data-w1-t2),genQPM(data-w1-t3)}
-
-spotDetection.input = {data-w2-t1.tif,data-w2-t2.tif,data-w2-t3.tif}
-spotDetection.output = {
-                        {fcSpotDetection_ThetaMLE(data-w2-t1),...},
-                        {fcSpotDetection_A1(data-w2-t1),...},
-                        {...},{...},{...}
-                        };
-
-alignStage.input = {genQPM(data-w1-t1),genQPM(data-w1-t2),genQPM(data-w1-t3)}
-alignStage.output = {{alignStage(genQPM(data-w1-t1)),...},{alignStage(paramHash).mat}}
-
-alignChannels.input = {{data-w1-t1,...},
-                       {data-w2-t1,...},    
-                       {alignStage(genQPM(data-w1-t1)),...},
-                       {fcSpotDetection_A1(data-w2-t1),...},...};
-alignChannels.output = {{alignChannels(data-w1-t1),...,alignChannels(paramHash4,pathsHash1).mat},   
-                        {...},{...},...};
-
-alignSpotDetection.input = {{fcSpotDetection_ThetaMLE(data-w2-t1),...}}
-alignSpotDetection.output = {{alignSpotDetection(fcSpotDetection_ThetaMLE(data-w2-t1)),...}}
-
-yeastSeg.input = {alignChanenls.output{the one with QPM}};
-yeastSeg.output = {{yeastSeg(alignChannels(alignStage(genQPM(data-w1-t1)))).tif, ... , yeastSeg(paramHash6,pathsHash8).mat}};
-
-extractCells.input = {alignChannels.output}
-extractCells.output = {
-                        {
-                            % extract cells in first data battery (like time series)
-                            % cell number is its index.  so if a cell dissapears or more cells appear it is represented as follows:
-                            {cell1,cell2,cell3,cell4},
-                            {[],cell2,cell3,cell4,cell5},
-                            {cell1,[],cell3,cell4,cell5}
-                        },
-                        {
-                            %extract cells in second data battery (like another time series)
-                        }
-                       };
-extractCells.output = {
-                        {
-                            {extractCell_1(alignChannels(data-w1-t1)).fits,extractCell_2(alignChannels(data-w1-t1)).fits, ...},
-                            {extractCell_1(alignChannels(data-w1-t2)).fits,extractCell_2(alignChannels(data-w1-t2)).fits, ...},    
-                            {extractCell_1(alignChannels(data-w1-t3)).fits,extractCell_2(alignChannels(data-w1-t3)).fits, ...}
-                        },
-                        {
-                            {extractCell_1(alignChannels(data-w2-t1)).fits,extractCell_2(alignChannels(data-w2-t1)).fits, ...},
-                            {extractCell_1(alignChannels(data-w2-t2)).fits,extractCell_2(alignChannels(data-w2-t2)).fits, ...},    
-                            {extractCell_1(alignChannels(data-w2-t3)).fits,extractCell_2(alignChannels(data-w2-t3)).fits, ...}
-                        },
-                        ... 
-                      };
-
-extractThetaMLE.input = {spotDetection.output{the one with ThetaMLE},
-                         yeastSeg.output};
-extractThetaMLE.output = {{extractThetaMLE_1(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...},
-                          {extractThetaMLE_2(fcSpotDetection_ThetaMLE(data-w2-t1)).mat ...},    
-                          ....}
-
-segmentNucFuzz.input = {
-                        {
-                            {extractCell_1(alignChannels(data-w2-t1)).fits,extractCell_2(alignChannels(data-w2-t1)).fits, ...},
-                            {extractCell_1(alignChannels(data-w2-t2)).fits,extractCell_2(alignChannels(data-w2-t2)).fits, ...},    
-                            {extractCell_1(alignChannels(data-w2-t3)).fits,extractCell_2(alignChannels(data-w2-t3)).fits, ...}
-                        }
-                       };
-segmentNucFuzz.output = {
-                          {
-                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t1))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t1))).tif,...},
-                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t2))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t2))).tif,...},
-                            {segmentNucFuzz(extractCell_1(fcSpotDetection_Conv(data-w2-t3))).tif,segmentNucFuzz(extractCell_2(fcSpotDetection_Conv(data-w2-t3))).tif,...}
-                          }
-                        };
-
-spotTracking.input = 
-spotTracking.output =
-
-findRepTiming.input = 
-findRepTiming.output = 
-```
-
-try again
-
-```Matlab
 %%==example data===========================================================
 
 .../fcData../expDate/[w1]/data-w1-t1.tif
@@ -202,6 +113,7 @@ try again
 .../fcData../expDate/[w3]/data-w3-t3.tif
 
 %%==processing phase=======================================================
+
 1).../fcProcessed/.../expDate/[genQPM(paramHash)]/[w1]/genQPM(data-w1-t1).fits ...
 
 %==processing spot detection on entire FOV=================================
@@ -307,10 +219,6 @@ spotParamStruct.logLike    = log Likelihood
 
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
 ```
-
-
-
-
 
 ## usage notes:
 * 3D/ND spot detection protocols
