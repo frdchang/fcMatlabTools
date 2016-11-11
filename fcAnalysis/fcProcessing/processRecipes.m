@@ -59,11 +59,16 @@ for ii=1:numel(expFolders)
 end
 %% processing data
 phaseRegexp     = 'BrightFieldTTL';
-spotRegexp      = {'FITC\(WhiteTTL\)'};
-expFolder       = '/Volumes/robin/fcDataStorage/20160201-test-adf';
+spotRegexp      = {'FITC\(WhiteTTL\)','cy5\(WhiteTTL\)'};
+expFolder       = '/mnt/btrfs/fcDataStorage/fcCheckout/andrian/20151208/loglight/doTimeLapse_1';
 %expFolder      = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20160915-mitosis-BWY804_4-4/doTimeLapse_1';
 phaseFiles      = getAllFiles(expFolder,phaseRegexp);
 spotFiles       = getAllFiles(expFolder,spotRegexp);
+myLLRatio       = 800;%300;
+calibrationFileList = {'~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat',...
+                       '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat',...
+                       '~/Dropbox/code/Matlab/fcBinaries/origCameraCal20160410.mat'};
+calibrationFile = calibrationFileList{3};
 
 % convert list of files to listOfListOfArguments
 phaseFiles      = convertListToListofArguments(phaseFiles);
@@ -74,7 +79,7 @@ qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 save([expFolder filesep 'processingState']);
 
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',300},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',myLLRatio,'pathToCalibration',calibrationFile},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
