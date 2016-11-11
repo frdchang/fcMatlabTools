@@ -71,7 +71,7 @@ if ~isempty(params.pathToCalibration)
     calibration = load(params.pathToCalibration);
     data = returnElectrons(data,1/calibration.gainElectronPerCount,calibration.offsetInAdu,1);
     readNoiseInElectrons = calibration.cameraVarianceInADU*(calibration.gainElectronPerCount)^2;
-    readNoiseInElectrons(calibration.brokenPixel) = inf;
+    readNoiseInElectrons(calibration.brokenPixel>0) = inf;
     readNoiseInElectrons = repmat(readNoiseInElectrons,[1 1 size(data,3)]);
     params.readNoiseVar = readNoiseInElectrons;
 end

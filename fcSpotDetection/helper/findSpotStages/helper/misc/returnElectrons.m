@@ -3,4 +3,6 @@ function [electrons,photons] = returnElectrons(data,gainCountPerElectron,meanBkg
 data = double(data);
 electrons = bsxfun(@minus,data,meanBkgnd);
 electrons = bsxfun(@rdivide,electrons,gainCountPerElectron);
-photons = electrons/QE;
+if nargout == 2
+    photons = electrons/QE;
+end
