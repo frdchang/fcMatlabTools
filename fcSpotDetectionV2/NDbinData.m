@@ -12,8 +12,15 @@ function [binned] = NDbinData(data,patchSize)
 % isequal(test,out)  9/23/16 -fc
 
 numDims = ndims(data);
+if ~isequal(numDims,numel(pathsep))
+    binned = data;
+    return;
+end
 outputSize = size(data)./patchSize;
-
+if isequal(outputSize,size(data))
+    binned = data;
+    return;
+end
 if ~isequal(round(outputSize),outputSize)
     error('patchSize is not a clean multiple of the dimensions of data');
 end
