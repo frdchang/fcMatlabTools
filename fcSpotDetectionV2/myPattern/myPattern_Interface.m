@@ -6,19 +6,21 @@ classdef myPattern_Interface < handle
     end
     
     methods (Abstract)
-        givenTheta(obj,theta,domains)
+        givenTheta(obj,domains,theta)
         % generates the pattern given the theta
         getDerivatives(obj,maxThetas)
     end
     
     methods
-        function [gradLambdas,hessLambdas] = givenThetaGetDerivatives(obj,theta,domains,maxThetas,varargin)
-            obj.givenTheta(theta,domains,varargin{:});
+        function [lambdas,gradLambdas,hessLambdas] = givenThetaGetDerivatives(obj,domains,theta,maxThetas,varargin)
+            lambdas = obj.givenTheta(theta,domains,varargin{:});
             switch nargout
                 case {1 0}
-                    gradLambdas = obj.getDerivatives(maxThetas);
+                     
                 case {2}
-                    [gradLambdas,hessLambdas] = obj.getDerivatives(maxThetas);
+                      gradLambdas = obj.getDerivatives(maxThetas);
+                case {3}
+                     [gradLambdas,hessLambdas] = obj.getDerivatives(maxThetas);
                 otherwise
                     error('number of arguments out is not 1 or 2');
             end

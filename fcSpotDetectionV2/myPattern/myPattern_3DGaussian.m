@@ -27,7 +27,7 @@ classdef myPattern_3DGaussian < myPattern_Interface
         function obj = myPattern_3Dgaussian(varargin)
         end
         
-        function lambdas = givenTheta(obj,theta,domains)
+        function lambdas = givenTheta(obj,domains,theta)
             [posCoor,mySigmas,myDomains] = extractThetasAndDomains(obj,theta,domains);
             obj.heartFunc = exp(1).^((1/2).*((-1).*mySigmas(1).^(-1).*(myDomains{1}+(-1).*posCoor(1)).^2+(...
                 -1).*mySigmas(2).^(-1).*(myDomains{2}+(-1).*posCoor(2)).^2+(-1).*mySigmas(3).^(-1).*(myDomains{3}+(-1).* ...

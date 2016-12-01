@@ -1,4 +1,4 @@
-function lambdas = lambdaHypothesis(domains,thetaList,varargin)
+function [lambdas,Dlambdas,D2lambdas] = lambdaHypothesis(domains,thetaList,varargin)
 %LAMBDAHYPOTHESIS will generate the lambda hypothesis over the domains =
 %{x,y,z...} given thetaList which is organized as follows
 %
@@ -7,7 +7,7 @@ function lambdas = lambdaHypothesis(domains,thetaList,varargin)
 % with
 %
 % hypothesis for dataset1 = {{pattern object, its theta},{pattern object,
-% its other theta}}
+% its other theta},{Background level}}
 %
 % this allows for multiple patterns with bleed through in multilple
 % datasets.  

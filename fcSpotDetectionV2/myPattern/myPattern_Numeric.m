@@ -24,7 +24,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.numDims         = numel(obj.centerCoorOG);
         end
         
-        function lambdas = givenTheta(obj,theta,domains,varargin)
+        function lambdas = givenTheta(obj,domains,theta,varargin)
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';
             %--------------------------------------------------------------------------
@@ -34,6 +34,7 @@ classdef myPattern_Numeric < myPattern_Interface
                 domains{ii} = domains{ii} - deltaPosition(ii);
             end
             obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,domains{:},params.interpMethod);
+            obj.heartFunc(isnan(obj.heartFunc)) = 0;
             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         
