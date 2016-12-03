@@ -13,7 +13,7 @@ for ii = 1:numel(spacingBasket)
          error('this domain has uneven spacing');
       end
       if theDiffs > 0
-         spacingBasket{ii} =  -theDiffs;
+         spacingBasket{ii} =  theDiffs;
       end
    end
 end

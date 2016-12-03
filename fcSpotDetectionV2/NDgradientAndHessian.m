@@ -5,7 +5,7 @@ function [gradData,hessData] = NDgradientAndHessian(data,domains)
 numDims = ndims(data);
 gradData = cell(numDims,1);
 
-spacingBasket = calcSpacing(domains);
+spacingBasket = cellfunNonUniformOutput(@(x) -x,calcSpacing(domains));
 
 [gradData{:}] = gradient(data,spacingBasket{:});
 

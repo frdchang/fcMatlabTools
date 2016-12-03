@@ -13,7 +13,7 @@ classdef myPattern_Interface < handle
     
     methods
         function [lambdas,gradLambdas,hessLambdas] = givenThetaGetDerivatives(obj,domains,theta,maxThetas,varargin)
-            lambdas = obj.givenTheta(theta,domains,varargin{:});
+            lambdas = obj.givenTheta(domains,theta,varargin{:});
             switch nargout
                 case {1 0}
                      

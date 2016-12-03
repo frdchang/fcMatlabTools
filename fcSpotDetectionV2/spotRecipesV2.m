@@ -5,14 +5,15 @@ kernObj = myPattern_Numeric(kern);
 domains = genMeshFromData(kern);
 testTheta = [3 3 3];
 maxThetas = [1 1 1];
-plot3Dstack(kernObj.givenTheta(testTheta,domains))
-[lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(testTheta,domains,maxThetas);
+plot3Dstack(kernObj.givenTheta(domains,testTheta))
+[lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,testTheta,maxThetas);
 
 % multi spots
-theta1 = [1 10 1 1 3];
-theta2 = [1 6 5 5 3];
-theta3 = [1 8 4 4 3];
+theta1 = [10 1 1 3];
+theta2 = [6 5 5 3];
+theta3 = [8 4 4 3];
 bkgnd = 5;
-buildThetas = {{kernObj,theta1},{kernObj,theta2},{kernObj,theta3},{bkgnd}};
-buildMaxThetas = {[1 1 1],[1 1 1],[1 1 1]};
-[genLambda,genDLambda,genD2Lambda] = genPatternsFromThetas(domains,buildThetas,buildMaxThetas);
+k = 1;
+buildThetas = {k,{kernObj,theta1},{kernObj,theta2},{kernObj,theta3},{bkgnd}};
+buildMaxThetas = {1,[1 1 1],[1 1 1],[1 1 1]};
+[genLambda,genDLambda,genD2Lambda] = littleLambda(domains,buildThetas,buildMaxThetas);

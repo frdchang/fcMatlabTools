@@ -6,6 +6,7 @@ classdef myPattern_Numeric < myPattern_Interface
         numDims
         heartFunc
         binning
+        newDomains
     end
     
     methods
@@ -35,6 +36,7 @@ classdef myPattern_Numeric < myPattern_Interface
             end
             obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,domains{:},params.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
+            obj.newDomains = domains;
             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         
@@ -43,7 +45,7 @@ classdef myPattern_Numeric < myPattern_Interface
                 case {1 0}
                     gradLambdas = NDgradientAndHessian(obj.heartFunc,obj.domainsOG);
                 case 2
-                    [gradLambdas,hessLambdas] = NDgradientAndHessian(obj.heartFunc,obj.domainsOG);
+                    [gradLambdas,hessLambdas] = NDgradientAndHessian(obj.heartFunc,obj.newDomains);
                     hessianIndices = maxThetas(:)*maxThetas(:)';
                     hessLambdas(~hessianIndices) = {0};
                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
