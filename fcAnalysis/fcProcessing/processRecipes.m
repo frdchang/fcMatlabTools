@@ -59,8 +59,8 @@ for ii=1:numel(expFolders)
 end
 %% processing data
 phaseRegexp     = 'FITC\(BrightFieldTTL\)';
-spotRegexp      = {'FITC\(WhiteTTL\)'};%,'cy5\(WhiteTTL\)'};
-expFolder       = '/mnt/btrfs/fcDataStorage/fcCheckout/andrian/20151208/loglight/doTimeLapse_1';
+spotRegexp      = {'FITC\(WhiteTTL\)','cy5\(WhiteTTL\)'};
+expFolder       = '/mnt/btrfs/fcDataStorage/fcCheckout/andrian/20151023/cyano';
 %expFolder      = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20160915-mitosis-BWY804_4-4/doTimeLapse_1';
 phaseFiles      = getAllFiles(expFolder,phaseRegexp);
 spotFiles       = getAllFiles(expFolder,spotRegexp);

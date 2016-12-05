@@ -12,12 +12,18 @@ classdef myPattern_Numeric < myPattern_Interface
     methods
         function obj = myPattern_Numeric(ndPatternOG,varargin)
             %--parameters--------------------------------------------------------------
-            params.binning     = ones(1,ndims(ndPatternOG));
+            params.binning          = ones(1,ndims(ndPatternOG));
+            params.normPeakHeight   = true;
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
             % myNumericPattern
             if nargin ==1
-                obj.ndPatternOG    = ndPatternOG;
+                if params.normPeakHeight
+                    obj.ndPatternOG    = ndPatternOG/max(ndPatternOG(:));
+                else
+                    obj.ndPatternOG    = ndPatternOG;
+                end
+                
             end
             obj.domainsOG       = genMeshFromData(obj.ndPatternOG);
             obj.centerCoorOG    = round(size(obj.ndPatternOG)/2);

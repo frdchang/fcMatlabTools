@@ -18,7 +18,7 @@ function [littleLambda,littleDLambda,littleD2Lambda] = littleLambda(domains,thet
 % math notes 12/2/2016 (picture of math in freds photos)
 
 numPatterns = numel(thetaInputs);
-numDerivatives = recursivesum(maxThetasInputs);
+numDerivatives = recursiveFuncOnCell(@numel,maxThetasInputs);
 
 littleDLambda = cell(numDerivatives,1);
 littleD2Lambda = cell(numDerivatives,numDerivatives);
@@ -45,7 +45,7 @@ switch nargout
                 currTheta = currPatternTheta(2:end);
                 currMaxTheta = maxThetasInputs{ii};
                 patternMaxTheta = currMaxTheta(2:end);
-                numMaxTheta = sum(patternMaxTheta);
+                numMaxTheta = numel(patternMaxTheta);
                 [currLambdas,currDLambdas,currD2Lambdas] = currPatternObj.givenThetaGetDerivatives(domains,currTheta,patternMaxTheta,varargin{:});
                 % update little lambda
                 littleLambda = littleLambda + currAmp*currLambdas;
@@ -71,8 +71,8 @@ switch nargout
                 littleLambda = littleLambda + B;
                 littleDLambda(gradientIndex-1) = {k};
                 gradientIndex = gradientIndex + 1;
-                littleD2Lambda(hessianIndex,1) = {1};
-                littleD2Lambda(1,hessianIndex) = {1};
+                littleD2Lambda(hessianIndex-1,1) = {1};
+                littleD2Lambda(1,hessianIndex-1) = {1};
                 hessianIndex = hessianIndex+1;
             else
                 error('thetaInputs need to be composed of a scalar background or pattern object with its theta inputs');
@@ -85,4 +85,3 @@ end
 
 littleDLambda{1} = littleLambda;
 littleLambda = k*littleLambda;
-% filter the output by maxthetas

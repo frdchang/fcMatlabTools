@@ -1,6 +1,7 @@
 classdef myPattern_Interface < handle
     %LAMBDAINTERFACE given a pattern or a function parameterized by
     %thetaPos = [x y z ...]
+    % the peak intensity is normalized to 1
     
     properties (Abstract)
     end
