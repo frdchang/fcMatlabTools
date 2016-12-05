@@ -15,5 +15,6 @@ theta3 = [8 4 4 3];
 bkgnd = 5;
 k = 1;
 buildThetas = {k,{kernObj,theta1},{kernObj,theta2},{kernObj,theta3},{bkgnd}};
-buildMaxThetas = {1,[1 1 1],[1 1 1],[1 1 1]};
+% buildmaxthetas will always return dA
+buildMaxThetas = {1,[1 1 1 1],[1 1 1 1],[1 1 1 1], 1};
 [genLambda,genDLambda,genD2Lambda] = littleLambda(domains,buildThetas,buildMaxThetas);
