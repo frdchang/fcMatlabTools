@@ -1,12 +1,32 @@
 %% build a spot and generating its derivatives
-patchSize = [7 7 7];
-kern = ndGauss([0.9,0.9,0.9],patchSize);
+patchSize = [21 21 21];
+kern = ndGauss([6,6,6],patchSize);
 kernObj = myPattern_Numeric(kern);
 domains = genMeshFromData(kern);
-testTheta = [3 3 3];
+testTheta = [10 11 10];
 maxThetas = [1 1 1];
 plot3Dstack(kernObj.givenTheta(domains,testTheta))
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,testTheta,maxThetas);
+analyticThetaNaked = [testTheta,6,6,6 1 0];
+analyticLambda = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,ones(size(analyticThetaNaked)),0);
+plot3Dstack(analyticLambda)
+NDrms(lambdas,analyticLambda)
+analyticDLambda = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,[1 1 1 0 0 0 0 0 ],1);
+analyticD2Lambda = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,[1 1 1 0 0 0 0 0],2);
+analyticDLambda = analyticDLambda(logical([1 1 1 0 0 0 0 0]));
+analyticD2Lambda = analyticD2Lambda(logical([1 1 1 0 0 0 0 0]'*[1 1 1 0 0 0 0 0]));
+NDrms(gradLambdas{1},analyticDLambda{1})
+direction = {'x','y','z'};
+for ii = 1:numel(gradLambdas)
+   plot3Dstack(cat(1,gradLambdas{ii},analyticDLambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d/d' direction{ii}]);
+end
+
+for ii = 1:numel(hessLambdas)
+    [xx,yy] = ind2sub(size(hessLambdas),ii);
+   plot3Dstack(cat(2,hessLambdas{ii},analyticD2Lambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d2/d' direction{xx} 'd' direction{yy}]);
+end
+plot3Dstack(cat(2,lambdas,analyticLambda),'cbar',true,'projectionFunc',@maxextremumproj,'text','(left: numeric, right: analytic 3D gaussian) lambdas');
+
 
 % multi spots
 theta1 = [10 1.2 1 5.5];
@@ -67,6 +87,7 @@ for ii = 1:numel(thetas)
     analyticD = appendToCellOrArray(analyticD,cellfunNonUniformOutput(@(x) x*currAmp*k,currDs(1:3)));
 end
 analyticD{end+1} = k;
+
 
 
 

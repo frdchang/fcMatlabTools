@@ -54,6 +54,7 @@ p.addParamValue('forPoster',false,@(x)true);
 p.addParamValue('MLEtraj',[],@(x)true);
 p.addParamValue('colorCodeProj',false,@(x) true);
 p.addParamValue('spotParams',[],@(x) true);
+p.addParamValue('projectionFunc',@maxintensityproj,@(x) true);
 
 p.parse(varargin{:});
 
@@ -80,6 +81,7 @@ forPoster   = input.forPoster;
 MLEtraj     = input.MLEtraj;
 colorCodeProj = input.colorCodeProj;
 spotParams  = input.spotParams;
+projectionFunc = input.projectionFunc;
 
 if forPoster
     border = 0.02;
@@ -205,15 +207,17 @@ if ~isempty(clustCent)
 %     pairWiseLines = returnPairWiseDists(clustCent)';
 end
 
+minVal = min(stack(:));
+maxVal = max(stack(:));
 
 % now subplot each frame subplot('Position',[left bottom width height])
 %% PLOT XY-----------------------------------------------------------------
 subplot('Position',[2*border,1 - (2*border + relXDirX),relYDirY,relXDirX]);
 
 if isempty(stackRed) && isempty(stackBlue)
-    imagesc(maxintensityproj(stack, 3));
-    colormap(myCmap);
-    caxis auto;
+    imagesc(projectionFunc(stack, 3));
+     colormap(myCmap);
+     caxis([minVal,maxVal]);
 else
     rgbStack(xL,yL,3) = 0;
     markerParam = markerParamW;
@@ -329,10 +333,13 @@ end
 %% PLOT XZ-----------------------------------------------------------------
 subplot('Position',[3*border+relYDirY,1 - (2*border + relXDirX),relYDirZ,relXDirX]);
 if isempty(stackRed) && isempty(stackBlue)
-    imagesc(maxintensityproj(stack, 2));
+    imagesc(projectionFunc(stack, 2));
     colormap(myCmap);
     if ~isempty(input.cRange)
         caxis(input.cRange);
+    else
+        
+        caxis([minVal,maxVal]);
     end
 else
     clear rgbStack;
@@ -431,10 +438,12 @@ end
 %% PLOT ZY-----------------------------------------------------------------
 subplot('Position',[2*border,1 - (3*border + relXDirZ + relXDirX),relYDirY,relXDirZ]);
 if isempty(stackRed) && isempty(stackBlue)
-    imagesc(maxintensityproj(stack, 1)');
+    imagesc(projectionFunc(stack, 1)');
     colormap(myCmap);
     if ~isempty(input.cRange)
         caxis(input.cRange);
+    else
+       caxis([minVal,maxVal]); 
     end
 else
     clear rgbStack;
