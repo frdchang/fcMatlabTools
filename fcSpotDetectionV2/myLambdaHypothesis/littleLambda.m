@@ -51,10 +51,10 @@ switch nargout
                 littleLambda = littleLambda + currAmp*currLambdas;
                 % append gradient of little lambda
                 littleDLambda(gradientIndex-1) = {k*currLambdas};
-                littleDLambda(gradientIndex:gradientIndex+numMaxTheta-1) = cellfunNonUniformOutput(@(x) k*x,currDLambdas);
+                littleDLambda(gradientIndex:gradientIndex+numMaxTheta-1) = cellfunNonUniformOutput(@(x) k*currAmp*x,currDLambdas);
                 gradientIndex = gradientIndex+numMaxTheta+1;
                 % append hessian of little lambda
-                littleD2Lambda(hessianIndex:hessianIndex+numMaxTheta-1,hessianIndex:hessianIndex+numMaxTheta-1) = cellfunNonUniformOutput(@(x) k*x,currD2Lambdas);
+                littleD2Lambda(hessianIndex:hessianIndex+numMaxTheta-1,hessianIndex:hessianIndex+numMaxTheta-1) = cellfunNonUniformOutput(@(x) k*currAmp*x,currD2Lambdas);
                 % append gradients flanks to hessian
                 littleD2Lambda(hessianIndex-1,hessianIndex:hessianIndex+numMaxTheta-1) =  cellfunNonUniformOutput(@(x) k*x,currDLambdas);
                 littleD2Lambda(hessianIndex:hessianIndex+numMaxTheta-1,hessianIndex-1) =  cellfunNonUniformOutput(@(x) k*x,currDLambdas);

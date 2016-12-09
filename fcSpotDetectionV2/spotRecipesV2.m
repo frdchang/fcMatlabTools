@@ -1,13 +1,62 @@
+%% build a single spot and compare with mathematica
+% it matches with rms error of 10e-18, note i need to permute the
+% dimensions [2 3 1] to match with mathematica
+patchSize = [19 21 25];
+sigmaSq   = [6,6,6];
+testTheta = [9 8 7];
+k = 1;
+A = 1;
+B = 0;
+domains = genMeshFromData(ones(patchSize));
+analyticThetaNaked = [testTheta,sigmaSq,A,B];
+analyticLambda = k*lambda_single3DGauss(num2cell(analyticThetaNaked),domains,[1 1 1 0 0 0 0 0 ],0);
+analyticLambda = permute(analyticLambda,[2 3 1]);
+save('~/Desktop/matlabLambda','analyticLambda');
+
+%% build a multi spot and compare with mathematica
+% for mathematica need to permute [2 3 1]
+% it matches 10e-18 when the numeric spot pattern does not move.
+% when the pattern moves 0.5 pixels the rms error is 0.00324052
+% when the pattern moves in the wrong 0.5 direction the rms error is 0.0261456
+
+
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% [amplitude x y z]
+thetas = {[10 10 12 13],[6 15 11 15],[8 9 12 10]};
+bkgnd = 5;
+k = 0.2;
+
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+buildThetas = {k};
+buildMaxThetas = {1};
+for ii = 1:numel(thetas)
+    buildThetas{end+1} = {kernObj,thetas{ii}};
+    buildMaxThetas{end+1} = [1 1 1 1];
+end
+buildThetas{end+1} = {bkgnd};
+buildMaxThetas{end+1} = 1;
+[genLambda,genDLambda,genD2Lambda] = littleLambda(domains,buildThetas,buildMaxThetas);
+genLambda = permute(genLambda,[2 3 1]);
+genDLambda = cellfunNonUniformOutput(@(x) permute(x,[2 3 1]),genDLambda);
+genD2Lambda = cellfunNonUniformOutput(@(x) permute(x,[2 3 1]),genD2Lambda);
+save('~/Desktop/genLambda.mat','genLambda');
+save('~/Desktop/genDLambda.mat','genDLambda');
+save('~/Desktop/genD2Lambda.mat','genD2Lambda');
+
 %% build a spot and generating its derivatives
 patchSize = [21 21 21];
 kern = ndGauss([6,6,6],patchSize);
 kernObj = myPattern_Numeric(kern);
 domains = genMeshFromData(kern);
-testTheta = [10 11 10];
+testTheta = [17 18 10];
 maxThetas = [1 1 1];
 plot3Dstack(kernObj.givenTheta(domains,testTheta))
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,testTheta,maxThetas);
-analyticThetaNaked = [testTheta,6,6,6 1 0];
+analyticThetaNaked = [testTheta,6,6,6 10 5];
 analyticLambda = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,ones(size(analyticThetaNaked)),0);
 plot3Dstack(analyticLambda)
 NDrms(lambdas,analyticLambda)
@@ -40,16 +89,18 @@ buildMaxThetas = {1,[1 1 1 1],[1 1 1 1],[1 1 1 1], 1};
 [genLambda,genDLambda,genD2Lambda] = littleLambda(domains,buildThetas,buildMaxThetas);
 
 %% check little lambda for correctness
-patchSize = [21 21 21];
-sigmas = [6,6,6];
+
+% for mathematica need to permute [2 3 1]
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
 
 % [amplitude x y z]
-thetas = {[10 17 18 10],[6 8 8 8],[8 18 8 13]};
+thetas = {[10 11 11 11],[6 11 11 11],[8 11 11 11]};
 bkgnd = 5;
 k = 0.2;
 
 % build the numeric multi emitter
-kern = ndGauss(sigmas,patchSize);
+kern = ndGauss(sigmassq,patchSize);
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 buildThetas = {k};
@@ -65,7 +116,7 @@ buildMaxThetas{end+1} = 1;
 % build analytic multi emitter
 analyticLambda = 0;
 for ii = 1:numel(thetas)
-    analyticThetaNaked = [thetas{ii}(2:end) sigmas(:)' thetas{ii}(1) 0];
+    analyticThetaNaked = [thetas{ii}(2:end) sigmassq(:)' thetas{ii}(1) 0];
     analyticLambda = analyticLambda + lambda_single3DGauss(num2cell(analyticThetaNaked),domains,ones(size(analyticThetaNaked)),0);
 end
 analyticLambda = analyticLambda + bkgnd;
@@ -78,7 +129,7 @@ analyticD{1} = analyticLambda/k;
 for ii = 1:numel(thetas)
     currAmp =thetas{ii}(1);
     currXYZ = thetas{ii}(2:end);
-    analyticThetaNaked = [currXYZ sigmas(:)' currAmp 0];
+    analyticThetaNaked = [currXYZ sigmassq(:)' 1 0];
     currLambda = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,ones(size(analyticThetaNaked)),0);
     currDs = lambda_single3DGauss(num2cell(analyticThetaNaked),domains,ones(size(analyticThetaNaked)),1);
     
@@ -87,6 +138,10 @@ for ii = 1:numel(thetas)
     analyticD = appendToCellOrArray(analyticD,cellfunNonUniformOutput(@(x) x*currAmp*k,currDs(1:3)));
 end
 analyticD{end+1} = k;
+
+for ii = 1:numel(genDLambda)-1
+ plot3Dstack(cat(2,genDLambda{ii},analyticD{ii}),'projectionFunc',@maxextremumproj)   
+end
 
 
 
