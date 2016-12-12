@@ -40,9 +40,26 @@ end
 buildThetas{end+1} = {bkgnd};
 buildMaxThetas{end+1} = 1;
 [genLambda,genDLambda,genD2Lambda] = littleLambda(domains,buildThetas,buildMaxThetas);
+
+
+% for mathematica convert scalar to scalar*ones(sizeData)
+for ii = 1:numel(genDLambda)
+   if isscalar(genDLambda{ii})
+      genDLambda{ii} = genDLambda{ii}*ones(patchSize); 
+   end
+end
+
+for ii = 1:numel(genD2Lambda)
+   if isscalar(genD2Lambda{ii})
+      genD2Lambda{ii} = genD2Lambda{ii}*ones(patchSize); 
+   end
+end
+
+% for mathematica do corrections on dimension order
 genLambda = permute(genLambda,[2 3 1]);
 genDLambda = cellfunNonUniformOutput(@(x) permute(x,[2 3 1]),genDLambda);
 genD2Lambda = cellfunNonUniformOutput(@(x) permute(x,[2 3 1]),genD2Lambda);
+
 save('~/Desktop/genLambda.mat','genLambda');
 save('~/Desktop/genDLambda.mat','genDLambda');
 save('~/Desktop/genD2Lambda.mat','genD2Lambda');
