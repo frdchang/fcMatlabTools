@@ -15,13 +15,19 @@ function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,theta
 %
 % the gradients and hessian are independent 
 
+
 numDatas = size(Kmatrix,2);
 littleLambdas = cell(numDatas,1);
 littleDLambdas = cell(numDatas,1);
 littleD2Lambdas = cell(numDatas,1);
 % generate little lambdas for each channel
 for ii = 1:numDatas
-    [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{:},varargin{:});
+    if isempty(varargin)
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{ii});
+    else
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{ii},varargin{:});
+    end
+    
 end
 
 bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);

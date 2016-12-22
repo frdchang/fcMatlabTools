@@ -1,3 +1,48 @@
+%% lets test big lambda
+
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+
+
+% spot in dataset 1
+thetas1 = {[10 10 12 13],[6 15 11 15],[8 9 12 10]};
+bkgnd1 = 5;
+% spot in dataset 2
+thetas2 = {[5 12 10 13]};
+bkgnd2 = 10;
+
+Kmatrix = [1 0.2;0.5,1];
+
+buildThetas1 = {1};
+buildMaxThetas1 = {1};
+for ii = 1:numel(thetas1)
+    buildThetas1{end+1} = {kernObj,thetas1{ii}};
+    buildMaxThetas1{end+1} = [1 1 1 1];
+end
+buildThetas1{end+1} = {bkgnd1};
+buildMaxThetas1{end+1} = 1;
+
+buildThetas2 = {1};
+buildMaxThetas2 = {1};
+
+for ii = 1:numel(thetas2)
+    buildThetas2{end+1} = {kernObj,thetas2{ii}};
+    buildMaxThetas2{end+1} = [1 1 1 1];
+end
+buildThetas2{end+1} = {bkgnd2};
+buildMaxThetas2{end+1} = 1;
+
+thetaInputs = {buildThetas1,buildThetas2};
+maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
+
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,thetaInputs,maxThetaInputs);
+
+
+
 %% build a single spot and compare with mathematica
 % it matches with rms error of 10e-18, note i need to permute the
 % dimensions [2 3 1] to match with mathematica
