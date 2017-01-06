@@ -27,7 +27,6 @@ for ii = 1:numDatas
     else
         [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{ii},varargin{:});
     end
-    
 end
 
 bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
