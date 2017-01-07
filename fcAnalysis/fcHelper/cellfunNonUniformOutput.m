@@ -1,7 +1,7 @@
-function output = cellfunNonUniformOutput(func,cellarray)
+function output = cellfunNonUniformOutput(varargin)
 %CELLFUNNONUNIFORMOUTPUT Summary of this function goes here
 %   Detailed explanation goes here
 
-output = cellfun(func,cellarray,'UniformOutput',false);
+output = cellfun(varargin{:},'UniformOutput',false);
 end
 

@@ -1,8 +1,7 @@
 function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,thetaInputs,maxThetasInputs,varargin)
 %BIGLAMBDA generates the lambda hypothesis for multi-spectral datasets with
-%spectral bleed thru modeled by the Kmatrix = bleedthru matrix.  the
-%diagonal entries are 1. 
-
+%spectral bleed thru modeled by the Kmatrix = bleedthru matrix.   
+%
 % thetaInputs = {thetaInputForChannel1,thetaInputForChannel2,...}
 % with thetaInputForChannel1 e.g. = {{patternObj1,theta1},{patternObj2,theta2},B}
 % 
@@ -10,16 +9,18 @@ function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,theta
 % 
 % varargin passes directly into littleLambda
 %
-% Kmatrix is the bleed thru matrix, with the rows the bleed thru.  the
-% diagonal elements are assumed to be 1.
+% Kmatrix is the bleed thru matrix, with the rows the bleed thru.  
 %
-% the gradients and hessian are independent 
+% note:the gradients and hessian are independent from each channel
 
 
 numDatas = size(Kmatrix,2);
 littleLambdas = cell(numDatas,1);
 littleDLambdas = cell(numDatas,1);
 littleD2Lambdas = cell(numDatas,1);
+
+
+ 
 % generate little lambdas for each channel
 for ii = 1:numDatas
     if isempty(varargin)
@@ -31,7 +32,7 @@ end
 
 bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
 bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
-bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,maxThetasInputs);
+bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas,maxThetasInputs);
 
 end
 
