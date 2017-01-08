@@ -9,7 +9,7 @@ kernObj = myPattern_Numeric(kern);
 
 
 % spot in dataset 1
-thetas1 = {[10 10 12 13],[6 15 11 15],[8 9 12 10]};
+thetas1 = {[10 5 12 13],[6 15 5 15],[8 15 12 10]};
 bkgnd1 = 5;
 % spot in dataset 2
 thetas2 = {[5 12 10 13]};
