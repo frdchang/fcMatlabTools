@@ -41,7 +41,20 @@ maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,thetaInputs,maxThetaInputs);
 
+% need to test, but will work on n color unmixing first
+cameraVariance = ones(size(bigLambdas{1}));
+spotKern = threshPSF(kern,0.0015);
+estimated1 = findSpotsStage1(bigLambdas{1},spotKern,cameraVariance);
+estimated2 = findSpotsStage1(bigLambdas{2},spotKern,cameraVariance);
+invKmatrix = inv(Kmatrix);
 
+output1 = zeros(size(bigLambdas{1}));
+output2 = zeros(size(bigLambdas{1}));
+for ii = 1:numel(bigLambdas{1})
+   test = invKmatrix*[estimated1.A1(ii);estimated2.A1(ii)];
+   output1(ii) = test(1);
+   output2(ii) = test(2);
+end
 
 %% build a single spot and compare with mathematica
 % it matches with rms error of 10e-18, note i need to permute the
