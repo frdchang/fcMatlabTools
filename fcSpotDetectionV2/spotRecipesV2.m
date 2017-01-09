@@ -41,6 +41,8 @@ maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,thetaInputs,maxThetaInputs);
 
+
+%% testing color unmixing 
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));
 spotKern = threshPSF(kern,0.0015);
