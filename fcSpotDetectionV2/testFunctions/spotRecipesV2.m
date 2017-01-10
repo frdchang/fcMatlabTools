@@ -1,3 +1,5 @@
+%% lets check poiss gauss functions
+
 %% lets test big lambda
 
 patchSize = [19 21 25];
@@ -38,8 +40,8 @@ buildMaxThetas2{end+1} = 1;
 
 thetaInputs = {buildThetas1,buildThetas2};
 maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
-
-[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(Kmatrix,domains,thetaInputs,maxThetaInputs);
+thetaInputs = {Kmatrix,thetaInputs{:}};
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,maxThetaInputs);
 
 
 %% testing color unmixing 
