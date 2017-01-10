@@ -33,7 +33,16 @@ end
 
 bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
 bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
-bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas,maxThetasInputs);
+bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
 
+
+%% curate the derivatives by maxThetasInput
+
+% curate the Kmatrix derivatives
+
+% curate the rest
+for ii = 1:numDatas
+    
+end
 end
 
