@@ -57,4 +57,9 @@ state.logLike       = [];
 
 
 % each derivative takes in a lambda(theta,domains,maxThetas,0);
+% depends on the lambda function, which is different now.  or is it?
+% so a big lambda comes in, {Kmatrix,{thetasForChannel1},{thetasForChannel2},...}
+% big lambda can generate all the Ds and D2s and datas.  
+% then i will curate these things.  
+% 
 
