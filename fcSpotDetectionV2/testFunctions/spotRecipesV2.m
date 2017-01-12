@@ -1,4 +1,6 @@
-%% lets check poiss gauss functions
+%% lets check mle by iteration v2
+
+
 
 %% lets test big lambda
 
@@ -43,7 +45,7 @@ maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
 thetaInputs = {Kmatrix,thetaInputs{:}};
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
 
-
+state = MLEbyIterationV2(bigLambdas,thetaInputs,[],domains);
 %% testing color unmixing 
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));
