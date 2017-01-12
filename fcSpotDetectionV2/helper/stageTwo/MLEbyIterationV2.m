@@ -1,4 +1,4 @@
-function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,maxThetas,varargin)
+function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,varargin)
 %MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % datas:        the measured data or datas in cell array
@@ -8,14 +8,16 @@ function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,maxThetas,var
 % maxThetas:    which thetas you want to maximize
 % types:        you can select which variables of thetas to be gradient and
 %               which variables to be newton by indicated by 0 or 1.
-%               0 -> gradient, 1->newton.
+%               0 -> a constant, 1->gradient, 3->newton  
+%               types -> {{[0 0 0 1 1 3],N},{[0 0 0 3 3 3],N}}.
+%               if types is empty gradient will be assumed for all
+%               variables
 
 %--parameters--------------------------------------------------------------
 % if types is empty, then it will default to gradient
 params.types            = [];
 % gradient ascent parameters
 params.stepSize         = .001;
-params.numStepsGrad     = 1000;
 params.normGrad         = true;
 % newton raphson parameters
 params.numStepsNR       = 100;
@@ -29,13 +31,6 @@ params.LogLike          = @logLike_PoissPoiss;
 params.saveDatas         = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
-% define gradient function
-gradFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,1);
-% define hessian function
-hessFunc = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,2);
-% define log likehood function
-llFunc   = @(mytheta) params.DLLDTheta(params.LogLike,params.DLLDLambda,params.lambda,data,readNoise,mytheta,domains,params.maxThetas,0);
 
 %--define output state structure-------------------------------------------
 if params.saveDatas
@@ -61,5 +56,9 @@ state.logLike       = [];
 % so a big lambda comes in, {Kmatrix,{thetasForChannel1},{thetasForChannel2},...}
 % big lambda can generate all the Ds and D2s and datas.  
 % then i will curate these things.  
-% 
 
+% curate bigLambda output for theta0s
+%
+% bigLambda needs to have a flat Kmatrix input, and a full maxThetas from
+% the getgo.  types will curate the output of bigLambda
+[

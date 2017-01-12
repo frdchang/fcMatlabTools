@@ -21,7 +21,6 @@ littleDLambdas = cell(numDatas,1);
 littleD2Lambdas = cell(numDatas,1);
 
 
- 
 % generate little lambdas for each channel
 for ii = 1:numDatas
     if isempty(varargin)
@@ -35,14 +34,4 @@ bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
 bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
 bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
 
-
-%% curate the derivatives by maxThetasInput
-
-% curate the Kmatrix derivatives
-
-% curate the rest
-for ii = 1:numDatas
-    
-end
-end
 
