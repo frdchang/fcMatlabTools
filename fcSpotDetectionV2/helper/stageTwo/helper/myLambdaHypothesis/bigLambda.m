@@ -1,11 +1,11 @@
-function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,maxThetasInputs,varargin)
+function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,varargin)
 %BIGLAMBDA generates the lambda hypothesis for multi-spectral datasets with
 %spectral bleed thru modeled by the Kmatrix = bleedthru matrix.   
 %
 % thetaInputs = {Kmatrix,sthetaInputForChannel1,thetaInputForChannel2,...}
 % with thetaInputForChannel1 e.g. = {{patternObj1,theta1},{patternObj2,theta2},B}
 % 
-% maxThetasInputs are similar
+% maxThetasInputs are dropped and instead just mirrors the thetaInputs
 % 
 % varargin passes directly into littleLambda
 %
@@ -23,10 +23,11 @@ littleD2Lambdas = cell(numDatas,1);
 
 % generate little lambdas for each channel
 for ii = 1:numDatas
+    maxThetaInputs = maxAllThetas(thetaInputs{ii});
     if isempty(varargin)
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{ii});
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetaInputs);
     else
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetasInputs{ii},varargin{:});
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetaInputs,varargin{:});
     end
 end
 

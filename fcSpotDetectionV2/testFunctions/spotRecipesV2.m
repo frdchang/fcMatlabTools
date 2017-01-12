@@ -41,7 +41,7 @@ buildMaxThetas2{end+1} = 1;
 thetaInputs = {buildThetas1,buildThetas2};
 maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
 thetaInputs = {Kmatrix,thetaInputs{:}};
-[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,maxThetaInputs);
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
 
 
 %% testing color unmixing 
