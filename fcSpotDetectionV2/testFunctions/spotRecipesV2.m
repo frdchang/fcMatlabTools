@@ -21,31 +21,32 @@ bkgnd2 = 10;
 
 Kmatrix = [1 0.2;0.5,1];
 
-buildThetas1 = {1};
-buildMaxThetas1 = {1};
+buildThetas1 = {};
+buildMaxThetas1 = {};
 for ii = 1:numel(thetas1)
     buildThetas1{end+1} = {kernObj,thetas1{ii}};
-    buildMaxThetas1{end+1} = [1 1 1 1];
+    buildMaxThetas1{end+1} = [2 1 1 1];
 end
 buildThetas1{end+1} = {bkgnd1};
 buildMaxThetas1{end+1} = 1;
 
-buildThetas2 = {1};
-buildMaxThetas2 = {1};
-
+buildThetas2 = {};
+buildMaxThetas2 = {};
 for ii = 1:numel(thetas2)
     buildThetas2{end+1} = {kernObj,thetas2{ii}};
-    buildMaxThetas2{end+1} = [1 1 1 1];
+    buildMaxThetas2{end+1} = [2 1 1 1];
 end
 buildThetas2{end+1} = {bkgnd2};
-buildMaxThetas2{end+1} = 1;
+buildMaxThetas2{end+1} = 2;
 
 thetaInputs = {buildThetas1,buildThetas2};
 maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
+maxKmatrix = [0 2; 2 0];
 thetaInputs = {Kmatrix,thetaInputs{:}};
+maxThetaInputs = {maxKmatrix,maxThetaInputs{:}};
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
 
-state = MLEbyIterationV2(bigLambdas,thetaInputs,[],domains);
+state = MLEbyIterationV2(bigLambdas,thetaInputs,[],domains,{maxThetaInputs});
 %% testing color unmixing 
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));

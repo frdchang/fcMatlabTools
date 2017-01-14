@@ -23,11 +23,13 @@ littleD2Lambdas = cell(numDatas,1);
 
 % generate little lambdas for each channel
 for ii = 1:numDatas
-    maxThetaInputs = maxAllThetas(thetaInputs{ii});
+    currInput = thetaInputs{ii};
+    currInput = {1,currInput{:}};
+    maxThetaInputs = maxAllThetas(currInput);
     if isempty(varargin)
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetaInputs);
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs);
     else
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,thetaInputs{ii},maxThetaInputs,varargin{:});
+        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
     end
 end
 

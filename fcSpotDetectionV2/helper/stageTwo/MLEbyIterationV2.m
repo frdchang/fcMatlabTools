@@ -1,4 +1,4 @@
-function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,varargin)
+function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,strategy,varargin)
 %MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % datas:        the measured data or datas in cell array
@@ -6,16 +6,16 @@ function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,varargin)
 % readNoises:   the variance of the read noise
 % domains:      the domains of the dataset, e.g. for 3d {x,y,z}
 % maxThetas:    which thetas you want to maximize [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,varargin)
-% types:        you can select which variables of thetas to be gradient and
+% strategy:     you can select which variables of thetas to be gradient and
 %               which variables to be newton by indicated by 0 or 1.
-%               0 -> a constant, 1->gradient, 3->newton  
-%               types -> {{[0 0 0 1 1 3],N},{[0 0 0 3 3 3],N}}.
+%               0 -> a constant, 1->gradient, 2->newton  
+%               types -> {{[0 0 0 1 1 2],N},{[0 0 0 2 2 2],N}}.
 %               if types is empty gradient will be assumed for all
 %               variables
+%
+
 
 %--parameters--------------------------------------------------------------
-% if types is empty, then it will default to gradient
-params.types            = [];
 % gradient ascent parameters
 params.stepSize         = .001;
 params.normGrad         = true;
@@ -45,7 +45,7 @@ else
     state.domains       = [];
 end
 state.theta0s       = theta0s;
-state.types         = params.types;
+state.strategy      = strategy;
 state.thetaMLEs     = [];
 state.thetaVars     = [];
 state.logLike       = [];
@@ -69,8 +69,16 @@ state.logLike       = [];
  % curated!
  % curate by params.types
  
- if isempty(params.types)
-     
- else
-     
- end
+numStrategies = numel(strategy);
+for ii = 1:numStrategies
+    currStrategy = strategy{ii};
+    [selectorD,selectorD2] = thetaSelector(currStrategy);
+    % do gradient ascent
+    gradientSelector = selectorD{1};
+    % do newton raphson
+    selectorD{2};
+    selectorD2;
+end
+
+ 
+ 
