@@ -45,8 +45,8 @@ maxKmatrix = [0 2; 2 0];
 thetaInputs = {Kmatrix,thetaInputs{:}};
 maxThetaInputs = {maxKmatrix,maxThetaInputs{:}};
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
-
-state = MLEbyIterationV2(bigLambdas,thetaInputs,[],domains,{maxThetaInputs});
+N = 100;
+state = MLEbyIterationV2(bigLambdas,thetaInputs,[],domains,{{maxThetaInputs,N}});
 %% testing color unmixing 
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));

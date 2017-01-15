@@ -8,7 +8,7 @@ function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,strategy,vara
 % maxThetas:    which thetas you want to maximize [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,varargin)
 % strategy:     you can select which variables of thetas to be gradient and
 %               which variables to be newton by indicated by 0 or 1.
-%               0 -> a constant, 1->gradient, 2->newton  
+%               0 -> a constant, 1->gradient, 2->newton
 %               types -> {{[0 0 0 1 1 2],N},{[0 0 0 2 2 2],N}}.
 %               if types is empty gradient will be assumed for all
 %               variables
@@ -40,7 +40,7 @@ if params.saveDatas
     state.readNoises    = readNoises;
     state.domains       = domains;
 else
-    state.datas         = []; 
+    state.datas         = [];
     state.readNoises    = [];
     state.domains       = [];
 end
@@ -55,30 +55,33 @@ state.logLike       = [];
 % each derivative takes in a lambda(theta,domains,maxThetas,0);
 % depends on the lambda function, which is different now.  or is it?
 % so a big lambda comes in, {Kmatrix,{thetasForChannel1},{thetasForChannel2},...}
-% big lambda can generate all the Ds and D2s and datas.  
-% then i will curate these things.  
+% big lambda can generate all the Ds and D2s and datas.
+% then i will curate these things.
 
 % curate bigLambda output for theta0s
 %
 % bigLambda needs to have a flat Kmatrix input, and a full maxThetas from
 % the getgo.  types will curate the output of bigLambda
 
- [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,theta0s);
- 
- % the outputs are already aligned and ready to be summed.  just need to be
- % curated!
- % curate by params.types
- 
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,theta0s);
+
+% the outputs are already aligned and ready to be summed.  just need to be
+% curated!
+% curate by params.types
+
 numStrategies = numel(strategy);
 for ii = 1:numStrategies
-    currStrategy = strategy{ii};
+    currStrategy = strategy{ii}{1};
+    numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
-    % do gradient ascent
-    gradientSelector = selectorD{1};
-    % do newton raphson
-    selectorD{2};
-    selectorD2;
+    for jj = 1:numIterations  
+        % do gradient ascent
+        gradientSelector = selectorD{1};
+        % do newton raphson
+        selectorD{2};
+        selectorD2;
+    end
+    
 end
 
- 
- 
+
