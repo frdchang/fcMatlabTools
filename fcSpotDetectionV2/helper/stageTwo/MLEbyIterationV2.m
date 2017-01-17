@@ -1,4 +1,4 @@
-function state = MLEbyIterationV2(datas,theta0s,readNoises,domains,strategy,varargin)
+function state = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy,varargin)
 %MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % datas:        the measured data or datas in cell array
@@ -24,8 +24,8 @@ params.numStepsNR       = 100;
 % plotting parameters
 params.doPloteveryN     = inf;
 % MLE functions
-params.DLLDTheta        = @DLLDTheta;
-params.DLLDLambda       = @DLLDLambda_PoissGauss;
+params.DLLDTheta        = @DLLDThetaV2;
+params.DLLDLambda       = @DLLDLambda_PoissPoiss;
 params.LogLike          = @logLike_PoissPoiss;
 % save passed data and associated stuff in structure
 params.saveDatas        = false;
@@ -36,8 +36,8 @@ params = updateParams(params,varargin);
 
 %--define output state structure-------------------------------------------
 if params.saveDatas
-    state.datas         = data;
-    state.readNoises    = readNoises;
+    state.datas         = datas;
+    state.sigmasqs       = sigmasqs;
     state.domains       = domains;
 else
     state.datas         = [];
@@ -62,8 +62,7 @@ state.logLike       = [];
 %
 % bigLambda needs to have a flat Kmatrix input, and a full maxThetas from
 % the getgo.  types will curate the output of bigLambda
-
-[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,theta0s);
+   [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
 
 % the outputs are already aligned and ready to be summed.  just need to be
 % curated!
@@ -74,12 +73,15 @@ for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
-    for jj = 1:numIterations  
-        % do gradient ascent
-        gradientSelector = selectorD{1};
-        % do newton raphson
-        selectorD{2};
-        selectorD2;
+    for jj = 1:numIterations   
+        DLLDLambdas = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
+        % do gradient update
+        gradientSelectorD = selectorD{1};
+        DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
+        % do newton raphson update
+        newtonRaphsonSelctorD1 = selectorD{2};
+        newtonRaphsonSelctorD2 = selectorD2;
+        D2LLD2Thetas = doD2LLDTheta2DotProduct(DLLDLambdas,bigD2Lambdas,newtonRaphsonSelctorD2);
     end
     
 end
