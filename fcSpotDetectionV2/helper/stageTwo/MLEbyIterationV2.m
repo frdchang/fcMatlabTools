@@ -13,6 +13,8 @@ function state = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy,vararg
 %               if types is empty gradient will be assumed for all
 %               variables
 %
+% -> gradUpdate
+% -> newtonRaphsonUpdate
 
 
 %--parameters--------------------------------------------------------------
@@ -62,7 +64,7 @@ state.logLike       = [];
 %
 % bigLambda needs to have a flat Kmatrix input, and a full maxThetas from
 % the getgo.  types will curate the output of bigLambda
-   [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
+[bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
 
 % the outputs are already aligned and ready to be summed.  just need to be
 % curated!
@@ -73,15 +75,49 @@ for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
-    for jj = 1:numIterations   
+    for jj = 1:numIterations
         DLLDLambdas = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
         % do gradient update
         gradientSelectorD = selectorD{1};
-        DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
+        if any(gradientSelectorD)
+            DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
+            DLLDThetas = sumCellContents(DLLDThetas);
+            %
+            % mleTheta = mleTheta +params.stepSize*gradAtTheta;
+            theta0s = gradUpdate(theta0s,DLLDThetas,params);
+        end
+        
+        
         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
-        D2LLD2Thetas = doD2LLDTheta2DotProduct(DLLDLambdas,bigD2Lambdas,newtonRaphsonSelctorD2);
+        if any(newtonRaphsonSelctorD1)
+            DLLDThetasRaphson = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,newtonRaphsonSelctorD1);
+            D2LLD2ThetasRaphson = doD2LLDTheta2DotProduct(DLLDLambdas,bigD2Lambdas,newtonRaphsonSelctorD2);
+            DLLDThetasRaphson = sumCellContents(DLLDThetasRaphson);
+            D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
+            DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
+            
+%             [~,posDefOfNegHess] = chol(-selectedHessian);
+%             conditionNumber = rcond(selectedHessian);
+%             if posDefOfNegHess > 0 || conditionNumber < 3e-16
+%                 % this is a bad hessian matrix
+%                 %             warning('hessian is either not posDef or rconditinon number is < eps');
+%                 state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';
+%                 return;
+%             else
+%                 % this is a good hessian matrix
+%                 try
+%                     updateMLE = selectedHessian\thisGradient(updateIndices);
+%                 catch
+%                     %                 warning('hessian is not inverting well');
+%                     state.thetaMLE = 'hessian inversion caused error';
+%                     return;
+%                 end
+%             end
+%             mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;
+            theta0s = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
+        end
     end
     
 end
