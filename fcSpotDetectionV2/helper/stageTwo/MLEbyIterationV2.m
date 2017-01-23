@@ -82,11 +82,8 @@ for ii = 1:numStrategies
         if any(gradientSelectorD)
             DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
             DLLDThetas = sumCellContents(DLLDThetas);
-            %
-            % mleTheta = mleTheta +params.stepSize*gradAtTheta;
-            theta0s = gradUpdate(theta0s,DLLDThetas,params);
+            theta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
         end
-        
         
         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
@@ -97,26 +94,7 @@ for ii = 1:numStrategies
             DLLDThetasRaphson = sumCellContents(DLLDThetasRaphson);
             D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
-            
-%             [~,posDefOfNegHess] = chol(-selectedHessian);
-%             conditionNumber = rcond(selectedHessian);
-%             if posDefOfNegHess > 0 || conditionNumber < 3e-16
-%                 % this is a bad hessian matrix
-%                 %             warning('hessian is either not posDef or rconditinon number is < eps');
-%                 state.thetaMLE = 'hessian was either not posDef or condition number for inversion was poor';
-%                 return;
-%             else
-%                 % this is a good hessian matrix
-%                 try
-%                     updateMLE = selectedHessian\thisGradient(updateIndices);
-%                 catch
-%                     %                 warning('hessian is not inverting well');
-%                     state.thetaMLE = 'hessian inversion caused error';
-%                     return;
-%                 end
-%             end
-%             mleTheta(updateIndices) = mleTheta(updateIndices) - updateMLE;
-            theta0s = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
+            [theta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
         end
     end
     
