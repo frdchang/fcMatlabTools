@@ -1,5 +1,5 @@
 %% lets check mle by iteration v2
-
+buildThetas1 = {{kernObj,[10 5 12 13]},{kernObj,[6 15 5 15]},{kernObj,[8 15 12 10]},5};
 
 
 %% lets test big lambda
