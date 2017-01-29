@@ -66,6 +66,7 @@ k6 = convFunc(dataNormed.*data,onesSizeSpotKern);
 Normalization = k1.^2 - k5.*k3;
 
 % parameters given A*spotKern + B, model of 1 spot
+A0          = k2./ k3;
 A1          = (k1.*k4 - k5.*k2 ) ./ Normalization;
 B1          = (k1.*k2 - k3.*k4)  ./ Normalization;
 LL1         = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 + k6);
@@ -73,6 +74,7 @@ LL1         = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 + k6);
 B0          = k4./k5;
 LL0         = -((B0.^2).*k5 - 2*B0.*k4 + k6);
 
+estimated.A0         = unpadarray(A0,size(data));
 estimated.A1         = unpadarray(A1,size(data));
 estimated.B1         = unpadarray(B1,size(data));
 estimated.B0         = unpadarray(B0,size(data));
