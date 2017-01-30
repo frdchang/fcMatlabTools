@@ -64,7 +64,7 @@ state.logLike       = [];
 %
 % bigLambda needs to have a flat Kmatrix input, and a full maxThetas from
 % the getgo.  types will curate the output of bigLambda
-[bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
+
 
 % the outputs are already aligned and ready to be summed.  just need to be
 % curated!
@@ -76,7 +76,8 @@ for ii = 1:numStrategies
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
-        DLLDLambdas = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
+        [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
+        [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
         % do gradient update
         gradientSelectorD = selectorD{1};
         if any(gradientSelectorD)
@@ -85,17 +86,19 @@ for ii = 1:numStrategies
             theta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
         end
         
-        % do newton raphson update
+%         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
         if any(newtonRaphsonSelctorD1)
             DLLDThetasRaphson = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,newtonRaphsonSelctorD1);
-            D2LLD2ThetasRaphson = doD2LLDTheta2DotProduct(DLLDLambdas,bigD2Lambdas,newtonRaphsonSelctorD2);
+            D2LLD2ThetasRaphson = doD2LLDTheta2DotProduct(DLLDLambdas,D2LLDLambdas2,bigDLambdas,bigD2Lambdas,newtonRaphsonSelctorD1,newtonRaphsonSelctorD2);
             DLLDThetasRaphson = sumCellContents(DLLDThetasRaphson);
             D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
             [theta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
         end
+        display(flattenTheta0s(theta0s));
+        display(['error:' num2str(sum(DLLDLambdas{1}(:).^2))]);
     end
     
 end

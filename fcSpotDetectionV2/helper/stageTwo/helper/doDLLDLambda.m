@@ -7,7 +7,7 @@ D2LLDLambdas2 = cell(size(datas));
 
 for ii = 1:numel(datas)
    DLLDLambdas{ii} =  DLLDLambdaFunc(datas{ii},bigLambdas{ii},sigmasqs{ii},1);
-   D2LLD2Lambdas{ii} =  DLLDLambdaFunc(datas{ii},bigLambdas{ii},sigmasqs{ii},1);
+   D2LLDLambdas2{ii} =  DLLDLambdaFunc(datas{ii},bigLambdas{ii},sigmasqs{ii},1);
 end
 
 

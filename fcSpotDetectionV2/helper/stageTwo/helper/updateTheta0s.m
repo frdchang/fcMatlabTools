@@ -14,7 +14,7 @@ for ii = 2:numel(theta0s)
        if isobject(theta0s{ii}{jj}{1})
           % this is a shape model
           sizeParams = numel(theta0s{ii}{jj}{2});
-          theta0s{ii}{jj}{2} = numericTheta0s(lastIndex:lastIndex+sizeParams-1);
+          theta0s{ii}{jj}{2} = numericTheta0s(lastIndex:lastIndex+sizeParams-1)';
           lastIndex = lastIndex + sizeParams;
        else
            % this is a scalar background 

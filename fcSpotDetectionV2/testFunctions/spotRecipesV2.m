@@ -1,8 +1,34 @@
+%% lets do sanity check with one dataset version
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+
+buildThetas1 = {{kernObj,[10.1 5 12.1 13]}};
+Kmatrix      = 1;
+thetaInputsPerturb = {buildThetas1,buildThetas2};
+thetaInputsPerturb = {Kmatrix,thetaInputsPerturb{:}};
+
+
 %% lets check mle by iteration v2
-buildThetas1 = {{kernObj,[10 5 12 13]},{kernObj,[6 15 5 15]},{kernObj,[8 15 12 10]},5};
-buildThetas2 = {{kernObj,[5 12 10 13]},10};
+
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+
+
+
+buildThetas1 = {{kernObj,[10.1 5 12.1 13]},{kernObj,[6 15 5 15]},{kernObj,[8 15 12 10]},{5}};
+buildThetas2 = {{kernObj,[5 12 10.1 13]},{10}};
 Kmatrix      = [1 0.2;0.5,1];
 
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 %% lets test big lambda
 
 patchSize = [19 21 25];
@@ -29,7 +55,7 @@ for ii = 1:numel(thetas1)
     buildMaxThetas1{end+1} = [2 1 1 1];
 end
 buildThetas1{end+1} = {bkgnd1};
-buildMaxThetas1{end+1} = 1;
+buildMaxThetas1{end+1} = 2;
 
 buildThetas2 = {};
 buildMaxThetas2 = {};
@@ -42,7 +68,7 @@ buildMaxThetas2{end+1} = 2;
 
 thetaInputs = {buildThetas1,buildThetas2};
 maxThetaInputs = {buildMaxThetas1,buildMaxThetas2};
-maxKmatrix = [0 2; 2 0];
+maxKmatrix = [0 0; 0 0];
 thetaInputs = {Kmatrix,thetaInputs{:}};
 maxThetaInputs = {maxKmatrix,maxThetaInputs{:}};
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
@@ -53,7 +79,7 @@ for ii = 1:numel(bigLambdas)
     sigmasqs{ii} = ones(size(bigLambdas{ii}));
 end
 
-state = MLEbyIterationV2(bigLambdas,thetaInputs,sigmasqs,domains,{{maxThetaInputs,N}});
+state = MLEbyIterationV2(bigLambdas,thetaInputs2,sigmasqs,domains,{{maxThetaInputs,N}});
 %% testing color unmixing 
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));

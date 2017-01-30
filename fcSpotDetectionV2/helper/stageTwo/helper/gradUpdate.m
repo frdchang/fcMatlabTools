@@ -3,7 +3,7 @@ function theta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,varargin)
 
 %--parameters--------------------------------------------------------------
 % gradient ascent parameters
-params.stepSize         = .001;
+params.stepSize         = .1;
 params.normGrad         = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);

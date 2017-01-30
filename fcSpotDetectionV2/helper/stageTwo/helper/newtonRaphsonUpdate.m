@@ -3,9 +3,9 @@ function [theta0s,state] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DL
 
 mleThetas = flattenTheta0s(theta0s);
 
-[~,posDefOfNegHess] = chol(-D2LLD2ThetasRaphson);
+
 conditionNumber = rcond(D2LLD2ThetasRaphson);
-if posDefOfNegHess > 0 || conditionNumber < 3e-16
+if  conditionNumber < 3e-16
     % this is a bad hessian matrix
     %             warning('hessian is either not posDef or rconditinon number is < eps');
     state = 'hessian was either not posDef or condition number for inversion was poor';
@@ -22,4 +22,5 @@ else
 end
 mleThetas(newtonRaphsonSelctorD1) = mleThetas(newtonRaphsonSelctorD1) - updateMLE;
 theta0s = updateTheta0s(theta0s,mleThetas);
+state = 'ok';
 
