@@ -6,11 +6,18 @@ kern = ndGauss(sigmassq,patchSize);
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 
-buildThetas1 = {{kernObj,[10.1 5 12.1 13]}};
+buildThetas1 = {{kernObj,[10.1 5 12.1 13]},{5}};
 Kmatrix      = 1;
-thetaInputsPerturb = {buildThetas1,buildThetas2};
+thetaInputsPerturb = {buildThetas1};
 thetaInputsPerturb = {Kmatrix,thetaInputsPerturb{:}};
 
+trueThetas = {{kernObj,[10 5 12 13]},{5}};
+thetaInputsTrue = {trueThetas};
+thetaInputsTrue = {Kmatrix,thetaInputsTrue{:}};
+buildMaxThetas = {0,[2 1 1 1],2};
+
+
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputsTrue);
 
 %% lets check mle by iteration v2
 
