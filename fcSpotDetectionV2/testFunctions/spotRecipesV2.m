@@ -1,12 +1,14 @@
+
 %% lets do sanity check with one dataset version
 patchSize = [19 21 25];
 sigmassq = [6,6,6];
 % build the numeric multi emitter
 kern = ndGauss(sigmassq,patchSize);
+kern = kern / max(kern(:));
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 
-buildThetas1 = {{kernObj,[10.1 5 12.1 13]},{5}};
+buildThetas1 = {{kernObj,[10 5 12.1 13]},{5}};
 Kmatrix      = 1;
 thetaInputsPerturb = {buildThetas1};
 thetaInputsPerturb = {Kmatrix,thetaInputsPerturb{:}};
@@ -14,10 +16,34 @@ thetaInputsPerturb = {Kmatrix,thetaInputsPerturb{:}};
 trueThetas = {{kernObj,[10 5 12 13]},{5}};
 thetaInputsTrue = {trueThetas};
 thetaInputsTrue = {Kmatrix,thetaInputsTrue{:}};
-buildMaxThetas = {0,[2 1 1 1],2};
+buildMaxThetas = {0,{[2 2 2 2],2}};
 
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputsTrue);
+sigmasqs = cell(size(bigLambdas));
+for ii = 1:numel(bigLambdas)
+    sigmasqs{ii} = ones(size(bigLambdas{ii}));
+end
+
+state = MLEbyIterationV2(bigLambdas,thetaInputsPerturb,sigmasqs,domains,{{buildMaxThetas,10}});
+
+%% check against MLEbyIteration original
+%(data,theta0,readNoise,domains,varargin)
+% [x0,y0,z0,sigXsq,sigYsq,sigZsq,Amp,Bak] = deal(theta{:});
+posx = 5;
+posy = 12.1;
+posz = 13;
+sigmax = 6;
+sigmay = 6;
+sigmaz = 6;
+amp = 10;
+back = 5;
+theta0 = [posx,posy,posz,sigmax,sigmay,sigmaz,amp,back];
+theta0 = num2cell(theta0);
+% flatten domains
+datas = bigLambdas{1}(:);
+state = MLEbyIteration(bigLambdas{1}(:),theta0,sigmasqs{1}(:),cellfunNonUniformOutput(@(x) x(:),domains),'type',2,'doPlotEveryN',10);
+
 
 %% lets check mle by iteration v2
 

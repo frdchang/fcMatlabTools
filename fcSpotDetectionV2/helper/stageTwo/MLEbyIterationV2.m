@@ -89,6 +89,7 @@ for ii = 1:numStrategies
 %         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
+        %    -0.0018   -7.3817   -0.0000         0         0         0   -0.0252    0.0245
         if any(newtonRaphsonSelctorD1)
             DLLDThetasRaphson = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,newtonRaphsonSelctorD1);
             D2LLD2ThetasRaphson = doD2LLDTheta2DotProduct(DLLDLambdas,D2LLDLambdas2,bigDLambdas,bigD2Lambdas,newtonRaphsonSelctorD1,newtonRaphsonSelctorD2);
