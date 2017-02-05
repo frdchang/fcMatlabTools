@@ -8,15 +8,15 @@ kern = kern / max(kern(:));
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 
-buildThetas1 = {{kernObj,[10.5 6.6 11.3 13.5]},{5.5}};
+buildThetas1 = {{kernObj,[10.5 6.6 11.3 13.5]},{kernObj,[6 15 5.2 15]},{kernObj,[8 15 12.7 10]},{5.5}};
 Kmatrix      = 1;
 thetaInputsPerturb = {buildThetas1};
 thetaInputsPerturb = {Kmatrix,thetaInputsPerturb{:}};
 
-trueThetas = {{kernObj,[10 5 12 13]},{5}};
+trueThetas = {{kernObj,[10 5 12 13]},{kernObj,[6 15 5 15]},{kernObj,[8 15 12 10]},{5}};
 thetaInputsTrue = {trueThetas};
 thetaInputsTrue = {Kmatrix,thetaInputsTrue{:}};
-buildMaxThetas = {0,{[2 1 1 1],2}};
+buildMaxThetas = {0,{[2 1 1 1],[2 1 1 1],[2 1 1 1],2}};
 
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputsTrue);
@@ -25,7 +25,7 @@ for ii = 1:numel(bigLambdas)
     sigmasqs{ii} = ones(size(bigLambdas{ii}));
 end
 [ newtonBuild ] = newtonRaphsonBuild(buildMaxThetas);
-state = MLEbyIterationV2(bigLambdas,thetaInputsPerturb,sigmasqs,domains,{{buildMaxThetas,100}});
+state = MLEbyIterationV2(bigLambdas,thetaInputsPerturb,sigmasqs,domains,{{buildMaxThetas,1000},{newtonBuild,1000}},'doPlotEveryN',100);
 
 %% check against MLEbyIteration original
 %(data,theta0,readNoise,domains,varargin)

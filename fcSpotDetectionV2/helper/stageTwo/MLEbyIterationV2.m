@@ -71,11 +71,15 @@ state.logLike       = [];
 % curate by params.types
 
 numStrategies = numel(strategy);
+totalIter = 1;
 for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
+        if mod(jj,params.doPloteveryN) == 0 || jj ==1
+            plotMLESearchV2(datas,theta0s,sigmasqs,domains,totalIter);
+        end
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
         % do gradient update
@@ -100,6 +104,7 @@ for ii = 1:numStrategies
         end
         display(flattenTheta0s(theta0s));
         display(['error:' num2str(sum(DLLDLambdas{1}(:).^2))]);
+        totalIter = totalIter + 1;
     end
     
 end
