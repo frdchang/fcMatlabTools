@@ -1,3 +1,40 @@
+%% lets check multi dataset
+
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+
+
+
+buildThetas1 = {{kernObj,[11 5.5 12.5 13.6]},{kernObj,[7 15.5 4.5 14.5]},{kernObj,[8.5 15.6 12.6 10.5]},{5.5}};
+buildThetas2 = {{kernObj,[12 4.5 4.5 13]},{10}};
+Kmatrix      = [1 0.2;0.2,1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+buildMaxThetas1 = {[2 1 1 1],[2 1 1 1],[2 1 1 1],2};
+buildMaxThetas2 = {[2 1 1 1],2};
+kmatrixMax      = [0 0;0 0];
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+buildThetasTrue1 = {{kernObj,[10 5 12 13]},{kernObj,[6 15 5 15]},{kernObj,[8 15 12 10]},{5}};
+buildThetasTrue2 = {{kernObj,[11 4 4 13]},{10}};
+thetaInputsTrue = {buildThetasTrue1,buildThetasTrue2};
+thetaInputsTrue = {Kmatrix,thetaInputsTrue{:}};
+
+
+
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputsTrue);
+sigmasqs = cell(size(bigLambdas));
+for ii = 1:numel(bigLambdas)
+    sigmasqs{ii} = ones(size(bigLambdas{ii}));
+end
+
+[ newtonBuild ] = newtonRaphsonBuild(maxThetaInput);
+state = MLEbyIterationV2(bigLambdas,thetaInputs2,sigmasqs,domains,{{maxThetaInput,1000},{newtonBuild,1000}},'doPlotEveryN',100);
 
 %% lets do sanity check with one dataset version
 patchSize = [19 21 25];
