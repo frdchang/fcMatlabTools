@@ -16,6 +16,7 @@ function [estimated] = findSpotsStage1(data,spotKern,cameraVariance)
 % model0 - zero spot model - B0
 % 
 % detected is an output structure with the estimated parameters
+% detected.A0:      MLE of A1 of a spot with no backgroung
 % detected.A1:      MLE of A1 of 1 spot model
 % detected.B1:      MLE of B1 of 1 spot model
 % detected.B0:      MLE of B0 of 0 spot model
@@ -79,6 +80,7 @@ estimated.A1         = unpadarray(A1,size(data));
 estimated.B1         = unpadarray(B1,size(data));
 estimated.B0         = unpadarray(B0,size(data));
 estimated.LLRatio    = unpadarray(LL1-LL0,size(data));
+estimated.spotKern   = spotKern;
 
 % historical note: previous version of my code outputed A as Abefore noted
 % below, which is incorrect.
