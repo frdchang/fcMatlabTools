@@ -41,6 +41,8 @@ persistent k3;
 persistent k5;
 persistent Normalization;
 
+warning('spotKern is assumed symmetric so far');
+
 if iscell(spotKern)
     % convolution is separable
     convFunc = @convSeparableND;
@@ -103,6 +105,16 @@ else
     B1              = cellfunNonUniformOutput(@(B1,data) unpadarray(B1,size(data)),B1,data);
     B0              = cellfunNonUniformOutput(@(B0,data) unpadarray(B0,size(data)),B0,data);
     LLRatio         = cellfunNonUniformOutput(@(LL1,LL0,data) unpadarray(LL1-LL0,size(data)),LL1,LL0,data);
+    
+    if ~isempty(varargin)
+       Kmatrix = varargin{1};
+       invKmatrix = inv(Kmatrix);
+       A0 = applyInvKmatrix(invKmatrix,A0);
+       A1 = applyInvKmatrix(invKmatrix,A1);
+       B1 = applyInvKmatrix(invKmatrix,B1);
+       B0 = applyInvKmatrix(invKmatrix,B0);
+       LLRatio = applyInvKmatrix(invKmatrix,LLRatio);
+    end
 end
 
 
