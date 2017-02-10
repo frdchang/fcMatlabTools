@@ -240,6 +240,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress:
+* 20170208 __Kmatrix__ bleed thru is Kmatrix(ii,jj) with jj being the different models going into dataset ii.
 * 20170118 __lambdas__ are modularized by little lambda and big lambda.  little lambda is the intensities hypothesis for each channel.  big lambda then generates the model with spectral bleed thru.  
 * 20170107 __FRET sensing__ by sensitized emission can be done by fitting one of the bleed thru coefficients! this could be the ideal FRET signal processor approach
 * 20161124 __spot detection__ of 2 colors consists of the following Sum[logPoissPoiss1[\[Beta]11 (A1 F1[x] + B1)+\[Beta]21( A2 F1[x] +B2),d1[u-x],\[Sigma][u-x]],x]+Sum[logPoissPoiss1[\[Beta]22 (A2 F2[x] + B2)+\[Beta]12( A1 F2[x] +B1),d2[u-x],\[Sigma][u-x]],x].  Note that the total log likelihood is the sum of both models and both datas.  this linear sum applies to multiple spots and multiple colors; but in the case of multiple colors, the thetas and its derivatives add.  in the case of multiple spots, the hill climbing is basically independent since there is no cross derivatives between them.
