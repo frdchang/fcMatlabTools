@@ -97,9 +97,9 @@ else
     A0              = cellfunNonUniformOutput(@(x) x./k3,k2);
     A1              = cellfunNonUniformOutput(@(x,y) (k1.*x - k5.*y ) ./ Normalization,k4,k2);
     B1              = cellfunNonUniformOutput(@(x,y) (k1.*x - k3.*y)  ./ Normalization,k2,k4);
-    %           LL1             = cellfunNonUniformOutput(@(B1,A1,k2,k4) -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 ),B1,A1,k2,k4);
+    %           LL1test             = cellfunNonUniformOutput(@(B1,A1,k2,k4) -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4 ),B1,A1,k2,k4);
     B0              = cellfunNonUniformOutput(@(k4) k4./k5,k4);
-%     LL0             = cellfunNonUniformOutput(@(B0,k4) -((B0.^2).*k5 - 2*B0.*k4 ),B0,k4);
+%     LL0test             = cellfunNonUniformOutput(@(B0,k4) -((B0.^2).*k5 - 2*B0.*k4 ),B0,k4);
     
     
     if ~isempty(varargin)

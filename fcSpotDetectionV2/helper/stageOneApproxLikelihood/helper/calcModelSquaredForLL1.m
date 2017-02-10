@@ -8,8 +8,8 @@ for ii = 1:size(Kmatrix,2)
    for jj = 1:size(Kmatrix,1)
        tempAs{jj} = As{jj}*Kmatrix(ii,jj);
        tempBs{jj} = Bs{jj}*Kmatrix(ii,jj);
-       modelsummedSq = givenABs(tempAs,tempBs,k1,k3,k5);
    end
+    modelsummedSq = modelsummedSq + givenABs(tempAs,tempBs,k1,k3,k5);
 end
 
 end
