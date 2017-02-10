@@ -136,9 +136,17 @@ else
     B1              = cellfunNonUniformOutput(@(B1,data) unpadarray(B1,size(data)),B1,data);
     B0              = cellfunNonUniformOutput(@(B0,data) unpadarray(B0,size(data)),B0,data);
     LLRatio         = unpadarray(LL1-LL0,size(data{1}));
+    LL1             = unpadarray(LL1,size(data{1}));
+    LL0             = unpadarray(LL0,size(data{1}));
     
 end
-
+% calc RMS check
+centerCoor = num2cell(round(size(spotKern)/2));
+myA = estimated1.A1{1}(centerCoor{:});
+myB = estimated1.B1{1}(centerCoor{:});
+myModel = myA*spotKern+myB;
+myError = myModel - testData;
+myLL = sum(myError(:).^2);
 
 
 
@@ -150,8 +158,9 @@ estimated.A1         = A1;
 estimated.B1         = B1;
 estimated.B0         = B0;
 estimated.LLRatio    = LLRatio;
-
 estimated.spotKern   = spotKern;
+estimated.LL1        = LL1;
+estimated.LL0        = LL0;
 
 % historical note: previous version of my code outputed A as Abefore noted
 % below, which is incorrect.

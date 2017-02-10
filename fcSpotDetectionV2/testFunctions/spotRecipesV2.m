@@ -3,13 +3,14 @@ patchSize = [19 21 25];
 sigmassq = [6,6,6];
 % build the numeric multi emitter
 kern = ndGauss(sigmassq,patchSize);
+kern = kern / max(kern(:));
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 
-testData = rand(20,20,20);
+testData = rand(19,21,25);
 sigmasq  = ones(size(testData));
- [estimated1] = findSpotsStage1V2({testData},kern,sigmasq);
- [estimated2] = findSpotsStage1V2({testData,testData,testData},kern,sigmasq);
+estimated1 = findSpotsStage1V2({testData},kern,sigmasq);
+estimated2 = findSpotsStage1V2({testData,testData,testData},kern,sigmasq);
 
 
 %% lets check multi dataset
