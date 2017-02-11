@@ -1,7 +1,22 @@
 %% lets check multi dataset with multiple spots and see if i switch kmatrix order if it will affect calculation
 
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+kern = kern / max(kern(:));
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
 
+buildThetas1 = {{kernObj,[11 5 12 13]},{kernObj,[7 15 4 14]},{5}};
+buildThetas2 = {{kernObj,[12 4 4 13]},{10}};
+buildThetas3 = {{kernObj,[8 15 12 10]},{6}};
+Kmatrix      = [1 0.2 0.4;0.5,1, 0.2;0.6,0.1 1];
+thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+estimated = findSpotsStage1V2(bigLambdas,kern, ones(size(bigLambdas{1})),Kmatrix);
 %% %% lets check multi dataset - it checks out for Kmatrix 
 
 patchSize = [19 21 25];

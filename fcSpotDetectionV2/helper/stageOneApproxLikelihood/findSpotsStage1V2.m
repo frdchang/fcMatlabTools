@@ -135,35 +135,34 @@ else
     crossCompLL0 = calcModelCrossForLL0(Kmatrix,B0,k4);
     LL0 = -(squaredCompLL0 + crossCompLL0);
 
-    
     A0              = cellfunNonUniformOutput(@(A0,data) unpadarray(A0,size(data)),A0,data);
     A1              = cellfunNonUniformOutput(@(A1,data) unpadarray(A1,size(data)),A1,data);
     B1              = cellfunNonUniformOutput(@(B1,data) unpadarray(B1,size(data)),B1,data);
     B0              = cellfunNonUniformOutput(@(B0,data) unpadarray(B0,size(data)),B0,data);
     LLRatio         = unpadarray(LL1-LL0,size(data{1}));
-    LL1             = unpadarray(LL1,size(data{1}));
-    LL0             = unpadarray(LL0,size(data{1}));
+%     LL1             = unpadarray(LL1,size(data{1}));
+%     LL0             = unpadarray(LL0,size(data{1}));
     
 end
-% calc RMS check
-centerCoor = num2cell(round(size(spotKern)/2));
-myA1 = A1{1}(centerCoor{:});
-myB1 = B1{1}(centerCoor{:});
-myA2 = A1{2}(centerCoor{:});
-myB2 = B1{2}(centerCoor{:});
-myModel1 = myA1*spotKern+myB1;
-myModel2 = myA2*spotKern+myB2;
-myError1 = myModel1 + 0.2*myModel2 - data{1};
-myError2 = 0.5*myModel1 + myModel2 - data{2};
-myLL1 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
-% check b0
-myB0_1 = B0{1}(centerCoor{:});
-myB0_2 = B0{2}(centerCoor{:});
-myError1 = myB0_1 + 0.2*myB0_2 - data{1};
-myError2 = 0.5*myB0_1 + myB0_2 - data{2};
-myLL0 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
-% compare against (after unpadarray) LL1(centerCooor{:}) -
-% k6(centerCoor{:})
+% % calc RMS check
+% centerCoor = num2cell(round(size(spotKern)/2));
+% myA1 = A1{1}(centerCoor{:});
+% myB1 = B1{1}(centerCoor{:});
+% myA2 = A1{2}(centerCoor{:});
+% myB2 = B1{2}(centerCoor{:});
+% myModel1 = myA1*spotKern+myB1;
+% myModel2 = myA2*spotKern+myB2;
+% myError1 = myModel1 + 0.2*myModel2 - data{1};
+% myError2 = 0.5*myModel1 + myModel2 - data{2};
+% myLL1 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
+% % check b0
+% myB0_1 = B0{1}(centerCoor{:});
+% myB0_2 = B0{2}(centerCoor{:});
+% myError1 = myB0_1 + 0.2*myB0_2 - data{1};
+% myError2 = 0.5*myB0_1 + myB0_2 - data{2};
+% myLL0 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
+% % compare against (after unpadarray) LL1(centerCooor{:}) -
+% % k6(centerCoor{:})
 
 
 
@@ -175,8 +174,8 @@ estimated.B1         = B1;
 estimated.B0         = B0;
 estimated.LLRatio    = LLRatio;
 estimated.spotKern   = spotKern;
-estimated.LL1        = LL1;
-estimated.LL0        = LL0;
+% estimated.LL1        = LL1;
+% estimated.LL0        = LL0;
 
 % historical note: previous version of my code outputed A as Abefore noted
 % below, which is incorrect.
