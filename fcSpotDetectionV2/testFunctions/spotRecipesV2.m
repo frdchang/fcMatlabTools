@@ -9,6 +9,7 @@ kernObj = myPattern_Numeric(kern);
 
 testData = rand(19,21,25);
 sigmasq  = ones(size(testData));
+estimated1 = findSpotsStage1V2(kern+rand(size(kern)),kern,sigmasq);
 estimated1 = findSpotsStage1V2({testData},kern,sigmasq);
 estimated2 = findSpotsStage1V2({testData,testData,testData},kern,sigmasq);
 

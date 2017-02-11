@@ -72,7 +72,7 @@ if ~iscell(data)
     dataNormed = data.*invVar;
     k2 = convFunc(dataNormed,spotKern);
     k4 = convFunc(dataNormed,onesSizeSpotKern);
-    %     k6 = convFunc(dataNormed.*data,onesSizeSpotKern);   % k6 not needed
+%          k6 = convFunc(dataNormed.*data,onesSizeSpotKern);   % k6 not needed
     %     for LLRatio
     % parameters given A*spotKern + B, model of 1 spot
     A0          = k2./ k3;
@@ -87,7 +87,9 @@ if ~iscell(data)
     A1         = unpadarray(A1,size(data));
     B1         = unpadarray(B1,size(data));
     B0         = unpadarray(B0,size(data));
-    LLRatio        = unpadarray(LL1-LL0,size(data));
+    LL1        = unpadarray(LL1,size(data));
+    LL0        = unpadarray(LL0,size(data));
+    LLRatio    = unpadarray(LL1-LL0,size(data));
 else
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVar,data);
     k2              = cellfunNonUniformOutput(@(x) convFunc(x,spotKern),dataNormed);
@@ -142,12 +144,13 @@ else
 end
 % calc RMS check
 centerCoor = num2cell(round(size(spotKern)/2));
-myA = estimated1.A1{1}(centerCoor{:});
-myB = estimated1.B1{1}(centerCoor{:});
+myA = A1(centerCoor{:});
+myB =B1(centerCoor{:});
 myModel = myA*spotKern+myB;
-myError = myModel - testData;
-myLL = sum(myError(:).^2);
-
+myError = myModel - data;
+myLL1 = -sum(myError(:).^2);
+% compare against (after unpadarray) LL1(centerCooor{:}) -
+% k6(centerCoor{:})
 
 
 
