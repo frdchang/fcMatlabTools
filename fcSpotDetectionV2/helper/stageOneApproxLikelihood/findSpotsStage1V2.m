@@ -30,6 +30,9 @@ function [estimated] = findSpotsStage1V2(data,spotKern,cameraVariance,varargin)
 %         - if there is multi spectral datasets, then each dataset is in a
 %           cell array.  in this condition varargin must be the bleedthru
 %           matrix K.
+%         - mathematically i should have multple spotKerns and
+%         cameraVariance for each multispectral datasets...but i didn't do
+%         that for now.
 %
 % fchang@fas.harvard.edu
 
@@ -144,11 +147,21 @@ else
 end
 % calc RMS check
 centerCoor = num2cell(round(size(spotKern)/2));
-myA = A1(centerCoor{:});
-myB =B1(centerCoor{:});
-myModel = myA*spotKern+myB;
-myError = myModel - data;
-myLL1 = -sum(myError(:).^2);
+myA1 = A1{1}(centerCoor{:});
+myB1 = B1{1}(centerCoor{:});
+myA2 = A1{2}(centerCoor{:});
+myB2 = B1{2}(centerCoor{:});
+myModel1 = myA1*spotKern+myB1;
+myModel2 = myA2*spotKern+myB2;
+myError1 = myModel1 + 0.2*myModel2 - data{1};
+myError2 = 0.5*myModel1 + myModel2 - data{2};
+myLL1 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
+% check b0
+myB0_1 = B0{1}(centerCoor{:});
+myB0_2 = B0{2}(centerCoor{:});
+myError1 = myB0_1 + 0.2*myB0_2 - data{1};
+myError2 = 0.5*myB0_1 + myB0_2 - data{2};
+myLL0 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
 % compare against (after unpadarray) LL1(centerCooor{:}) -
 % k6(centerCoor{:})
 

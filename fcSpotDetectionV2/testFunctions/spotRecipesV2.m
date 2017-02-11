@@ -1,4 +1,9 @@
-%% lets check a fill pipeline
+%% lets check multi dataset with multiple spots and see if i switch kmatrix order if it will affect calculation
+
+
+
+%% %% lets check multi dataset - it checks out for Kmatrix 
+
 patchSize = [19 21 25];
 sigmassq = [6,6,6];
 % build the numeric multi emitter
@@ -7,8 +12,31 @@ kern = kern / max(kern(:));
 domains = genMeshFromData(kern);
 kernObj = myPattern_Numeric(kern);
 
-testData = rand(19,21,25);
+
+
+buildThetas1 = {{kernObj,[11  10    11    13]},{5}};
+buildThetas2 = {{kernObj,[2  10    11    13]},{10}};
+Kmatrix      = [1 0.2;0.5,1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+
+estimated = findSpotsStage1V2(bigLambdas,kern, ones(size(bigLambdas{1})),Kmatrix);
+
+
+%% lets check a fill pipeline LL1 is tested
+patchSize = [19 21 25];
+sigmassq = [6,6,6];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+kern = kern / max(kern(:));
+domains = genMeshFromData(kern);
+kernObj = myPattern_Numeric(kern);
+
+
 sigmasq  = ones(size(testData));
+
 estimated1 = findSpotsStage1V2(kern+rand(size(kern)),kern,sigmasq);
 estimated1 = findSpotsStage1V2({testData},kern,sigmasq);
 estimated2 = findSpotsStage1V2({testData,testData,testData},kern,sigmasq);
