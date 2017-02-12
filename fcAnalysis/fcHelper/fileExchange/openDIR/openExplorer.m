@@ -3,6 +3,7 @@ function [] = openExplorer(myDir)
 % Just as an example; current dir
 
 myDir = [ returnFilePath([myDir filesep]) filesep];
+myDir = removeDoubleFileSep(myDir);
 % Windows PC    
 if ispc
     C = evalc(['!explorer ' myDir]);
