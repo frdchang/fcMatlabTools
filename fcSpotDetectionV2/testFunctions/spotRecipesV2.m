@@ -1,3 +1,15 @@
+%% lets check real multi spectral dataset 
+patchSize = [7 7 7];
+sigmassq = [1,1,1];
+% build the numeric multi emitter
+kern = ndGauss(sigmassq,patchSize);
+kern = kern / max(kern(:));
+% first plot green
+
+% first plot red
+
+
+
 %% lets check multi dataset with multiple spots and see if i switch kmatrix order if it will affect calculation
 
 patchSize = [19 21 25];
