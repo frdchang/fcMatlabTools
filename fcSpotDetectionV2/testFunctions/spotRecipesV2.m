@@ -4,12 +4,56 @@ sigmassq = [1,1,1];
 % build the numeric multi emitter
 kern = ndGauss(sigmassq,patchSize);
 kern = kern / max(kern(:));
-% first plot green
+% first gfp only
+gfp_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY769_GG/takeA3DStack/BWY769_GG_w3-both(GreenTTL).tif';
+gfp_cyanTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY769_GG/takeA3DStack/BWY769_GG_w3-both(CyanTTL).tif';
+gfp_greenTTL = importStack(gfp_greenTTL);
+gfp_cyanTTL = importStack(gfp_cyanTTL);
+gfp_greenTTL_Filtered = findSpotsStage1V2(gfp_greenTTL,kern,ones(size(gfp_greenTTL)));
+gfp_cyanTTL_Filtered = findSpotsStage1V2(gfp_cyanTTL,kern,ones(size(gfp_cyanTTL)));
+gfp_cyanTTL_LLRatio = gfp_cyanTTL_Filtered.LLRatio;
+gfp_cyanTTL_LLRatio(gfp_cyanTTL_LLRatio<0)=0;
+threshVal = multithresh(gfp_cyanTTL_LLRatio(:));
+selectorLLRatio = gfp_cyanTTL_LLRatio > threshVal;
+selectorPOSCyan = gfp_cyanTTL_Filtered.A1 > 0;
+selectorPOSGreen = gfp_greenTTL_Filtered.A1 >0;
+selector = selectorLLRatio.*selectorPOSCyan.*selectorPOSGreen;
 
-% first plot red
+
+% thresh = multithresh(gfp_cyanTTL(:))*2;
+% selector = gfp_cyanTTL>thresh;
+hold on;scatter(gfp_cyanTTL_Filtered.A1(selector>0),gfp_greenTTL_Filtered.A1(selector>0),'MarkerFaceColor','g','MarkerEdgeColor','g','MarkerEdgeAlpha',.01,'MarkerFaceAlpha',.01);
+% first tdtomato only
+tdTomato_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY770_RR/takeA3DStack/BWY770_RR_w3-both(GreenTTL).tif';
+tdTomato_cyanTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY770_RR/takeA3DStack/BWY770_RR_w3-both(CyanTTL).tif';
+tdTomato_greenTTL = importStack(tdTomato_greenTTL);
+tdTomato_cyanTTL = importStack(tdTomato_cyanTTL);
+thresh = multithresh(tdTomato_greenTTL(:))*2;
+selector = tdTomato_greenTTL>thresh;
+hold on; 
+scatter(tdTomato_cyanTTL(selector),tdTomato_greenTTL(selector),'MarkerFaceColor','r','MarkerEdgeColor','r','MarkerEdgeAlpha',.003,'MarkerFaceAlpha',.003);
+
+%% data with both datasets
+bothFluors_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY762_RG/takeA3DStack/BWY762_RG_w3-both(GreenTTL).tif';
+bothFluors_cyanTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY762_RG/takeA3DStack/BWY762_RG_w3-both(CyanTTL).tif';
+bothFluors_greenTTL = importStack(bothFluors_greenTTL);
+bothFluors_cyanTTL = importStack(bothFluors_cyanTTL);
+thresh = multithresh(bothFluors_cyanTTL(:))*2;
+selector = bothFluors_cyanTTL>thresh;
+hold on; 
+scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'MarkerFaceColor','k','MarkerEdgeColor','k','MarkerEdgeAlpha',.01,'MarkerFaceAlpha',.01);
 
 
-
+% lets try it on filtered datasets
+bothFluors_greenTTL_F = findSpotsStage1V2(bothFluors_greenTTL,kern,ones(size(bothFluors_greenTTL)));
+bothFluors_cyanTTL_F  = findSpotsStage1V2(bothFluors_cyanTTL,kern,ones(size(bothFluors_greenTTL)));
+threshcyan = multithresh(bothFluors_cyanTTL_F.LLRatio(:));
+threshgreen = multithresh(bothFluors_greenTTL_F.LLRatio(:));
+selectorCyan = bothFluors_cyanTTL_F.LLRatio > threshcyan;
+selectorGreen = bothFluors_greenTTL_F.LLRatio > threshgreen;
+selector = selectorCyan.*selectorGreen.*(bothFluors_cyanTTL_F.A1>0).*(bothFluors_greenTTL_F.A1>0);
+selector = selector>0;
+scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'k');
 %% lets check multi dataset with multiple spots and see if i switch kmatrix order if it will affect calculation
 
 patchSize = [19 21 25];

@@ -97,7 +97,7 @@ else
     relZSize = zStep / xStep;
 end
 
-
+stack = double(stack);
 [xL,yL,zL] = size(stack);
 
 % In order to arrange the subplots of the three max projections, I need to
