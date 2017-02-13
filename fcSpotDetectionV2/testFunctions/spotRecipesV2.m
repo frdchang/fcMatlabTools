@@ -41,7 +41,7 @@ bothFluors_cyanTTL = importStack(bothFluors_cyanTTL);
 thresh = multithresh(bothFluors_cyanTTL(:))*2;
 selector = bothFluors_cyanTTL>thresh;
 hold on; 
-scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'MarkerFaceColor','k','MarkerEdgeColor','k','MarkerEdgeAlpha',.01,'MarkerFaceAlpha',.01);
+scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'MarkerFaceColor','k','MarkerEdgeColor','k','MarkerEdgeAlpha',.1,'MarkerFaceAlpha',.1);
 
 
 % lets try it on filtered datasets
@@ -53,7 +53,7 @@ selectorCyan = bothFluors_cyanTTL_F.LLRatio > threshcyan;
 selectorGreen = bothFluors_greenTTL_F.LLRatio > threshgreen;
 selector = selectorCyan.*selectorGreen.*(bothFluors_cyanTTL_F.A1>0).*(bothFluors_greenTTL_F.A1>0);
 selector = selector>0;
-scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'k');
+scatter(datasample(bothFluors_cyanTTL(selector),1000),datasample(bothFluors_greenTTL(selector),1000),'k');
 %% lets check multi dataset with multiple spots and see if i switch kmatrix order if it will affect calculation
 
 patchSize = [19 21 25];
