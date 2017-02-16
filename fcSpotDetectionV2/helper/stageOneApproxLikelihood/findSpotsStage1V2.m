@@ -10,7 +10,9 @@ function [estimated] = findSpotsStage1V2(data,spotKern,cameraVariance,varargin)
 % spotKern:         the shape data, e.g. psf or gaussian
 % cameraVariance:   the read noise in variance.  size of this dataset needs
 %                   to be the same size as the data, so extrude
-%                   accordingly.
+%                   accordingly.   if cameraVariance is a string, this
+%                   function will treat it as a path to the camera
+%                   calibration file
 %
 % model1 - one spot model  - A1*spotKern + B1
 % model0 - zero spot model - B0
@@ -44,7 +46,8 @@ persistent k3;
 persistent k5;
 persistent Normalization;
 
-% warning('spotKern is assumed symmetric so far');
+
+warning('spotKern is assumed symmetric so far');
 
 if iscell(spotKern)
     % convolution is separable
@@ -58,6 +61,9 @@ else
     onesSizeSpotKern = ones(size(spotKern));
 end
 
+if ischar(cameraVariance)
+    [data,cameraVariance] = returnElectronsFromCalibrationFile(data,cameraVariance);
+end
 % if spotKern || cameraVariance changes, update transformation matrix
 if ~isequal(spotKernSaved,spotKern) || ~isequal(cameraVarianceSaved,cameraVariance)
     invVar = 1./cameraVariance;
@@ -110,7 +116,7 @@ else
     if ~isempty(varargin)
         Kmatrix = varargin{1};
         invKmatrix = inv(Kmatrix);
-        A0 = applyInvKmatrix(invKmatrix,A0);
+        tic;A0 = applyInvKmatrix(invKmatrix,A0);toc
         A1 = applyInvKmatrix(invKmatrix,A1);
         B1 = applyInvKmatrix(invKmatrix,B1);
         B0 = applyInvKmatrix(invKmatrix,B0);

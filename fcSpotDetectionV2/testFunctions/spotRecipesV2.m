@@ -1,3 +1,17 @@
+%% lets try spectral bleedthru on real data
+cameraCalibration2048x2048 = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
+patchSize = [7 7 7];
+sigmassq = [1,1,1];
+% build the numeric multi emitter
+[~,kern] = ndGauss(sigmassq,patchSize);
+
+bothFluors_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY762_RG/takeA3DStack/BWY762_RG_w3-both(GreenTTL).tif';
+bothFluors_cyanTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY762_RG/takeA3DStack/BWY762_RG_w3-both(CyanTTL).tif';
+bothFluors_greenTTL = importStack(bothFluors_greenTTL);
+bothFluors_cyanTTL = importStack(bothFluors_cyanTTL);
+
+Kmatrix = [1 0.45; 0.4785 1];
+estimated = findSpotsStage1V2({bothFluors_greenTTL,bothFluors_cyanTTL},kern,cameraCalibration2048x2048,Kmatrix);
 %% lets check real multi spectral dataset 
 patchSize = [7 7 7];
 sigmassq = [1,1,1];

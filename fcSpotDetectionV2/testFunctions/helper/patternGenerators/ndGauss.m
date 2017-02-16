@@ -26,7 +26,7 @@ for i = 1:dims
     currDomain = -defineDomain:defineDomain;
     currGauss = normpdf(currDomain,muVector(i),sqrt(sigmaSQVector(i)));
     % normalize each component, which normalizes total components
-    currGauss = currGauss / sum(currGauss(:));
+    currGauss = currGauss / max(currGauss(:));
     reshapeVec = ones(dims,1);
     reshapeVec(i) = numel(currGauss);
     currGauss = reshape(currGauss,reshapeVec');

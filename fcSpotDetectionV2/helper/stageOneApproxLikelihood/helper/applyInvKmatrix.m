@@ -10,7 +10,8 @@ end
 
 
 for ii = 1:numel(appliedInvKmatrix{1})
-    transformed = invKmatrix*cellfun(@(x) x(ii),cellDataArray);
+    vector = cellfun(@(x) x(ii),cellDataArray);
+    transformed = invKmatrix*vector(:);
     for jj = 1:numel(transformed)
        appliedInvKmatrix{jj}(ii) = transformed(jj); 
     end
