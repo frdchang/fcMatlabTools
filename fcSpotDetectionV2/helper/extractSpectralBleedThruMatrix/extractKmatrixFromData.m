@@ -26,14 +26,14 @@ for ii = 1:numSpectras
         for kk = 2:numel(currSpectraPaths)
             otherStack = importStack(currSpectraPaths{kk}{jj});
             [otherStack,readNoiseVarInElectrons] = returnElectronsFromCalibrationFile(otherStack,pathToCalibration);
-            otherStack = findSpotsStage1(otherStack,kern,readNoiseVarInElectrons);
-            
+            otherStack = findSpotsStage1(otherStack,kern,readNoiseVarInElectrons);            
             tempDataHolder{kk} = [tempDataHolder{kk} otherStack.A1(idx)'];
         end
     end
-    figure;scatter(tempDataHolder{1},tempDataHolder{2});xlabel(spectras{1});ylabel(spectras{2});
-    title(returnFileName(currSpectraFolder));
-    coeffHolder{ii} = polyfit(tempDataHolder{1},tempDataHolder{2}, 1);
+    coeffHolder{ii} = tempDataHolder;
+%     figure;scatter(tempDataHolder{1},tempDataHolder{2});xlabel(spectras{1});ylabel(spectras{2});
+%     title(returnFileName(currSpectraFolder));
+%     coeffHolder{ii} = polyfit(tempDataHolder{1},tempDataHolder{2}, 1);
     %     tempDataHolder = cell(numel(currSpectraPaths),1);
     %     for jj = 1:numel(currSpectraPaths)
     %         for kk = 1:numel(currSpectraPaths{jj})
