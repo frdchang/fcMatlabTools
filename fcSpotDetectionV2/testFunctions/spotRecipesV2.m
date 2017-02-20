@@ -1,3 +1,10 @@
+%% for gfp and tdtomato on redGr filter cube i calculate the kmatrix to be
+% greenTTL then cyanTTL for tdTomato then GFP . 20170220
+
+Kmatrix = [1 0.3144; 0.0004 1];
+
+
+
 %% lets try spectral bleedthru on real data
 cameraCalibration2048x2048 = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
 patchSize = [7 7 7];
@@ -42,10 +49,13 @@ tdTomato_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170
 tdTomato_cyanTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY770_RR/takeA3DStack/BWY770_RR_w3-both(CyanTTL).tif';
 tdTomato_greenTTL = importStack(tdTomato_greenTTL);
 tdTomato_cyanTTL = importStack(tdTomato_cyanTTL);
-thresh = multithresh(tdTomato_greenTTL(:))*2;
+% tdTomato_greenTTL = findSpotsStage1V2(tdTomato_greenTTL,kern,ones(size(tdTomato_greenTTL)));
+% tdTomato_cyanTTL = findSpotsStage1V2(tdTomato_cyanTTL,kern,ones(size(tdTomato_cyanTTL)));
+
+thresh = multithresh(tdTomato_greenTTL(:))*4;
 selector = tdTomato_greenTTL>thresh;
 hold on; 
-scatter(tdTomato_cyanTTL(selector),tdTomato_greenTTL(selector),'MarkerFaceColor','r','MarkerEdgeColor','r','MarkerEdgeAlpha',.003,'MarkerFaceAlpha',.003);
+scatter(tdTomato_greenTTL(selector),tdTomato_cyanTTL(selector),'MarkerFaceColor','r','MarkerEdgeColor','r','MarkerEdgeAlpha',.003,'MarkerFaceAlpha',.003);
 
 %% data with both datasets
 bothFluors_greenTTL = '/Users/fchang/Dropbox/Public/testingREDGreenBleedthru/20170212-pinkel2Color-BWY762_RG/takeA3DStack/BWY762_RG_w3-both(GreenTTL).tif';
