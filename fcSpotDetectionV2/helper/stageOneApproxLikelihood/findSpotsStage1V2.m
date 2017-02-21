@@ -47,8 +47,6 @@ persistent k5;
 persistent Normalization;
 
 
-warning('spotKern is assumed symmetric so far');
-
 if iscell(spotKern)
     % convolution is separable
     convFunc = @convSeparableND;
@@ -57,6 +55,7 @@ if iscell(spotKern)
 else
     % otherwise just do fft
     convFunc = @convFFTND;
+    spotKern = flipAllDimensions(spotKern);
     sqSpotKern = spotKern.^2;
     onesSizeSpotKern = ones(size(spotKern));
 end
@@ -87,11 +86,12 @@ if ~iscell(data)
     A0          = k2./ k3;
     A1          = (k1.*k4 - k5.*k2 ) ./ Normalization;
     B1          = (k1.*k2 - k3.*k4)  ./ Normalization;
-    LL1         = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4);
+    LL1         = arrayfun(@(A1,B1,k1,k2,k3,k4,k5)-((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4),A1,B1,k1,k2,k3,k4,k5);%= -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4);
+    
     % parmeters given B only, model of 0 spot
     B0          = k4./k5;
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
-    
+                                
     A0         = unpadarray(A0,size(data));
     A1         = unpadarray(A1,size(data));
     B1         = unpadarray(B1,size(data));
@@ -116,7 +116,7 @@ else
     if ~isempty(varargin)
         Kmatrix = varargin{1};
         invKmatrix = inv(Kmatrix);
-        tic;A0 = applyInvKmatrix(invKmatrix,A0);toc
+        A0 = applyInvKmatrix(invKmatrix,A0);
         A1 = applyInvKmatrix(invKmatrix,A1);
         B1 = applyInvKmatrix(invKmatrix,B1);
         B0 = applyInvKmatrix(invKmatrix,B0);
@@ -169,9 +169,6 @@ end
 % myLL0 = -sum(myError1(:).^2) -sum(myError2(:).^2) + sum(data{1}(:).^2) + sum(data{2}(:).^2);
 % % compare against (after unpadarray) LL1(centerCooor{:}) -
 % % k6(centerCoor{:})
-
-
-
 
 
 estimated.A0         = A0;

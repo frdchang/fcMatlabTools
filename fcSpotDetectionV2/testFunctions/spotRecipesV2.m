@@ -1,10 +1,27 @@
 %% for gfp and tdtomato on redGr filter cube i calculate the kmatrix to be
 % greenTTL then cyanTTL for tdTomato then GFP . 20170220
-
+clear;
 Kmatrix = [1 0.3144; 0.0004 1];
+greenTTL = '/mnt/btrfs/fcDataStorage/fcNikon/fcTest/20170216-check2ColorBleedThru/combinedData/green_red/BWY762_RG_6_w3-both(GreenTTL).tif';
+cyanTTL = '/mnt/btrfs/fcDataStorage/fcNikon/fcTest/20170216-check2ColorBleedThru/combinedData/green_red/BWY762_RG_6_w3-both(CyanTTL).tif';
+greenTTL = importStack(greenTTL);
+cyanTTL = importStack(cyanTTL);
 
 
 
+patchSize = [7 7 7];
+sigmassq = [1,1,1];
+% build the numeric multi emitter
+[~,kern] = ndGauss(sigmassq,patchSize);
+
+
+cameraCalibration2048x2048 = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
+[greenTTL,cameraVars] = returnElectronsFromCalibrationFile(greenTTL,cameraCalibration2048x2048);
+greenTTL = gpuArray(greenTTL);
+kern = cellfunNonUniformOutput(@(x) gpuArray(x),kern);
+cameraVars = gpuArray(cameraVars);
+clear findSpotsStage1V2;
+estimated = findSpotsStage1V2({greenTTL,cyanTTL},kern,cameraVars,Kmatrix);
 %% lets try spectral bleedthru on real data
 cameraCalibration2048x2048 = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
 patchSize = [7 7 7];
