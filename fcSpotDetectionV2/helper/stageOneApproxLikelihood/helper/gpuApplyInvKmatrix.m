@@ -1,11 +1,14 @@
-function [Aout,Bout] = gpuApplyInvKmatrix(invKmatrix,A,B)
-%GPUAPPLYINVKMATRIX 
-   function [output1,output2] = DoStuff(A,B)
-       output1 = invKmatrix(1)*A + invKmatrix(3)*B; 
-       output2 = invKmatrix(2)*A + invKmatrix(4)*B;
-    end
+function cellDataIn = gpuApplyInvKmatrix(kMatrix,cellDataIn)
+%GPUAPPLYINVKMATRIX will take kmatrix and solve the system given varargin
+%datasets.  should be gpu friendly.
 
-[Aout,Bout] = arrayfun(@DoStuff,A,B);
-end
+numDatasets     = numel(cellDataIn);
+numElInADataset = numel(cellDataIn{1});
+sizeADataset    = size(cellDataIn{1});
+
+cellDataIn = reshape([cellDataIn{:}],numElInADataset,numDatasets)';
+cellDataIn = kMatrix \ cellDataIn;
+cellDataIn = num2cell(cellDataIn,2);
+cellDataIn = cellfunNonUniformOutput(@(x) reshape(x,sizeADataset),cellDataIn);
 
  

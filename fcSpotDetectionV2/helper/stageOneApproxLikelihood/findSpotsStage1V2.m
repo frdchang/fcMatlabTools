@@ -80,6 +80,7 @@ if ~iscell(data)
     dataNormed = data.*invVar;
     k2 = convFunc(dataNormed,spotKern);
     k4 = convFunc(dataNormed,onesSizeSpotKern);
+    clear('dataNormed');
 %          k6 = convFunc(dataNormed.*data,onesSizeSpotKern);   % k6 not needed
     %     for LLRatio
     % parameters given A*spotKern + B, model of 1 spot
@@ -103,6 +104,7 @@ else
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVar,data);
     k2              = cellfunNonUniformOutput(@(x) convFunc(x,spotKern),dataNormed);
     k4              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormed);
+    clear('dataNormed');
     %     dataNormeddata  = cellfunNonUniformOutput(@(x,y) x.*y,dataNormed,data);
     %     k6              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormeddata);
     A0              = cellfunNonUniformOutput(@(x) x./k3,k2);
@@ -114,12 +116,11 @@ else
     
     
     if ~isempty(varargin)
-        Kmatrix = varargin{1};
-        invKmatrix = inv(Kmatrix);
-        A0 = applyInvKmatrix(invKmatrix,A0);
-        A1 = applyInvKmatrix(invKmatrix,A1);
-        B1 = applyInvKmatrix(invKmatrix,B1);
-        B0 = applyInvKmatrix(invKmatrix,B0);
+        kMatrix = varargin{1};
+        A0 = gpuApplyInvKmatrix(kMatrix,A0);
+        A1 = gpuApplyInvKmatrix(kMatrix,A1);
+        B1 = gpuApplyInvKmatrix(kMatrix,B1);
+        B0 = gpuApplyInvKmatrix(kMatrix,B0);
         %        LLRatio = applyInvKmatrix(invKmatrix,LLRatio);
     else
         warning('bleed thru Kmatrix not supplied with multi spectral data');
@@ -134,12 +135,12 @@ else
     % ((K(ii,1)*B1+(K(ii,1)*B2+...) - dii)^2 =
     % (K(ii,1)*B1+(K(ii,1)*B2+...)^2 + -(K(ii,1)*2*B1-(K(ii,2)*B2+...)*dii
     squaredCompLL1 = calcModelSquaredForLL1(Kmatrix,A1,B1,k1,k3,k5);
-    crossCompLL1 = calcModelCrossForLL1(Kmatrix,A1,B1,k2,k4);
-    LL1 = -(squaredCompLL1 + crossCompLL1);
+    crossCompLL1   = calcModelCrossForLL1(Kmatrix,A1,B1,k2,k4);
+    LL1            = -(squaredCompLL1 + crossCompLL1);
     
     squaredCompLL0  = calcModelSquaredForLL0(Kmatrix,B0,k5);
-    crossCompLL0 = calcModelCrossForLL0(Kmatrix,B0,k4);
-    LL0 = -(squaredCompLL0 + crossCompLL0);
+    crossCompLL0    = calcModelCrossForLL0(Kmatrix,B0,k4);
+    LL0             = -(squaredCompLL0 + crossCompLL0);
 
     A0              = cellfunNonUniformOutput(@(A0,data) unpadarray(A0,size(data)),A0,data);
     A1              = cellfunNonUniformOutput(@(A1,data) unpadarray(A1,size(data)),A1,data);
