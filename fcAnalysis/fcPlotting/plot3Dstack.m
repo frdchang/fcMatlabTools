@@ -96,7 +96,7 @@ else
     xStep = pixelSize / mag;
     relZSize = zStep / xStep;
 end
-
+stack = gather(stack);
 stack = double(stack);
 [xL,yL,zL] = size(stack);
 

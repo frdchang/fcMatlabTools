@@ -17,10 +17,12 @@ sigmassq = [1,1,1];
 
 cameraCalibration2048x2048 = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
 [greenTTL,cameraVars] = returnElectronsFromCalibrationFile(greenTTL,cameraCalibration2048x2048);
-greenTTL = gpuArray(greenTTL);
-kern = cellfunNonUniformOutput(@(x) gpuArray(x),kern);
-cameraVars = gpuArray(cameraVars);
+%greenTTL = gpuArray(greenTTL);
+%kern = cellfunNonUniformOutput(@(x) gpuArray(x),kern);
+%cameraVars = gpuArray(cameraVars);
 clear findSpotsStage1V2;
+tic;estimatedCyan = findSpotsStage1V2(cyanTTL,kern,cameraVars);toc
+
 estimated = findSpotsStage1V2({greenTTL,cyanTTL},kern,cameraVars,Kmatrix');
 %% lets try spectral bleedthru on real data
 cameraCalibration2048x2048 = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';

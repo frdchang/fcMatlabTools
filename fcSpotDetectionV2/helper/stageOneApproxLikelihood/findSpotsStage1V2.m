@@ -46,6 +46,14 @@ persistent k3;
 persistent k5;
 persistent Normalization;
 
+%--parameters--------------------------------------------------------------
+params.kMatrix       = [];
+params.nonNegativity = true;
+%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
+
+
+
 %% selection of convolution type depends on whether spotKern is a numeric data type or a cell of separable kernels
 if iscell(spotKern)
     % convolution is separable
@@ -93,6 +101,13 @@ if ~iscell(data)
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
     LLRatio     = LL1-LL0;
     
+    if params.nonNegativity
+        A0(A0<0)      = 0;
+        LLRatio(A1<0) = 0;
+        A1(A1<0)      = 0;
+        B1(B1<0)       = 0;
+    end
+    
     A0          = gather(A0);
     A1          = gather(A1);
     B1          = gather(B1);
@@ -100,8 +115,8 @@ if ~iscell(data)
     LLRatio     = gather(LLRatio);
     spotKern    = gather(spotKernSaved);
 else
-    if ~isempty(varargin)
-        kMatrix     = varargin{1};
+    if ~isempty(params.kMatrix)
+        kMatrix     = params.kMatrix;
     else
         warning('bleed thru Kmatrix not supplied with multi spectral data');
         kMatrix     = eye(numel(data));
