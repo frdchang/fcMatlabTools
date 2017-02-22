@@ -5,6 +5,7 @@ function datatempConv = convFFTND(data,template)
 %       -[not completed]added feature in which template dimension does not have to be
 %        equal to data dimension.  this function will simply apply the
 %        template convultion to the dimensions that are left over
+%       - unpads array to size(data)
 % fchang@fas.harvard.edu
 
 
@@ -32,6 +33,4 @@ else
     chunks = mat2cell(data,idx{:});
 end
 
-end
-
-
+datatempConv = unpadarray(datatempConv,size(data));
