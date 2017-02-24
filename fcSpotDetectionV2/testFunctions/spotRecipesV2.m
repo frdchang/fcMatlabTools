@@ -1,3 +1,27 @@
+%% lets design iterative multi spot fitting
+patchSize = [19 21 25];
+sigmassq1 = [2,2,2];
+sigmassq2 = [4,4,4];
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1);
+kernObj2 = myPattern_Numeric(kern2);
+
+buildThetas1 = {{kernObj1,[11 5 12 13]},{kernObj1,[7 15 4 14]},{5}};
+buildThetas2 = {{kernObj1,[20 6 6 13]},{10}};
+Kmatrix      = [1 0.2;0.6 1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+
+
+
+candidates = selectCandidates(estimated,bigLambdas);
+finalEstimates = findSpotsStage2V2(candidates);
 %% for gfp and tdtomato on redGr filter cube i calculate the kmatrix to be
 % greenTTL then cyanTTL for tdTomato then GFP . 20170220
 clear;

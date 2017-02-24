@@ -240,6 +240,8 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress: 
+* 20170224 __interesting property__ is that the LLRatio does not get the widening effect of convolution.  
+* 20170224 __Spot detection V2__ functions have v2 appended to them.  v2 allows multi spectral and multi emitter fitting.  its even gpu enabled. 
 * 20170208 __Kmatrix__ bleed thru is Kmatrix(ii,jj) with jj being the different models going into dataset ii.
 * 20170118 __lambdas__ are modularized by little lambda and big lambda.  little lambda is the intensities hypothesis for each channel.  big lambda then generates the model with spectral bleed thru.  
 * 20170107 __FRET sensing__ by sensitized emission can be done by fitting one of the bleed thru coefficients! this could be the ideal FRET signal processor approach

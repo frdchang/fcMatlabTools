@@ -73,19 +73,20 @@ if ischar(cameraVariance)
     [data,cameraVariance] = returnElectronsFromCalibrationFile(data,cameraVariance);
 end
 
-%% if spotKern or cameraVariance changes, cache the results
-currInvVar = 1./cameraVariance;
-if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
-    invVarSaved = currInvVar;
-    spotKernSaved = spotKern;
-    k1 = convFunc(invVarSaved,spotKern);
-    k3 = convFunc(invVarSaved,sqSpotKern);
-    k5 = convFunc(invVarSaved,onesSizeSpotKern);
-    Normalization = k1.^2 - k5.*k3;
-end
 
 if ~iscell(data)
-    % data is just a numeric array
+    %% data is just a numeric array----------------------------------------
+    % if spotKern or cameraVariance changes, cache the results
+    currInvVar = 1./cameraVariance;
+    if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
+        invVarSaved = currInvVar;
+        spotKernSaved = spotKern;
+        k1 = convFunc(invVarSaved,spotKern);
+        k3 = convFunc(invVarSaved,sqSpotKern);
+        k5 = convFunc(invVarSaved,onesSizeSpotKern);
+        Normalization = k1.^2 - k5.*k3;
+    end
+    
     dataNormed  = data.*invVarSaved;
     k2          = convFunc(dataNormed,spotKern);
     k4          = convFunc(dataNormed,onesSizeSpotKern);
@@ -105,7 +106,7 @@ if ~iscell(data)
         A0(A0<0)      = 0;
         LLRatio(A1<0) = 0;
         A1(A1<0)      = 0;
-        B1(B1<0)       = 0;
+        B1(B1<0)      = 0;
     end
     
     A0          = gather(A0);
@@ -115,6 +116,19 @@ if ~iscell(data)
     LLRatio     = gather(LLRatio);
     spotKern    = gather(spotKernSaved);
 else
+    %% data is multispectral-----------------------------------------------
+    %% if spotKern or cameraVariance changes, cache the results
+    currInvVar = 1./cameraVariance;
+    if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
+        invVarSaved = currInvVar;
+        spotKernSaved = spotKern;
+        k1 = convFunc(invVarSaved,spotKern);
+        k3 = convFunc(invVarSaved,sqSpotKern);
+        k5 = convFunc(invVarSaved,onesSizeSpotKern);
+        Normalization = k1.^2 - k5.*k3;
+    end
+    
+    
     if ~isempty(params.kMatrix)
         kMatrix     = params.kMatrix;
     else
@@ -159,6 +173,17 @@ else
     clear('LL0','LL1');
     LLRatio         = gather(LLRatio);
     spotKern        = gather(spotKernSaved);
+    
+    if params.nonNegativity
+        selectNegVals = cellfunNonUniformOutput(@(x) x<0,A1);
+        selectNegVals = multiCellContents(selectNegVals);
+        LLRatio(selectNegVals>0) = 0;
+        for ii = 1:size(kMatrix,2)
+            A0{ii}(A0{ii}<0) = 0;
+            A1{ii}(A1{ii}<0) = 0;
+            B1{ii}(B1{ii}<0)=0;
+        end
+    end
 end
 
 estimated.A0         = A0;
