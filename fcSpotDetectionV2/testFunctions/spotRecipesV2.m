@@ -1,3 +1,5 @@
+
+
 %% lets design iterative multi spot fitting
 patchSize = [19 21 25];
 sigmassq1 = [2,2,2];
@@ -17,7 +19,7 @@ thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
 estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-
+estimated = findSpotsStage1V2(bigLambdas,{kern1,kern1},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 
 
 candidates = selectCandidates(estimated,bigLambdas);

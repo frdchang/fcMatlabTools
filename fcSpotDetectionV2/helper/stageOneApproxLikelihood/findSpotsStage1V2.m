@@ -33,9 +33,12 @@ function [estimated] = findSpotsStage1V2(data,spotKern,cameraVariance,varargin)
 %         - if there is multi spectral datasets, then each dataset is in a
 %           cell array.  in this condition varargin must be the bleedthru
 %           matrix K.
-%         - mathematically i should have multiple spotKerns and
-%           cameraVariance for each multispectral datasets...but i didn't do
-%           that for now.
+%         - when using multi spectral datasets, you must pass a
+%         multispectral spotKern = {kern1,kern2} corresponding to each
+%         dataset
+%         - assumes there can only be one camera variance, can be updated
+%         in the future
+%         - assumes different spectral kernels have the same size
 %
 % fchang@fas.harvard.edu
 
@@ -53,29 +56,26 @@ params.nonNegativity = true;
 params = updateParams(params,varargin);
 
 
-
-%% selection of convolution type depends on whether spotKern is a numeric data type or a cell of separable kernels
-if iscell(spotKern)
-    % convolution is separable
-    convFunc = @convSeparableND;
-    sqSpotKern = cellfunNonUniformOutput(@(x) x.^2,spotKern);
-    onesSizeSpotKern = genSeparableOnes(cellfun(@(x) numel(x),spotKern));
-else
-    % otherwise just do fft
-    convFunc = @convFFTND;
-    spotKern = flipAllDimensions(spotKern);
-    sqSpotKern = spotKern.^2;
-    onesSizeSpotKern = ones(size(spotKern));
-end
-
 %% if cameraVariance is a file path to calibration mat file
 if ischar(cameraVariance)
     [data,cameraVariance] = returnElectronsFromCalibrationFile(data,cameraVariance);
 end
 
-
 if ~iscell(data)
     %% data is just a numeric array----------------------------------------
+    if iscell(spotKern)
+        % convolution is separable
+        convFunc = @convSeparableND;
+        sqSpotKern = cellfunNonUniformOutput(@(x) x.^2,spotKern);
+        onesSizeSpotKern = genSeparableOnes(cellfun(@(x) numel(x),spotKern));
+    else
+        % otherwise just do fft
+        convFunc = @convFFTND;
+        spotKern = flipAllDimensions(spotKern);
+        sqSpotKern = spotKern.^2;
+        onesSizeSpotKern = ones(size(spotKern));
+    end
+    
     % if spotKern or cameraVariance changes, cache the results
     currInvVar = 1./cameraVariance;
     if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
@@ -96,7 +96,7 @@ if ~iscell(data)
     % parameters given A*spotKern + B, model of 1 spot
     A1          = (k1.*k4 - k5.*k2 ) ./ Normalization;
     B1          = (k1.*k2 - k3.*k4)  ./ Normalization;
-    LL1         = arrayfun(@(A1,B1,k1,k2,k3,k4,k5)-((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4),A1,B1,k1,k2,k3,k4,k5);%= -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4);
+    LL1         = arrayfun(@(A1,B1,k1,k2,k3,k4,k5)-((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4),A1,B1,k1,k2,k3,k4,k5);
     % parameters given B only, model of 0 spot
     B0          = k4./k5;
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
@@ -117,17 +117,35 @@ if ~iscell(data)
     spotKern    = gather(spotKernSaved);
 else
     %% data is multispectral-----------------------------------------------
-    %% if spotKern or cameraVariance changes, cache the results
+    % make sure spotKern has the same dimensions
+    if ~isEveryoneEqual(cellfunNonUniformOutput(@size,spotKern))
+        error('multi spectral kernels need to be the same size');
+    end
+    % spotKern must be cell array of kernels for each spectra
+    spotKern = reshape(spotKern,numel(spotKern),1);
+    if iscell(spotKern{1})
+        % convolution is separable
+        convFunc = @convSeparableND;
+        sqSpotKern = cellfunNonUniformOutput(@(y) cellfunNonUniformOutput(@(x) x.^2,y),spotKern);
+        onesSizeSpotKern =  genSeparableOnes(cellfun(@(x) numel(x),spotKern{1}));
+    else
+        % otherwise just do fft
+        convFunc = @convFFTND;
+        spotKern = cellfunNonUniformOutput(@(y) flipAllDimensions(y),spotKern);
+        sqSpotKern = cellfunNonUniformOutput(@(y) y.^2,spotKern);
+        onesSizeSpotKern =  ones(size(spotKern{1}));
+    end
+    
+    % if spotKern or cameraVariance changes, cache the results
     currInvVar = 1./cameraVariance;
     if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
         invVarSaved = currInvVar;
         spotKernSaved = spotKern;
-        k1 = convFunc(invVarSaved,spotKern);
-        k3 = convFunc(invVarSaved,sqSpotKern);
-        k5 = convFunc(invVarSaved,onesSizeSpotKern);
-        Normalization = k1.^2 - k5.*k3;
+        k1              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),spotKern);
+        k3              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),sqSpotKern);
+        k5              = convFunc(invVarSaved,onesSizeSpotKern);
+        Normalization   = cellfunNonUniformOutput(@(k1,k3) k1.^2 - k5.*k3,k1,k3);
     end
-    
     
     if ~isempty(params.kMatrix)
         kMatrix     = params.kMatrix;
@@ -137,17 +155,17 @@ else
     end
     
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVarSaved,data);
-    k2              = cellfunNonUniformOutput(@(x) convFunc(x,spotKern),dataNormed);
+    k2              = cellfunNonUniformOutput(@(x,spotKern) convFunc(x,spotKern),dataNormed,spotKern);
     k4              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormed);
     clear('dataNormed','data');
     
-    A0              = cellfunNonUniformOutput(@(x) x./k3,k2);
+    A0              = cellfunNonUniformOutput(@(x,k3) x./k3,k2,k3);
     A0              = gpuApplyInvKmatrix(kMatrix,A0);
     A0              = cellfunNonUniformOutput(@(x) gather(x),A0);
-    A1              = cellfunNonUniformOutput(@(x,y) (k1.*x - k5.*y ) ./ Normalization,k4,k2);
+    A1              = cellfunNonUniformOutput(@(x,y,k1,Normalization) (k1.*x - k5.*y ) ./ Normalization,k4,k2,k1,Normalization);
     A1              = gpuApplyInvKmatrix(kMatrix,A1);
     A1              = cellfunNonUniformOutput(@(x) gather(x),A1);
-    B1              = cellfunNonUniformOutput(@(x,y) (k1.*x - k3.*y)  ./ Normalization,k2,k4);
+    B1              = cellfunNonUniformOutput(@(x,y,k1,k3,Normalization) (k1.*x - k3.*y)  ./ Normalization,k2,k4,k1,k3,Normalization);
     B1              = gpuApplyInvKmatrix(kMatrix,B1);
     B1              = cellfunNonUniformOutput(@(x) gather(x),B1);
     B0              = cellfunNonUniformOutput(@(k4) k4./k5,k4);
@@ -161,7 +179,12 @@ else
     % for LL of model with 0 spot
     % ((K(ii,1)*B1+(K(ii,1)*B2+...) - dii)^2 =
     % (K(ii,1)*B1+(K(ii,1)*B2+...)^2 + -(K(ii,1)*2*B1-(K(ii,2)*B2+...)*dii
-    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
+    %
+    % for multi spectral kernels, i will average them since kernels should
+    % be similar and when kernels are equal, this is the true answer.  this
+    % is an approximation.  note that i will write an arrayfun version that
+    % will simply calculate directly.
+    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,sumCellContents(k1)/numel(spotKern),sumCellContents(k3)/numel(spotKern),k5);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     clear('squaredCompLL1','crossCompLL1');
