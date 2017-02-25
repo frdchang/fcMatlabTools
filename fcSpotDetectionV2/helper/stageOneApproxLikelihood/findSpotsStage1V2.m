@@ -39,6 +39,9 @@ function [estimated] = findSpotsStage1V2(data,spotKern,cameraVariance,varargin)
 %         - assumes there can only be one camera variance, can be updated
 %         in the future
 %         - assumes different spectral kernels have the same size
+%         - if datasets inputed are gpuArrays, everything runs on the gpu
+%           * for multispectral datasets gpu is almost a requirement for
+%           computational overhead
 %
 % fchang@fas.harvard.edu
 
@@ -96,7 +99,7 @@ if ~iscell(data)
     % parameters given A*spotKern + B, model of 1 spot
     A1          = (k1.*k4 - k5.*k2 ) ./ Normalization;
     B1          = (k1.*k2 - k3.*k4)  ./ Normalization;
-    LL1         = arrayfun(@(A1,B1,k1,k2,k3,k4,k5)-((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4),A1,B1,k1,k2,k3,k4,k5);
+    LL1         = -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4);
     % parameters given B only, model of 0 spot
     B0          = k4./k5;
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
@@ -123,6 +126,7 @@ else
     end
     % spotKern must be cell array of kernels for each spectra
     spotKern = reshape(spotKern,numel(spotKern),1);
+    data  = reshape(data,numel(data),1);
     if iscell(spotKern{1})
         % convolution is separable
         convFunc = @convSeparableND;

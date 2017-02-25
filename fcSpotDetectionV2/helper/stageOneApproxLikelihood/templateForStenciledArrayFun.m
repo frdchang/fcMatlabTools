@@ -9,6 +9,9 @@ ylength = 1000;
 zlength = 20;
 
 test = gpuArray(rand(xlength,ylength,zlength));
+test2 = gpuArray(rand(xlength,ylength,zlength));
+
+uberTest = cat(4,test,test2);
 
 idx = gpuArray([1:xlength]);
 idy = gpuArray([1:ylength]');
@@ -16,6 +19,7 @@ idz = gpuArray(reshape([1:zlength],1,1,zlength));
 
 kern = gpuArray(ones(3,5,7));
 
+numDatas = numel(uberTest);
 sizeKern = size(kern);
 sizeData = size(test);
     function mySum = doSum(x,y,z)
@@ -29,13 +33,17 @@ sizeData = size(test);
         for ii = xL:xH
             for jj = yL:yH
                 for kk = zL:zH
-              mySum = mySum + test(ii,jj,kk);  
+                    for ll = 1:2
+                        mySum = mySum + uberTest(ii,jj,kk,ll);  
+                    end
                 end
             end
         end
     end
 
 tic;mySumoutput = arrayfun(@doSum,idx,idy,idz);toc
+
+% note that the output is flipped xy
 mySumoutput = permute(mySumoutput,[2 1 3]);
 tic;corpus = convn(kern,test);toc
 corpus = unpadarray(corpus,sizeData);

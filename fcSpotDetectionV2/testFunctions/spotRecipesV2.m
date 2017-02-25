@@ -12,14 +12,14 @@ kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
 buildThetas1 = {{kernObj1,[11 5 12 13]},{kernObj1,[7 15 4 14]},{5}};
-buildThetas2 = {{kernObj1,[20 6 6 13]},{10}};
+buildThetas2 = {{kernObj2,[20 6 6 13]},{10}};
 Kmatrix      = [1 0.2;0.6 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
-estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-estimated = findSpotsStage1V2(bigLambdas,{kern1,kern1},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+% estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 
 
 candidates = selectCandidates(estimated,bigLambdas);
@@ -49,7 +49,7 @@ cameraCalibration2048x2048 = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibr
 clear findSpotsStage1V2;
 tic;estimatedCyan = findSpotsStage1V2(cyanTTL,kern,cameraVars);toc
 
-estimated = findSpotsStage1V2({greenTTL,cyanTTL},kern,cameraVars,Kmatrix');
+estimated2 = findSpotsStage1V2({greenTTL,cyanTTL},{kern,kern},cameraVars,'kMatrix',Kmatrix);
 %% lets try spectral bleedthru on real data
 cameraCalibration2048x2048 = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
 patchSize = [7 7 7];
