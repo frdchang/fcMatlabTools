@@ -11,6 +11,8 @@ switch ext
         stack = importFits(filename);
     case {'.tif','.TIF'}
          stack = importSingleTiffStack(filename);
+    case {'.LSM','.lsm'}
+        stack = importLSM(filename);
     otherwise
        
         try
