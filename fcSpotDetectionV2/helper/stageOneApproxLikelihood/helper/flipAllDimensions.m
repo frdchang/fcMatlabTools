@@ -5,4 +5,7 @@ dataFlipped = data;
 for ii = 1:ndims(data)
     dataFlipped = flipdim(dataFlipped,ii);
 end
+% if isa(data,'gpuArray');
+%    dataFlipped = gpuArray(dataFlipped); 
+% end
 

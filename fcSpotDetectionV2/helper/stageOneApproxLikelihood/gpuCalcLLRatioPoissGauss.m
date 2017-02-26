@@ -1,6 +1,8 @@
 function LLRatio = gpuCalcLLRatioPoissGauss(data,kern,A1,B1,B0,cameraVariance)
 %GPUCALCLLRATIO will calculate the LLRatio using arrayfun using Poisson
-%Poisson Approximation
+%gaussian approximation
+%
+% note that this function seems to crash the GPU!!!
 
 
 sizeData = size(data);

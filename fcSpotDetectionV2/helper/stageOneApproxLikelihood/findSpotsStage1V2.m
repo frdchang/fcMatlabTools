@@ -76,7 +76,12 @@ if ~iscell(data)
         convFunc = @convFFTND;
         spotKern = flipAllDimensions(spotKern);
         sqSpotKern = spotKern.^2;
-        onesSizeSpotKern = ones(size(spotKern));
+        if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
+            onesSizeSpotKern = ones(size(spotKern),'gpuArray');
+        else
+            onesSizeSpotKern = ones(size(spotKern));
+        end
+        
     end
     
     % if spotKern or cameraVariance changes, cache the results
@@ -105,23 +110,30 @@ if ~iscell(data)
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
     LLRatio     = LL1-LL0;
     
-    if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray');
-        LLRatioPoissPoiss = gpuCalcLLRatio(data,kern,A1,B1,B0,cameraVariance);
+    if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
+        LLRatioPoissPoiss = gpuCalcLLRatioPoissPoiss(data,spotKern,A1,B1,B0,cameraVariance);
     end
     
     if params.nonNegativity
         A0(A0<0)      = 0;
         LLRatio(A1<0) = 0;
+        if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
+            LLRatioPoissPoiss(A1<0) = 0;
+        end
         A1(A1<0)      = 0;
         B1(B1<0)      = 0;
     end
-    
+    if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
+        LLRatio     = gather(LLRatio);
+        LLRatio     = {LLRatio,LLRatioPoissPoiss};
+    end
     A0          = gather(A0);
     A1          = gather(A1);
     B1          = gather(B1);
     B0          = gather(B0);
     LLRatio     = gather(LLRatio);
     spotKern    = gather(spotKernSaved);
+    
 else
     %% data is multispectral-----------------------------------------------
     % make sure spotKern has the same dimensions
