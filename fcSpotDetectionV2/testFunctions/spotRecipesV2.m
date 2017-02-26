@@ -1,4 +1,11 @@
-
+%%  checking llratio by arrayfun gpu
+patchSize = [19 21 25];
+sigmassq1 = [2,2,2];
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+domains = genMeshFromData(kern1);
+kern1 = gpuArray(kern1);
+cameraVariance = gpuArray(ones(size(kern1)));
+estimated = findSpotsStage1V2(kern1,kern1,cameraVariance);
 
 %% lets design iterative multi spot fitting
 patchSize = [19 21 25];

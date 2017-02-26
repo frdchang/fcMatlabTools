@@ -49,5 +49,6 @@ tic;corpus = convn(kern,test);toc
 corpus = unpadarray(corpus,sizeData);
 myError = mySumoutput - corpus;
 
+
 end
 

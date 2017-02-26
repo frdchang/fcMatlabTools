@@ -93,7 +93,7 @@ if ~iscell(data)
     dataNormed  = data.*invVarSaved;
     k2          = convFunc(dataNormed,spotKern);
     k4          = convFunc(dataNormed,onesSizeSpotKern);
-    clear('dataNormed','data');
+    %     clear('dataNormed','data');
     % parameters given A*spotKern, model of 1 spot without background
     A0          = k2./ k3;
     % parameters given A*spotKern + B, model of 1 spot
@@ -104,6 +104,10 @@ if ~iscell(data)
     B0          = k4./k5;
     LL0         = -((B0.^2).*k5 - 2*B0.*k4);
     LLRatio     = LL1-LL0;
+    
+    if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray');
+        LLRatioPoissPoiss = gpuCalcLLRatio(data,kern,A1,B1,B0,cameraVariance);
+    end
     
     if params.nonNegativity
         A0(A0<0)      = 0;
