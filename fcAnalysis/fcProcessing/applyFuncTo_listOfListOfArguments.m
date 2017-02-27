@@ -34,7 +34,8 @@ end
 if isempty(myFuncParams)
     hashMyFuncParams = {};
 else
-    hashMyFuncParams = DataHash(myFuncParams,params.hashOptions);
+    hashMyFuncParams = DataHash(cellfunNonUniformOutput(@(x) gather(x),myFuncParams),params.hashOptions);
+    hashMyFuncParams = removeFileSep(hashMyFuncParams);
     hashMyFuncParams = hashMyFuncParams(end-params.hashLength:end);
 end
 

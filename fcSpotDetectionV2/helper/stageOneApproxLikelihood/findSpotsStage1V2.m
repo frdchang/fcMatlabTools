@@ -55,17 +55,33 @@ persistent Normalization;
 %--parameters--------------------------------------------------------------
 params.kMatrix       = [];
 params.nonNegativity = true;
+params.loadIntoGpu   = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
 
 %% if cameraVariance is a file path to calibration mat file
 if ischar(cameraVariance)
     [data,cameraVariance] = returnElectronsFromCalibrationFile(data,cameraVariance);
 end
 
+if isempty(cameraVariance)
+    if iscell(data)
+        cameraVariance = ones(size(data{1}));
+    else
+        cameraVariance = ones(size(data));
+    end
+    
+end
+
 if ~iscell(data)
     %% data is just a numeric array----------------------------------------
+    %% load into gpu if instructed
+    if params.loadIntoGpu
+        data = gpuArray(data);
+        spotKern = gpuArray(spotKern);
+        cameraVariance = gpuArray(cameraVariance);
+    end
+    
     if iscell(spotKern)
         % convolution is separable
         convFunc = @convSeparableND;
@@ -123,10 +139,7 @@ if ~iscell(data)
         A1(A1<0)      = 0;
         B1(B1<0)      = 0;
     end
-    if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
-        LLRatio     = gather(LLRatio);
-        LLRatio     = {LLRatio,LLRatioPoissPoiss};
-    end
+    
     A0          = gather(A0);
     A1          = gather(A1);
     B1          = gather(B1);
@@ -136,6 +149,13 @@ if ~iscell(data)
     
 else
     %% data is multispectral-----------------------------------------------
+    %% load into gpu if instructed
+    if params.loadIntoGpu
+        data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
+        spotKern = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
+        cameraVariance = gpuArray(cameraVariance);
+    end
+    
     % make sure spotKern has the same dimensions
     if ~isEveryoneEqual(cellfunNonUniformOutput(@size,spotKern))
         error('multi spectral kernels need to be the same size');
@@ -234,4 +254,7 @@ estimated.A1         = A1;
 estimated.B1         = B1;
 estimated.B0         = B0;
 estimated.LLRatio    = LLRatio;
+if exist('LLRatioPoissPoiss','var') == 1
+    estimated.LLRatioPoissPoiss = LLRatioPoissPoiss;
+end
 estimated.spotKern   = spotKern;
