@@ -26,7 +26,12 @@ switch ext
         end
 end
 
-stack = double(stack);
+if iscell(stack)
+    cellfunNonUniformOutput(@(x) double(x),stack);
+else
+   stack = double(stack); 
+end
+
 
 end
 

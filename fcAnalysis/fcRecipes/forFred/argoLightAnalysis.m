@@ -39,3 +39,8 @@ simFiles = getAllFiles(simPath,'lsm');
 simFiles = convertListToListofArguments(simFiles);
 summedSim = applyFuncTo_listOfListOfArguments(simFiles,@openImage_applyFuncTo,{},@sumSIMStack,{},@saveToProcessed_images,{},'doParallel',false);
 
+%% separate out sim wf decon and average
+procPath = '';
+procFiles = getAllFiles(procFiles,'lsm');
+procFiles = convertListToListofArguments(procFiles);
+simDeconAvg = applyFuncTo_listOfListOfArguments(procFiles,@openImage_applyFuncTo,{},@(x)x,{},@saveToProcessed_images,{},'doParallel',false);
