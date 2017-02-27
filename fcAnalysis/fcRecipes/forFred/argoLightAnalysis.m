@@ -40,7 +40,7 @@ simFiles = convertListToListofArguments(simFiles);
 summedSim = applyFuncTo_listOfListOfArguments(simFiles,@openImage_applyFuncTo,{},@sumSIMStack,{},@saveToProcessed_images,{},'doParallel',false);
 
 %% separate out sim wf decon and average
-procPath = '';
-procFiles = getAllFiles(procFiles,'lsm');
+procPath = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimDeconEpi';
+procFiles = getAllFiles(procPath,'lsm');
 procFiles = convertListToListofArguments(procFiles);
-simDeconAvg = applyFuncTo_listOfListOfArguments(procFiles,@openImage_applyFuncTo,{},@(x)x,{},@saveToProcessed_images,{},'doParallel',false);
+simDeconAvg = applyFuncTo_listOfListOfArguments(procFiles,@openImage_applyFuncTo,{},@inputPassThru,{},@saveToProcessed_cellOfImages,{},'doParallel',false);
