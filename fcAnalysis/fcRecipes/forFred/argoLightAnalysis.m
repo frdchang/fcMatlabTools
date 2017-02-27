@@ -34,8 +34,8 @@ myFiles         = convertListToListofArguments(myFiles);
 estimated       = applyFuncTo_listOfListOfArguments(myFiles,@openImage_applyFuncTo,{},@findSpotsStage1V2,{kern,[],'loadIntoGPU',true},@saveToProcessed_outputStruct,{[0 1 0 0 1 1]},'doParallel',false);
 
 %% average all the SIM data to see effective brightness
-simPath = '';
+simPath = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles';
 simFiles = getAllFiles(simPath,'lsm');
 simFiles = convertListToListofArguments(simFiles);
-summedSim = applyFuncTo_listOfListOfArguments(simFiles,@openImage_applyFuncTo,{},@sumSIMstack,{},@saveToProcessed_images,'doParallel',false);
+summedSim = applyFuncTo_listOfListOfArguments(simFiles,@openImage_applyFuncTo,{},@sumSIMStack,{},@saveToProcessed_images,{},'doParallel',false);
 
