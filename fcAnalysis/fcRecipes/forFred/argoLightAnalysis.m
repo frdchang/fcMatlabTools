@@ -33,8 +33,9 @@ myFiles         = getAllFiles(widefieldImages,'tif');
 myFiles         = convertListToListofArguments(myFiles);
 estimated       = applyFuncTo_listOfListOfArguments(myFiles,@openImage_applyFuncTo,{},@findSpotsStage1V2,{kern,[],'loadIntoGPU',true},@saveToProcessed_outputStruct,{[0 1 0 0 1 1]},'doParallel',false);
 
-
-
-
-
+%% average all the SIM data to see effective brightness
+simPath = '';
+simFiles = getAllFiles(simPath,'lsm');
+simFiles = convertListToListofArguments(simFiles);
+summedSim = applyFuncTo_listOfListOfArguments(simFiles,@openImage_applyFuncTo,{},@sumSIMstack,{},@saveToProcessed_images,'doParallel',false);
 
