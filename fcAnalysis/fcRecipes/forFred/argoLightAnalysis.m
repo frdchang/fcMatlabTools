@@ -53,6 +53,9 @@ myProcessedFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra
 SimDeconEpiFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimDeconEpi/[inputPassThru]');
 SumSimRawFiles = getAllFilesForApply( '/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles/[sumSIMStack]');
 simRawFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles');
+deconOnEpiFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiDecon');
+
+
 epiRawFiles = applyFuncTo_listOfListOfArguments(epiRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{9},@saveToProcessed_images,{},'doParallel',false);
 myProcessedFiles = applyFuncTo_listOfListOfArguments(myProcessedFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{9},@saveToProcessed_images,{},'doParallel',false);
 
@@ -60,3 +63,5 @@ SimDeconEpiFiles = applyFuncTo_listOfListOfArguments(SimDeconEpiFiles,@openImage
 
 SumSimRawFiles = applyFuncTo_listOfListOfArguments(SumSimRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{4},@saveToProcessed_images,{},'doParallel',false);
 simRawFiles = applyFuncTo_listOfListOfArguments(simRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{4},@saveToProcessed_images,{},'doParallel',false);
+
+deconOnEpiFiles = applyFuncTo_listOfListOfArguments(deconOnEpiFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{9},@saveToProcessed_images,{},'doParallel',false);
