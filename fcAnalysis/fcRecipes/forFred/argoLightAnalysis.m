@@ -44,3 +44,19 @@ procPath = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshi
 procFiles = getAllFiles(procPath,'lsm');
 procFiles = convertListToListofArguments(procFiles);
 simDeconAvg = applyFuncTo_listOfListOfArguments(procFiles,@openImage_applyFuncTo,{},@inputPassThru,{},@saveToProcessed_cellOfImages,{},'doParallel',false);
+
+%% extract 9th z-slice, the one in focus
+% if sim stack, 11 slices, pluck out 4th slice
+% if wf stack, 17 slices,  pluck out 9th slice
+epiRawFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles');
+myProcessedFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles/[findSpotsStage1V2(5eUHPw)]');
+SimDeconEpiFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimDeconEpi/[inputPassThru]');
+SumSimRawFiles = getAllFilesForApply( '/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles/[sumSIMStack]');
+simRawFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles');
+epiRawFiles = applyFuncTo_listOfListOfArguments(epiRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{9},@saveToProcessed_images,{},'doParallel',false);
+myProcessedFiles = applyFuncTo_listOfListOfArguments(myProcessedFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{9},@saveToProcessed_images,{},'doParallel',false);
+
+SimDeconEpiFiles = applyFuncTo_listOfListOfArguments(SimDeconEpiFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{4},@saveToProcessed_images,{},'doParallel',false);
+
+SumSimRawFiles = applyFuncTo_listOfListOfArguments(SumSimRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{4},@saveToProcessed_images,{},'doParallel',false);
+simRawFiles = applyFuncTo_listOfListOfArguments(simRawFiles,@openImage_applyFuncTo,{},@pluckASliceOut,{4},@saveToProcessed_images,{},'doParallel',false);

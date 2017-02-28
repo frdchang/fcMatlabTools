@@ -5,8 +5,10 @@ function fileList = getAllFiles(dirName,varargin)
 % getAllFiles({'/dirPATH1','/dirPATH2'});
 %
 % fchang@fas.harvard.edu
-if isempty(varargin)
+if isempty(varargin) 
    varargin{1} = '.'; 
+elseif isempty(varargin{1})
+    varargin{1} = '.';
 end
 if iscell(dirName)
    fileList = cell(numel(dirName),1);
