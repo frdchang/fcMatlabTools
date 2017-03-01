@@ -1,5 +1,5 @@
 %% first find optimal gaussian size
-stackpath = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/Image 36-subStack.tif';
+stackpathhighSNR = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/Image 32-line7.tif';
 stack = importStack(stackpath);
 % the result is as follows
 genSigmaLandscape(stack,genProcessedFileName(stackpath,'genSigmaLandscape'));
