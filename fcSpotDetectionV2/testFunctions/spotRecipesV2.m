@@ -1,3 +1,19 @@
+%% design interpolating findspotstage1
+patchSize = [19 21 25];
+sigmassq1 = [2,2,2];
+mux = 0:0.5:0.5;
+muy = 0:0.5:0.5;
+muz = 0:0.5:0.5;
+kernCell = cell(numel(mux),numel(muy),numel(muz));
+for ii = 1:numel(mux)
+    for jj = 1:numel(muy)
+        for kk = 1:numel(muz)
+            [kernCell{ii,jj,kk},~] = ndGauss(sigmassq1,patchSize,[mux(ii),muy(jj),muz(kk)]);
+        end
+    end
+end
+ [ estimated ] = findSpotsStage1V2Interpolate(kernCell{1},kernCell,ones(size(kernCell{1})));
+
 %%  checking llratio by arrayfun gpu
 patchSize = [19 21 25];
 sigmassq1 = [2,2,2];
@@ -71,7 +87,7 @@ bothFluors_cyanTTL = importStack(bothFluors_cyanTTL);
 
 Kmatrix = [1 0.45; 0.4785 1];
 estimated = findSpotsStage1V2({bothFluors_greenTTL,bothFluors_cyanTTL},kern,cameraCalibration2048x2048,Kmatrix);
-%% lets check real multi spectral dataset 
+%% lets check real multi spectral dataset
 patchSize = [7 7 7];
 sigmassq = [1,1,1];
 % build the numeric multi emitter
@@ -106,7 +122,7 @@ tdTomato_cyanTTL = importStack(tdTomato_cyanTTL);
 
 thresh = multithresh(tdTomato_greenTTL(:))*4;
 selector = tdTomato_greenTTL>thresh;
-hold on; 
+hold on;
 scatter(tdTomato_greenTTL(selector),tdTomato_cyanTTL(selector),'MarkerFaceColor','r','MarkerEdgeColor','r','MarkerEdgeAlpha',.003,'MarkerFaceAlpha',.003);
 
 %% data with both datasets
@@ -116,7 +132,7 @@ bothFluors_greenTTL = importStack(bothFluors_greenTTL);
 bothFluors_cyanTTL = importStack(bothFluors_cyanTTL);
 thresh = multithresh(bothFluors_cyanTTL(:))*2;
 selector = bothFluors_cyanTTL>thresh;
-hold on; 
+hold on;
 scatter(bothFluors_cyanTTL(selector),bothFluors_greenTTL(selector),'MarkerFaceColor','k','MarkerEdgeColor','k','MarkerEdgeAlpha',.1,'MarkerFaceAlpha',.1);
 
 
@@ -149,7 +165,7 @@ thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
 estimated = findSpotsStage1V2(bigLambdas,kern, ones(size(bigLambdas{1})),Kmatrix);
-%% %% lets check multi dataset - it checks out for Kmatrix 
+%% %% lets check multi dataset - it checks out for Kmatrix
 
 patchSize = [19 21 25];
 sigmassq = [6,6,6];
@@ -341,7 +357,7 @@ for ii = 1:numel(bigLambdas)
 end
 
 state = MLEbyIterationV2(bigLambdas,thetaInputs2,sigmasqs,domains,{{maxThetaInputs,N}});
-%% testing color unmixing 
+%% testing color unmixing
 % need to test, but will work on n color unmixing first
 cameraVariance = ones(size(bigLambdas{1}));
 spotKern = threshPSF(kern,0.0015);
@@ -352,9 +368,9 @@ invKmatrix = inv(Kmatrix);
 output1 = zeros(size(bigLambdas{1}));
 output2 = zeros(size(bigLambdas{1}));
 for ii = 1:numel(bigLambdas{1})
-   test = invKmatrix*[estimated1.A1(ii);estimated2.A1(ii)];
-   output1(ii) = test(1);
-   output2(ii) = test(2);
+    test = invKmatrix*[estimated1.A1(ii);estimated2.A1(ii)];
+    output1(ii) = test(1);
+    output2(ii) = test(2);
 end
 
 %% build a single spot and compare with mathematica
@@ -403,15 +419,15 @@ buildMaxThetas{end+1} = 1;
 
 % for mathematica convert scalar to scalar*ones(sizeData)
 for ii = 1:numel(genDLambda)
-   if isscalar(genDLambda{ii})
-      genDLambda{ii} = genDLambda{ii}*ones(patchSize); 
-   end
+    if isscalar(genDLambda{ii})
+        genDLambda{ii} = genDLambda{ii}*ones(patchSize);
+    end
 end
 
 for ii = 1:numel(genD2Lambda)
-   if isscalar(genD2Lambda{ii})
-      genD2Lambda{ii} = genD2Lambda{ii}*ones(patchSize); 
-   end
+    if isscalar(genD2Lambda{ii})
+        genD2Lambda{ii} = genD2Lambda{ii}*ones(patchSize);
+    end
 end
 
 % for mathematica do corrections on dimension order
@@ -443,12 +459,12 @@ analyticD2Lambda = analyticD2Lambda(logical([1 1 1 0 0 0 0 0]'*[1 1 1 0 0 0 0 0]
 NDrms(gradLambdas{1},analyticDLambda{1})
 direction = {'x','y','z'};
 for ii = 1:numel(gradLambdas)
-   plot3Dstack(cat(1,gradLambdas{ii},analyticDLambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d/d' direction{ii}]);
+    plot3Dstack(cat(1,gradLambdas{ii},analyticDLambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d/d' direction{ii}]);
 end
 
 for ii = 1:numel(hessLambdas)
     [xx,yy] = ind2sub(size(hessLambdas),ii);
-   plot3Dstack(cat(2,hessLambdas{ii},analyticD2Lambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d2/d' direction{xx} 'd' direction{yy}]);
+    plot3Dstack(cat(2,hessLambdas{ii},analyticD2Lambda{ii}),'cbar',true,'projectionFunc',@maxextremumproj,'text',['(left: numeric, right: analytic 3D gaussian) d2/d' direction{xx} 'd' direction{yy}]);
 end
 plot3Dstack(cat(2,lambdas,analyticLambda),'cbar',true,'projectionFunc',@maxextremumproj,'text','(left: numeric, right: analytic 3D gaussian) lambdas');
 
@@ -516,7 +532,7 @@ end
 analyticD{end+1} = k;
 
 for ii = 1:numel(genDLambda)-1
- plot3Dstack(cat(2,genDLambda{ii},analyticD{ii}),'projectionFunc',@maxextremumproj)   
+    plot3Dstack(cat(2,genDLambda{ii},analyticD{ii}),'projectionFunc',@maxextremumproj)
 end
 
 
