@@ -1,9 +1,9 @@
 %% design interpolating findspotstage1
 patchSize = [19 21 25];
-sigmassq1 = [2,2,2];
-mux = 0:0.5:0.5;
-muy = 0:0.5:0.5;
-muz = 0:0.5:0.5;
+sigmassq1 = [1,2,3];
+mux = 0:0.25:0.75;
+muy = 0:0.25:0.75;
+muz = 0:0.25:0.75;
 kernCell = cell(numel(mux),numel(muy),numel(muz));
 for ii = 1:numel(mux)
     for jj = 1:numel(muy)

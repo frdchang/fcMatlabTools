@@ -8,7 +8,8 @@ function [daGauss,separateComponents] = ndGauss(sigmaSQVector,sizeVector,varargi
 % separateComponents is the separable components that can be used for
 % separable convolution
 % 
-% [notes] - sum of components = 1
+% [notes] - peak is set to 1.  if the dataset is even, then the invisible
+% peak that is in between pixels is 1
 %
 %
 % fchang@fas.harvard.edu
@@ -26,7 +27,7 @@ for i = 1:dims
     currDomain = -defineDomain:defineDomain;
     currGauss = normpdf(currDomain,muVector(i),sqrt(sigmaSQVector(i)));
     % normalize each component, which normalizes total components
-    currGauss = currGauss / max(currGauss(:));
+     currGauss = currGauss*sqrt(2*pi) .* sqrt(sigmaSQVector(i));
     reshapeVec = ones(dims,1);
     reshapeVec(i) = numel(currGauss);
     currGauss = reshape(currGauss,reshapeVec');
