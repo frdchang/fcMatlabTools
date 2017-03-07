@@ -5,7 +5,7 @@ sigmassq1 = [2,2,2];
 domains = genMeshFromData(kern1);
 cameraVariance = ones(size(kern1));
 kernObj = myPattern_Numeric(kern1);
-buildThetas = {{kernObj,[9 getCenterCoor(patchSize)]},{5}};
+buildThetas = {{kernObj,[6 getCenterCoor(patchSize)]},{5}};
 thetaInputs = {1,buildThetas};
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
 kern = cropCenterSize(lambdas,[7,7,7]);
@@ -21,7 +21,14 @@ estimated = findSpotsStage1V2(sampledData,kern,cameraVariance);
 
 [ gradients ] = calcGradientFilter(sampledData,estimated,kern,kernDs,cameraVariance);
 [ hessians ] = calcHessianFilter(sampledData,estimated,kern,kernDs,kernD2s,cameraVariance);
+
+myCoor = num2cell(getCenterCoor(patchSize));
+myGradient = cellfun(@(x) x(myCoor{:}),gradients);
+myHessian = cellfun(@(x) x(myCoor{:}),hessians);
+myHessian\myGradient
 plot3Dstack(estimated.LLRatio);
+[updateX,updateY,updateZ] = calcNewtonUpdate(gradients,hessians);
+
 imtool3D(gradientMag);
 %% design interpolating findspotstage1
 patchSize = [19 21 25];
