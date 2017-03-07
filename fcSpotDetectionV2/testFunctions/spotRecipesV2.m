@@ -1,3 +1,28 @@
+%% design gradient magnitude filter
+patchSize = [21 21 21];
+sigmassq1 = [2,2,2];
+[kern1,~] = ndGauss(sigmassq1,patchSize);
+domains = genMeshFromData(kern1);
+cameraVariance = ones(size(kern1));
+kernObj = myPattern_Numeric(kern1);
+buildThetas = {{kernObj,[9 getCenterCoor(patchSize)]},{5}};
+thetaInputs = {1,buildThetas};
+[lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
+kern = cropCenterSize(lambdas,[7,7,7]);
+kernDs = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),gradLambdas);
+kernD2s = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),hessLambdas);
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
+
+
+[sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+electronData = returnElectrons(sampledData,cameraParams.gain,cameraParams.offset,cameraParams.QE);
+estimated = findSpotsStage1V2(sampledData,kern,cameraVariance);
+
+
+[ gradients ] = calcGradientFilter(sampledData,estimated,kern,kernDs,cameraVariance);
+[ hessians ] = calcHessianFilter(sampledData,estimated,kern,kernDs,kernD2s,cameraVariance);
+plot3Dstack(estimated.LLRatio);
+imtool3D(gradientMag);
 %% design interpolating findspotstage1
 patchSize = [19 21 25];
 sigmassq1 = [1,2,3];
