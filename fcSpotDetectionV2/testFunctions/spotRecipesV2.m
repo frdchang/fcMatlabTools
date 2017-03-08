@@ -5,7 +5,7 @@ sigmassq1 = [2,2,2];
 domains = genMeshFromData(kern1);
 cameraVariance = ones(size(kern1));
 kernObj = myPattern_Numeric(kern1);
-buildThetas = {{kernObj,[6 getCenterCoor(patchSize)]},{5}};
+buildThetas = {{kernObj,[3 getCenterCoor(patchSize)]},{0}};
 thetaInputs = {1,buildThetas};
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
 kern = cropCenterSize(lambdas,[7,7,7]);
@@ -27,9 +27,11 @@ myGradient = cellfun(@(x) x(myCoor{:}),gradients);
 myHessian = cellfun(@(x) x(myCoor{:}),hessians);
 myHessian\myGradient
 plot3Dstack(estimated.LLRatio);
+% gradients = cellfunNonUniformOutput(@gpuArray,gradients);
+% hessians = cellfunNonUniformOutput(@gpuArray,hessians);
 [updateX,updateY,updateZ] = calcNewtonUpdate(gradients,hessians);
-
-imtool3D(gradientMag);
+newtonMag = sqrt(updateX.^2+updateY.^2+updateZ.^2);
+plot3Dstack(newtonMag<0.002 & estimated.LLRatio>100);
 %% design interpolating findspotstage1
 patchSize = [19 21 25];
 sigmassq1 = [1,2,3];
@@ -45,7 +47,7 @@ for ii = 1:numel(mux)
     end
 end
  [ estimated ] = findSpotsStage1V2Interpolate(kernCell{1},kernCell,ones(size(kernCell{1})));
-
+plot3Dstack(estimated.LLRatio)
 %%  checking llratio by arrayfun gpu
 patchSize = [19 21 25];
 sigmassq1 = [2,2,2];

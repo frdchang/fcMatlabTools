@@ -14,7 +14,7 @@ function [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(trueDa
 params.readNoiseData     = 1.6;     % electrons^2 (sigma)
 params.gain          = 1/0.49;     % ADU/electrons
 params.offset        = 100;     % ADU units
-params.QE            = 0.7;
+params.QE            = 0.82;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
