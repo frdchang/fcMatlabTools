@@ -1,23 +1,29 @@
 %% first find optimal gaussian size
-stackpathhighSNR = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/Image 32-line7.tif';
-stack = importStack(stackpath);
+stackpathhighSNR = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/Image 32-line678.tif';
+stackpathlowSNR = '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/Image 39-line678.tif';
+stackGOOD = importStack(stackpathhighSNR);
+stackBAD = importStack(stackpathlowSNR);
 % the result is as follows
-genSigmaLandscape(stack,genProcessedFileName(stackpath,'genSigmaLandscape'));
+% remove first slice as the stage is screwed up
+stackGOOD(:,:,1) = [];
+stackBAD(:,:,1) = [];
 
+genSigmaLandscape(stackBAD,genProcessedFileName(stackpathlowSNR,'genSigmaLandscape'));
+genSigmaLandscape(stackGOOD,genProcessedFileName(stackpathhighSNR,'genSigmaLandscape'));
 threshVal = 0.0015;
-sigmaSQXY = 1:0.2:5;
-sigmaSQZ  = 1:0.2:5;
-XY = 3;
-Z = 4;
-patchSize = 30;
-sigmaSQXY= sigmaSQXY(XY);
-sigmaSQZ = sigmaSQZ(Z);
+sigmaXY = sqrt(0.1:0.05:3);
+sigmaZ  = sqrt(0.1:0.05:3);
+XY = 23;
+Z  = 23;
+patchSize = 31;
+sigmaSQXY= sigmaXY(XY)^2;
+sigmaSQZ = sigmaZ(Z)^2;
 kern = ndGauss([sigmaSQXY,sigmaSQXY,sigmaSQZ],[patchSize,patchSize,patchSize]);
 kern = threshPSF(kern,threshVal);
-% sigmaSQXY = 1.4
-% sigmaSQZ = 1.6
-% usually i make kernel centered on odd number, but having it even number
-% seems better.  will  look into it in the future
+plot3Dstack(kern);
+% sigmaSQXY = 1.2
+% sigmaSQZ = 1.2
+
 
 %% compare LLRatio given WLS versus PoissPoiss approx
 kern = gpuArray(kern);
@@ -29,7 +35,7 @@ imshow(cat(2,norm0to1(estimated.LLRatio{2}(:,:,9)),norm0to1(estimated.LLRatio{1}
 
 %% apply this to a folder
 widefieldImages =  '/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles/';
-myFiles         = getAllFiles(widefieldImages,'tif');
+myFiles         = getAllFiles(widefieldImages,'lsm');
 myFiles         = convertListToListofArguments(myFiles);
 estimated       = applyFuncTo_listOfListOfArguments(myFiles,@openImage_applyFuncTo,{},@findSpotsStage1V2,{kern,[],'loadIntoGPU',true},@saveToProcessed_outputStruct,{[0 1 0 0 1 1]},'doParallel',false);
 
@@ -49,7 +55,7 @@ simDeconAvg = applyFuncTo_listOfListOfArguments(procFiles,@openImage_applyFuncTo
 % if sim stack, 11 slices, pluck out 4th slice
 % if wf stack, 17 slices,  pluck out 9th slice
 epiRawFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles');
-myProcessedFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles/[findSpotsStage1V2(5eUHPw)]');
+myProcessedFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-EpiRawFiles/[findSpotsStage1V2(E217FA)]');
 SimDeconEpiFiles =  getAllFilesForApply('/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimDeconEpi/[inputPassThru]');
 SumSimRawFiles = getAllFilesForApply( '/mnt/btrfs/fcProcessed/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles/[sumSIMStack]');
 simRawFiles = getAllFilesForApply('/mnt/btrfs/fcDataStorage/fcCheckout/Elyra/20170216/usethisfuckingshit/conversion/LSM516bit_usethis/ArgoLight-SimRawFiles');
