@@ -58,9 +58,9 @@ cameraVariance = gpuArray(ones(size(kern1)));
 estimated = findSpotsStage1V2(kern1,kern1,cameraVariance);
 
 %% lets design iterative multi spot fitting
-patchSize = [19 21 25];
+patchSize = [25 25 25];
 sigmassq1 = [2,2,2];
-sigmassq2 = [4,4,4];
+sigmassq2 = [3,3,3];
 % build the numeric multi emitter
 [kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
 [kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
@@ -68,19 +68,46 @@ domains = genMeshFromData(kern1);
 kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
-buildThetas1 = {{kernObj1,[11 5 12 13]},{kernObj1,[7 15 4 14]},{5}};
-buildThetas2 = {{kernObj2,[20 6 6 13]},{10}};
+buildThetas1 = {{kernObj1,[11 5 12 13]},{kernObj1,[7 15 4 14]},{1}};
+buildThetas2 = {{kernObj2,[12 6 6 13]},{1}};
 Kmatrix      = [1 0.2;0.6 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
+% build max theta
+buildMaxThetas1 = {[1 1 1 1],[1 1 1 1],1};
+buildMaxThetas2 = {[1 1 1 1],1};
+kmatrixMax      = [0 0;0 0];
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+kern2 = threshPSF(kern2,0.015);
+kern1 = cropCenterSize(kern1,size(kern2));
+% generate true lambdas
+[trueLambdas1,~,~] = bigLambda(domains,{1,buildThetas1});
+[trueLambdas2,~,~] = bigLambda(domains,{1,buildThetas2});
+plot3Dstack(trueLambdas1{1},'text','ground truth 1');
+plot3Dstack(trueLambdas2{1},'text','ground truth 2');
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+plot3Dstack(bigLambdas{1},'text','measured channel 1');
+plot3Dstack(bigLambdas{2},'text','measured channel 2');
 % estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+plot3Dstack(estimated.A1{1},'text','est A1 channel 1');
+plot3Dstack(estimated.A1{2},'text','est A1 channel 2');
 
+sigmasqs = cell(size(bigLambdas));
+for ii = 1:numel(bigLambdas)
+    sigmasqs{ii} = ones(size(bigLambdas{ii}));
+end
 
-candidates = selectCandidates(estimated,bigLambdas);
-finalEstimates = findSpotsStage2V2(candidates);
+buildThetas1Er = {{kernObj1,[11.5 6 13 14]},{kernObj1,[7.6 15 3 13]},{0}};
+buildThetas2Er = {{kernObj2,[12.5 6.5 6.5 12.3]},{0}};
+Kmatrix      = [1 0.2;0.6 1];
+thetaInputsEr = {buildThetas1Er,buildThetas2Er};
+thetaInputsEr = {Kmatrix,thetaInputsEr{:}};
+[ newtonBuild ] = newtonRaphsonBuild(maxThetaInput);
+state = MLEbyIterationV2(bigLambdas,thetaInputsEr,sigmasqs,domains,{{maxThetaInput,4000},{newtonBuild,1000}},'doPlotEveryN',100);
 %% for gfp and tdtomato on redGr filter cube i calculate the kmatrix to be
 % greenTTL then cyanTTL for tdTomato then GFP . 20170220
 clear;
