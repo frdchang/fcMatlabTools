@@ -98,7 +98,10 @@ electronData = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(electronData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 plot3Dstack(estimated.A1{1},'text','est A1 channel 1');
 plot3Dstack(estimated.A1{2},'text','est A1 channel 2');
-
+estimated1 = findSpotsStage1V2(electronData{1},kern1,ones(size(bigLambdas{1})));
+estimated2 = findSpotsStage1V2(electronData{2},kern2,ones(size(bigLambdas{1})));
+plot3Dstack(cat(2,estimated.LLRatio,estimated1.LLRatio,estimated2.LLRatio,estimated2.LLRatio+estimated1.LLRatio));
+% i don't think current LLRatio is correct
 sigmasqs = cell(size(bigLambdas));
 for ii = 1:numel(bigLambdas)
     sigmasqs{ii} = ones(size(bigLambdas{ii}));
