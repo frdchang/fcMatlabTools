@@ -68,8 +68,8 @@ domains = genMeshFromData(kern1);
 kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
-buildThetas1 = {{kernObj1,[11 5 12 13]},{kernObj1,[7 15 4 14]},{1}};
-buildThetas2 = {{kernObj2,[12 6 6 13]},{1}};
+buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{1}};
+buildThetas2 = {{kernObj2,[7 5 12 13]},{1}};
 Kmatrix      = [1 0.2;0.6 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
