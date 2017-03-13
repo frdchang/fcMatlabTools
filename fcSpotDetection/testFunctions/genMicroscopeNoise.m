@@ -11,31 +11,55 @@ function [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(trueDa
 %   correct in the future.
 
 %--parameters--------------------------------------------------------------
-params.readNoiseData     = 1.6;     % electrons^2 (sigma)
+params.readNoiseData = 1.6;     % electrons^2 (sigma)
 params.gain          = 1/0.49;     % ADU/electrons
 params.offset        = 100;     % ADU units
 params.QE            = 0.82;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+if iscell(trueData)
+    outputs = cellfunNonUniformOutput(@(x) doDaSample(x,params),trueData);
+    cameraParams = outputs{1}.cameraParams;
+    sampledData = cell(numel(outputs),1);
+    poissonNoiseOnly = cell(numel(outputs),1);
+    for ii = 1:numel(outputs)
+       sampledData{ii} = outputs{ii}.sampledData;
+       poissonNoiseOnly{ii} = outputs{ii}.poissonNoiseOnly;
+    end
+else
+    myOutput = doDaSample(trueData,params);
+    sampledData = myOutput.sampledData;
+    poissonNoiseOnly = myOutput.poissonNoiseOnly;
+    cameraParams = myOutput.cameraParams;
+end
+end
+
+function [myOutput] = doDaSample(myData,params)
 % lambda photons to lambda electrons captured
-sampledData = double(trueData)*params.QE;
+doTheSample = double(myData)*params.QE;
 % quantum noise
-sampledData = poissrnd(sampledData);
-poissonNoiseOnly = sampledData;
+doTheSample = poissrnd(doTheSample);
+poissonOnlySample = doTheSample;
 % read noise
 % if read noise value is infinity just put large number
 params.readNoise(params.readNoiseData==inf) = 10000;
 if isscalar(params.readNoiseData)
-    sampledData = sampledData + normrnd(0,sqrt(params.readNoiseData),size(trueData));
+    doTheSample = doTheSample + normrnd(0,sqrt(params.readNoiseData),size(myData));
 else
-    sampledData = sampledData + normrnd(0,sqrt(params.readNoiseData));
+    doTheSample = doTheSample + normrnd(0,sqrt(params.readNoiseData));
 end
 % convert from electrons to ADU
-sampledData = sampledData.*params.gain + params.offset;
-cameraParams.readNoiseData = params.readNoiseData;
-cameraParams.gain          = params.gain;
-cameraParams.offset        = params.offset;
-cameraParams.QE            = params.QE;
+doTheSample = doTheSample.*params.gain + params.offset;
+myCameraParams.readNoiseData = params.readNoiseData;
+myCameraParams.gain          = params.gain;
+myCameraParams.offset        = params.offset;
+myCameraParams.QE            = params.QE;
+
+
+myOutput.sampledData = doTheSample;
+myOutput.poissonNoiseOnly = poissonOnlySample;
+myOutput.cameraParams = myCameraParams;
+end
 
 
