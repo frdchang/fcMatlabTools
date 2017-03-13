@@ -94,7 +94,7 @@ plot3Dstack(bigLambdas{2},'text','measured channel 2');
 
 % estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
-electronData = returnElectrons(sampledData,cameraParams.gain,cameraParams.offset,cameraParams.QE);
+electronData = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(electronData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 plot3Dstack(estimated.A1{1},'text','est A1 channel 1');
 plot3Dstack(estimated.A1{2},'text','est A1 channel 2');

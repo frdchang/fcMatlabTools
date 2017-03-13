@@ -14,9 +14,7 @@ if ~isequal(prevPathToCalibration,pathToCalibration)
     prevPathToCalibration = pathToCalibration;
 end
 
-if iscell(data)
-    dataInElectrons = cellfunNonUniformOutput(@(x) returnElectrons(x,calibration),data);
-else
-    dataInElectrons = returnElectrons(data,calibration);
-end
+
+dataInElectrons = returnElectrons(data,calibration);
+
 

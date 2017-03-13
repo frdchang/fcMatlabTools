@@ -11,28 +11,30 @@ function [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(trueDa
 %   correct in the future.
 
 %--parameters--------------------------------------------------------------
-params.readNoiseData = 1.6;     % electrons^2 (sigma)
-params.gain          = 1/0.49;     % ADU/electrons
-params.offset        = 100;     % ADU units
-params.QE            = 0.82;
+params.readNoiseData = 1.0;        % electrons^2 (sigma) slow scan for flash v2+
+params.gain          = 1/0.49;     % ADU/electrons  0.49 = electron / count
+params.offset        = 100;        % ADU units
+params.QE            = 0.82;       % flash v2+
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 if iscell(trueData)
     outputs = cellfunNonUniformOutput(@(x) doDaSample(x,params),trueData);
-    cameraParams = outputs{1}.cameraParams;
     sampledData = cell(numel(outputs),1);
     poissonNoiseOnly = cell(numel(outputs),1);
     for ii = 1:numel(outputs)
-       sampledData{ii} = outputs{ii}.sampledData;
-       poissonNoiseOnly{ii} = outputs{ii}.poissonNoiseOnly;
+        sampledData{ii} = outputs{ii}.sampledData;
+        poissonNoiseOnly{ii} = outputs{ii}.poissonNoiseOnly;
     end
 else
     myOutput = doDaSample(trueData,params);
     sampledData = myOutput.sampledData;
     poissonNoiseOnly = myOutput.poissonNoiseOnly;
-    cameraParams = myOutput.cameraParams;
 end
+cameraParams.cameraVarianceInADU = params.readNoiseData.*(params.gain.^2);
+cameraParams.gainElectronPerCount = 1/params.gain;
+cameraParams.offsetInAdu = params.offset;
+cameraParams.QE = params.QE;
 end
 
 function [myOutput] = doDaSample(myData,params)
