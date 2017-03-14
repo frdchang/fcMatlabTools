@@ -70,7 +70,7 @@ kernObj2 = myPattern_Numeric(kern2);
 
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{1}};
 buildThetas2 = {{kernObj2,[7 5 12 13]},{1}};
-Kmatrix      = [1 0.2;0.6 1];
+Kmatrix      = [1 0;0 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
