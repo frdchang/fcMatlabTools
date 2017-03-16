@@ -1,4 +1,4 @@
-function modelsummedSq = calcModelSquaredForLL1(Kmatrix,As,Bs,k1,k3,k5)
+function modelsummedSq = calcModelSquaredForLL1(Kmatrix,As,Bs,k1,k3,crossSpotKerns,k5)
 %CALCMODELSQUARED calculates the (A*F+B+...)^2 by expanding the quadratic
 %and then summing the terms
 modelsummedSq = 0;
@@ -15,7 +15,7 @@ end
 end
 
 
-function modelsummedSq = givenABs(As,Bs,k1,k3,k5)
+function modelsummedSq = givenABs(As,Bs,k1,k3,crossSpotKerns,k5)
 AandB = interleave(As,Bs);
 kIndicator = zeros(numel(AandB),1);
 kIndicator(1:2:end) = 2;
