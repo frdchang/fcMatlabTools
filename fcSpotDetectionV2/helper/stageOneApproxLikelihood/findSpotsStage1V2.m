@@ -233,8 +233,11 @@ else
     for ii = 1:numel(spotKern)
         for jj = ii+1:numel(spotKern)
             crossSpotKerns{myIndex} = convFunc(invVarSaved,spotKern{ii}.*spotKern{jj});
+            myIndex = myIndex+1;
         end 
     end
+    
+    
     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,sumCellContents(k1)/numel(spotKern),sumCellContents(k3)/numel(spotKern),k5);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
