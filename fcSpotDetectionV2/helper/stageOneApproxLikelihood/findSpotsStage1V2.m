@@ -238,7 +238,8 @@ else
     end
     
     
-    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,sumCellContents(k1)/numel(spotKern),sumCellContents(k3)/numel(spotKern),k5);
+    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,crossSpotKerns,k5);
+    % delete cross terms?
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     clear('squaredCompLL1','crossCompLL1');
