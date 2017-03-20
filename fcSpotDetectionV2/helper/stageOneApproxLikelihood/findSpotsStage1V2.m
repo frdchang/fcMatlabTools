@@ -225,21 +225,7 @@ else
     % is an approximation.  note that i will write an arrayfun version that
     % will simply calculate directly.
     
-    % calculate cross terms for spotKern
-    numKerns = numel(spotKern);
-    numCrossTerms = ((numKerns-1)^2) + (numKerns-1)/2;
-    crossSpotKerns = cell(numCrossTerms,1);
-    myIndex = 1;
-    for ii = 1:numel(spotKern)
-        for jj = ii+1:numel(spotKern)
-            crossSpotKerns{myIndex} = convFunc(invVarSaved,spotKern{ii}.*spotKern{jj});
-            myIndex = myIndex+1;
-        end 
-    end
-    
-    
-    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,crossSpotKerns,k5);
-    % delete cross terms?
+    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5,spotKern,convFunc,invVarSaved);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     clear('squaredCompLL1','crossCompLL1');

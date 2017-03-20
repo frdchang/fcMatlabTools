@@ -17,7 +17,7 @@ kernObj3 = myPattern_Numeric(kern3);
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
 buildThetas3 = {{kernObj3,[7 20 20 20]},{0}};
-Kmatrix      = [1 0.5 0;0 1 0; 0 0.5 1];
+Kmatrix      = [1 0.5 0.8;0.8 1 0.5; 0.5 0.5 1];
 thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
@@ -53,6 +53,15 @@ plot3Dstack(estimated.A1{3},'text','est A1 channel 3');
 max(estimated.A1{3}(:))
 max(estimated.A1{2}(:))
 max(estimated.A1{3}(:))
+plot3Dstack(estimated.LLRatio,'text','LLRatio');
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+estimated3 = findSpotsStage1V2(photonData{3},kern3,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+plot3Dstack(cat(2,estimated.LLRatio,estimated1.LLRatio));
+plot3Dstack(cat(2,estimated.LLRatio,estimated2.LLRatio));
+plot3Dstack(cat(2,estimated.LLRatio,estimated3.LLRatio));
+
+
 %% design gradient magnitude filter
 patchSize = [21 21 21];
 sigmassq1 = [2,2,2];
