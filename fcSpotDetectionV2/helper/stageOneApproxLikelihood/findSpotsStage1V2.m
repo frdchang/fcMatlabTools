@@ -225,7 +225,7 @@ else
     % is an approximation.  note that i will write an arrayfun version that
     % will simply calculate directly.
     
-    % calcualte cross terms for spotKern
+    % calculate cross terms for spotKern
     numKerns = numel(spotKern);
     numCrossTerms = ((numKerns-1)^2) + (numKerns-1)/2;
     crossSpotKerns = cell(numCrossTerms,1);

@@ -1,5 +1,4 @@
-%% do three color 
-%% lets design iterative multi spot fitting
+%% do three color iterative multi spot fitting
 close all;
 clear;
 patchSize = [31 31 31];

@@ -1,4 +1,4 @@
-function modelsummedSq = calcModelSquaredForLL1(Kmatrix,As,Bs,k1,k3,crossSpotKerns,k5)
+function modelsummedSq = calcModelSquaredForLL1(Kmatrix,As,Bs,k1,k3,k5,spotKerns)
 %CALCMODELSQUARED calculates the (A*F+B+...)^2 by expanding the quadratic
 %and then summing the terms
 modelsummedSq = 0;
@@ -15,7 +15,9 @@ end
 end
 
 
-function modelsummedSq = givenABs(As,Bs,k1,k3,crossSpotKerns,k5)
+function modelsummedSq = givenABs(As,Bs,k1,k3,k5,spotKerns)
+% assuming its k11*A1*F1, K11*B1, K21*A2*F2, K21*B2
+
 AandB = interleave(As,Bs);
 kIndicator = zeros(numel(AandB),1);
 kIndicator(1:2:end) = 2;
@@ -32,3 +34,16 @@ for ii = 1:numel(AandB)
 end
 
 end
+
+
+%     % calculate cross terms for spotKern
+%     numKerns = numel(spotKern);
+%     numCrossTerms = ((numKerns-1)^2) + (numKerns-1)/2;
+%     crossSpotKerns = cell(numCrossTerms,1);
+%     myIndex = 1;
+%     for ii = 1:numel(spotKern)
+%         for jj = ii+1:numel(spotKern)
+%             crossSpotKerns{myIndex} = convFunc(invVarSaved,spotKern{ii}.*spotKern{jj});
+%             myIndex = myIndex+1;
+%         end 
+%     end
