@@ -1,3 +1,78 @@
+%% do single color test first to see LLRatio is correct
+%% do three color iterative multi spot fitting
+close all;
+clear;
+patchSize = [31 31 31];
+sigmassq1 = [2,2,2];
+sigmassq2 = [3,3,3];
+
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1);
+kernObj2 = myPattern_Numeric(kern2);
+
+centerCoor = getCenterCoor(size(kern1));
+buildThetas1 = {{kernObj1,[20 centerCoor+2]},{0}};
+buildThetas2 = {{kernObj2,[10 centerCoor-2]},{0}};
+Kmatrix      = [1 0;0 1];
+% Kmatrix      = eye(size(Kmatrix));
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+% build max theta
+buildMaxThetas1 = {[1 1 1 1],1};
+buildMaxThetas2 = {[1 1 1 1],1};
+kmatrixMax      = zeros(size(Kmatrix));
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+
+% generate true lambdas
+[trueLambdas1,~,~] = bigLambda(domains,{1,buildThetas1});
+[trueLambdas2,~,~] = bigLambda(domains,{1,buildThetas2});
+
+% plot3Dstack(trueLambdas1{1},'text','ground truth 1');
+% plot3Dstack(trueLambdas2{1},'text','ground truth 2');
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+% plot3Dstack(bigLambdas{1},'text','measured channel 1');
+% plot3Dstack(bigLambdas{2},'text','measured channel 2');
+
+kern2 = threshPSF(kern2,0.015);
+kern1 = cropCenterSize(kern1,size(kern2));
+%  estimatedtruth = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+N = 2000;
+A1Holder1 = zeros(N,1);
+A1Holder2 = zeros(N,1);
+for ii = 1:N
+    display(ii);
+[sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
+[electronData,photonData] = returnElectrons(sampledData,cameraParams);
+estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+% max(estimatedtruth.A1{1}(:))
+% max(estimatedtruth.A1{2}(:))
+
+A1Holder1(ii) = max(estimated.A1{1}(:));
+A1Holder2(ii) = max(estimated.A1{2}(:));
+end
+mu1 = mean(A1Holder1);mu2 = mean(A1Holder2);
+histogram(A1Holder1);hold on;histogram(A1Holder2);
+plot([mu1,mu1],ylim,'r--','LineWidth',2);plot([mu2,mu2],ylim,'r--','LineWidth',2);
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})));
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})));
+
+plot3Dstack(cat(2,trueLambdas1{1},trueLambdas2{1},estimated.A1{1},estimated.A1{2},estimated1.A1,estimated2.A1),'text','est A1 channel 1 then 2');
+
+diagLLRatio = estimated1.LLRatio + estimated2.LLRatio;
+plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
+imtool3D(estimated.LLRatio-diagLLRatio);
+centerCoorCell = num2cell(centerCoor);
+[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually(photonData{1},estimated.A1{1}(centerCoorCell{:}),estimated.B1{1}(centerCoorCell{:}),estimated.B0{1}(centerCoorCell{:}),kern1);
+
+
 %% do three color iterative multi spot fitting
 close all;
 clear;
@@ -17,7 +92,8 @@ kernObj3 = myPattern_Numeric(kern3);
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
 buildThetas3 = {{kernObj3,[7 20 20 20]},{0}};
-Kmatrix      = [1 0.5 0.8;0.8 1 0.5; 0.5 0.5 1];
+Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
+% Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
@@ -54,12 +130,15 @@ max(estimated.A1{3}(:))
 max(estimated.A1{2}(:))
 max(estimated.A1{3}(:))
 plot3Dstack(estimated.LLRatio,'text','LLRatio');
-estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-estimated3 = findSpotsStage1V2(photonData{3},kern3,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})));
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})));
+estimated3 = findSpotsStage1V2(photonData{3},kern3,ones(size(bigLambdas{1})));
 plot3Dstack(cat(2,estimated.LLRatio,estimated1.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated2.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated3.LLRatio));
+
+diagLLRatio = estimated1.LLRatio + estimated2.LLRatio + estimated3.LLRatio;
+plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 
 
 %% design gradient magnitude filter
