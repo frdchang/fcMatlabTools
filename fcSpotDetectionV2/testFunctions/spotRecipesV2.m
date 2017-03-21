@@ -44,23 +44,12 @@ maxThetaInput = {kmatrixMax,maxThetaInput{:}};
 kern2 = threshPSF(kern2,0.015);
 kern1 = cropCenterSize(kern1,size(kern2));
 %  estimatedtruth = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-N = 2000;
-A1Holder1 = zeros(N,1);
-A1Holder2 = zeros(N,1);
-for ii = 1:N
-    display(ii);
+
+ cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-% max(estimatedtruth.A1{1}(:))
-% max(estimatedtruth.A1{2}(:))
 
-A1Holder1(ii) = max(estimated.A1{1}(:));
-A1Holder2(ii) = max(estimated.A1{2}(:));
-end
-mu1 = mean(A1Holder1);mu2 = mean(A1Holder2);
-histogram(A1Holder1);hold on;histogram(A1Holder2);
-plot([mu1,mu1],ylim,'r--','LineWidth',2);plot([mu2,mu2],ylim,'r--','LineWidth',2);
 estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})));
 estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})));
 
@@ -70,7 +59,8 @@ diagLLRatio = estimated1.LLRatio + estimated2.LLRatio;
 plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 imtool3D(estimated.LLRatio-diagLLRatio);
 centerCoorCell = num2cell(centerCoor);
-[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually(photonData{1},estimated.A1{1}(centerCoorCell{:}),estimated.B1{1}(centerCoorCell{:}),estimated.B0{1}(centerCoorCell{:}),kern1);
+
+[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually(photonData,kern1,estimated.A1{1},estimated.B1{1},estimated.B0{1},cameraVariance,Kmatrix);
 
 
 %% do three color iterative multi spot fitting
