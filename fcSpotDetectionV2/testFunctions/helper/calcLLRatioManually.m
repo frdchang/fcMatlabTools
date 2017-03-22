@@ -1,7 +1,9 @@
-function [modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually(data,kern,A1,B1,B0,cameraVariance,Kmatrix)
+function [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = calcLLRatioManually(data,kern,A1,B1,B0,cameraVariance)
 %CALCLLRATIOMANUALLY Summary of this function goes here
 %   Detailed explanation goes here
-
+%
+% for two channels it was checked to be correct by giving it ground truth
+% data and seeing if LL1 = 0 at the proper coordinate.  
 sizeData = size(data);
 sizeKern = size(kern);
 % data = gpuArray(data);
@@ -60,25 +62,29 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
                     mymodelSq1 = mymodelSq1 + lambda1.^2;
                     mymodelSq2 = mymodelSq2 + lambda0.^2;
                     % this is poisson poisson approximation
-                    myLL1 = myLL1 -((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
-                    myLL0 = myLL0 -((lambda0 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
-                    myLL1SansDataSq = myLL1 + data(ii,jj,kk)^2;
+                    sqError1 = ((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
+                    sqError2 = ((lambda0 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
+                     myLL1 = myLL1 - sqError1;
+                     myLL0 = myLL0 - sqError2;
+%                     myLL1 = myLL1 -(lambda1^2 - 2*lambda1*data(ii,jj,kk))/cameraVariance(ii,jj,kk);
+%                     myLL0 = myLL0 -(lambda0^2 - 2*lambda0*data(ii,jj,kk))/cameraVariance(ii,jj,kk);
+                    myLL1SansDataSq = myLL1SansDataSq - sqError1 +  (data(ii,jj,kk)^2)/cameraVariance(ii,jj,kk);
 %                     myLLRatio = myLLRatio  + myLL1 - myLL0;
-%  myLLRatio = myLLRatio  + -((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((B0(x,y,z)- data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
+%   myLLRatio = myLLRatio  + -((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((B0(x,y,z)- data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
                 end
             end
         end
-        myLLRatio = myLL1 - myLL0;
+         myLLRatio = myLL1 - myLL0;  % this has more numerical noise for some reason
     end
 
 [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = arrayfun(@gpuLLRatioPerPatch,idx,idy,idz);
 % note that the output is flipped xy
-modelSq1 = permute(modelSq1,[2 1 3]);
-modelSq2 = permute(modelSq2,[2 1 3]);
-LL1 = permute(LL1,[2 1 3]);
-LL0 = permute(LL0,[2 1 3]);
-LL1SansDataSq = permute(LL1SansDataSq,[2 1 3]);
-LLRatio = permute(LLRatio,[2 1 3]);
+modelSq1 = gather(permute(modelSq1,[2 1 3]));
+modelSq2 = gather(permute(modelSq2,[2 1 3]));
+LL1 = gather(permute(LL1,[2 1 3]));
+LL0 = gather(permute(LL0,[2 1 3]));
+LL1SansDataSq = gather(permute(LL1SansDataSq,[2 1 3]));
+LLRatio = gather(permute(LLRatio,[2 1 3]));
 end
 
 

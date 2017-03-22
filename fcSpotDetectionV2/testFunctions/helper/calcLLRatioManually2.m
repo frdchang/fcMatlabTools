@@ -1,9 +1,9 @@
-function [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = calcLLRatioManually2(data,kern,A1,B1,B0,cameraVariance,Kmatrix)
+function [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = calcLLRatioManually2(data1,data2,kern1,kern2,A1a,A1b,B1a,B1b,B0a,B0b,cameraVariance,Kmatrix)
 %CALCLLRATIOMANUALLY Summary of this function goes here
 %   Detailed explanation goes here
 
-sizeData = size(data);
-sizeKern = size(kern);
+sizeData = size(data1);
+sizeKern = size(kern1);
 % data = gpuArray(data);
 % kern = gpuArray(kern);
 % A1 = gpuArray(A1);
@@ -31,7 +31,6 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
         myLL1 = 0;
         myLL0 = 0;
         myLL1SansDataSq = 0;
-        myLLRatio = 0;
         for ii = xL:xH
             for jj = yL:yH
                 for kk = zL:zH
@@ -55,18 +54,26 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
                     else
                         zAppend = 0;
                     end
-                    lambda1  = A1(x,y,z)*kern(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1(x,y,z);
-                    lambda0  = B0(x,y,z);
-                    mymodelSq1 = mymodelSq1 + lambda1.^2;
-                    mymodelSq2 = mymodelSq2 + lambda0.^2;
+                    lambda1_1  = Kmatrix(1)*(A1a(x,y,z)*kern1(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1a(x,y,z));
+                    lambda1_2  = Kmatrix(2)*(A1a(x,y,z)*kern1(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1a(x,y,z));
+                    lambda1_3  = Kmatrix(3)*(A1b(x,y,z)*kern2(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1b(x,y,z));
+                    lambda1_4  = Kmatrix(4)*(A1b(x,y,z)*kern2(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1b(x,y,z));
+                    
+                    lambda0_1  = Kmatrix(1)*B0a(x,y,z);
+                    lambda0_2  = Kmatrix(2)*B0a(x,y,z);
+                    lambda0_3  = Kmatrix(3)*B0b(x,y,z);
+                    lambda0_4  = Kmatrix(4)*B0b(x,y,z);
+                    
+                    mymodelSq1 = mymodelSq1 + lambda1_1.^2  + lambda1_2.^2  + lambda1_3.^2  + lambda1_4.^2;
+                    mymodelSq2 = mymodelSq2 + lambda0_1.^2  + lambda0_2.^2  + lambda0_3.^2  + lambda0_4.^2;
                     % this is poisson poisson approximation
-                    sqError1 = ((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
-                    sqError2 = ((lambda0 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
+                    sqError1 = ((lambda1_1 + lambda1_3 - data1(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((lambda1_2 + lambda1_4 - data2(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
+                    sqError2 = ((lambda0_1 + lambda0_3 - data1(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((lambda0_2 + lambda0_4 - data2(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
                      myLL1 = myLL1 - sqError1;
                      myLL0 = myLL0 - sqError2;
 %                     myLL1 = myLL1 -(lambda1^2 - 2*lambda1*data(ii,jj,kk))/cameraVariance(ii,jj,kk);
 %                     myLL0 = myLL0 -(lambda0^2 - 2*lambda0*data(ii,jj,kk))/cameraVariance(ii,jj,kk);
-                    myLL1SansDataSq = myLL1SansDataSq - sqError1 +  (data(ii,jj,kk)^2)/cameraVariance(ii,jj,kk);
+                    myLL1SansDataSq = myLL1SansDataSq - sqError1 +  (data1(ii,jj,kk)^2)/cameraVariance(ii,jj,kk) +  (data2(ii,jj,kk)^2)/cameraVariance(ii,jj,kk);
 %                     myLLRatio = myLLRatio  + myLL1 - myLL0;
 %   myLLRatio = myLLRatio  + -((lambda1 - data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((B0(x,y,z)- data(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
                 end

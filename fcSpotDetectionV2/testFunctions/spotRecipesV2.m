@@ -2,7 +2,7 @@
 %% do three color iterative multi spot fitting
 close all;
 clear;
-patchSize = [31 31 31];
+patchSize = [19 19 19];
 sigmassq1 = [2,2,2];
 sigmassq2 = [3,3,3];
 
@@ -15,9 +15,9 @@ kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
 centerCoor = getCenterCoor(size(kern1));
-buildThetas1 = {{kernObj1,[20 centerCoor+2]},{0}};
-buildThetas2 = {{kernObj2,[10 centerCoor-2]},{0}};
-Kmatrix      = [1 0;0 1];
+buildThetas1 = {{kernObj1,[20 centerCoor]},{20}};
+buildThetas2 = {{kernObj2,[10 centerCoor]},{10}};
+Kmatrix      = [1 0.5;0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
@@ -48,7 +48,7 @@ kern1 = cropCenterSize(kern1,size(kern2));
  cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
 estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
     [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,[]);
