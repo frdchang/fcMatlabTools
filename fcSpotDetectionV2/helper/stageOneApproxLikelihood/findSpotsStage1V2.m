@@ -197,7 +197,7 @@ else
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVarSaved,data);
     k2              = cellfunNonUniformOutput(@(x,spotKern) convFunc(x,spotKern),dataNormed,spotKern);
     k4              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormed);
-    clear('dataNormed','data');
+%     clear('dataNormed','data');
     
     A0              = cellfunNonUniformOutput(@(x,k3) x./k3,k2,k3);
     A0              = gpuApplyInvKmatrix(kMatrix,A0);
@@ -224,17 +224,18 @@ else
     % be similar and when kernels are equal, this is the true answer.  this
     % is an approximation.  note that i will write an arrayfun version that
     % will simply calculate directly.
-    
+    [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually2(data{1},spotKern{1},A1{1},B1{1},B0{1},cameraVariance,[]);
+    [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually2(data{2},spotKern{2},A1{2},B1{2},B0{2},cameraVariance,[]);
     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5,spotKern,convFunc,invVarSaved);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
-    clear('squaredCompLL1','crossCompLL1');
+%     clear('squaredCompLL1','crossCompLL1');
     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
     LL0             = -(squaredCompLL0 + crossCompLL0);
-    clear('squaredCompLL0','crossCompLL0');
+%     clear('squaredCompLL0','crossCompLL0');
     LLRatio         = LL1-LL0;
-    clear('LL0','LL1');
+%     clear('LL0','LL1');
     LLRatio         = gather(LLRatio);
     spotKern        = gather(spotKernSaved);
     

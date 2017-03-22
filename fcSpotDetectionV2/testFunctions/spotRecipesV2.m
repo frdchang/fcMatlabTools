@@ -48,11 +48,11 @@ kern1 = cropCenterSize(kern1,size(kern2));
  cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
-
-estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})));
-estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})));
-
+estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
+    [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,[]);
+    [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually2(photonData{2},kern2,estimated2.A1,estimated2.B1,estimated2.B0,cameraVariance,[]);
 plot3Dstack(cat(2,trueLambdas1{1},trueLambdas2{1},estimated.A1{1},estimated.A1{2},estimated1.A1,estimated2.A1),'text','est A1 channel 1 then 2');
 
 diagLLRatio = estimated1.LLRatio + estimated2.LLRatio;
@@ -60,7 +60,7 @@ plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 imtool3D(estimated.LLRatio-diagLLRatio);
 centerCoorCell = num2cell(centerCoor);
 
-[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually(photonData,kern1,estimated.A1{1},estimated.B1{1},estimated.B0{1},cameraVariance,Kmatrix);
+[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,Kmatrix);
 
 
 %% do three color iterative multi spot fitting
