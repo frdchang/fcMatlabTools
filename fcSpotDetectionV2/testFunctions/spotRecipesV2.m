@@ -30,9 +30,9 @@ maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
 maxThetaInput = {kmatrixMax,maxThetaInput{:}};
 
 
-% generate true lambdas
-[trueLambdas1,~,~] = bigLambda(domains,{1,buildThetas1});
-[trueLambdas2,~,~] = bigLambda(domains,{1,buildThetas2});
+% % generate true lambdas
+% [trueLambdas1,~,~] = bigLambda(domains,{1,buildThetas1});
+% [trueLambdas2,~,~] = bigLambda(domains,{1,buildThetas2});
 
 % plot3Dstack(trueLambdas1{1},'text','ground truth 1');
 % plot3Dstack(trueLambdas2{1},'text','ground truth 2');
