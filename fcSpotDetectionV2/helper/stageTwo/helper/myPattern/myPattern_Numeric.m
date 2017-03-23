@@ -31,6 +31,9 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.numDims         = numel(obj.centerCoorOG);
         end
         
+        function myShape = returnShape(obj)
+           myShape = obj.ndPatternOG;
+        end
         function lambdas = givenTheta(obj,domains,theta,varargin)
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';

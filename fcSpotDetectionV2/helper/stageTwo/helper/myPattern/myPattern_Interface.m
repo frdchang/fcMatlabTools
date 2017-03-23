@@ -10,6 +10,7 @@ classdef myPattern_Interface < handle
         givenTheta(obj,domains,theta)
         % generates the pattern given the theta
         getDerivatives(obj,maxThetas)
+        returnShape(obj)
     end
     
     methods

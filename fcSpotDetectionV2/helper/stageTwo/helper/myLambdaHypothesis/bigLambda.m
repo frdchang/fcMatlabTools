@@ -25,50 +25,76 @@ littleDLambdas = cell(numDatas,1);
 littleD2Lambdas = cell(numDatas,1);
 
 
-% generate little lambdas for each channel
-for ii = 1:numDatas
-    currInput = thetaInputs{ii};
-    currInput = {1,currInput{:}};
-    maxThetaInputs = maxAllThetas(currInput);
-    if isempty(varargin)
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs);
-    else
-        [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
+if params.doMicroscopeBleedThru
+    % this does real bleed thru where the pattern manifested depends on the
+    % pattern for that channel
+    
+    for ii = 1:numDatas
+        currInput = thetaInputs{ii};
+        currShape = currInput{1}{1};
+        currInput = {1,currInput{:}};
+        maxThetaInputs = maxAllThetas(currInput);
+        if isempty(varargin)
+            [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs);
+        else
+            [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
+        end
+        % replace shape object with current shape
+        for jj = 1:numDatas
+            if jj ~= ii
+                currInput = thetaInputs{jj};
+                currInput = replaceShapeObj(currInput,currShape);
+                currInput = {1,currInput{:}};
+                maxThetaInputs= maxAllThetas(currInput);
+                if isempty(varargin)
+                    [littleLambdas{jj},littleDLambdas{jj},littleD2Lambdas{jj}] = littleLambda(domains,currInput,maxThetaInputs);
+                else
+                    [littleLambdas{jj},littleDLambdas{jj},littleD2Lambdas{jj}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
+                end
+            end
+        end
+        % this does regular bleed thru where the pattern just manifests in another
+        % channel by the bleed thru coefficient
+        if ii ==1
+            bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
+            bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
+            bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
+        else
+            bigLambdasTemp   = applyKmatrix(Kmatrix,littleLambdas);
+            bigDLambdasTemp  = applyKmatrix(Kmatrix,littleDLambdas);
+            bigD2LambdasTemp = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
+            
+            bigLambdas{ii} = bigLambdasTemp{ii};
+            bigDLambdas(ii,:) = bigDLambdasTemp(ii,:);
+            bigD2Lambdas{ii} = bigD2LambdasTemp{ii};
+        end
     end
+else
+    % generate little lambdas for each channel
+    for ii = 1:numDatas
+        currInput = thetaInputs{ii};
+        currInput = {1,currInput{:}};
+        maxThetaInputs = maxAllThetas(currInput);
+        if isempty(varargin)
+            [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs);
+        else
+            [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
+        end
+    end
+    % this does regular bleed thru where the pattern just manifests in another
+    % channel by the bleed thru coefficient
+    bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
+    bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
+    bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
+    
+    % so little lambdas are generate for each dataset
+    
 end
 
 
-% so little lambdas are generate for each dataset
 
 
-% this does real bleed thru where the pattern manifested depends on the
-% pattern for that channel
-% 
-% for ii = 1:numDatas
-%     currInput = thetaInputs{ii};
-%     currShape = currInput{1}{1};
-%     currInput = {1,currInput{:}};
-%     maxThetaInputs = maxAllThetas(currInput);
-%     for jj = 1:numDatas
-%         if jj ~= ii
-%             currInput = thetaInputs{jj};
-%             currInput = replaceCurrInputWithMyShape(currShape,currInput);
-%             currInput = {1,currInput{:}};
-%             maxThetaInputs= maxAllThetas(currInput);
-%             if isempty(varargin)
-%                 [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs);
-%             else
-%                 [littleLambdas{ii},littleDLambdas{ii},littleD2Lambdas{ii}] = littleLambda(domains,currInput,maxThetaInputs,varargin{:});
-%             end
-%         end
-%     end
-%     
-% end
 
-% this does regular bleed thru where the pattern just manifests in another
-% channel by the bleed thru coefficient
-bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
-bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
-bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
+
 
 
