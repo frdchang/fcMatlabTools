@@ -227,10 +227,15 @@ else
     [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually(data{1},spotKern{1},A1{1},B1{1},B0{1},cameraVariance);
     [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually(data{2},spotKern{2},A1{2},B1{2},B0{2},cameraVariance);
     
-    [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
+    [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5,spotKern,convFunc,invVarSaved);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
+    close all;
+    figure;histogram(zmodelSq1(:));hold on;histogram(crossTerms1(:));hold on;histogram(zLL1SansDataSq(:));
+     histogram(zmodelSq1(:));hold on;histogram(squaredCompLL1(:));title('compared squared component');
+     figure;histogram(zLL1SansDataSq(:));hold on;histogram(LL1(:));title('compare LL1');
+     figure;histogram(zmodelSq1(:));hold on;histogram(zLL1SansDataSq(:));title('is symmetric for manual LL');
 %     clear('squaredCompLL1','crossCompLL1');
     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);

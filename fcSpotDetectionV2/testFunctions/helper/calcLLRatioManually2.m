@@ -1,4 +1,4 @@
-function [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = calcLLRatioManually2(data1,data2,kern1,kern2,A1a,A1b,B1a,B1b,B0a,B0b,cameraVariance,Kmatrix)
+function [modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio,crossTerms1] = calcLLRatioManually2(data1,data2,kern1,kern2,A1a,A1b,B1a,B1b,B0a,B0b,cameraVariance,Kmatrix)
 %CALCLLRATIOMANUALLY Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,7 +15,7 @@ idx = gpuArray([1:sizeData(1)]);
 idy = gpuArray([1:sizeData(2)]');
 idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
 
-    function [mymodelSq1,mymodelSq2,myLL1,myLL0,myLL1SansDataSq,myLLRatio] = gpuLLRatioPerPatch(x,y,z)
+    function [mymodelSq1,mymodelSq2,myLL1,myLL0,myLL1SansDataSq,myLLRatio,mycrossTerms1] = gpuLLRatioPerPatch(x,y,z)
         xSeg = floor((sizeKern(1)-1)/2);
         ySeg = floor((sizeKern(2)-1)/2);
         zSeg = floor((sizeKern(3)-1)/2);
@@ -31,6 +31,7 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
         myLL1 = 0;
         myLL0 = 0;
         myLL1SansDataSq = 0;
+        mycrossTerms1 = 0;
         for ii = xL:xH
             for jj = yL:yH
                 for kk = zL:zH
@@ -55,8 +56,8 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
                         zAppend = 0;
                     end
                     lambda1_1  = Kmatrix(1)*(A1a(x,y,z)*kern1(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1a(x,y,z));
-                    lambda1_2  = Kmatrix(2)*(A1a(x,y,z)*kern1(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1a(x,y,z));
-                    lambda1_3  = Kmatrix(3)*(A1b(x,y,z)*kern2(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1b(x,y,z));
+                    lambda1_2  = Kmatrix(2)*(A1a(x,y,z)*kern2(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1a(x,y,z));
+                    lambda1_3  = Kmatrix(3)*(A1b(x,y,z)*kern1(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1b(x,y,z));
                     lambda1_4  = Kmatrix(4)*(A1b(x,y,z)*kern2(ii-xL+1+xAppend,jj-yL+1+yAppend,kk-zL+1+zAppend) + B1b(x,y,z));
                     
                     lambda0_1  = Kmatrix(1)*B0a(x,y,z);
@@ -64,8 +65,10 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
                     lambda0_3  = Kmatrix(3)*B0b(x,y,z);
                     lambda0_4  = Kmatrix(4)*B0b(x,y,z);
                     
-                    mymodelSq1 = mymodelSq1 + lambda1_1.^2  + lambda1_2.^2  + lambda1_3.^2  + lambda1_4.^2;
-                    mymodelSq2 = mymodelSq2 + lambda0_1.^2  + lambda0_2.^2  + lambda0_3.^2  + lambda0_4.^2;
+                    mymodelSq1 = mymodelSq1 + (lambda1_1  + lambda1_2  + lambda1_3  + lambda1_4)^2;
+                    mymodelSq2 = mymodelSq2 + (lambda0_1  + lambda0_2  + lambda0_3  + lambda0_4)^2;
+                    
+                    mycrossTerms1 = mycrossTerms1 - 2*lambda1_1*(data1(ii,jj,kk)^2)/cameraVariance(ii,jj,kk) - 2*lambda1_3*(data1(ii,jj,kk)^2)/cameraVariance(ii,jj,kk) - 2*lambda1_2*(data2(ii,jj,kk)^2)/cameraVariance(ii,jj,kk)- 2*lambda1_4*(data2(ii,jj,kk)^2)/cameraVariance(ii,jj,kk);
                     % this is poisson poisson approximation
                     sqError1 = ((lambda1_1 + lambda1_3 - data1(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((lambda1_2 + lambda1_4 - data2(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
                     sqError2 = ((lambda0_1 + lambda0_3 - data1(ii,jj,kk))^2)/cameraVariance(ii,jj,kk) + ((lambda0_2 + lambda0_4 - data2(ii,jj,kk))^2)/cameraVariance(ii,jj,kk);
@@ -82,7 +85,7 @@ idz = gpuArray(reshape([1:sizeData(3)],1,1,sizeData(3)));
          myLLRatio = myLL1 - myLL0;  % this has more numerical noise for some reason
     end
 
-[modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio] = arrayfun(@gpuLLRatioPerPatch,idx,idy,idz);
+[modelSq1,modelSq2,LL1,LL0,LL1SansDataSq,LLRatio,crossTerms1] = arrayfun(@gpuLLRatioPerPatch,idx,idy,idz);
 % note that the output is flipped xy
 modelSq1 = gather(permute(modelSq1,[2 1 3]));
 modelSq2 = gather(permute(modelSq2,[2 1 3]));
@@ -90,6 +93,7 @@ LL1 = gather(permute(LL1,[2 1 3]));
 LL0 = gather(permute(LL0,[2 1 3]));
 LL1SansDataSq = gather(permute(LL1SansDataSq,[2 1 3]));
 LLRatio = gather(permute(LLRatio,[2 1 3]));
+crossTerms1 = gather(permute(crossTerms1,[2 1 3]));
 end
 
 

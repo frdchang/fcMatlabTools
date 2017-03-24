@@ -240,6 +240,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress: 
+* 20170324 __checking LLRatio__ for multi spectral datasets you can use checkLLRatiomanually function.. which i am testing right now. but you can also check that the squared term equals the cross terms when there is perfect data provided... the squared error equals zero hence these things have to equal (when the data squared term is zerod out)
 * 20170224 __interesting property__ is that the LLRatio does not get the widening effect of convolution.  
 * 20170224 __Spot detection V2__ functions have v2 appended to them.  v2 allows multi spectral and multi emitter fitting.  its even gpu enabled. 
 * 20170208 __Kmatrix__ bleed thru is Kmatrix(ii,jj) with jj being the different models going into dataset ii.
