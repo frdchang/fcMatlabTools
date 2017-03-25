@@ -224,10 +224,11 @@ else
     % be similar and when kernels are equal, this is the true answer.  this
     % is an approximation.  note that i will write an arrayfun version that
     % will simply calculate directly.
-    [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually(data{1},spotKern{1},A1{1},B1{1},B0{1},cameraVariance);
-    [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually(data{2},spotKern{2},A1{2},B1{2},B0{2},cameraVariance);
-    
-    [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
+%     [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually(data{1},spotKern{1},A1{1},B1{1},B0{1},cameraVariance);
+%     [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually(data{2},spotKern{2},A1{2},B1{2},B0{2},cameraVariance);
+    k6 = cellfunNonUniformOutput(@(dataNormed,data) convFunc(dataNormed.*data,onesSizeSpotKern),dataNormed,data);
+    trueDataSqTerms = sumCellContents(k6);
+    [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5,spotKern,convFunc,invVarSaved);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);

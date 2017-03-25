@@ -17,7 +17,7 @@ kernObj2 = myPattern_Numeric(kern2);
 centerCoor = getCenterCoor(size(kern1));
 buildThetas1 = {{kernObj1,[20 centerCoor]},{90}};
 buildThetas2 = {{kernObj2,[10 centerCoor]},{60}};
-Kmatrix      = [1 0.5;0.5 1];
+Kmatrix      = [1 0;0 1];
 % Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
@@ -48,7 +48,7 @@ kern1 = cropCenterSize(kern1,size(kern2));
  cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'Kmatrix',kMatrix);
+estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'kMatrix',Kmatrix);
 
 
 
