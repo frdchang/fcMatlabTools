@@ -233,10 +233,10 @@ else
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     close all;
-    figure;histogram(zmodelSq1(:));hold on;histogram(crossTerms1(:));hold on;histogram(zLL1SansDataSq(:));
-     histogram(zmodelSq1(:));hold on;histogram(squaredCompLL1(:));title('compared squared component');
-     figure;histogram(zLL1SansDataSq(:));hold on;histogram(LL1(:));title('compare LL1');
-     figure;histogram(zmodelSq1(:));hold on;histogram(zLL1SansDataSq(:));title('is symmetric for manual LL');
+%     figure;histogram(zmodelSq1(:));hold on;histogram(crossTerms1(:));hold on;histogram(zLL1SansDataSq(:));
+%      histogram(zmodelSq1(:));hold on;histogram(squaredCompLL1(:));title('compared squared component');
+%      figure;histogram(zLL1SansDataSq(:));hold on;histogram(LL1(:));title('compare LL1');
+%      figure;histogram(zmodelSq1(:));hold on;histogram(zLL1SansDataSq(:));title('is symmetric for manual LL');
 %     clear('squaredCompLL1','crossCompLL1');
     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
