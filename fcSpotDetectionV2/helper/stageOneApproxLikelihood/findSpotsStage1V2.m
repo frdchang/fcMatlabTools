@@ -233,6 +233,12 @@ else
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     close all;
+    plot3Dstack(cat(2,zmodelSq1,squaredCompLL1),'text','squared terms');
+    plot3Dstack(cat(2,crossTerms1,crossCompLL1),'text','cross terms');
+    plot3Dstack(cat(2,dataSqTerms,trueDataSqTerms),'text','data squared term');
+    plot3Dstack(cat(2,zmodelSq1+crossTerms1,squaredCompLL1+crossCompLL1),'text','compare sums');
+    imtool3D(cat(2,dataSqTerms,trueDataSqTerms));
+    imtool3D(cat(2,zmodelSq1+crossTerms1+dataSqTerms,squaredCompLL1+crossCompLL1+dataSqTerms));
 %     figure;histogram(zmodelSq1(:));hold on;histogram(crossTerms1(:));hold on;histogram(zLL1SansDataSq(:));
 %      histogram(zmodelSq1(:));hold on;histogram(squaredCompLL1(:));title('compared squared component');
 %      figure;histogram(zLL1SansDataSq(:));hold on;histogram(LL1(:));title('compare LL1');
