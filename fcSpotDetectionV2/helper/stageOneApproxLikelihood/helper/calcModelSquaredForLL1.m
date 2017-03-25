@@ -9,7 +9,7 @@ for ii = 1:size(Kmatrix,2)
        tempAs{jj} = As{jj}*Kmatrix(ii,jj);
        tempBs{jj} = Bs{jj}*Kmatrix(ii,jj);
    end
-    modelsummedSq = modelsummedSq + givenABs(tempAs,tempBs,k1,k3,k5,spotKerns,convFunc,invVarSaved);
+    modelsummedSq = modelsummedSq + givenABs(tempAs,tempBs,k1{ii},k3{ii},k5,spotKerns,convFunc,invVarSaved);
 end
 
 end
@@ -19,9 +19,6 @@ function modelsummedSq = givenABs(As,Bs,k1,k3,k5,spotKerns,convFunc,invVarSaved)
 % assuming its k11*A1*F1, K11*B1, K21*A2*F2, K21*B2
 
 AandB = interleave(As,Bs);
-k5AsCellArray = cell(size(k1));
-k5AsCellArray(:) = {k5};
-squaredTerms = interleave(k3,k5AsCellArray);
 
 onesAsCellArray = cell(size(spotKerns));
 onesAsCellArray(:) = {1};
@@ -30,23 +27,21 @@ singleSpotTerms = interleave(spotKerns,onesAsCellArray);
 modelsummedSq = 0;
 % calcualte squared terms
 for ii = 1:numel(AandB)
-    modelsummedSq = modelsummedSq+ AandB{ii}.*AandB{ii}.*squaredTerms{ii};
+    if isodd(ii)
+        modelsummedSq = modelsummedSq+ AandB{ii}.*AandB{ii}.*k3;
+    else
+        modelsummedSq = modelsummedSq+ AandB{ii}.*AandB{ii}.*k5;
+    end
 end
+
 % calculate single spot kern terms
 for ii = 1:numel(AandB)
    for jj = ii+1:2:numel(AandB)
-       if isodd(ii)
-           useTerm = (ii - 1)/2 + 1;
-           modelsummedSq = modelsummedSq + 2*AandB{ii}.*AandB{jj}.*k1{useTerm};
-       else
-           useTerm = (jj - 1)/2 + 1;
-           modelsummedSq = modelsummedSq + 2*AandB{ii}.*AandB{jj}.*k1{useTerm};
-       end
+           modelsummedSq = modelsummedSq + 2*AandB{ii}.*AandB{jj}.*k1;
    end
 end
 
 % calculate cross terms
-
 for ii = 1:numel(AandB)
     for jj = ii+2:2:numel(AandB)
         currCrossKern= singleSpotTerms{ii}.*singleSpotTerms{jj};
