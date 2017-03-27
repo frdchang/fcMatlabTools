@@ -82,8 +82,8 @@ kernObj2 = myPattern_Numeric(kern2);
 centerCoor = getCenterCoor(size(kern1));
 coor1 = centerCoor+3;
 coor2 = centerCoor-3;
-buildThetas1 = {{kernObj1,[8 coor1]},{1}};
-buildThetas2 = {{kernObj2,[8 coor2]},{4}};
+buildThetas1 = {{kernObj1,[2 coor1]},{0}};
+buildThetas2 = {{kernObj2,[2 coor2]},{0}};
 Kmatrix      = [1 0.5;0.5 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
@@ -115,9 +115,7 @@ cameraVariance = ones(size(bigLambdas{1}));
 
 N = 4000;
 LLRatioCoor1Cross = zeros(N,1);
-LLRatioCoor1Naive = zeros(N,1);
 LLRatioBkgndCross = zeros(N,1);
-LLRatioBkgndNaive = zeros(N,1);
 bkgndCoor = num2cell([16 6 14]);
 coor1 = num2cell(coor1);
 coor2 = num2cell(coor2);
@@ -127,15 +125,10 @@ parfor ii = 1:N
     [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
     [~,photonData] = returnElectrons(sampledData,cameraParams);
     estimated = findSpotsStage1V2(photonData,{kern1,kern2},cameraVariance,'nonNegativity',false,'kMatrix',Kmatrix);
-    estimated1 = findSpotsStage1V2(photonData{1},kern1,cameraVariance,'nonNegativity',false);
-    estimated2 = findSpotsStage1V2(photonData{2},kern2,cameraVariance,'nonNegativity',false);
-    naiveLLRatio = estimated1.LLRatio + estimated2.LLRatio;
     LLRatioCoor1Cross(ii) = estimated.LLRatio(coor1{:});
-    LLRatioCoor1Naive(ii) = naiveLLRatio(coor1{:});
     LLRatioBkgndCross(ii) = estimated.LLRatio(bkgndCoor{:});
-    LLRatioBkgndNaive(ii) = naiveLLRatio(bkgndCoor{:});
 end
-figure;histogram(LLRatioBkgndCross(:));hold on;histogram(LLRatioCoor1Cross(:));histogram(LLRatioBkgndNaive(:));histogram(LLRatioCoor1Naive(:));legend('bkgnd-cross','coor1-cross','bkgnd-naive','coor1-naive');
+figure;histogram(LLRatioBkgndCross(:));hold on;histogram(LLRatioCoor1Cross(:));legend('bkgnd-cross','coor1-cross');
 % [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
 % 
 
