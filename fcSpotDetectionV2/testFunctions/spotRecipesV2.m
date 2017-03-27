@@ -1,5 +1,9 @@
-%% do single color test first to see LLRatio is correct
+%% %% do single color test first to see LLRatio is correct
 %% do three color iterative multi spot fitting
+
+%% just discovered that cross talk LLRatio, with all the careful calculation
+% is equal to the naive LLRatio by adding them.  math is in my photos.
+% confirmed numerically below. :-)  how beutiful.
 close all;
 clear;
 patchSize = [19 19 19];
@@ -15,8 +19,8 @@ kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
 centerCoor = getCenterCoor(size(kern1));
-buildThetas1 = {{kernObj1,[20 centerCoor+2]},{1}};
-buildThetas2 = {{kernObj2,[10 centerCoor-2]},{4}};
+buildThetas1 = {{kernObj1,[100 centerCoor+3]},{9}};
+buildThetas2 = {{kernObj2,[100 centerCoor-3]},{6}};
 Kmatrix      = [1 0.5;0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2};
@@ -49,22 +53,105 @@ kern1 = cropCenterSize(kern1,size(kern2));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'kMatrix',Kmatrix);
-
-
-
-estimated1 = findSpotsStage1V2(bigLambdas{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
-estimated2 = findSpotsStage1V2(bigLambdas{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
-    [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,[]);
-    [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually2(photonData{2},kern2,estimated2.A1,estimated2.B1,estimated2.B0,cameraVariance,[]);
-plot3Dstack(cat(2,trueLambdas1{1},trueLambdas2{1},estimated.A1{1},estimated.A1{2},estimated1.A1,estimated2.A1),'text','est A1 channel 1 then 2');
-
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
+  
 diagLLRatio = estimated1.LLRatio + estimated2.LLRatio;
 plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
-imtool3D(estimated.LLRatio-diagLLRatio);
-centerCoorCell = num2cell(centerCoor);
+[~,~,~,~,~,zLLRatio,~,~] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
+[~,~,~,~,~,zzLLRatio,~,~] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated1.A1,estimated2.A1,estimated1.B1,estimated2.B1,estimated1.B0,estimated2.B0,cameraVariance,eye(size(Kmatrix)));
 
-[modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,Kmatrix);
 
+%% do single color test first to see LLRatio is correct
+%% do three color iterative multi spot fitting
+%
+close all;
+clear;
+patchSize = [21 21 21];
+sigmassq1 = [2,2,2];
+sigmassq2 = [3,3,3];
+
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1);
+kernObj2 = myPattern_Numeric(kern2);
+
+centerCoor = getCenterCoor(size(kern1));
+coor1 = centerCoor+3;
+coor2 = centerCoor-3;
+buildThetas1 = {{kernObj1,[8 coor1]},{1}};
+buildThetas2 = {{kernObj2,[8 coor2]},{4}};
+Kmatrix      = [1 0.5;0.5 1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+% build max theta
+buildMaxThetas1 = {[1 1 1 1],1};
+buildMaxThetas2 = {[1 1 1 1],1};
+kmatrixMax      = zeros(size(Kmatrix));
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+
+% % generate true lambdas
+% [trueLambdas1,~,~] = bigLambda(domains,{1,buildThetas1});
+% [trueLambdas2,~,~] = bigLambda(domains,{1,buildThetas2});
+
+% plot3Dstack(trueLambdas1{1},'text','ground truth 1');
+% plot3Dstack(trueLambdas2{1},'text','ground truth 2');
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+% plot3Dstack(bigLambdas{1},'text','measured channel 1');
+% plot3Dstack(bigLambdas{2},'text','measured channel 2');
+
+kern2 = threshPSF(kern2,0.015);
+kern1 = cropCenterSize(kern1,size(kern2));
+%  estimatedtruth = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+
+cameraVariance = ones(size(bigLambdas{1}));
+
+N = 4000;
+LLRatioCoor1Cross = zeros(N,1);
+LLRatioCoor1Naive = zeros(N,1);
+LLRatioBkgndCross = zeros(N,1);
+LLRatioBkgndNaive = zeros(N,1);
+bkgndCoor = num2cell([16 6 14]);
+coor1 = num2cell(coor1);
+coor2 = num2cell(coor2);
+
+parfor ii = 1:N
+    display(ii);
+    [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+    [~,photonData] = returnElectrons(sampledData,cameraParams);
+    estimated = findSpotsStage1V2(photonData,{kern1,kern2},cameraVariance,'nonNegativity',false,'kMatrix',Kmatrix);
+    estimated1 = findSpotsStage1V2(photonData{1},kern1,cameraVariance,'nonNegativity',false);
+    estimated2 = findSpotsStage1V2(photonData{2},kern2,cameraVariance,'nonNegativity',false);
+    naiveLLRatio = estimated1.LLRatio + estimated2.LLRatio;
+    LLRatioCoor1Cross(ii) = estimated.LLRatio(coor1{:});
+    LLRatioCoor1Naive(ii) = naiveLLRatio(coor1{:});
+    LLRatioBkgndCross(ii) = estimated.LLRatio(bkgndCoor{:});
+    LLRatioBkgndNaive(ii) = naiveLLRatio(bkgndCoor{:});
+end
+figure;histogram(LLRatioBkgndCross(:));hold on;histogram(LLRatioCoor1Cross(:));histogram(LLRatioBkgndNaive(:));histogram(LLRatioCoor1Naive(:));legend('bkgnd-cross','coor1-cross','bkgnd-naive','coor1-naive');
+% [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
+% 
+
+
+
+%     [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,[]);
+%     [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually2(photonData{2},kern2,estimated2.A1,estimated2.B1,estimated2.B0,cameraVariance,[]);
+% plot3Dstack(cat(2,trueLambdas1{1},trueLambdas2{1},estimated.A1{1},estimated.A1{2},estimated1.A1,estimated2.A1),'text','est A1 channel 1 then 2');
+
+
+% plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
+% imtool3D(estimated.LLRatio-diagLLRatio);
+% centerCoorCell = num2cell(centerCoor);
+% 
+% [modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,Kmatrix);
+% 
 
 %% do three color iterative multi spot fitting
 close all;
@@ -130,8 +217,8 @@ plot3Dstack(cat(2,estimated.LLRatio,estimated1.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated2.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated3.LLRatio));
 
-diagLLRatio = estimated1.LLRatio + estimated2.LLRatio + estimated3.LLRatio;
-plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
+naiveLLRatio = estimated1.LLRatio + estimated2.LLRatio + estimated3.LLRatio;
+plot3Dstack(cat(2,estimated.LLRatio,naiveLLRatio));
 
 
 %% design gradient magnitude filter
@@ -182,7 +269,7 @@ for ii = 1:numel(mux)
         end
     end
 end
- [ estimated ] = findSpotsStage1V2Interpolate(kernCell{1},kernCell,ones(size(kernCell{1})));
+[ estimated ] = findSpotsStage1V2Interpolate(kernCell{1},kernCell,ones(size(kernCell{1})));
 plot3Dstack(estimated.LLRatio)
 %%  checking llratio by arrayfun gpu
 patchSize = [19 21 25];

@@ -149,7 +149,7 @@ if ~iscell(data)
     
 else
     %% data is multispectral-----------------------------------------------
-    %% load into gpu if instructed
+    % load into gpu if instructed
     if params.loadIntoGpu
         data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
         spotKern = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
@@ -197,7 +197,7 @@ else
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVarSaved,data);
     k2              = cellfunNonUniformOutput(@(x,spotKern) convFunc(x,spotKern),dataNormed,spotKern);
     k4              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormed);
-%     clear('dataNormed','data');
+    clear('dataNormed','data');
     
     A0              = cellfunNonUniformOutput(@(x,k3) x./k3,k2,k3);
     A0              = gpuApplyInvKmatrix(kMatrix,A0);
@@ -205,7 +205,7 @@ else
     A1              = cellfunNonUniformOutput(@(x,y,k1,Normalization) (k1.*x - k5.*y ) ./ Normalization,k4,k2,k1,Normalization);
     A1              = gpuApplyInvKmatrix(kMatrix,A1);
     A1              = cellfunNonUniformOutput(@(x) gather(x),A1);
-    B1              = cellfunNonUniformOutput(@(x,y,k1,k3,Normalization) (k1.*x - k3.*y)  ./ Normalization,k2,k4,k1,k3,Normalization);
+    B1              = cellfunNonUniformOutput(@(x,y,k1,k3,Normalization) (k1.*x - k3.*y) ./ Normalization,k2,k4,k1,k3,Normalization);
     B1              = gpuApplyInvKmatrix(kMatrix,B1);
     B1              = cellfunNonUniformOutput(@(x) gather(x),B1);
     B0              = cellfunNonUniformOutput(@(k4) k4./k5,k4);
@@ -219,37 +219,16 @@ else
     % for LL of model with 0 spot
     % ((K(ii,1)*B1+(K(ii,1)*B2+...) - dii)^2 =
     % (K(ii,1)*B1+(K(ii,1)*B2+...)^2 + -(K(ii,1)*2*B1-(K(ii,2)*B2+...)*dii
-    %
-    % for multi spectral kernels, i will average them since kernels should
-    % be similar and when kernels are equal, this is the true answer.  this
-    % is an approximation.  note that i will write an arrayfun version that
-    % will simply calculate directly.
-%     [mmodelSq1a,mmodelSq2a,mLL1a,mLL0a,mLL1SansDataSqa,mLLRatioa] = calcLLRatioManually(data{1},spotKern{1},A1{1},B1{1},B0{1},cameraVariance);
-%     [mmodelSq1b,mmodelSq2b,mLL1b,mLL0b,mLL1SansDataSqb,mLLRatiob] = calcLLRatioManually(data{2},spotKern{2},A1{2},B1{2},B0{2},cameraVariance);
-    k6 = cellfunNonUniformOutput(@(dataNormed,data) convFunc(dataNormed.*data,onesSizeSpotKern),dataNormed,data);
-    trueDataSqTerms = sumCellContents(k6);
-    [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
+    
     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
-    close all;
-    plot3Dstack(cat(2,zmodelSq1,squaredCompLL1),'text','squared terms');
-    plot3Dstack(cat(2,crossTerms1,crossCompLL1),'text','cross terms');
-    plot3Dstack(cat(2,dataSqTerms,trueDataSqTerms),'text','data squared term');
-    plot3Dstack(cat(2,zmodelSq1+crossTerms1,squaredCompLL1+crossCompLL1),'text','compare sums');
-    imtool3D(cat(2,dataSqTerms,trueDataSqTerms));
-    imtool3D(cat(2,zmodelSq1+crossTerms1+dataSqTerms,squaredCompLL1+crossCompLL1+dataSqTerms));
-%     figure;histogram(zmodelSq1(:));hold on;histogram(crossTerms1(:));hold on;histogram(zLL1SansDataSq(:));
-%      histogram(zmodelSq1(:));hold on;histogram(squaredCompLL1(:));title('compared squared component');
-%      figure;histogram(zLL1SansDataSq(:));hold on;histogram(LL1(:));title('compare LL1');
-%      figure;histogram(zmodelSq1(:));hold on;histogram(zLL1SansDataSq(:));title('is symmetric for manual LL');
-%     clear('squaredCompLL1','crossCompLL1');
     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
     LL0             = -(squaredCompLL0 + crossCompLL0);
-%     clear('squaredCompLL0','crossCompLL0');
+    clear('squaredCompLL0','crossCompLL0');
     LLRatio         = LL1-LL0;
-%     clear('LL0','LL1');
+    clear('LL0','LL1');
     LLRatio         = gather(LLRatio);
     spotKern        = gather(spotKernSaved);
     
