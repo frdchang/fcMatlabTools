@@ -48,7 +48,7 @@ end
 
 - complicated functions with sub-functions should be organized by the following folder hierarchy.
 
-  ```Matlab
+```Matlab
 ./doFunc
 ./doFunc/helper
 ./doFunc/testFunctions
