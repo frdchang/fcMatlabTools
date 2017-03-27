@@ -17,7 +17,7 @@ fctools consists of a set of matlab tools that i use for my research:
 ## rules of the code:
 - template function that allows parameter adjustment and passing to subfunctions.
 
-  ```
+```
 function output = funcName(varargin)
 %FUNCNAME does this and that.
 % 
