@@ -229,7 +229,7 @@ else
     k6 = cellfunNonUniformOutput(@(dataNormed,data) convFunc(dataNormed.*data,onesSizeSpotKern),dataNormed,data);
     trueDataSqTerms = sumCellContents(k6);
     [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(data{1},data{2},spotKern{1},spotKern{2},A1{1},A1{2},B1{1},B1{2},B0{1},B0{2},cameraVariance,kMatrix);
-    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5,spotKern,convFunc,invVarSaved);
+    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
     LL1            = -(squaredCompLL1 + crossCompLL1);
     close all;

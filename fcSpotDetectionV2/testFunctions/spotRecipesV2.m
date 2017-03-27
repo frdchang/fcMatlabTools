@@ -4,7 +4,7 @@ close all;
 clear;
 patchSize = [19 19 19];
 sigmassq1 = [2,2,2];
-sigmassq2 = [15,15,15];
+sigmassq2 = [3,3,3];
 
 % build the numeric multi emitter
 [kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
@@ -15,8 +15,8 @@ kernObj1 = myPattern_Numeric(kern1);
 kernObj2 = myPattern_Numeric(kern2);
 
 centerCoor = getCenterCoor(size(kern1));
-buildThetas1 = {{kernObj1,[20 centerCoor]},{90}};
-buildThetas2 = {{kernObj2,[10 centerCoor]},{60}};
+buildThetas1 = {{kernObj1,[20 centerCoor+2]},{1}};
+buildThetas2 = {{kernObj2,[10 centerCoor-2]},{4}};
 Kmatrix      = [1 0.5;0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2};
@@ -48,7 +48,7 @@ kern1 = cropCenterSize(kern1,size(kern2));
  cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'kMatrix',Kmatrix);
+estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'kMatrix',Kmatrix);
 
 
 
