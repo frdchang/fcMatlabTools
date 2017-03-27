@@ -1,11 +1,11 @@
-#fcTools by frederick chang (fchang@fas.harvard.edu)
+# fcTools by frederick chang (fchang@fas.harvard.edu)
 fctools consists of a set of matlab tools that i use for my research:
 - 3d spot detection
 - segmentation
 - nD experiment processing
 - microscope control
 
-##to do:
+## to do:
 - multi-emmiter fitting
 - start yeast seg at user defined timepoint
 - try seg yeast using edge
@@ -14,7 +14,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - pad aligning channels
 - crashed at subImg = paddedNdData(coorDomains{:}); why?
 
-##rules of the code:
+## rules of the code:
 - template function that allows parameter adjustment and passing to subfunctions.
 
   ```Matlab
@@ -55,7 +55,7 @@ end
 ./doFunc/doFunc.m
 ```
 
-##processing files:
+## processing files:
 - For processing large batches of data, like a list of image files I will follow the following convetion.
   * raw data is stored in
 
