@@ -3,7 +3,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - 3d spot detection
 - segmentation
 - nD experiment processing
-- microscope control
+- (microscope control is located in fcMicroscope)
 
 ## to do:
 - multi-emmiter fitting
