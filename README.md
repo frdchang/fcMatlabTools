@@ -198,7 +198,7 @@ so it will be:
 
   a sample spot param data structure will be subsets of the following:
 
-  ```Matlab
+```Matlab
 spotParamStruct.xp          = x position in the specimen plane (m)
 spotParamStruct.yp          = y position in the specimen plane (m)
 spotParamStruct.zp          = z position in the specimen plane (m)
@@ -233,9 +233,6 @@ for ideal use case (this fulfills MLE):
   2. apply stage one MLE (intensity parameters are in ADU units)
 
 * how to organize stage two functions so multiple emitters can be solved
-
-
-## programming notes:
 
 
 
