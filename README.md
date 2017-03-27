@@ -5,7 +5,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - nD experiment processing
 - (microscope control is located in fcMicroscope)
 
-## to do:
+## to do
 - multi-emmiter fitting
 - start yeast seg at user defined timepoint
 - try seg yeast using edge
@@ -14,7 +14,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - pad aligning channels
 - crashed at subImg = paddedNdData(coorDomains{:}); why?
 
-## rules of the code:
+## rules of the code
 - template function that allows parameter adjustment and passing to subfunctions.
 
 ```Matlab
@@ -55,7 +55,7 @@ end
 ./doFunc/doFunc.m
 ```
 
-## processing files:
+## processing files
 - For processing large batches of data, like a list of image files I will follow the following convetion.
   * raw data is stored in
 
@@ -186,7 +186,7 @@ end
                                              
 ```
 
-## datastructures used in the code:
+## datastructures used in the code
 - spotParamStruct is a container that is used to hold various parameters of a spot.  Depending how it is used, not all parameters are populated.
 this container should be able to handle different fits, such as 0 spots, 1 spot, 2 spots etc.
   * for synthetic spot generation it is organized like so:
@@ -220,7 +220,7 @@ spotParamStruct.logLike    = log Likelihood
 spotParamStuct.bak0         = value of the background given background only model (0 spot)
 ```
 
-## usage notes:
+## usage notes
 * 3D/ND spot detection protocols
 for ideal use case (this fulfills MLE):
   1. calibrate camera and acquire pixel dependent {offset_i, gain_i, variance_i}
@@ -236,7 +236,7 @@ for ideal use case (this fulfills MLE):
 
 
 
-## diary of progress: 
+## diary of progress
 * 20170327 __multispectral LLRatio__  is equiv to the sum of LLRatios given MLE of each channel individually (derivation is dated today)  However,for GPU memory sake it is implemented differently.
 * 20170324 __checking LLRatio__ for multi spectral datasets you can use checkLLRatiomanually function.. which i am testing right now. but you can also check that the squared term equals the cross terms when there is perfect data provided... the squared error equals zero hence these things have to equal (when the data squared term is zerod out)
 * 20170224 __interesting property__ is that the LLRatio does not get the widening effect of convolution.  
