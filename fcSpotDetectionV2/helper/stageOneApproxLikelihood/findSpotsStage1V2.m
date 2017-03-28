@@ -160,6 +160,7 @@ else
     if ~isEveryoneEqual(cellfunNonUniformOutput(@size,spotKern))
         error('multi spectral kernels need to be the same size');
     end
+    
     % spotKern must be cell array of kernels for each spectra
     spotKern = reshape(spotKern,numel(spotKern),1);
     data  = reshape(data,numel(data),1);
@@ -178,13 +179,14 @@ else
     
     % if spotKern or cameraVariance changes, cache the results
     currInvVar = 1./cameraVariance;
+    clear('cameraVariance');
     if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,currInvVar)
-        invVarSaved = currInvVar;
-        spotKernSaved = spotKern;
+        invVarSaved     = currInvVar;
+        clear('currInvVar');
+        spotKernSaved   = spotKern;
         k1              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),spotKern);
         k3              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),sqSpotKern);
         k5              = convFunc(invVarSaved,onesSizeSpotKern);
-        Normalization   = cellfunNonUniformOutput(@(k1,k3) k1.^2 - k5.*k3,k1,k3);
     end
     
     if ~isempty(params.kMatrix)
@@ -202,12 +204,16 @@ else
     A0              = cellfunNonUniformOutput(@(x,k3) x./k3,k2,k3);
     A0              = gpuApplyInvKmatrix(kMatrix,A0);
     A0              = cellfunNonUniformOutput(@(x) gather(x),A0);
-    A1              = cellfunNonUniformOutput(@(x,y,k1,Normalization) (k1.*x - k5.*y ) ./ Normalization,k4,k2,k1,Normalization);
+    
+    A1              = cellfunNonUniformOutput(@(x,y,k1,k3) (k1.*x - k5.*y ) ./ ( k1.^2 - k5.*k3),k4,k2,k1,k3);
     A1              = gpuApplyInvKmatrix(kMatrix,A1);
     A1              = cellfunNonUniformOutput(@(x) gather(x),A1);
-    B1              = cellfunNonUniformOutput(@(x,y,k1,k3,Normalization) (k1.*x - k3.*y) ./ Normalization,k2,k4,k1,k3,Normalization);
+    
+    B1              = cellfunNonUniformOutput(@(x,y,k1,k3) (k1.*x - k3.*y) ./  (k1.^2 - k5.*k3),k2,k4,k1,k3);
     B1              = gpuApplyInvKmatrix(kMatrix,B1);
     B1              = cellfunNonUniformOutput(@(x) gather(x),B1);
+    
+    
     B0              = cellfunNonUniformOutput(@(k4) k4./k5,k4);
     B0              = gpuApplyInvKmatrix(kMatrix,B0);
     B0              = cellfunNonUniformOutput(@(x) gather(x),B0);

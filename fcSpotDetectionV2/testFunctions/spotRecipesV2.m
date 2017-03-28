@@ -1,3 +1,5 @@
+%% lets do a three color test
+
 %% %% do single color test first to see LLRatio is correct
 %% do three color iterative multi spot fitting
 
