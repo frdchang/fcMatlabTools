@@ -150,11 +150,6 @@ if ~iscell(data)
 else
     %% data is multispectral-----------------------------------------------
     % load into gpu if instructed
-    if params.loadIntoGpu
-        data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
-        spotKern = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
-        cameraVariance = gpuArray(cameraVariance);
-    end
     
     % make sure spotKern has the same dimensions
     if ~isEveryoneEqual(cellfunNonUniformOutput(@size,spotKern))
@@ -166,11 +161,21 @@ else
     data  = reshape(data,numel(data),1);
     if iscell(spotKern{1})
         % convolution is separable
+        if params.loadIntoGpu
+            data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
+            spotKern = cellfunNonUniformOutput(@(x) cellfunNonUniformOutput(@(x) gpuArray(x),x),spotKern);
+            cameraVariance = gpuArray(cameraVariance);
+        end
         convFunc = @convSeparableND;
         sqSpotKern = cellfunNonUniformOutput(@(y) cellfunNonUniformOutput(@(x) x.^2,y),spotKern);
         onesSizeSpotKern =  genSeparableOnes(cellfun(@(x) numel(x),spotKern{1}));
     else
         % otherwise just do fft
+        if params.loadIntoGpu
+            data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
+            spotKern = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
+            cameraVariance = gpuArray(cameraVariance);
+        end
         convFunc = @convFFTND;
         spotKern = cellfunNonUniformOutput(@(y) flipAllDimensions(y),spotKern);
         sqSpotKern = cellfunNonUniformOutput(@(y) y.^2,spotKern);
@@ -206,15 +211,21 @@ else
     A0              = cellfunNonUniformOutput(@(x) gather(x),A0);
     
     A1              = cellfunNonUniformOutput(@(x,y,k1,k3) (k1.*x - k5.*y ) ./ ( k1.^2 - k5.*k3),k4,k2,k1,k3);
+    B1              = cellfunNonUniformOutput(@(x,y,k1,k3) (k1.*x - k3.*y) ./  (k1.^2 - k5.*k3),k2,k4,k1,k3);
+    LL1             = cellfunNonUniformOutput(@(B1,A1,k1,k2,k3,k4) -((B1.^2).*k5 + A1.*(2*B1.*k1 - 2*k2 + A1.*k3) - 2*B1.*k4),B1,A1,k1,k2,k3,k4);
+    LL1             = cellfunNonUniformOutput(@(x) gather(x),LL1);
+    
     A1              = gpuApplyInvKmatrix(kMatrix,A1);
     A1              = cellfunNonUniformOutput(@(x) gather(x),A1);
-    
-    B1              = cellfunNonUniformOutput(@(x,y,k1,k3) (k1.*x - k3.*y) ./  (k1.^2 - k5.*k3),k2,k4,k1,k3);
     B1              = gpuApplyInvKmatrix(kMatrix,B1);
     B1              = cellfunNonUniformOutput(@(x) gather(x),B1);
     
-    
     B0              = cellfunNonUniformOutput(@(k4) k4./k5,k4);
+    LL0             = cellfunNonUniformOutput(@(B0,k4) -((B0.^2).*k5 - 2*B0.*k4),B0,k4);
+    LL0             = cellfunNonUniformOutput(@(x) gather(x),LL0);
+    LLRatio         = sumCellContents(LL1) - sumCellContents(LL0);
+    clear('LL1','LL0');
+    
     B0              = gpuApplyInvKmatrix(kMatrix,B0);
     B0              = cellfunNonUniformOutput(@(x) gather(x),B0);
     
@@ -226,17 +237,17 @@ else
     % ((K(ii,1)*B1+(K(ii,1)*B2+...) - dii)^2 =
     % (K(ii,1)*B1+(K(ii,1)*B2+...)^2 + -(K(ii,1)*2*B1-(K(ii,2)*B2+...)*dii
     
-    squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
-    crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
-    LL1            = -(squaredCompLL1 + crossCompLL1);
-    squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
-    crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
-    LL0             = -(squaredCompLL0 + crossCompLL0);
-    clear('squaredCompLL0','crossCompLL0');
-    LLRatio         = LL1-LL0;
-    clear('LL0','LL1');
-    LLRatio         = gather(LLRatio);
-    spotKern        = gather(spotKernSaved);
+    %     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
+    %     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
+    %     LL1            = -(squaredCompLL1 + crossCompLL1);
+    %     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
+    %     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
+    %     LL0             = -(squaredCompLL0 + crossCompLL0);
+    %     clear('squaredCompLL0','crossCompLL0');
+    %     LLRatio         = LL1-LL0;
+    %     clear('LL0','LL1');
+    %     LLRatio         = gather(LLRatio);
+    spotKern        = cellfunNonUniformOutput(@(x) gather(x),spotKernSaved);
     
     if params.nonNegativity
         selectNegVals = cellfunNonUniformOutput(@(x) x<0,A1);

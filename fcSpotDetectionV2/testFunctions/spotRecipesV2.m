@@ -1,4 +1,25 @@
-%% lets do a three color test
+%% lets check how big of dataset i can use for my titanx video card
+close all;
+clear;
+patchSize = [7 7 7];
+sigmassq1 = [2,2,2];
+sigmassq2 = [3,3,3];
+
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+dataset1 = rand(2048,2048,11);
+dataset2 = rand(2048,2048,11);
+
+cameraVariance = ones(size(dataset1));
+
+% out of memory for 2048x2048x11 for 4 channels!!!!!
+Kmatrix = [1 0.5 0.2 0.1; 0.1 1 0.5 0.2; 0.1 0.5 1 0.3; 0.1 0.2 0.5 1];
+tic;
+estimated = findSpotsStage1V2({dataset1,dataset2,dataset2,dataset2},{kern1Sep,kern2Sep,kern2Sep,kern1Sep},cameraVariance,'nonNegativity',false,'kMatrix',Kmatrix,'loadIntoGpu',true);
+toc
+
 
 %% %% do single color test first to see LLRatio is correct
 %% do three color iterative multi spot fitting
@@ -197,7 +218,7 @@ plot3Dstack(bigLambdas{3},'text','measured channel 3');
 % estimatedtruth = findSpotsStage1V2(bigLambdas,kern1,ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
+estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 plot3Dstack(estimated.A1{1},'text','est A1 channel 1');
 plot3Dstack(estimated.A1{2},'text','est A1 channel 2');
 plot3Dstack(estimated.A1{3},'text','est A1 channel 3');
@@ -205,9 +226,9 @@ max(estimated.A1{3}(:))
 max(estimated.A1{2}(:))
 max(estimated.A1{3}(:))
 plot3Dstack(estimated.LLRatio,'text','LLRatio');
-estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})));
-estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})));
-estimated3 = findSpotsStage1V2(photonData{3},kern3,ones(size(bigLambdas{1})));
+estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
+estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
+estimated3 = findSpotsStage1V2(photonData{3},kern3,ones(size(bigLambdas{1})),'nonNegativity',false);
 plot3Dstack(cat(2,estimated.LLRatio,estimated1.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated2.LLRatio));
 plot3Dstack(cat(2,estimated.LLRatio,estimated3.LLRatio));
