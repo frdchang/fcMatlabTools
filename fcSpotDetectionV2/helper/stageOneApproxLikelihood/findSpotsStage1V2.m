@@ -229,24 +229,6 @@ else
     B0              = gpuApplyInvKmatrix(kMatrix,B0);
     B0              = cellfunNonUniformOutput(@(x) gather(x),B0);
     
-    % calculate LL Ratio of multi spectral datasets weighed by Kmatrix
-    % for LL of model with 1 spot
-    % ((K(ii,1)*h1+K(ii,2)*h2+...) - dii)^2 = (K(ii,1)*h1+K(ii,2)*h2+...)^2 + -K(ii,1)*2h1d1 - K(ii,2)*2h2d1 - ... + d1^2
-    %                                       = squared component             +  cross component
-    % for LL of model with 0 spot
-    % ((K(ii,1)*B1+(K(ii,1)*B2+...) - dii)^2 =
-    % (K(ii,1)*B1+(K(ii,1)*B2+...)^2 + -(K(ii,1)*2*B1-(K(ii,2)*B2+...)*dii
-    
-    %     squaredCompLL1 = calcModelSquaredForLL1(kMatrix,A1,B1,k1,k3,k5);
-    %     crossCompLL1   = calcModelCrossForLL1(kMatrix,A1,B1,k2,k4);
-    %     LL1            = -(squaredCompLL1 + crossCompLL1);
-    %     squaredCompLL0  = calcModelSquaredForLL0(kMatrix,B0,k5);
-    %     crossCompLL0    = calcModelCrossForLL0(kMatrix,B0,k4);
-    %     LL0             = -(squaredCompLL0 + crossCompLL0);
-    %     clear('squaredCompLL0','crossCompLL0');
-    %     LLRatio         = LL1-LL0;
-    %     clear('LL0','LL1');
-    %     LLRatio         = gather(LLRatio);
     spotKern        = cellfunNonUniformOutput(@(x) gather(x),spotKernSaved);
     
     if params.nonNegativity
