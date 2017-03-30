@@ -252,3 +252,4 @@ if exist('LLRatioPoissPoiss','var') == 1
     estimated.LLRatioPoissPoiss = LLRatioPoissPoiss;
 end
 estimated.spotKern   = spotKern;
+estimated.convFunc   = convFunc;
