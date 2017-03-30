@@ -22,8 +22,9 @@ params.strategy          = 'threshold';         % {'hdome','threshold'}
 %==universal parameters====================================================
 params.Athreshold        = 0;               % select regions where A > Athreshold
 params.clearBorder       = true;            % clear border on xy perimeter
+params.minVol            = 1;               % min volume of feature
 %==hdome specific parameters==========?=====================================
-params.hdomeH            = 1e5;
+params.hdomeH            = 1e3;
 params.thresholdHDome    = 'otsu';  %{'otsu',thresholdValue}
 %==threshold specific parameters===========================================
 params.LLRatioThresh     = [];
@@ -32,22 +33,36 @@ params = updateParams(params,varargin);
 
 %% universal computation
 sizeDataSet = size(estimated.LLRatio);
-smoothLLRatio = convND(estimated.LLRatio,estimated.spotKern);
-smoothLLRatio = unpadarray(smoothLLRatio,sizeDataSet);
-Athresholded = estimated.A1 > params.Athreshold;
+if iscell(estimated.A1)
+    smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern{1});
+     Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
+     Athresholded = ~multiCellContents(Athresholded);
+    
+     if iscell(estimated.spotKern{1})
+         error('did not calculate this part yuet');
+     else
+         sizeKern = size(estimated.spotKern{1});
+     end
+     
+else
+    smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern);
+    Athresholded = estimated.A1 > params.Athreshold;
+    sizeKern = size(estimated.spotKern);
+end
+
 
 
 %% user specified computation
 switch params.strategy
     case 'hdome'
-        selectedRegions = hdome(smoothLLRatio,params.hdomeH);
+        selectedRegions =  hdome(smoothLLRatio,params.hdomeH);
         if strcmp(params.thresholdHDome,'otsu')
             params.thresholdHDome = multithresh(selectedRegions(:));
         end
         selectedRegions = selectedRegions > params.thresholdHDome;
     case 'threshold'
         if isempty(params.LLRatioThresh)
-            [params.LLRatioThresh, ~, ~] = threshold(multithresh(detected.LLRatio(:)), max(detected.LLRatio(:)), maxintensityproj(detected.LLRatio,3));
+            [params.LLRatioThresh, ~, ~] = threshold(multithresh(smoothLLRatio(:)), max(smoothLLRatio(:)), maxintensityproj(smoothLLRatio,3));
         end
         selectedRegions = smoothLLRatio > params.LLRatioThresh;
     otherwise
@@ -55,30 +70,30 @@ switch params.strategy
 end
 
 %% universal computations
-BWmask = Athresholded.*selectedRegions;
+L = Athresholded.*selectedRegions;
 
 if params.clearBorder
-    BWmask = clearXYBorder(BWmask);
+    L = clearXYBorder(L);
 end
 
 %% enforce minimal bounding box volumes
-BWmask = BWmask > 0;
-CC = bwconncomp(BWmask);
+L = L > 0;
+CC = bwconncomp(L);
 L = labelmatrix(CC);
 stats = regionprops(L,'PixelIdxList','PixelList','Centroid','BoundingBox','Area');
 
 % for those small volumes, give them minimum boundingBox
-centroidMask = genSpotsFromCentroids(size(detected.A1),stats);
-minBBoxMask = imdilate(centroidMask,strel(ones(params.minBBox)));
+centroidMask = genSpotsFromCentroids(size(estimated.LLRatio),stats);
+minBBoxMask = imdilate(centroidMask,strel(ones(sizeKern)));
 % combine the min mask with the current bwmask
-BWmask = BWmask | minBBoxMask;
-% split masks by meanshift
-[L,~,~] = breakApartMasks(smoothLLRatio,BWmask);
+L = L | minBBoxMask;
+% % split masks by meanshift
+[L,~,~] = breakApartMasks(smoothLLRatio,L);
 
 % filter stats that have low volume
- L = bwareaopen(L,params.minVol);
- L = bwlabeln(L>0);
-% need to have minimum volume 
+L = bwareaopen(L,params.minVol);
+L = bwlabeln(L>0);
+% need to have minimum volume
 candidates.L        = L;
 % candidates.BWmask   = BWmask;
 % candidates.stats    = stats;
