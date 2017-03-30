@@ -155,19 +155,19 @@ classdef imtool3D < handle
                     position=[0 0 1 1]; h=figure; set(h,'Toolbar','none','Menubar','none')
                     range=[-50 50]; tools=[];
                 case 1  %tool = imtool3d(I)
-                    I=varargin{1}; position=[0 0 1 1]; h=figure; set(h,'Toolbar','none','Menubar','none')
+                    I=double(varargin{1}); position=[0 0 1 1]; h=figure; set(h,'Toolbar','none','Menubar','none')
                     range=[min(I(:)) max(I(:))]; tools=[];
                 case 2  %tool = imtool3d(I,position)
-                    I=varargin{1}; position=varargin{2}; h=figure; set(h,'Toolbar','none','Menubar','none')
+                    I=double(varargin{1}); position=varargin{2}; h=figure; set(h,'Toolbar','none','Menubar','none')
                     range=[min(I(:)) max(I(:))]; tools=[];
                 case 3  %tool = imtool3d(I,position,h)
-                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
                     range=[min(I(:)) max(I(:))]; tools=[];
                 case 4  %tool = imtool3d(I,position,h,range)
-                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
                     range=varargin{4}; tools=[];
                 case 5  %tool = imtool3d(I,position,h,range,tools)
-                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
                     range=varargin{4}; tools=varargin{5};
             end
             
