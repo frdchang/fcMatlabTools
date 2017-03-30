@@ -1,3 +1,49 @@
+%% start building the iterative MLE for multi spot multi color
+close all;
+clear;
+patchSize = [31 31 31];
+sigmassq1 = [2,2,2];
+sigmassq2 = [3,3,3];
+
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1);
+kernObj2 = myPattern_Numeric(kern2);
+
+centerCoor = getCenterCoor(size(kern1));
+coor1 = centerCoor+3;
+coor2 = centerCoor-3;
+buildThetas1 = {{kernObj1,[3 coor1]},{0}};
+buildThetas2 = {{kernObj2,[3 coor2]},{0}};
+Kmatrix      = [1 0.5;0.5 1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+% build max theta
+buildMaxThetas1 = {[1 1 1 1],1};
+buildMaxThetas2 = {[1 1 1 1],1};
+kmatrixMax      = zeros(size(Kmatrix));
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+% plot3Dstack(bigLambdas{1},'text','measured channel 1');
+% plot3Dstack(bigLambdas{2},'text','measured channel 2');
+
+kern2 = threshPSF(kern2,0.015);
+kern1 = cropCenterSize(kern1,size(kern2));
+
+cameraVariance = ones(size(bigLambdas{1}));
+
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+estimated = findSpotsStage1V2(photonData,{kern1,kern2},cameraVariance,'nonNegativity',false,'kMatrix',Kmatrix);
+candidates = selectCandidates(estimated);
+
 %% lets check how big of dataset i can use for my titanx video card
 close all;
 clear;
@@ -90,7 +136,7 @@ plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 %
 close all;
 clear;
-patchSize = [21 21 21];
+patchSize = [31 31 31];
 sigmassq1 = [2,2,2];
 sigmassq2 = [3,3,3];
 
@@ -105,8 +151,8 @@ kernObj2 = myPattern_Numeric(kern2);
 centerCoor = getCenterCoor(size(kern1));
 coor1 = centerCoor+3;
 coor2 = centerCoor-3;
-buildThetas1 = {{kernObj1,[2 coor1]},{0}};
-buildThetas2 = {{kernObj2,[2 coor2]},{0}};
+buildThetas1 = {{kernObj1,[1 coor1]},{0}};
+buildThetas2 = {{kernObj2,[1 coor2]},{0}};
 Kmatrix      = [1 0.5;0.5 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
@@ -136,10 +182,10 @@ kern1 = cropCenterSize(kern1,size(kern2));
 
 cameraVariance = ones(size(bigLambdas{1}));
 
-N = 4000;
+N = 8000;
 LLRatioCoor1Cross = zeros(N,1);
 LLRatioBkgndCross = zeros(N,1);
-bkgndCoor = num2cell([16 6 14]);
+bkgndCoor = num2cell([8 25 6]);
 coor1 = num2cell(coor1);
 coor2 = num2cell(coor2);
 
@@ -152,6 +198,8 @@ parfor ii = 1:N
     LLRatioBkgndCross(ii) = estimated.LLRatio(bkgndCoor{:});
 end
 figure;histogram(LLRatioBkgndCross(:));hold on;histogram(LLRatioCoor1Cross(:));legend('bkgnd-cross','coor1-cross');
+genROC('asdf',LLRatioCoor1Cross(:),LLRatioBkgndCross(:));
+
 % [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
 % 
 
