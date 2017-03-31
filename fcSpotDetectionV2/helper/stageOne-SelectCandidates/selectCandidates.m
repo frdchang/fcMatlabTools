@@ -78,18 +78,13 @@ end
 
 %% enforce minimal bounding box volumes
 L = L > 0;
-CC = bwconncomp(L);
-L = labelmatrix(CC);
-stats = regionprops(L,'PixelIdxList','PixelList','Centroid','BoundingBox','Area');
-
-% for those small volumes, give them minimum boundingBox
-centroidMask = genSpotsFromCentroids(size(estimated.LLRatio),stats);
-minBBoxMask = imdilate(centroidMask,strel(ones(sizeKern)));
+[Lbroken,~,seeds] = breakApartMasks(smoothLLRatio,L);
+minBBoxMask = imdilate(seeds,strel(ones(sizeKern)));
 % combine the min mask with the current bwmask
 L = L | minBBoxMask;
 % % split masks by meanshift
-[L,~,~] = breakApartMasks(smoothLLRatio,L);
 
+L = splitTheBorders(Lbroken,L);
 % filter stats that have low volume
 L = bwareaopen(L,params.minVol);
 L = bwlabeln(L>0);
