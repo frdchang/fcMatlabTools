@@ -303,7 +303,7 @@ kernD2s = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),hessLambdas);
 
 
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas{1});
-electronData = returnElectrons(sampledData,cameraParams.gain,cameraParams.offset,cameraParams.QE);
+electronData = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(sampledData,kern,cameraVariance);
 
 
@@ -319,6 +319,7 @@ plot3Dstack(estimated.LLRatio);
 % hessians = cellfunNonUniformOutput(@gpuArray,hessians);
 [updateX,updateY,updateZ] = calcNewtonUpdate(gradients,hessians);
 newtonMag = sqrt(updateX.^2+updateY.^2+updateZ.^2);
+newtonMag(isnan(newtonMag)) = 0;
 plot3Dstack(newtonMag<0.002 & estimated.LLRatio>100);
 %% design interpolating findspotstage1
 patchSize = [19 21 25];
