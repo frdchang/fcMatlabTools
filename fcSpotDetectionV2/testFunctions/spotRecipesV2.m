@@ -1,3 +1,53 @@
+%% test gradient filter + llratio
+% HOLLY SHIT.  dot prodcut of gradient field converging to fixed point
+% assists LLRatio detection in ROC curve.  this means this outerforms
+% LLRatio by itself!
+% does it for both [10 coor1]},{8}
+% and low photon [2 coor1]},{0}
+patchSize = [21 21 21];
+sigmassq1 = [2,2,2];
+[kern1,~] = ndGauss(sigmassq1,patchSize);
+domains = genMeshFromData(kern1);
+cameraVariance = ones(size(kern1));
+kernObj = myPattern_Numeric(kern1);
+coor1 = getCenterCoor(patchSize) + 3;
+buildThetas = {{kernObj,[10 coor1]},{8}};
+thetaInputs = {1,buildThetas};
+[lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
+kern = cropCenterSize(lambdas,[7,7,7]);
+kernDs = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),gradLambdas);
+kernD2s = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),hessLambdas);
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
+
+N = 10000;
+LLRatioCoor1 = zeros(N,1);
+LLRatioBkgnd = zeros(N,1);
+LLRatioCoor1Dot   = zeros(N,1);
+LLRatioBkgndDot   = zeros(N,1);
+bkgndCoor = num2cell(round(size(kern)/2 + 2));
+coor1 = num2cell(coor1);
+
+parfor ii = 1:N
+    display(ii);
+    [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+    electronData = returnElectrons(sampledData,cameraParams);
+    estimated = findSpotsStage1V2(electronData,kern,cameraVariance);
+    [ gradients ] = calcGradientFilter(electronData,estimated,kern,kernDs,cameraVariance);
+    % [ hessians ] = calcHessianFilter(sampledData,estimated,kern,kernDs,kernD2s,cameraVariance);
+    [convergingKernel] = genConvergingKernel(kern);
+    theDotProduct = convConveringKernel(gradients,convergingKernel);
+    theDotProduct(theDotProduct<0) = 0;
+    dotLLRatio = norm0to1(theDotProduct).*estimated.LLRatio;
+    LLRatioCoor1(ii) = estimated.LLRatio(coor1{:});
+    LLRatioBkgnd(ii) = estimated.LLRatio(bkgndCoor{:});
+    LLRatioCoor1Dot(ii) = dotLLRatio(coor1{:});
+    LLRatioBkgndDot(ii) = dotLLRatio(bkgndCoor{:});
+end
+% figure;histogram(LLRatioBkgndDot(:));hold on;histogram(LLRatioCoor1Dot(:));legend('bkgnddot','coor1dot');title('dot');
+% figure;histogram(LLRatioBkgnd(:));hold on;histogram(LLRatioCoor1(:));legend('bkgnddot','coor1dot');title('normal');
+rocdot = genROC('dot',LLRatioCoor1Dot,LLRatioBkgndDot);
+rocLLR  = genROC('LLRatio',LLRatioCoor1,LLRatioBkgnd);
+figure;plot(1-rocdot.withoutTargetCDF,1-rocdot.withTargetCDF);hold on;plot(1-rocLLR.withoutTargetCDF,1-rocLLR.withTargetCDF);legend('dot','llr');
 %% start building the iterative MLE for multi spot multi color
 close all;
 clear;
@@ -119,13 +169,13 @@ kern2 = threshPSF(kern2,0.015);
 kern1 = cropCenterSize(kern1,size(kern2));
 %  estimatedtruth = findSpotsStage1V2(bigLambdas,{kern1,kern2},ones(size(bigLambdas{1})),'kMatrix',Kmatrix);
 
- cameraVariance = ones(size(bigLambdas{1}));
+cameraVariance = ones(size(bigLambdas{1}));
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas);
 [electronData,photonData] = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(photonData,{kern1,kern2},ones(size(bigLambdas{1})),'nonNegativity',false,'kMatrix',Kmatrix);
 estimated1 = findSpotsStage1V2(photonData{1},kern1,ones(size(bigLambdas{1})),'nonNegativity',false);
 estimated2 = findSpotsStage1V2(photonData{2},kern2,ones(size(bigLambdas{1})),'nonNegativity',false);
-  
+
 diagLLRatio = estimated1.LLRatio + estimated2.LLRatio;
 plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 [~,~,~,~,~,zLLRatio,~,~] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
@@ -184,8 +234,8 @@ kern1 = cropCenterSize(kern1,size(kern2));
 cameraVariance = ones(size(bigLambdas{1}));
 
 N = 8000;
-LLRatioCoor1Cross = zeros(N,1);
-LLRatioBkgndCross = zeros(N,1);
+LLRatioCoor1 = zeros(N,1);
+LLRatioBkgnd = zeros(N,1);
 bkgndCoor = num2cell([8 25 6]);
 coor1 = num2cell(coor1);
 coor2 = num2cell(coor2);
@@ -195,14 +245,14 @@ parfor ii = 1:N
     [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
     [~,photonData] = returnElectrons(sampledData,cameraParams);
     estimated = findSpotsStage1V2(photonData,{kern1,kern2},cameraVariance,'nonNegativity',false,'kMatrix',Kmatrix);
-    LLRatioCoor1Cross(ii) = estimated.LLRatio(coor1{:});
-    LLRatioBkgndCross(ii) = estimated.LLRatio(bkgndCoor{:});
+    LLRatioCoor1(ii) = estimated.LLRatio(coor1{:});
+    LLRatioBkgnd(ii) = estimated.LLRatio(bkgndCoor{:});
 end
-figure;histogram(LLRatioBkgndCross(:));hold on;histogram(LLRatioCoor1Cross(:));legend('bkgnd-cross','coor1-cross');
-genROC('asdf',LLRatioCoor1Cross(:),LLRatioBkgndCross(:));
+figure;histogram(LLRatioBkgnd(:));hold on;histogram(LLRatioCoor1(:));legend('bkgnd-cross','coor1-cross');
+genROC('asdf',LLRatioCoor1(:),LLRatioBkgnd(:));
 
 % [zmodelSq1,zmodelSq2,zLL1,zLL0,zLL1SansDataSq,zLLRatio,crossTerms1,dataSqTerms] = calcLLRatioManually2(photonData{1},photonData{2},kern1,kern2,estimated.A1{1},estimated.A1{2},estimated.B1{1},estimated.B1{2},estimated.B0{1},estimated.B0{2},cameraVariance,Kmatrix);
-% 
+%
 
 
 
@@ -214,9 +264,9 @@ genROC('asdf',LLRatioCoor1Cross(:),LLRatioBkgndCross(:));
 % plot3Dstack(cat(2,estimated.LLRatio,diagLLRatio));
 % imtool3D(estimated.LLRatio-diagLLRatio);
 % centerCoorCell = num2cell(centerCoor);
-% 
+%
 % [modelSq1,modelSq2,LL1,LL1SansDataSq,LLRatio] = calcLLRatioManually2(photonData{1},kern1,estimated1.A1,estimated1.B1,estimated1.B0,cameraVariance,Kmatrix);
-% 
+%
 
 %% do three color iterative multi spot fitting
 close all;
@@ -309,6 +359,8 @@ estimated = findSpotsStage1V2(sampledData,kern,cameraVariance);
 
 [ gradients ] = calcGradientFilter(sampledData,estimated,kern,kernDs,cameraVariance);
 [ hessians ] = calcHessianFilter(sampledData,estimated,kern,kernDs,kernD2s,cameraVariance);
+[convergingKernel] = genConvergingKernel(size(kern));
+theDotProduct = convConveringKernel(gradients,convergingKernel);
 
 myCoor = num2cell(getCenterCoor(patchSize));
 myGradient = cellfun(@(x) x(myCoor{:}),gradients);
