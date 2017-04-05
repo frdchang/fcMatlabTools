@@ -85,6 +85,7 @@ if ~iscell(data)
     if iscell(spotKern)
         % convolution is separable
         convFunc = @convSeparableND;
+        spotKern = cellfunNonUniformOutput(@(x) flipAllDimensions(x),spotKern);
         sqSpotKern = cellfunNonUniformOutput(@(x) x.^2,spotKern);
         onesSizeSpotKern = genSeparableOnes(cellfun(@(x) numel(x),spotKern));
     else
@@ -93,9 +94,9 @@ if ~iscell(data)
         spotKern = flipAllDimensions(spotKern);
         sqSpotKern = spotKern.^2;
         if isa(data,'gpuArray') && isa(spotKern,'gpuArray') && isa(cameraVariance,'gpuArray')
-            onesSizeSpotKern = ones(size(spotKern),'gpuArray');
+            onesSizeSpotKern = cellfunNonUniformOutput(@(x) gpuArray(x),genSeparableOnes(size(spotKern)));
         else
-            onesSizeSpotKern = ones(size(spotKern));
+            onesSizeSpotKern = genSeparableOnes(size(spotKern));
         end
         
     end
@@ -107,13 +108,13 @@ if ~iscell(data)
         spotKernSaved = spotKern;
         k1 = convFunc(invVarSaved,spotKern);
         k3 = convFunc(invVarSaved,sqSpotKern);
-        k5 = convFunc(invVarSaved,onesSizeSpotKern);
+        k5 = convSeparableND(invVarSaved,onesSizeSpotKern);
         Normalization = k1.^2 - k5.*k3;
     end
     
     dataNormed  = data.*invVarSaved;
     k2          = convFunc(dataNormed,spotKern);
-    k4          = convFunc(dataNormed,onesSizeSpotKern);
+    k4          = convSeparableND(dataNormed,onesSizeSpotKern);
     %     clear('dataNormed','data');
     % parameters given A*spotKern, model of 1 spot without background
     A0          = k2./ k3;
@@ -157,29 +158,30 @@ else
     end
     
     % spotKern must be cell array of kernels for each spectra
-    spotKern = reshape(spotKern,numel(spotKern),1);
-    data  = reshape(data,numel(data),1);
+    spotKern                = reshape(spotKern,numel(spotKern),1);
+    data                    = reshape(data,numel(data),1);
     if iscell(spotKern{1})
         % convolution is separable
         if params.loadIntoGpu
-            data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
-            spotKern = cellfunNonUniformOutput(@(x) cellfunNonUniformOutput(@(x) gpuArray(x),x),spotKern);
-            cameraVariance = gpuArray(cameraVariance);
+            data            = cellfunNonUniformOutput(@(x) gpuArray(x),data);
+            spotKern        = cellfunNonUniformOutput(@(x) cellfunNonUniformOutput(@(x) gpuArray(x),x),spotKern);
+            cameraVariance  = gpuArray(cameraVariance);
         end
-        convFunc = @convSeparableND;
-        sqSpotKern = cellfunNonUniformOutput(@(y) cellfunNonUniformOutput(@(x) x.^2,y),spotKern);
-        onesSizeSpotKern =  genSeparableOnes(cellfun(@(x) numel(x),spotKern{1}));
+        convFunc            = @convSeparableND;
+        spotKern            = cellfunNonUniformOutput(@(y) cellfunNonUniformOutput(@(x) flipAllDimensions(x),y),spotKern);
+        sqSpotKern          = cellfunNonUniformOutput(@(y) cellfunNonUniformOutput(@(x) x.^2,y),spotKern);
+        onesSizeSpotKern    =  genSeparableOnes(cellfun(@(x) numel(x),spotKern{1}));
     else
         % otherwise just do fft
         if params.loadIntoGpu
-            data = cellfunNonUniformOutput(@(x) gpuArray(x),data);
-            spotKern = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
-            cameraVariance = gpuArray(cameraVariance);
+            data            = cellfunNonUniformOutput(@(x) gpuArray(x),data);
+            spotKern        = cellfunNonUniformOutput(@(x) gpuArray(x),spotKern);
+            cameraVariance  = gpuArray(cameraVariance);
         end
-        convFunc = @convFFTND;
-        spotKern = cellfunNonUniformOutput(@(y) flipAllDimensions(y),spotKern);
-        sqSpotKern = cellfunNonUniformOutput(@(y) y.^2,spotKern);
-        onesSizeSpotKern =  ones(size(spotKern{1}));
+        convFunc            = @convFFTND;
+        spotKern            = cellfunNonUniformOutput(@(y) flipAllDimensions(y),spotKern);
+        sqSpotKern          = cellfunNonUniformOutput(@(y) y.^2,spotKern);
+        onesSizeSpotKern    =  genSeparableOnes(size(spotKern{1}));
     end
     
     % if spotKern or cameraVariance changes, cache the results
@@ -191,7 +193,7 @@ else
         spotKernSaved   = spotKern;
         k1              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),spotKern);
         k3              = cellfunNonUniformOutput(@(x) convFunc(invVarSaved,x),sqSpotKern);
-        k5              = convFunc(invVarSaved,onesSizeSpotKern);
+        k5              = convSeparableND(invVarSaved,onesSizeSpotKern);
     end
     
     if ~isempty(params.kMatrix)
@@ -203,7 +205,7 @@ else
     
     dataNormed      = cellfunNonUniformOutput(@(x) x.*invVarSaved,data);
     k2              = cellfunNonUniformOutput(@(x,spotKern) convFunc(x,spotKern),dataNormed,spotKern);
-    k4              = cellfunNonUniformOutput(@(x) convFunc(x,onesSizeSpotKern),dataNormed);
+    k4              = cellfunNonUniformOutput(@(x) convSeparableND(x,onesSizeSpotKern),dataNormed);
     clear('dataNormed','data');
     
     A0              = cellfunNonUniformOutput(@(x,k3) x./k3,k2,k3);
