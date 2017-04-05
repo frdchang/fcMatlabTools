@@ -41,6 +41,7 @@ kern3Sep = cropCenterSize(kern3Sep,size(kern3));
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
+
 estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 
@@ -498,8 +499,8 @@ for ii = 1:numel(bigLambdas)
     sigmasqs{ii} = ones(size(bigLambdas{ii}));
 end
 
-buildThetas1Er = {{kernObj1,[11.5 6 13 14]},{kernObj1,[7.6 15 3 13]},{0}};
-buildThetas2Er = {{kernObj2,[12.5 6.5 6.5 12.3]},{0}};
+buildThetas1Er = {{kernObj1,[11.5 7 16 15]},{kernObj1,[7.6 15 3 13]},{0}};
+buildThetas2Er = {{kernObj2,[12.5 6.5 13 12.3]},{0}};
 Kmatrix      = [1 0.2;0.6 1];
 thetaInputsEr = {buildThetas1Er,buildThetas2Er};
 thetaInputsEr = {Kmatrix,thetaInputsEr{:}};
