@@ -1,3 +1,49 @@
+%% lets start building stage 3
+close all;
+clear;
+patchSize = [31 31 31];
+sigmassq1 = [2,2,2];
+sigmassq2 = [3,3,3];
+sigmassq3 = [4,4,4];
+% build the numeric multi emitter
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+[kern3,kern3Sep] = ndGauss(sigmassq3,patchSize);
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1);
+kernObj2 = myPattern_Numeric(kern2);
+kernObj3 = myPattern_Numeric(kern3);
+
+buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
+buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
+buildThetas3 = {{kernObj3,[7 20 20 20]},{0}};
+Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
+% Kmatrix      = eye(size(Kmatrix));
+thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+% build max theta
+buildMaxThetas1 = {[1 1 1 1],[1 1 1 1],1};
+buildMaxThetas2 = {[1 1 1 1],1};
+buildMaxThetas3 = {[1 1 1 1],1};
+kmatrixMax      = zeros(size(Kmatrix));
+maxThetaInput = {buildMaxThetas1,buildMaxThetas2,buildMaxThetas3};
+maxThetaInput = {kmatrixMax,maxThetaInput{:}};
+
+kern3 = threshPSF(kern3,0.015);
+kern2 = cropCenterSize(kern2,size(kern3));
+kern1 = cropCenterSize(kern1,size(kern3));
+
+kern1Sep = cropCenterSize(kern1Sep,size(kern3));
+kern2Sep = cropCenterSize(kern2Sep,size(kern3));
+kern3Sep = cropCenterSize(kern3Sep,size(kern3));
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+
 %% test gradient filter + llratio
 % HOLLY SHIT.  dot prodcut of gradient field converging to fixed point
 % assists LLRatio detection in ROC curve.  this means this outerforms
