@@ -18,38 +18,37 @@ function candidates = selectCandidates(estimated,varargin)
 
 %--parameters--------------------------------------------------------------
 % you can just use simple 'threshold' or 'hdome'
-params.strategy          = 'threshold';         % {'hdome','threshold'}
+params.strategy             = 'threshold';         % {'hdome','threshold'}
 %==universal parameters====================================================
-params.Athreshold        = 0;               % select regions where A > Athreshold
-params.clearBorder       = true;            % clear border on xy perimeter
-params.minVol            = 1;               % min volume of feature
+params.Athreshold           = 0;               % select regions where A > Athreshold
+params.clearBorder          = true;            % clear border on xy perimeter
+params.minVol               = 1;               % min volume of feature
+params.imposeMinSize        = true;
 %==hdome specific parameters==========?=====================================
-params.hdomeH            = 1e3;
-params.thresholdHDome    = 'otsu';  %{'otsu',thresholdValue}
+params.hdomeH               = 1e3;
+params.thresholdHDome       = 'otsu';  %{'otsu',thresholdValue}
 %==threshold specific parameters===========================================
-params.LLRatioThresh     = [];
+params.LLRatioThresh        = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-%% universal computation
-sizeDataSet = size(estimated.LLRatio);
+%% universal computation - preprocessing
 if iscell(estimated.A1)
     smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern{1});
-     Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
-     Athresholded = ~multiCellContents(Athresholded);
+    Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
+    Athresholded = ~multiCellContents(Athresholded);
     
-     if iscell(estimated.spotKern{1})
-         error('did not calculate this part yuet');
-     else
-         sizeKern = size(estimated.spotKern{1});
-     end
-     
+    if iscell(estimated.spotKern{1})
+        sizeKern = cellfun(@(x) numel(x),estimated.spotKern{1});
+    else
+        sizeKern = size(estimated.spotKern{1});
+    end
+    
 else
     smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern);
     Athresholded = estimated.A1 > params.Athreshold;
     sizeKern = size(estimated.spotKern);
 end
-
 
 
 %% user specified computation
@@ -69,24 +68,24 @@ switch params.strategy
         error('unrecognized strategy');
 end
 
-%% universal computations
+%% universal computations - postprocessing
 L = Athresholded.*selectedRegions;
+
+% filter stats that have low volume
+L = bwareaopen(L,params.minVol);
 
 if params.clearBorder
     L = clearXYBorder(L);
 end
 
-%% enforce minimal bounding box volumes
-L = L > 0;
-[Lbroken,~,seeds] = breakApartMasks(smoothLLRatio,L);
-minBBoxMask = imdilate(seeds,strel(ones(sizeKern)));
-% combine the min mask with the current bwmask
-L = L | minBBoxMask;
-% % split masks by meanshift
+if params.imposeMinSize
+    L = L > 0;
+    [~,~,seeds] = breakApartMasks(smoothLLRatio,L);
+    minBBoxMask = imdilate(seeds,strel(ones(sizeKern(:)')));
+    % combine the min mask with the current bwmask
+    L = L | minBBoxMask;
+end
 
-L = splitTheBorders(Lbroken,L);
-% filter stats that have low volume
-L = bwareaopen(L,params.minVol);
 L = bwlabeln(L>0);
 % need to have minimum volume
 candidates.L        = L;

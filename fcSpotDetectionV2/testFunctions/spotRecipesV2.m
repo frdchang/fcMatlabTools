@@ -44,6 +44,10 @@ kern3Sep = cropCenterSize(kern3Sep,size(kern3));
 estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 
+candidates = selectCandidates(estimated);
+candidatesSep = selectCandidates(estimatedSep);
+
+
 %% test gradient filter + llratio
 % HOLLY SHIT.  dot prodcut of gradient field converging to fixed point
 % assists LLRatio detection in ROC curve.  this means this outerforms
