@@ -48,6 +48,7 @@ estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(si
 candidates = selectCandidates(estimated);
 candidatesSep = selectCandidates(estimatedSep);
 
+[MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix);
 
 %% test gradient filter + llratio
 % HOLLY SHIT.  dot prodcut of gradient field converging to fixed point
