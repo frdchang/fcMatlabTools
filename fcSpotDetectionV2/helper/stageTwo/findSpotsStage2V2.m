@@ -27,6 +27,6 @@ for ii = 1:numel(ids)
     carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
     carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern);
     carvedCameraVariances   = carveOutWithMask(cameraVariances,currMask,sizeKern);
-    MLEs{ii} = doMultiEmitterFitting(currMask,carvedDatas,carvedEstimates,carvedCameraVariances,kMatrix,params);
+    MLEs{ii}                = doMultiEmitterFitting(currMask,carvedDatas,carvedEstimates,carvedCameraVariances,kMatrix,params);
 end
 
