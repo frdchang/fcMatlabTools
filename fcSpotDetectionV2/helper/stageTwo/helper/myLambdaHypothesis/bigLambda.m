@@ -31,6 +31,9 @@ if params.doMicroscopeBleedThru
     
     for ii = 1:numDatas
         currInput = thetaInputs{ii};
+        if isempty(currInput)
+            continue;
+        end
         currShape = currInput{1}{1};
         currInput = {1,currInput{:}};
         maxThetaInputs = maxAllThetas(currInput);

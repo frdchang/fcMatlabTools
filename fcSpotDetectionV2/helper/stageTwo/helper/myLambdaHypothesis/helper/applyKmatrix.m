@@ -22,7 +22,7 @@ else
     sizeOfLambdas = cellfun(@(x) size(x,1),littleLambdas);
     numDmatrix = sum(sizeOfLambdas);
     numElements =  numDmatrix - numel(littleLambdas) + numel(Kmatrix);
-    if size(littleLambdas{1},2) == 1
+    if ~all(cellfun(@(x) all(size(x)==size(x')),littleLambdas))
         % if littleLambdas is compsoed of a linear cell array its D
         % generate bigDLambda memory
         
@@ -42,7 +42,7 @@ else
             bigDs =  cellMultiply(Kvals,littleLambdas);
             appliedK(ii,numel(Kmatrix)+1:end) = flattenCellArray(bigDs);
         end
-    elseif size(littleLambdas{1},2) == size(littleLambdas{1},1)
+    elseif all(cellfun(@(x) all(size(x)==size(x')),littleLambdas))
         % if littleLambdas is composed of a matrix of cell arrays its D2
         littleDlambdas = varargin{1};
         appliedK = cell(numDatas,1);
@@ -68,7 +68,9 @@ else
                 % populate hessian and multiply by
                 % constant~~~~~~!!!!!!!!!!!!I STOPED HERE,
                 appliedK{ii}(domainSelector,domainSelector) = tempD2{jj}(2:end,2:end);
+                if ~isempty(domainSelector)
                 currIndex = domainSelector(end)+1;
+                end
             end
         end
     else
