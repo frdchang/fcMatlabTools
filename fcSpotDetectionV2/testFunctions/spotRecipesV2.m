@@ -19,7 +19,7 @@ buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
 buildThetas3 = {{kernObj3,[7 20 20 20]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
-thetaInputs2 = {{},buildThetas2,{}};
+thetaInputs2 = {buildThetas1,{},{}};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 % build max theta
@@ -39,6 +39,7 @@ kern2Sep = cropCenterSize(kern2Sep,size(kern3));
 kern3Sep = cropCenterSize(kern3Sep,size(kern3));
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs2);
+%%
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 

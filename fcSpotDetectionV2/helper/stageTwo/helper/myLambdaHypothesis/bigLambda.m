@@ -28,7 +28,7 @@ littleD2Lambdas = cell(numDatas,1);
 if params.doMicroscopeBleedThru
     % this does real bleed thru where the pattern manifested depends on the
     % pattern for that channel
-    
+    firstCall = true;
     for ii = 1:numDatas
         currInput = thetaInputs{ii};
         if isempty(currInput)
@@ -57,11 +57,13 @@ if params.doMicroscopeBleedThru
             end
         end
         % this does regular bleed thru where the pattern just manifests in another
-        % channel by the bleed thru coefficient
-        if ii ==1
+        % channel by the bleed thru coefficient.  
+        if firstCall
+            % this is for pre-allocation (i don't know the size), then the rest will be overwritten
             bigLambdas   = applyKmatrix(Kmatrix,littleLambdas);
             bigDLambdas  = applyKmatrix(Kmatrix,littleDLambdas);
             bigD2Lambdas = applyKmatrix(Kmatrix,littleD2Lambdas,littleDLambdas);
+            firstCall = false;
         else
             bigLambdasTemp   = applyKmatrix(Kmatrix,littleLambdas);
             bigDLambdasTemp  = applyKmatrix(Kmatrix,littleDLambdas);
