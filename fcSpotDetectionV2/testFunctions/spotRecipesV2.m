@@ -1,4 +1,4 @@
-%% lets start building stage 3
+%%lets start building stage 3
 close all;
 clear;
 patchSize = [31 31 31];
@@ -19,7 +19,7 @@ buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
 buildThetas3 = {{kernObj3,[7 20 20 20]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
-thetaInputs2 = {buildThetas1,{},{}};
+thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 % build max theta
@@ -39,7 +39,6 @@ kern2Sep = cropCenterSize(kern2Sep,size(kern3));
 kern3Sep = cropCenterSize(kern3Sep,size(kern3));
 
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs2);
-%%
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 
@@ -47,7 +46,7 @@ estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambda
 estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 
 candidates = selectCandidates(estimated);
-candidatesSep = selectCandidates(estimatedSep);
+% candidatesSep = selectCandidates(estimatedSep);
 
 [MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix);
 

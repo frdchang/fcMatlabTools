@@ -1,4 +1,4 @@
-function [ states ] = doMultiEmitterFitting(datas,sigmasqs,domains,kMatrix,estimated,candidates,kernObjs,varargin)
+function [ states ] = doMultiEmitterFitting(maskedPixelId,rectSubArrayIdx,datas,mask,estimated,camVar,Kmatrix,varargin)
 %DOMULTIEMITTERFITTING will iteratively do multi emitter fitting
 
 %--parameters--------------------------------------------------------------
@@ -7,11 +7,14 @@ params.numSpots     = 3;
 params = updateParams(params,varargin);
 
 states = cell(params.numSpots,1);
-
+domains{3} = 0;
+[domains{:}] = ndgrid(maskedPixelId{:});
 % for first fitting just find the highest LLRatio as theta0
+theta0 = cell(numel(datas)+1,1);
+theta0{1} = Kmatrix;
+theta0 = findNextTheta0(domains,theta0,datas,estimated);
 
-
-for ii = 2:params.numSpots
+for ii = 1:params.numSpots
     % take error measurement
     
     % generate theta0

@@ -87,8 +87,9 @@ if params.imposeMinSize
 end
 
 L = bwlabeln(L>0);
+stats = regionprops(L,'PixelList','SubarrayIdx');
 % need to have minimum volume
 candidates.L        = L;
 % candidates.BWmask   = BWmask;
-% candidates.stats    = stats;
+candidates.stats    = stats;
 
