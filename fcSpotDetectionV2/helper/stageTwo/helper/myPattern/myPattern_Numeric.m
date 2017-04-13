@@ -17,22 +17,23 @@ classdef myPattern_Numeric < myPattern_Interface
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
             % myNumericPattern
-            if nargin ==1
+
                 if params.normPeakHeight
                     obj.ndPatternOG    = ndPatternOG/max(ndPatternOG(:));
                 else
                     obj.ndPatternOG    = ndPatternOG;
                 end
                 
-            end
+      
             obj.domainsOG       = genMeshFromData(obj.ndPatternOG);
             obj.centerCoorOG    = round(size(obj.ndPatternOG)/2);
             obj.binning         = params.binning;
             obj.numDims         = numel(obj.centerCoorOG);
         end
         
-        function myShape = returnShape(obj)
-           myShape = obj.ndPatternOG;
+        function [myOGShape,binnedShape] = returnShape(obj)
+           myOGShape = obj.ndPatternOG;
+           binnedShape = NDbinData(obj.ndPatternOG,obj.binning);
         end
         function lambdas = givenTheta(obj,domains,theta,varargin)
             %--parameters--------------------------------------------------------------

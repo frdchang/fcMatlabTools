@@ -1,4 +1,4 @@
-function [MLEs] = findSpotsStage2V2(datas,cameraVariances,estimated,candidates,Kmatrix,varargin)
+function [MLEs] = findSpotsStage2V2(datas,cameraVariances,estimated,candidates,Kmatrix,objKerns,varargin)
 %FINDSPOTSSTAGE2V2 will take each candidate and do iterative fitting
 
 %--parameters--------------------------------------------------------------
@@ -28,6 +28,7 @@ for ii = 1:numel(ids)
     carvedCamVar            = carveOutWithMask(cameraVariances,currMask,sizeKern);
     carvedPixelDomain       = num2cell(candidates.stats(ii).PixelList,1)';
     carvedRectSubArrayIdx   = candidates.stats(ii).SubarrayIdx;
-    MLEs{ii}                = doMultiEmitterFitting(carvedRectSubArrayIdx,carvedPixelDomain,carvedDatas,currMask,carvedEstimates,carvedCamVar,Kmatrix,params);
+    carvedEstimates.spotKern = estimated.spotKern;
+    MLEs{ii}                = doMultiEmitterFitting(carvedRectSubArrayIdx,carvedPixelDomain,carvedDatas,currMask,carvedEstimates,carvedCamVar,Kmatrix,objKerns,params);
 end
 

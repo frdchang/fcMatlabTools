@@ -24,8 +24,8 @@ littleLambdas = cell(numDatas,1);
 littleDLambdas = cell(numDatas,1);
 littleD2Lambdas = cell(numDatas,1);
 
-bigLambdas = cell(numel(thetaInputs)-1,1);
-[bigLambdas{:}] = deal({0});
+bigLambdas = cell(numel(thetaInputs),1);
+[bigLambdas{:}] = deal(0);
 
 if params.doMicroscopeBleedThru
     % this does real bleed thru where the pattern manifested depends on the

@@ -1,18 +1,32 @@
-%%lets start building stage 3
+%% check myNumericPattern binning
 close all;
 clear;
-patchSize = [31 31 31];
-sigmassq1 = [2,2,2];
-sigmassq2 = [3,3,3];
-sigmassq3 = [4,4,4];
+binning   = 5;
+patchSize = 31;
+sigmas1   = [1.2,1.2,1.2];
+
+% build the numeric multi emitter
+[kern1,~] = ndGauss(sigmas1.^2,[patchSize,patchSize,patchSize]*binning);
+kernObj1 = myPattern_Numeric(kern1,'binning',[binning,binning,binning]);
+[ogPattern,binned] = kernObj1.returnShape;
+getNDXYZProfiles(ogPattern,'fitGaussian',true);
+getNDXYZProfiles(binned,'fitGaussian',true);
+%% lets start building stage 3
+close all;
+clear;
+binning   = [3 3 3];
+patchSize = binning*31;
+sigmassq1 = [2,2,2].*binning.^2;
+sigmassq2 = [3,3,3].*binning.^2;
+sigmassq3 = [4,4,4].*binning.^2;
 % build the numeric multi emitter
 [kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
 [kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
 [kern3,kern3Sep] = ndGauss(sigmassq3,patchSize);
 domains = genMeshFromData(kern1);
-kernObj1 = myPattern_Numeric(kern1);
-kernObj2 = myPattern_Numeric(kern2);
-kernObj3 = myPattern_Numeric(kern3);
+kernObj1 = myPattern_Numeric(kern1,'binning',binning);
+kernObj2 = myPattern_Numeric(kern2,'binning',binning);
+kernObj3 = myPattern_Numeric(kern3,'binning',binning);
 
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 buildThetas2 = {{kernObj2,[7 5 12 13]},{0}};
@@ -45,10 +59,10 @@ kern3Sep = cropCenterSize(kern3Sep,size(kern3));
 estimated = findSpotsStage1V2(photonData,{kern1,kern2,kern3},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep,kern3Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 
-candidates = selectCandidates(estimated);
+candidates = selectCandidates(estimated,'LLRatioThresh',7500);
 % candidatesSep = selectCandidates(estimatedSep);
 
-[MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix);
+[MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,{kernObj1,kernObj2,kernObj3},Kmatrix);
 
 %% test gradient filter + llratio
 % HOLLY SHIT.  dot prodcut of gradient field converging to fixed point

@@ -12,7 +12,7 @@ function [binned] = NDbinData(data,patchSize)
 % isequal(test,out)  9/23/16 -fc
 
 numDims = ndims(data);
-if ~isequal(numDims,numel(pathsep))
+if ~isequal(numDims,numel(patchSize))
     binned = data;
     return;
 end
