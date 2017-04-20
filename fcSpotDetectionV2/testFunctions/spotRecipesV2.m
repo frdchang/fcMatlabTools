@@ -1,16 +1,67 @@
+%% check binning
+binning = 5;
+patchSize = 21;
+sigma = 0.9;
+A = ndGauss([0.9,0.9,0.9]*binning,binning*[21 21 21]);
+
+out = NDbinData(A,[binning,binning,binning]);
+test = convn(A,ones(binning,binning,binning));
+test = test(binning:binning:end,binning:binning:end,binning:binning:end);
+isequal(test,out)
+
+% note that a peak of 1 in original shape gets changed when you bin because
+% it sums up the bins.
+myMax = [];
+myData2 = [];
+for mu = 0:0.5:binning
+    A = ndGauss([sigma,sigma,sigma]*binning.^2,binning*[patchSize patchSize patchSize],[mu,0,0]);
+    out = NDbinData(A,[binning,binning,binning]);
+    myData2 = [myData2 xyMaxProjND(out)];
+    myMax(end+1) = max(out(:));
+end
+figure;myshow(myData2);
+figure;plot(myMax);
+
+% ok, i compared NDbin when normalized for the patchsize and not and t is
+% the same.  so when you bin, don't expect the peak to be 1 anymore because
+% the binning affects it.  to normalize for the sum, it is divided by the
+% patch size.  this makes the peak lower, but consistent.  
+
 %% check myNumericPattern binning
 close all;
 clear;
 binning   = 5;
-patchSize = 31;
-sigmas1   = [1.2,1.2,1.2];
+patchSize = 61;
+sigmas1   = [5,5,5];
 
 % build the numeric multi emitter
-[kern1,~] = ndGauss(sigmas1.^2,[patchSize,patchSize,patchSize]*binning);
+[kern1,~] = ndGauss((binning*sigmas1).^2,[patchSize,patchSize,patchSize]*binning);
 kernObj1 = myPattern_Numeric(kern1,'binning',[binning,binning,binning]);
 [ogPattern,binned] = kernObj1.returnShape;
 getNDXYZProfiles(ogPattern,'fitGaussian',true);
 getNDXYZProfiles(binned,'fitGaussian',true);
+% binned gaussian converges to real gaussian as sigma gets bigger.  so
+% binning works
+%
+% lets see it work with a real PSF
+binning = 5;
+close all;
+psf = genPSF('f',binning,'mode',0);
+psfMaxCoors = findCoorWithMax(psf);
+psfOG = genPSF();
+psfOGMaxCoors = findCoorWithMax(psfOG);
+psf = psf(:,:,psfMaxCoors{3});
+psfOG = psfOG(:,:,psfOGMaxCoors{3});
+
+psfObj = myPattern_Numeric(psf,'binning',[binning,binning]);
+[ogPattern,binned] = psfObj.returnShape;
+
+
+getNDXYZProfiles(psfOG,'fitGaussian',true);
+getNDXYZProfiles(binned,'fitGaussian',true);
+plot3Dstack(psfOG)
+plot3Dstack(binned);
+% it has small numerical error.  
 %% lets start building stage 3
 close all;
 clear;

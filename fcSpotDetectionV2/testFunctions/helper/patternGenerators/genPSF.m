@@ -34,7 +34,7 @@ params.ru           = 10;
 % default zstep parameters
 params.dz           = 0.25e-6;
 params.zSteps       = 25;
-params.z0           = -1e-6;
+params.z0           = -2e-6;
 % threshold the psf, if so, put threshold value
 params.thresh       = []; %0.0002;
 % plot line profiles
@@ -47,6 +47,17 @@ params.onlyPSF      = true;
 params = updateParams(params,varargin);
 
 %% generate the zSteps centered at the PSF
+if params.mode ==0
+    % this means oversampled psf is requested so return oversampled z also
+    params.zSteps = params.zSteps*params.f;
+    params.dz     = params.dz/params.f;
+    
+end
+
+% for some reasons params.f needs to be odd
+if mod(params.f,2) ~= 1
+   error('f needs to be odd'); 
+end
 z = params.z0:params.dz:(params.z0 + params.dz*(params.zSteps-1));
 % this is the parameter structure that vectorialPSF needs, values are not
 % important.

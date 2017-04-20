@@ -4,11 +4,11 @@ function [binned] = NDbinData(data,patchSize)
 %each dimension of data.
 % 
 % code has been checked by the following:
-% A = rand(10,10,10,10)*100;
+% A = rand(10,10,10)*100;
 % A = round(A)
-% out = binData(A,[5,5,5,5]);
-% test = convn(A,ones(5,5,5,5));
-% test = test(5:5:end,5:5:end,5:5:end,5:5:end);
+% out = binData(A,[5,5,5]);
+% test = convn(A,ones(5,5,5));
+% test = test(5:5:end,5:5:end,5:5:end);
 % isequal(test,out)  9/23/16 -fc
 
 numDims = ndims(data);
@@ -25,9 +25,9 @@ if ~isequal(round(outputSize),outputSize)
     error('patchSize is not a clean multiple of the dimensions of data');
 end
 
-temp = sum(reshape(data,patchSize(1),[]),1);
+temp = sum(reshape(data,patchSize(1),[]),1)/patchSize(1);
 for i = 2:numDims   
-    temp = sum(reshape(temp,prod(outputSize(1:i-1)),patchSize(i),[]),2);
+    temp = sum(reshape(temp,prod(outputSize(1:i-1)),patchSize(i),[]),2)/patchSize(i);
 end
 binned = reshape(temp,outputSize);
 
