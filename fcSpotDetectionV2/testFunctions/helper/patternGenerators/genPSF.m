@@ -137,6 +137,7 @@ if params.plotProfiles
     plot3Dstack(psfData,'text','psf');
     plot3Dstack(psfDataStruct.gaussKern,'text','guassian approximation');
 end
+specimenStepSize = params.pixelSize / params.M;
 
 
 

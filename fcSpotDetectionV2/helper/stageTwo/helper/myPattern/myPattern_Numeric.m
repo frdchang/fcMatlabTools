@@ -11,31 +11,52 @@ classdef myPattern_Numeric < myPattern_Interface
     
     methods
         function obj = myPattern_Numeric(ndPatternOG,varargin)
+            % if the domain of the pattern is specified, it will use that
+            % instead of assuming that the pattern has a domain with
+            % increment of 1
+            %
+            % when you give it a domain of the pattern, the units are when
+            % after the binning happens.  
+            
             %--parameters--------------------------------------------------------------
-            params.binning          = ones(1,ndims(ndPatternOG));
+            params.binning          = [];
+            params.domains          = [];
             params.normPeakHeight   = true;
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
             % myNumericPattern
-
-                if params.normPeakHeight
-                    obj.ndPatternOG    = ndPatternOG/max(ndPatternOG(:));
-                else
-                    obj.ndPatternOG    = ndPatternOG;
-                end
-                
-      
-            obj.domainsOG       = genMeshFromData(obj.ndPatternOG);
+            
+            if params.normPeakHeight
+                obj.ndPatternOG    = ndPatternOG/max(ndPatternOG(:));
+            else
+                obj.ndPatternOG    = ndPatternOG;
+            end
+            
+            if isempty(params.domains)
+                obj.domainsOG      = genMeshFromData(obj.ndPatternOG);
+            else
+                obj.domainsOG      = params.domains; 
+            end
+            
             obj.centerCoorOG    = round(size(obj.ndPatternOG)/2);
-            obj.binning         = params.binning;
             obj.numDims         = numel(obj.centerCoorOG);
+            
+            if isempty(params.binning)
+               obj.binning         = ones(size(obj.ndPatternOG)); 
+            else
+                obj.binning        = params.binning;
+            end
         end
         
         function [myOGShape,binnedShape] = returnShape(obj)
-           myOGShape = obj.ndPatternOG;
-           binnedShape = NDbinData(obj.ndPatternOG,obj.binning);
+            myOGShape = obj.ndPatternOG;
+            binnedShape = NDbinData(obj.ndPatternOG,obj.binning);
         end
+        
         function lambdas = givenTheta(obj,domains,theta,varargin)
+          % domains is where the new pattern will be put on
+            % theta  is where the pattern is
+            % 'interpMethod', is how you interpolate the pattern
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';
             %--------------------------------------------------------------------------

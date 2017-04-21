@@ -27,6 +27,20 @@ figure;plot(myMax);
 % the binning affects it.  to normalize for the sum, it is divided by the
 % patch size.  this makes the peak lower, but consistent.  
 
+% ok try to make a numeric object pattern and see if it works
+binning = 5;
+psf = genPSF('f',binning,'mode',0);
+kernObj1 = myPattern_Numeric(psf,'binning',binning);
+domainsNew = genMeshFromData(zeros(domainSize*binning,domainSize*binning,domainSize*binning));
+kernObj1.givenTheta(genMeshFromData(psf),[11 11 11]);
+
+buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
+Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
+% Kmatrix      = eye(size(Kmatrix));
+thetaInputs2 = {buildThetas1,{},{}};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs2);
+
 %% check myNumericPattern binning
 close all;
 clear;
