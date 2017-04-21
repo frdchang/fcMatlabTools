@@ -12,7 +12,17 @@ function [binned] = NDbinData(data,patchSize)
 % isequal(test,out)  9/23/16 -fc
 
 numDims = ndims(data);
-if ~isequal(numDims,numel(patchSize))
+if numDims == 2
+   if size(data,1) == 1 || size(data,2) ==1
+      numDims =1; 
+   end
+end
+
+if isscalar(patchSize) && numDims ==1
+    binned = sum(reshape(data,patchSize,[]),1)/patchSize;
+    return;
+end
+if ~isequal(numDims,numDimPatch)
     binned = data;
     return;
 end

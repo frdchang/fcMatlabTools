@@ -2,35 +2,69 @@
 binning = 5;
 patchSize = 21;
 sigma = 0.9;
-A = ndGauss([0.9,0.9,0.9]*binning,binning*[21 21 21]);
 
-out = NDbinData(A,[binning,binning,binning]);
-test = convn(A,ones(binning,binning,binning));
-test = test(binning:binning:end,binning:binning:end,binning:binning:end);
-isequal(test,out)
-
+% 1 D case
+A = ndGauss([sigma]*binning.^2,binning*[patchSize]);
+out = NDbinData(A,binning);
+figure;plot([1:numel(A)]/binning,A);hold on;plot([1:numel(out)]-floor(binning/2)/binning,out);stem([1:binning:numel(A)]/binning,ones(numel(A)/binning,1));
 % note that a peak of 1 in original shape gets changed when you bin because
 % it sums up the bins.
 myMax = [];
-myData2 = [];
-for mu = 0:0.5:binning
-    A = ndGauss([sigma,sigma,sigma]*binning.^2,binning*[patchSize patchSize patchSize],[mu,0,0]);
-    out = NDbinData(A,[binning,binning,binning]);
-    myData2 = [myData2 xyMaxProjND(out)];
+close all;
+mu = [(0:0.1:binning) (binning:-0.1:0)];
+F(numel(mu)) = struct('cdata',[],'colormap',[]);
+
+writerObj = VideoWriter('binning1D.m4v'); % Name it.
+writerObj.FrameRate = 30; % How many frames per second.
+writerObj.Quality = 100;
+open(writerObj); 
+
+
+for ii = 1:numel(mu);
+    A = ndGauss([sigma]*binning.^2,binning*[ patchSize],[mu(ii)]);
+    out = NDbinData(A,[binning]);
+    clf;
+    plot([1:numel(A)]/binning,A,'LineWidth',2);hold on;plot([1:numel(out)]-floor(binning/2)/binning,out,'-*','LineWidth',2);stem([1:binning:numel(A)]/binning,ones(numel(A)/binning,1));
+    axis tight;
+    box off;
+    F(ii) = getframe(gcf);
+    writeVideo(writerObj, F(ii));
     myMax(end+1) = max(out(:));
 end
-figure;myshow(myData2);
 figure;plot(myMax);
-
+close(writerObj);
 % ok, i compared NDbin when normalized for the patchsize and not and t is
 % the same.  so when you bin, don't expect the peak to be 1 anymore because
 % the binning affects it.  to normalize for the sum, it is divided by the
-% patch size.  this makes the peak lower, but consistent.  
+% patch size.  this makes the peak lower, but consistent.
 
 % ok try to make a numeric object pattern and see if it works
 binning = 5;
 psf = genPSF('f',binning,'mode',0);
+psfBinned = NDbinData(psf,[binning,binning,binning]);
+[profilePSF] = getNDXYZProfiles(psf);
+[profileBinned] = getNDXYZProfiles(psfBinned);
+domainsPSF = genMeshFromData(psf);
+domainsBinned = genMeshFromData(psfBinned);
+% correct for over sampled PSF domains
+domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binning,binning,binning}');
+% plot surface plot at max intensity pixel plane
+maxCoorPSF = findCoorWithMax(psf);
+maxCoorBinned = findCoorWithMax(psfBinned);
+
+figure;
+surf(domainsPSF{1}(:,:,maxCoorPSF{3}),domainsPSF{2}(:,:,maxCoorPSF{3}),psf(:,:,maxCoorPSF{3}));
+hold on;
+surf(domainsBinned{1}(:,:,maxCoorBinned{3}),domainsBinned{2}(:,:,maxCoorBinned{3}),psfBinned(:,:,maxCoorBinned{3}));
+
+
+close all;
+plot([1:numel(profilePSF.profiles{1})]/binning,profilePSF.profiles{1});hold on;plot(1:numel(profileBinned.profiles{1}),profileBinned.profiles{1});
+stem([1:binning:numel(profilePSF.profiles{1})]/binning,ones(numel(profilePSF.profiles{1})/binning,1));
+
+
 kernObj1 = myPattern_Numeric(psf,'binning',binning);
+
 domainsNew = genMeshFromData(zeros(domainSize*binning,domainSize*binning,domainSize*binning));
 kernObj1.givenTheta(genMeshFromData(psf),[11 11 11]);
 
@@ -75,7 +109,7 @@ getNDXYZProfiles(psfOG,'fitGaussian',true);
 getNDXYZProfiles(binned,'fitGaussian',true);
 plot3Dstack(psfOG)
 plot3Dstack(binned);
-% it has small numerical error.  
+% it has small numerical error.
 %% lets start building stage 3
 close all;
 clear;

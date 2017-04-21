@@ -17,7 +17,7 @@ for i = 1:numel(maxCoor)
     profiles{i} = getNDLineProfile(ndData,{startLine,endLine},params);
     profiles{i} = profiles{i}{:};
 end
-
+output.profiles = profiles;
 if params.fitGaussian
     % fit gaussians to all of the profiles
     fitBasket = cell(numel(maxCoor),1);
@@ -31,7 +31,7 @@ if params.fitGaussian
     end
     gaussStruct.gaussKern = ndGauss(sigmaBasket,size(ndData));
     gaussStruct.gaussSigmas = sigmaBasket;
-    output.profiles = profiles;
+    
     output.gaussFits = gaussStruct;
     for i = 1:numel(maxCoor)
         figure;

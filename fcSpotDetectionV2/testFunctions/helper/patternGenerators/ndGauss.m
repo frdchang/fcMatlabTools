@@ -30,7 +30,12 @@ for i = 1:dims
      currGauss = currGauss*sqrt(2*pi) .* sqrt(sigmaSQVector(i));
     reshapeVec = ones(dims,1);
     reshapeVec(i) = numel(currGauss);
-    currGauss = reshape(currGauss,reshapeVec');
+    if isscalar(reshapeVec)
+        
+    else
+        currGauss = reshape(currGauss,reshapeVec');
+    end
+    
     separateComponents{i} = currGauss;
     if i == 1
         daGauss = currGauss;
