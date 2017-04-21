@@ -139,10 +139,12 @@ if params.plotProfiles
 end
 specimenStepSize = params.pixelSize / params.M;
 
+[xx,yy,zz] = ndgrid( 0:specimenStepSize:specimenStepSize*(size(psfData,1)-1), 0:specimenStepSize:specimenStepSize*(size(psfData,2)-1),z);
+psfDataStruct.domains = {xx,yy,zz};
 
-
-
-
+% %% 
+% [xx,yy,zz] = meshgrid( 0:specimenStepSize:specimenStepSize*(size(psfData,1)-1), 0:specimenStepSize:specimenStepSize*(size(psfData,2)-1),z);
+% %% 
 
 
 
