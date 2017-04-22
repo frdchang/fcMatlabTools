@@ -76,6 +76,7 @@ domainSize = 31;
 domainsNew = genMeshFromData(zeros(domainSize,domainSize,domainSize));
 [lambda,nonBinned] = kernObj1.givenTheta(domainsNew,[11 11 11]);
 
+
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
