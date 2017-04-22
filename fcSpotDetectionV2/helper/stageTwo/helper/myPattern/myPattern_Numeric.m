@@ -54,7 +54,7 @@ classdef myPattern_Numeric < myPattern_Interface
             binnedShape = NDbinData(obj.ndPatternOG,obj.binning);
         end
         
-        function lambdas = givenTheta(obj,domains,theta,varargin)
+        function [lambdas,heartFunc] = givenTheta(obj,domains,theta,varargin)
           % domains is where the new pattern will be put on
             % theta  is where the pattern is
             % 'interpMethod', is how you interpolate the pattern
@@ -68,6 +68,14 @@ classdef myPattern_Numeric < myPattern_Interface
             % calc how the shape will be moved
             deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
             % do domain expansino according to bin
+            domainParams = calcMinMaxFromMeshData(domains);
+        
+            for ii = 1:numel(domains)
+                myArg = num2cell(domainParams(ii,:).*[1 1 obj.binning(ii)]);
+                domains{ii} = linspace(myArg{:});
+            end
+            
+            [domains{:}] = ndgrid(domains{:});
             
             for ii = 1:numel(domains)
                 domains{ii} = domains{ii} - deltaPosition(ii);
@@ -75,6 +83,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,domains{:},params.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
             obj.newDomains = domains;
+            heartFunc = obj.heartFunc;
             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         

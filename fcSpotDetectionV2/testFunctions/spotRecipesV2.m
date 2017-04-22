@@ -4,7 +4,7 @@ patchSize = 21;
 sigma = 0.9;
 
 % 1 D case
-A = ndGauss([sigma]*binningXY.^2,binningXY*[patchSize]);
+A = ndGauss([sigma]*binningXY.^2,binningXY*[patchSize] + 2);
 out = NDbinData(A,binningXY);
 % to center binned version, you need to correct for the middle of the width
 % of the bin.  -floor(binning/2)/binning  the CCD integration lines need to
@@ -13,7 +13,8 @@ out = NDbinData(A,binningXY);
 % most importantly, the original gaussian needs to have its domain 
 % rescaled [1:numel(A)]/binning to account for the fact there are many more
 % pixels
-figure;plot([1:numel(A)]/binningXY,A);hold on;plot([1:numel(out)]-floor(binningXY/2)/binningXY,out);stem(([1:binningXY:(numel(A)+1)]-0.5)/binningXY,ones((numel(A))/binningXY + 1,1));
+figure;plot([1:numel(A)]/binningXY,A);hold on;plot([1:numel(out)]-floor(binningXY/2)/binningXY,out);
+stem(([1:binningXY:(numel(A)+1)]-0.5)/binningXY,ones(numel(out),1));
 % note that a peak of 1 in original shape gets changed when you bin because
 % it sums up the bins.
 myMax = [];
@@ -29,10 +30,11 @@ open(writerObj);
 % this makes a movie so you can see the gaussian shape move between CCD
 % integration and see the new values.  
 for ii = 1:numel(mu)
-    A = ndGauss([sigma]*binningXY.^2,binningXY*[ patchSize],[mu(ii)]);
+    A = ndGauss([sigma]*binningXY.^2,binningXY*[ patchSize]+2,[mu(ii)]);
     out = NDbinData(A,[binningXY]);
     clf;
-    plot([1:numel(A)]/binningXY,A,'LineWidth',2);hold on;plot([1:numel(out)]-floor(binningXY/2)/binningXY,out,'-*','LineWidth',2);stem(([1:binningXY:(numel(A)+1)]-0.5)/binningXY,ones((numel(A))/binningXY + 1,1));
+    plot([1:numel(A)]/binningXY,A,'LineWidth',2);hold on;plot([1:numel(out)]-floor(binningXY/2)/binningXY,out,'-*','LineWidth',2);
+    stem(([1:binningXY:(numel(A)+1)]-0.5)/binningXY,ones(numel(out),1));
     axis tight;
     box off;
     F(ii) = getframe(gcf);
@@ -47,11 +49,14 @@ close(writerObj);
 % ok try to make a numeric object pattern and see if it works
 
 % first try a 3D psf in which binning is only done in xy and none in z
-binningXY = 5;
+binningXY = 3;
 binningZ  = 1;
+psfSize  = [7 7 7];
 binMode = [binningXY,binningXY,binningZ];
 psf = genPSF('f',binningXY,'mode',0);
-psfBinned = NDbinData(psf,binMode);
+psf = threshPSF(psf,psfSize.*[binningXY,binningXY,binningXY]);
+psfBinned = NDbinData(psf,[binningXY,binningXY,binningXY]);
+
 % [profilePSF] = getNDXYZProfiles(psf);
 % [profileBinned] = getNDXYZProfiles(psfBinned);
 % figure;
@@ -64,13 +69,12 @@ psfBinned = NDbinData(psf,binMode);
 
 
 domainsPSF = genMeshFromData(psf);
-domainsBinned = genMeshFromData(psfBinned);
 % correct for over sampled PSF domains
-domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningZ}');
-kernObj1 = myPattern_Numeric(psf,'binning',binMode,'domains',domainsPSF);
+domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningXY}');
+kernObj1   = myPattern_Numeric(psf,'binning',binMode,'domains',domainsPSF);
 domainSize = 31;
-domainsNew = genMeshFromData(zeros(domainSize*binningXY,domainSize*binningXY,domainSize*binningXY));
-plot3Dstack(kernObj1.givenTheta(domainsPSF,[20 20 30]./binMode));
+domainsNew = genMeshFromData(zeros(domainSize,domainSize,domainSize));
+[lambda,nonBinned] = kernObj1.givenTheta(domainsNew,[11 11 11]);
 
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];

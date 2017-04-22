@@ -1,4 +1,4 @@
-function subSet = getSubsetwCentroidANdBBoxSizeND(data,centroid,BBoxSize)
+function [subSet,BBox] = getSubsetwCentroidANdBBoxSizeND(data,centroid,BBoxSize)
 %GETSUBSETWCENTROIDANDBBOXSIZEND returns the subset specified by its
 %centroid dimensions and the size of the BBoxSize.
 
