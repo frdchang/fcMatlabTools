@@ -52,40 +52,25 @@ binningZ  = 1;
 binMode = [binningXY,binningXY,binningZ];
 psf = genPSF('f',binningXY,'mode',0);
 psfBinned = NDbinData(psf,binMode);
-[profilePSF] = getNDXYZProfiles(psf);
-[profileBinned] = getNDXYZProfiles(psfBinned);
-figure;
-for ii = 1:3
-    subplot(3,1,ii);
-    plot((1:size(psf,ii))/binMode(ii),profilePSF.profiles{ii},'LineWidth',2);hold on;plot([1:size(psfBinned,ii)]-floor(binMode(ii)/2)/binMode(ii),profileBinned.profiles{ii},'-*','LineWidth',2);
-    stem(([1:binMode(ii):(size(psf,ii)+1)]-0.5)/binMode(ii),ones(size(psf,ii)/binMode(ii) + 1,1));
-    axis tight;
-end
+% [profilePSF] = getNDXYZProfiles(psf);
+% [profileBinned] = getNDXYZProfiles(psfBinned);
+% figure;
+% for ii = 1:3
+%     subplot(3,1,ii);
+%     plot((1:size(psf,ii))/binMode(ii),profilePSF.profiles{ii},'LineWidth',2);hold on;plot([1:size(psfBinned,ii)]-floor(binMode(ii)/2)/binMode(ii),profileBinned.profiles{ii},'-*','LineWidth',2);
+%     stem(([1:binMode(ii):(size(psf,ii)+1)]-0.5)/binMode(ii),ones(size(psf,ii)/binMode(ii) + 1,1));
+%     axis tight;
+% end
 
 
 domainsPSF = genMeshFromData(psf);
 domainsBinned = genMeshFromData(psfBinned);
 % correct for over sampled PSF domains
-domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningXY}');
-% plot surface plot at max intensity pixel plane
-maxCoorPSF = findCoorWithMax(psf);
-maxCoorBinned = findCoorWithMax(psfBinned);
-
-figure;
-surf(domainsPSF{1}(:,:,maxCoorPSF{3}),domainsPSF{2}(:,:,maxCoorPSF{3}),psf(:,:,maxCoorPSF{3}));
-hold on;
-surf(domainsBinned{1}(:,:,maxCoorBinned{3}),domainsBinned{2}(:,:,maxCoorBinned{3}),psfBinned(:,:,maxCoorBinned{3}));
-
-
-close all;
-plot([1:numel(profilePSF.profiles{1})]/binningXY,profilePSF.profiles{1});hold on;plot(1:numel(profileBinned.profiles{1}),profileBinned.profiles{1});
-stem([1:binningXY:numel(profilePSF.profiles{1})]/binningXY,ones(numel(profilePSF.profiles{1})/binningXY,1));
-
-
-kernObj1 = myPattern_Numeric(psf,'binning',binningXY);
-
+domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningZ}');
+kernObj1 = myPattern_Numeric(psf,'binning',binMode,'domains',domainsPSF);
+domainSize = 31;
 domainsNew = genMeshFromData(zeros(domainSize*binningXY,domainSize*binningXY,domainSize*binningXY));
-kernObj1.givenTheta(genMeshFromData(psf),[11 11 11]);
+plot3Dstack(kernObj1.givenTheta(domainsPSF,[20 20 30]./binMode));
 
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];

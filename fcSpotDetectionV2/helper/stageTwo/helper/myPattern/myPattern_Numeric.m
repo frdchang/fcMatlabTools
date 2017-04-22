@@ -38,7 +38,8 @@ classdef myPattern_Numeric < myPattern_Interface
                 obj.domainsOG      = params.domains; 
             end
             
-            obj.centerCoorOG    = round(size(obj.ndPatternOG)/2);
+            obj.centerCoorOG    = num2cell(round(size(obj.ndPatternOG)/2));
+            obj.centerCoorOG    = cellfun(@(myDom) myDom(obj.centerCoorOG{:}),obj.domainsOG);
             obj.numDims         = numel(obj.centerCoorOG);
             
             if isempty(params.binning)
@@ -57,11 +58,17 @@ classdef myPattern_Numeric < myPattern_Interface
           % domains is where the new pattern will be put on
             % theta  is where the pattern is
             % 'interpMethod', is how you interpolate the pattern
+            % it knows the bin mode, so the domain you give it doesn't have
+            % to take into account the binning.  so give it regular domain,
+            % and this functino will expand the domain 
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
-            deltaPosition = theta - obj.centerCoorOG(1:numel(theta));
+            % calc how the shape will be moved
+            deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
+            % do domain expansino according to bin
+            
             for ii = 1:numel(domains)
                 domains{ii} = domains{ii} - deltaPosition(ii);
             end
