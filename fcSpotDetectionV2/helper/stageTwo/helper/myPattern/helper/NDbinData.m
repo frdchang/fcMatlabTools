@@ -22,7 +22,7 @@ if isscalar(patchSize) && numDims ==1
     binned = sum(reshape(data,patchSize,[]),1)/patchSize;
     return;
 end
-if ~isequal(numDims,numDimPatch)
+if ~isequal(numDims,numel(patchSize))
     binned = data;
     return;
 end
