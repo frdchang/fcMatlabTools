@@ -30,7 +30,7 @@ params.mode         = 1;                            % mode      : (optional, def
 params.xp           = 0;
 params.yp           = 0;
 params.zp           = 0;
-params.ru           = 10;
+params.ru           = 13;
 % default zstep parameters
 params.dz           = 0.25e-6;
 params.zSteps       = 25;

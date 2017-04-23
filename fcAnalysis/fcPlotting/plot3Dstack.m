@@ -55,6 +55,7 @@ p.addParamValue('MLEtraj',[],@(x)true);
 p.addParamValue('colorCodeProj',false,@(x) true);
 p.addParamValue('spotParams',[],@(x) true);
 p.addParamValue('projectionFunc',@maxintensityproj,@(x) true);
+p.addParamValue('keepFigure',[],@(x) true);
 
 p.parse(varargin{:});
 
@@ -82,6 +83,7 @@ MLEtraj     = input.MLEtraj;
 colorCodeProj = input.colorCodeProj;
 spotParams  = input.spotParams;
 projectionFunc = input.projectionFunc;
+keepFigure = input.keepFigure;
 
 if forPoster
     border = 0.02;
@@ -129,11 +131,16 @@ relYDirZ = (1-4*border)*relYDirZ;
 
 % define figure window with appropriate proportions
 
-if ~toDisk
-    fig = figure('Position', [10, 10, 1400, 1400]);
+if keepFigure
+    
 else
-    fig = figure('Position', [10, 10, 1400, 1400],'Visible','off');
+    if ~toDisk
+        fig = figure('Position', [10, 10, 1400, 1400]);
+    else
+        fig = figure('Position', [10, 10, 1400, 1400],'Visible','off');
+    end
 end
+
 
 if forPoster
     set(gcf,'color','w');
@@ -204,7 +211,7 @@ end
 zRange = zTicks:zTicks:floor(zL/zTicks)*zTicks;
 
 if ~isempty(clustCent)
-%     pairWiseLines = returnPairWiseDists(clustCent)';
+    %     pairWiseLines = returnPairWiseDists(clustCent)';
 end
 
 minVal = min(stack(:));
@@ -216,8 +223,8 @@ subplot('Position',[2*border,1 - (2*border + relXDirX),relYDirY,relXDirX]);
 
 if isempty(stackRed) && isempty(stackBlue)
     imagesc(projectionFunc(stack, 3));
-     colormap(myCmap);
-     caxis([minVal,maxVal]);
+    colormap(myCmap);
+    caxis([minVal,maxVal]);
 else
     rgbStack(xL,yL,3) = 0;
     markerParam = markerParamW;
@@ -312,7 +319,7 @@ if ~isempty(MLEtraj)
     z = xyzs(3,:)*0;
     surface([x(:), x(:)], [y(:), y(:)], [z(:), z(:)], ...
         [c(:), c(:)], 'EdgeColor','flat', 'FaceColor','none');
-%     colormap(gca,'default');
+    %     colormap(gca,'default');
     hold on;
     plot(x(1),y(1),'r.','MarkerSize',10);
     plot(x(end),y(end),'g.','MarkerSize',10);
@@ -325,9 +332,9 @@ if ~isempty(spotParams)
     logLikeHoodsRatio = [spotParams.LLRatio];
     [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
-       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
-       coordinate = thetaMLE(1:3);
-       hold on; plot(coordinate(1),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+        coordinate = thetaMLE(1:3);
+        hold on; plot(coordinate(1),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
     end
 end
 %% PLOT XZ-----------------------------------------------------------------
@@ -414,7 +421,7 @@ if ~isempty(MLEtraj)
     z = xyzs(3,:);
     surface([z(:), z(:)], [x(:), x(:)], [y(:), y(:)], ...
         [c(:), c(:)], 'EdgeColor','flat', 'FaceColor','none');
-%     colormap(gca,'default');
+    %     colormap(gca,'default');
     hold on;
     plot(z(1),x(1),'r.','MarkerSize',10);
     plot(z(end),x(end),'g.','MarkerSize',10);
@@ -428,9 +435,9 @@ if ~isempty(spotParams)
     logLikeHoodsRatio = [spotParams.logLike];
     [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
-       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
-       coordinate = thetaMLE(1:3);
-       hold on; plot(coordinate(3),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+        coordinate = thetaMLE(1:3);
+        hold on; plot(coordinate(3),coordinate(2), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
     end
 end
 
@@ -443,7 +450,7 @@ if isempty(stackRed) && isempty(stackBlue)
     if ~isempty(input.cRange)
         caxis(input.cRange);
     else
-       caxis([minVal,maxVal]); 
+        caxis([minVal,maxVal]);
     end
 else
     clear rgbStack;
@@ -511,7 +518,7 @@ if ~isempty(MLEtraj)
     z = xyzs(3,:);
     surface([y(:), y(:)], [z(:), z(:)], [x(:), x(:)], ...
         [c(:), c(:)], 'EdgeColor','flat', 'FaceColor','none');
-%     colormap(gca,'default');
+    %     colormap(gca,'default');
     hold on;
     plot(y(1),z(1),'r.','MarkerSize',10);
     plot(y(end),z(end),'g.','MarkerSize',10);
@@ -525,9 +532,9 @@ if ~isempty(spotParams)
     logLikeHoodsRatio = [spotParams.logLike];
     [logSorted,sortedI] = sort(logLikeHoodsRatio);
     for ii = 1:numSpots
-       thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
-       coordinate = thetaMLE(1:3);
-       hold on; plot(coordinate(1),coordinate(3), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
+        thetaMLE = cell2mat(spotParams(sortedI(ii)).thetaMLE);
+        coordinate = thetaMLE(1:3);
+        hold on; plot(coordinate(1),coordinate(3), markerParam{:},'markerEdgeColor',colorSpots(ii,:));
     end
 end
 
@@ -591,7 +598,7 @@ else
         %enhanced = norm0to1(enhanced);
         subplot('Position',[4*border+relYDirY,1 - (2*border + relXDirZ + relXDirX),relYDirZ-border*2,relXDirZ-border*2]);
         if forPoster
-           set(gca, 'color', [1 1 1]); 
+            set(gca, 'color', [1 1 1]);
         end
         surfXY = maxintensityproj(enhanced,3);
         alphaXY = norm0to1(surfXY);
@@ -646,9 +653,9 @@ else
                         [clustCent(3,i),nucDists(3,i)],edgeParams{:});
                 end
             end
-%             if ~isempty(pairWiseLines)
-%                 plot3(pairWiseLines(:,1),pairWiseLines(:,2),pairWiseLines(:,3),pairWiseParam{:});
-%             end
+            %             if ~isempty(pairWiseLines)
+            %                 plot3(pairWiseLines(:,1),pairWiseLines(:,2),pairWiseLines(:,3),pairWiseParam{:});
+            %             end
             
             scatter3(clustCent(1,:),clustCent(2,:),clustCent(3,:),volMarkerParam{:});
             for i = 1:size(clustCent,2)

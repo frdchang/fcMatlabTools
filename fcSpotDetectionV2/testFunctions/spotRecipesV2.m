@@ -10,7 +10,7 @@ out = NDbinData(A,binningXY);
 % of the bin.  -floor(binning/2)/binning  the CCD integration lines need to
 % be shifted by 0.5 [1:binning:(numel(A)+1)]-0.5)/binning
 %
-% most importantly, the original gaussian needs to have its domain 
+% most importantly, the original gaussian needs to have its domain
 % rescaled [1:numel(A)]/binning to account for the fact there are many more
 % pixels
 figure;plot([1:numel(A)]/binningXY,A);hold on;plot([1:numel(out)]-floor(binningXY/2)/binningXY,out);
@@ -25,10 +25,10 @@ F(numel(mu)) = struct('cdata',[],'colormap',[]);
 writerObj = VideoWriter('binning1D.avi'); % Name it.
 writerObj.FrameRate = 30; % How many frames per second.
 writerObj.Quality = 100;
-open(writerObj); 
+open(writerObj);
 
 % this makes a movie so you can see the gaussian shape move between CCD
-% integration and see the new values.  
+% integration and see the new values.
 for ii = 1:numel(mu)
     A = ndGauss([sigma]*binningXY.^2,binningXY*[ patchSize]+2,[mu(ii)]);
     out = NDbinData(A,[binningXY]);
@@ -44,38 +44,71 @@ end
 figure;plot(myMax);
 close(writerObj);
 % so the peak of the binned object does not reach its orginal peak of 1
-% because the value is now the average.  but its ok.  it is stable... 
+% because the value is now the average.  but its ok.  it is stable...
 
 % ok try to make a numeric object pattern and see if it works
 
 % first try a 3D psf in which binning is only done in xy and none in z
 binningXY = 3;
 binningZ  = 1;
-psfSize  = [7 7 7];
+psfSize  = [15 15 15];
 binMode = [binningXY,binningXY,binningZ];
 psf = genPSF('f',binningXY,'mode',0);
 psf = threshPSF(psf,psfSize.*[binningXY,binningXY,binningXY]);
 psfBinned = NDbinData(psf,[binningXY,binningXY,binningXY]);
 
-% [profilePSF] = getNDXYZProfiles(psf);
-% [profileBinned] = getNDXYZProfiles(psfBinned);
-% figure;
-% for ii = 1:3
-%     subplot(3,1,ii);
-%     plot((1:size(psf,ii))/binMode(ii),profilePSF.profiles{ii},'LineWidth',2);hold on;plot([1:size(psfBinned,ii)]-floor(binMode(ii)/2)/binMode(ii),profileBinned.profiles{ii},'-*','LineWidth',2);
-%     stem(([1:binMode(ii):(size(psf,ii)+1)]-0.5)/binMode(ii),ones(size(psf,ii)/binMode(ii) + 1,1));
-%     axis tight;
-% end
-
-
 domainsPSF = genMeshFromData(psf);
 % correct for over sampled PSF domains
 domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningXY}');
 kernObj1   = myPattern_Numeric(psf,'binning',binMode,'domains',domainsPSF);
-domainSize = 31;
+domainSize = 25;
 domainsNew = genMeshFromData(zeros(domainSize,domainSize,domainSize));
-[lambda,nonBinned] = kernObj1.givenTheta(domainsNew,[11 11 11]);
 
+writerObj = VideoWriter('binning3D.avi'); % Name it.
+writerObj.FrameRate = 60; % How many frames per second.
+writerObj.Quality = 100;
+open(writerObj);
+
+timeSteps = 10000;
+initialVector = rand(3,1)*domainSize;
+initialVector = initialVector / sqrt(sum(initialVector.^2));
+init0 = rand(3,1)*domainSize;
+epsilon = 0.1;
+border = 5;
+M = 60;
+pixelSize = 6.5e-06;
+xyUnits = pixelSize/M;
+params.dz           = 0.25e-6;
+params.zSteps       = 25;
+params.z0           = -2e-6;
+z = params.z0:params.dz:(params.z0 + params.dz*(params.zSteps-1));
+xy = (-floor(domainSize/2):floor(domainSize/2))*xyUnits;
+truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
+% setup initial plot
+[lambda,~] = kernObj1.givenTheta(domainsNew,init0);
+lambda = lambda/max(lambda(:));
+domainsUP{3} = 0;
+[domainsUP{:}] = ndgrid(1:domainSize,1:domainSize,linspace(1,domainSize,domainSize*binningXY));
+[~,nonBinned] = kernObj1.givenTheta(domainsUP,init0);
+plot3Dstack(cat(2,imresize3(truePSF,size(nonBinned),'nearest'),imresize3(lambda,size(nonBinned),'nearest'),nonBinned),'cRange',[0 1]);
+
+for ii = 1:timeSteps
+    [lambda,~] = kernObj1.givenTheta(domainsNew,init0);
+    lambda = lambda/max(lambda(:));
+    domainsUP{3} = 0;
+    [domainsUP{:}] = ndgrid(1:domainSize,1:domainSize,linspace(1,domainSize,domainSize*binningXY));
+    [~,nonBinned] = kernObj1.givenTheta(domainsUP,init0);
+    truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
+    clf;
+    plot3Dstack(cat(2,imresize3(truePSF,size(nonBinned),'nearest'),imresize3(lambda,size(nonBinned),'nearest'),nonBinned),'keepFigure',true,'cRange',[0 1]);
+    colormap default;
+    drawnow;
+    writeVideo(writerObj,getframe(gcf));
+    init0 = init0 + initialVector*epsilon;
+    initialVector(init0<border) = -initialVector(init0<border);
+    initialVector(init0>(domainSize-border)) = -initialVector(init0>(domainSize-border));
+end
+close(writerObj);
 
 buildThetas1 = {{kernObj1,[7 8 15 16]},{kernObj1,[7 15 4 14]},{0}};
 Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
