@@ -49,6 +49,7 @@ close(writerObj);
 % ok try to make a numeric object pattern and see if it works
 
 % first try a 3D psf in which binning is only done in xy and none in z
+close all;
 binningXY = 3;
 binningZ  = 1;
 psfSize  = [15 15 15];
@@ -70,11 +71,12 @@ writerObj.Quality = 100;
 open(writerObj);
 
 timeSteps = 10000;
-initialVector = rand(3,1)*domainSize;
-initialVector = initialVector / sqrt(sum(initialVector.^2));
-init0 = rand(3,1)*domainSize;
 epsilon = 0.1;
 border = 5;
+initialVector = [1;1;1];
+initialVector = initialVector / sqrt(sum(initialVector.^2));
+init0 = rand(3,1)*(domainSize-border);
+
 M = 60;
 pixelSize = 6.5e-06;
 xyUnits = pixelSize/M;
@@ -94,11 +96,11 @@ plot3Dstack(cat(2,imresize3(truePSF,size(nonBinned),'nearest'),imresize3(lambda,
 
 for ii = 1:timeSteps
     [lambda,~] = kernObj1.givenTheta(domainsNew,init0);
-    lambda = lambda/max(lambda(:));
     domainsUP{3} = 0;
     [domainsUP{:}] = ndgrid(1:domainSize,1:domainSize,linspace(1,domainSize,domainSize*binningXY));
     [~,nonBinned] = kernObj1.givenTheta(domainsUP,init0);
     truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
+    truePSF = truePSF * max(lambda(:));
     clf;
     plot3Dstack(cat(2,imresize3(truePSF,size(nonBinned),'nearest'),imresize3(lambda,size(nonBinned),'nearest'),nonBinned),'keepFigure',true,'cRange',[0 1]);
     colormap default;
