@@ -11,17 +11,14 @@ domains{3} = 0;
 [domains{:}] = ndgrid(maskedPixelId{:});
 % for first fitting just find the highest LLRatio as theta0
 theta0 = cell(numel(datas)+1,1);
+[theta0{:}] = deal({});
 theta0{1} = Kmatrix;
 theta0 = findNextTheta0(domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
-
+states = cell(params.numSpots,1);
 for ii = 1:params.numSpots
-    % take error measurement
-    
-    % generate theta0
-    
     % to iterative fitting
-    
+    maxThetaInputs = maxAllThetas(theta0);
+    states{ii} = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy);
 end
-%state = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy,varargin)
-end
+
 
