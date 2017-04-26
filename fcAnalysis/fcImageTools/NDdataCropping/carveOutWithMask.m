@@ -32,7 +32,7 @@ elseif isstruct(datas)
            
 
     
-elseif isnumeric(datas)
+elseif isnumeric(datas) || islogical(datas);
     [carved,BBox] = getSubsetwBBoxND(datas,myBBox,'borderVector',sizeOfKern);
     carvedMask = getSubsetwBBoxND(mask,myBBox,'borderVector',sizeOfKern,'padValue',0);
 else

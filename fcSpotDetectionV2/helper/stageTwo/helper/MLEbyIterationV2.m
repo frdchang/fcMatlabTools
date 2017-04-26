@@ -77,7 +77,7 @@ for ii = 1:numStrategies
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
-        if mod(jj,params.doPloteveryN) == 0 || jj ==1
+        if mod(jj,params.doPloteveryN) == 0 
             plotMLESearchV2(datas,theta0s,sigmasqs,domains,totalIter);
         end
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);

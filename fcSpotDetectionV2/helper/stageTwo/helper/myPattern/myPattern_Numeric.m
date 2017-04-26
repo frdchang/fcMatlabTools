@@ -71,7 +71,7 @@ classdef myPattern_Numeric < myPattern_Interface
             domainParams = calcMinMaxFromMeshData(domains);
         
             for ii = 1:numel(domains)
-                myArg = num2cell(domainParams(ii,:).*[1 1 obj.binning(ii)]);
+                myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
                 domains{ii} = linspace(myArg{:});
             end
             
@@ -84,7 +84,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
             obj.newDomains = domains;
             heartFunc = obj.heartFunc;
-            lambdas = NDbinData(obj.heartFunc,obj.binning);
+%             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         
         function [gradLambdas,hessLambdas] = getDerivatives(obj,maxThetas)
@@ -95,12 +95,12 @@ classdef myPattern_Numeric < myPattern_Interface
                     [gradLambdas,hessLambdas] = NDgradientAndHessian(obj.heartFunc,obj.newDomains);
                     hessianIndices = maxThetas(:)*maxThetas(:)';
                     hessLambdas(~hessianIndices) = {0};
-                    hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
+%                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
                 otherwise
                     error('number of arguments out is not 1 or 2');
             end
             gradLambdas(~maxThetas) = {0};
-            gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),gradLambdas);
+%             gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),gradLambdas);
         end
     end
 end

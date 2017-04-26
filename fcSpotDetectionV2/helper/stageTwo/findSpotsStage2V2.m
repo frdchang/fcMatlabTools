@@ -26,9 +26,11 @@ for ii = 1:numel(ids)
     carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
     carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern);
     carvedCamVar            = carveOutWithMask(cameraVariances,currMask,sizeKern);
-    carvedPixelDomain       = num2cell(candidates.stats(ii).PixelList,1)';
+    carvedMask              = carveOutWithMask(currMask,currMask,sizeKern);
     carvedRectSubArrayIdx   = candidates.stats(ii).SubarrayIdx;
     carvedEstimates.spotKern = estimated.spotKern;
-    MLEs{ii}                = doMultiEmitterFitting(carvedRectSubArrayIdx,carvedPixelDomain,carvedDatas,currMask,carvedEstimates,carvedCamVar,Kmatrix,objKerns,params);
+    linearDatas             = cellfunNonUniformOutput(@(x) x(candidates.stats(ii).PixelIdxList),datas);
+    linearDomains           = num2cell(candidates.stats(ii).PixelList,1)';
+    MLEs{ii}                = doMultiEmitterFitting(linearDatas,carvedMask,carvedRectSubArrayIdx,linearDomains,carvedDatas,currMask,carvedEstimates,carvedCamVar,Kmatrix,objKerns,params);
 end
 
