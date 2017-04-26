@@ -9,7 +9,7 @@ yzIdx = [false false true true];
 zxIdx = [false true false true];
 yxIdx = [false true true false];
 ampIdx = [true false false false];
-
+numDatas = numel(datas);
 if totalIter == 1
     close all;
     minDomains = cellfun(@(x) min(x(:)),domains);
@@ -24,7 +24,7 @@ if totalIter == 1
                 if isobject(theta0s{ii}{jj}{1})
                     patternTheta = theta0s{ii}{jj}{2:end};
                     yzplotVals = patternTheta(yzIdx);
-                    plot(yzplotVals(1) + (ii-2)*thisSize(2)/2,yzplotVals(2),'sr');
+                    plot(yzplotVals(1) + (ii-2)*thisSize(2)/numDatas,yzplotVals(2),'sr');
                 end
             end
         end
@@ -54,7 +54,7 @@ if totalIter == 1
                 if isobject(theta0s{ii}{jj}{1})
                     patternTheta = theta0s{ii}{jj}{2:end};
                     yxplotVals = patternTheta(yxIdx);
-                    plot(yxplotVals(2)+ (ii-2)*thisSize(2)/2,yxplotVals(1),'sr');
+                    plot(yxplotVals(2)+ (ii-2)*thisSize(2)/numDatas,yxplotVals(1),'sr');
                 end
             end
         end
@@ -88,7 +88,7 @@ else
                     patternTheta = theta0s{ii}{jj}{2:end};
                     yzplotVals = patternTheta(yzIdx);
                     prevyzplotVals = oldParam{ii}{jj}{2:end}(yzIdx);
-                    hold on;plot([prevyzplotVals(1)+ (ii-2)*thisSize(2)/2, yzplotVals(1)+ (ii-2)*thisSize(2)/2],[prevyzplotVals(2) yzplotVals(2)],'-r');
+                    hold on;plot([prevyzplotVals(1)+ (ii-2)*thisSize(2)/numDatas, yzplotVals(1)+ (ii-2)*thisSize(2)/numDatas],[prevyzplotVals(2) yzplotVals(2)],'-r');
                 end
             end
         end
@@ -118,7 +118,7 @@ else
                     patternTheta = theta0s{ii}{jj}{2:end};
                     yxplotVals = patternTheta(yxIdx);
                     prevyxplotVals = oldParam{ii}{jj}{2:end}(yxIdx);
-                    plot([prevyxplotVals(2)+ (ii-2)*thisSize(2)/2, yxplotVals(2)+ (ii-2)*thisSize(2)/2],[prevyxplotVals(1) yxplotVals(1)],'-r');
+                    plot([prevyxplotVals(2)+ (ii-2)*thisSize(2)/numDatas, yxplotVals(2)+ (ii-2)*thisSize(2)/numDatas],[prevyxplotVals(1) yxplotVals(1)],'-r');
                 end
             end
         end

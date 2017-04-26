@@ -1,7 +1,7 @@
 function [cleared,touchingXY] = clearXYBorder(BWdata)
 %CLEARXYBORDER clears positives values from the xy border of the data
 
-xyBorder = ones(size(BWdata),'logical');
+xyBorder = true(size(BWdata));
 coreSelect = cell(ndims(BWdata),1);
 for ii = 1:ndims(BWdata)
     if ii > 2

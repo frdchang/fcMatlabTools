@@ -105,8 +105,8 @@ for ii = 1:numStrategies
         display(flattenTheta0s(theta0s));
         display(['error:' num2str(sum(DLLDLambdas{1}(:).^2))]);
         totalIter = totalIter + 1;
-    end
-    
+    end  
 end
+state.thetaMLEs = theta0s;
 
 
