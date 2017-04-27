@@ -70,13 +70,13 @@ classdef myPattern_Numeric < myPattern_Interface
             % do domain expansino according to bin
             domainParams = calcMinMaxFromMeshData(domains);
         
-            for ii = 1:numel(domains)
-                myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
-                domains{ii} = linspace(myArg{:});
-            end
-            
-            [domains{:}] = ndgrid(domains{:});
-            
+%             for ii = 1:numel(domains)
+%                 myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
+%                 domains{ii} = linspace(myArg{:});
+%             end
+%             
+%             [domains{:}] = ndgrid(domains{:});
+%             
             for ii = 1:numel(domains)
                 domains{ii} = domains{ii} - deltaPosition(ii);
             end
@@ -84,6 +84,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
             obj.newDomains = domains;
             heartFunc = obj.heartFunc;
+            lambdas = heartFunc;
 %             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         

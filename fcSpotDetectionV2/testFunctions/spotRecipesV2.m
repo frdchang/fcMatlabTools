@@ -1,3 +1,66 @@
+%% i find binning sort of slow and unnecessary. linear interpolation is 
+% the best compromise
+% first try a 3D psf in which binning is only done in xy and none in z
+% so binnning is a legacy word.  it now means upsample fact
+close all;
+binningXY = 3;
+binningZ  = 3;
+psfSize  = [21 21 21];
+binMode = [binningXY,binningXY,binningZ];
+psf = genPSF('f',binningXY,'mode',0);
+psf = threshPSF(psf,psfSize.*[binningXY,binningXY,binningXY]);
+psfBinned = NDbinData(psf,[binningXY,binningXY,binningXY]);
+
+domainsPSF = genMeshFromData(psf);
+% correct for over sampled PSF domains
+domainsPSF = cellfunNonUniformOutput(@(x,y) x/y, domainsPSF,{binningXY,binningXY,binningXY}');
+kernObj1   = myPattern_Numeric(psf,'binning',binMode,'domains',domainsPSF);
+domainSize = 25;
+domainsNew = genMeshFromData(zeros(domainSize,domainSize,domainSize));
+
+writerObj = VideoWriter('binning3D.avi'); % Name it.
+writerObj.FrameRate = 60; % How many frames per second.
+writerObj.Quality = 100;
+open(writerObj);
+
+timeSteps = 10000;
+epsilon = 0.1;
+border = 10;
+initialVector = rand(3,1);
+initialVector = initialVector / sqrt(sum(initialVector.^2));
+init0 = rand(3,1)*(domainSize-border/2) + border/2;
+
+M = 60;
+pixelSize = 6.5e-06;
+xyUnits = pixelSize/M;
+params.dz           = 0.25e-6;
+params.zSteps       = 25;
+params.z0           = -2e-6;
+z = params.z0:params.dz:(params.z0 + params.dz*(params.zSteps-1));
+xy = (-floor(domainSize/2):floor(domainSize/2))*xyUnits;
+truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
+% setup initial plot
+[lambda,~] = kernObj1.givenTheta(domainsNew,init0);
+plot3Dstack(cat(2,truePSF*max(lambda(:)),lambda),'cRange',[0 1])
+
+for ii = 1:timeSteps
+    [lambda,~] = kernObj1.givenTheta(domainsNew,init0);
+    truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
+    truePSF = truePSF * max(lambda(:));
+    clf;
+    plot3Dstack(cat(2,truePSF,lambda),'cRange',[0 1],'keepFigure',true);    
+    colormap default;
+    drawnow;
+    writeVideo(writerObj,getframe(gcf));
+    init0 = init0 + initialVector*epsilon;
+    initialVector(init0<border/2) = -initialVector(init0<border/2);
+    initialVector(init0>(domainSize-border/2)) = -initialVector(init0>(domainSize-border/2));
+    display(init0);
+end
+close(writerObj);
+
+
+
 %% lets start building stage 3
 close all;
 clear;
@@ -104,7 +167,7 @@ close(writerObj);
 % first try a 3D psf in which binning is only done in xy and none in z
 close all;
 binningXY = 3;
-binningZ  = 1;
+binningZ  = 3;
 psfSize  = [15 15 15];
 binMode = [binningXY,binningXY,binningZ];
 psf = genPSF('f',binningXY,'mode',0);
