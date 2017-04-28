@@ -71,7 +71,7 @@ state.stateOfStep   = [];
 
 numStrategies = numel(strategy);
 totalIter = 1;
-prevError = zeros(2,1);
+prevError = inf*ones(2,1);
 for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
@@ -105,7 +105,7 @@ for ii = 1:numStrategies
         if any(gradientSelectorD)
             DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
             DLLDThetas = sumCellContents(DLLDThetas);
-            theta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
+            newtheta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
         end
         
         %         % do newton raphson update
@@ -118,21 +118,45 @@ for ii = 1:numStrategies
             DLLDThetasRaphson = sumCellContents(DLLDThetasRaphson);
             D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
-            [theta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
+            [newtheta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
+            if ~isequal(stateOfStep,'ok')
+               break; 
+            end
         end
+      
         totalIter = totalIter + 1;
         currError = sum(DLLDLambdas{1}(:).^2);
         changeInError = abs(prevError(1) - currError);
-                display(flattenTheta0s(theta0s));
+        display(flattenTheta0s(theta0s));
         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
-        if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.001)
-            break;
+        
+        % if error increases too much just break and save old theta0
+%         if (currError - prevError(1)) > 2.3742e+03
+%             display('large error');
+%            break; 
+%         else
+%             theta0s = newtheta0s;
+%         end
+%         
+        % if any of the theta0s values are negative break and save old
+        % theta0
+        
+        if any(flattenTheta0s(newtheta0s) < 0)
+           display('negative theta0s');
+           break;
+        else
+            theta0s = newtheta0s;
         end
         
         
-        if changeInError < params.newtonTol && ii == 2 
-            break;
-        end
+%         if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.0001)
+%             break;
+%         end
+%         
+%    
+%         if changeInError < params.newtonTol && ii == 2
+%             break;
+%         end
         
         prevError(2) = prevError(1);
         prevError(1) = currError;
@@ -141,7 +165,9 @@ for ii = 1:numStrategies
 end
 state.thetaMLEs = theta0s;
 if exist('stateOfStep') == 1
-   state.stateOfStep = stateOfStep; 
+    state.stateOfStep = stateOfStep;
+else
+    state.stateOfStep = 'ok';
 end
 
 
