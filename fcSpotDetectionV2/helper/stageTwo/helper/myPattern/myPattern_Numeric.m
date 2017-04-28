@@ -16,7 +16,7 @@ classdef myPattern_Numeric < myPattern_Interface
             % increment of 1
             %
             % when you give it a domain of the pattern, the units are when
-            % after the binning happens.  
+            % after the binning happens.
             
             %--parameters--------------------------------------------------------------
             params.binning          = [];
@@ -35,7 +35,7 @@ classdef myPattern_Numeric < myPattern_Interface
             if isempty(params.domains)
                 obj.domainsOG      = genMeshFromData(obj.ndPatternOG);
             else
-                obj.domainsOG      = params.domains; 
+                obj.domainsOG      = params.domains;
             end
             
             obj.centerCoorOG    = num2cell(round(size(obj.ndPatternOG)/2));
@@ -43,7 +43,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.numDims         = numel(obj.centerCoorOG);
             
             if isempty(params.binning)
-               obj.binning         = ones(size(obj.ndPatternOG)); 
+                obj.binning         = ones(size(obj.ndPatternOG));
             else
                 obj.binning        = params.binning;
             end
@@ -55,12 +55,12 @@ classdef myPattern_Numeric < myPattern_Interface
         end
         
         function [lambdas,heartFunc] = givenTheta(obj,domains,theta,varargin)
-          % domains is where the new pattern will be put on
+            % domains is where the new pattern will be put on
             % theta  is where the pattern is
             % 'interpMethod', is how you interpolate the pattern
             % it knows the bin mode, so the domain you give it doesn't have
             % to take into account the binning.  so give it regular domain,
-            % and this functino will expand the domain 
+            % and this functino will expand the domain
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';
             %--------------------------------------------------------------------------
@@ -69,42 +69,63 @@ classdef myPattern_Numeric < myPattern_Interface
             deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
             % do domain expansino according to bin
             domainParams = calcMinMaxFromMeshData(domains);
-        
-%             for ii = 1:numel(domains)
-%                 myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
-%                 domains{ii} = linspace(myArg{:});
-%             end
-%             
-%             [domains{:}] = ndgrid(domains{:});
-%             
+            
+            %             for ii = 1:numel(domains)
+            %                 myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
+            %                 domains{ii} = linspace(myArg{:});
+            %             end
+            %
+            %             [domains{:}] = ndgrid(domains{:});
+            %
             for ii = 1:numel(domains)
-                domains{ii} = domains{ii} - deltaPosition(ii);
+                shiftdomains{ii} = domains{ii} - deltaPosition(ii);
             end
-            obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,domains{:},params.interpMethod);
+            obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},params.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
             obj.newDomains = domains;
             heartFunc = obj.heartFunc;
             lambdas = heartFunc;
-%             lambdas = NDbinData(obj.heartFunc,obj.binning);
+            %             lambdas = NDbinData(obj.heartFunc,obj.binning);
         end
         
         function [gradLambdas,hessLambdas] = getDerivatives(obj,maxThetas)
+            % need to be in a cube the data to calc gradients and stuff.
+            
+            % if linear domain and data
+            isTheDataLinear = sum(cellfun(@(x) any(size(x)==1),obj.newDomains)) > 1;
+            if  isTheDataLinear
+                [useThisHeart,linearIndices] = convertLinearDomainToND(obj.newDomains,obj.heartFunc);
+                useThisDomain = genMeshFromData(useThisHeart);
+            else
+                useThisHeart = obj.heartFunc;
+                useThisDomain = obj.newDomains;
+            end
+            
             switch nargout
                 case {1 0}
-                    gradLambdas = NDgradientAndHessian(obj.heartFunc,obj.domainsOG);
+                    gradLambdas = NDgradientAndHessian(useThisHeart,useThisDomain);
+                    gradLambdas(~maxThetas) = {0};
+                    if isTheDataLinear
+                        gradLambdas = cellfunNonUniformOutput(@(x) x(linearIndices),gradLambdas);
+                        gradLambdas = isNaN2Zero(gradLambdas);
+                    end
                 case 2
-                    [gradLambdas,hessLambdas] = NDgradientAndHessian(obj.heartFunc,obj.newDomains);
+                    [gradLambdas,hessLambdas] = NDgradientAndHessian(useThisHeart,useThisDomain);
                     hessianIndices = maxThetas(:)*maxThetas(:)';
                     hessLambdas(~hessianIndices) = {0};
-%                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
+                    gradLambdas(~maxThetas) = {0};
+                    if isTheDataLinear
+                        gradLambdas = cellfunNonUniformOutput(@(x) x(linearIndices),gradLambdas);
+                        hessLambdas = cellfunNonUniformOutput(@(x) x(linearIndices),hessLambdas);
+                    end
+                    gradLambdas = isNaN2Zero(gradLambdas);
+                    hessLambdas = isNaN2Zero(hessLambdas);
+                    %                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
                 otherwise
                     error('number of arguments out is not 1 or 2');
             end
-            gradLambdas(~maxThetas) = {0};
-%             gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),gradLambdas);
+            %             gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),gradLambdas);
         end
     end
 end
-
-%% need to implement max thetas and binning
 

@@ -1,4 +1,4 @@
-function state = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy,varargin)
+function state = MLEbyIterationV2(A1s,carvedMask,datas,theta0s,sigmasqs,domains,strategy,varargin)
 %MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % datas:        the measured data or datas in cell array
@@ -18,11 +18,9 @@ function state = MLEbyIterationV2(datas,theta0s,sigmasqs,domains,strategy,vararg
 
 
 %--parameters--------------------------------------------------------------
-% gradient ascent parameters
-params.stepSize         = .001;
-params.normGrad         = true;
-% newton raphson parameters
-params.numStepsNR       = 100;
+% stopping criteria
+params.gradTol          = 0.01;
+params.newtonTol        = 0.00001;
 % plotting parameters
 params.doPloteveryN     = inf;
 % MLE functions
@@ -39,7 +37,7 @@ params = updateParams(params,varargin);
 %--define output state structure-------------------------------------------
 if params.saveDatas
     state.datas         = datas;
-    state.sigmasqs       = sigmasqs;
+    state.sigmasqs      = sigmasqs;
     state.domains       = domains;
 else
     state.datas         = [];
@@ -51,6 +49,7 @@ state.strategy      = strategy;
 state.thetaMLEs     = [];
 state.thetaVars     = [];
 state.logLike       = [];
+state.stateOfStep   = [];
 %--------------------------------------------------------------------------
 
 
@@ -72,16 +71,35 @@ state.logLike       = [];
 
 numStrategies = numel(strategy);
 totalIter = 1;
+prevError = zeros(2,1);
 for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
-        if mod(jj,params.doPloteveryN) == 0 
-            plotMLESearchV2(datas,theta0s,sigmasqs,domains,totalIter);
+        if mod(jj,params.doPloteveryN) == 1
+            plotMLESearchV2(carvedMask,A1s,datas,theta0s,sigmasqs,domains,totalIter);
         end
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
+        % use only carved mask
+        bigLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
+        for kk = 1:numel(bigDLambdas)
+            if ~isscalar(bigDLambdas{kk})
+                bigDLambdas{kk} = bigDLambdas{kk}(carvedMask);
+            end
+        end
+        for kk = 1:numel(bigD2Lambdas)
+            for ll = 1:numel(bigD2Lambdas{kk})
+                if ~isscalar(bigD2Lambdas{kk}{ll})
+                    bigD2Lambdas{kk}{ll} = bigD2Lambdas{kk}{ll}(carvedMask);
+                end
+            end
+        end
+        
+        DLLDLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),DLLDLambdas);
+        D2LLDLambdas2 = cellfunNonUniformOutput(@(x) x(carvedMask),D2LLDLambdas2);
+        
         % do gradient update
         gradientSelectorD = selectorD{1};
         if any(gradientSelectorD)
@@ -90,7 +108,7 @@ for ii = 1:numStrategies
             theta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
         end
         
-%         % do newton raphson update
+        %         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
         %    -0.0018   -7.3817   -0.0000         0         0         0   -0.0252    0.0245
@@ -102,11 +120,29 @@ for ii = 1:numStrategies
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
             [theta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
         end
-        display(flattenTheta0s(theta0s));
-        display(['error:' num2str(sum(DLLDLambdas{1}(:).^2))]);
         totalIter = totalIter + 1;
-    end  
+        currError = sum(DLLDLambdas{1}(:).^2);
+        changeInError = abs(prevError(1) - currError);
+                display(flattenTheta0s(theta0s));
+        display(['error:' num2str(currError) 'strat:' num2str(ii)]);
+        if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.001)
+            break;
+        end
+        
+        
+        if changeInError < params.newtonTol && ii == 2 
+            break;
+        end
+        
+        prevError(2) = prevError(1);
+        prevError(1) = currError;
+        
+    end
 end
 state.thetaMLEs = theta0s;
+if exist('stateOfStep') == 1
+   state.stateOfStep = stateOfStep; 
+end
+
 
 

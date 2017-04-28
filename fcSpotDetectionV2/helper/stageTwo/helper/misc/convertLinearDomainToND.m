@@ -1,4 +1,4 @@
-function [ nDData ] = convertLinearDomainToND( linearDomains,linearData)
+function [ nDData,linearIndices ] = convertLinearDomainToND( linearDomains,linearData)
 %CONVERTLINEARDOMAINTOND a linear domain with linear data will be converted
 %to its NDform and padded with NaN
 
@@ -13,7 +13,7 @@ if iscell(linearData)
     [nDData{:}] = deal(NaN(maxDom-minDom+1));
     linearIndices = sub2ind(size(nDData{1}),indices{:});
     for ii = 1:numel(linearData)
-       nDData{ii}(linearIndices) = linearData{ii}; 
+       nDData{ii}(linearIndices) = linearData{ii};  
     end
     
 else
