@@ -7,13 +7,17 @@ probData = arrayfun(@localCalcPoissGauss,data,lambda,sigma);
 end
 
 function probData = localCalcPoissGauss(data,lambda,sigma)
-gaussDomSize = 4;
+gaussDomSize = 6;
 
-sigmaSteps = round(gaussDomSize*sigma);
+sigmaSteps = round(gaussDomSize*(sigma+lambda));
 gaussDOM = -sigmaSteps:sigmaSteps;
-gauss = normpdf(gaussDOM,0,sigma);
+shiftDOM = data+gaussDOM;
+shiftDOM = round(shiftDOM);
+gauss = normpdf(shiftDOM,0,sigma);
 gauss = gauss/sum(gauss(:));
-poiss = contPoissPDF(data+gaussDOM,lambda);
+poiss = contPoissPDF(shiftDOM,lambda);
+% no negative values
+
 probData = sum(gauss.*poiss);
 
 end

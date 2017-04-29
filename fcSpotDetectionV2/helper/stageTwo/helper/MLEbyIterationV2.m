@@ -48,7 +48,8 @@ state.theta0s       = theta0s;
 state.strategy      = strategy;
 state.thetaMLEs     = [];
 state.thetaVars     = [];
-state.logLike       = [];
+state.logLikePP     = [];
+state.logLikePG     = [];
 state.stateOfStep   = [];
 %--------------------------------------------------------------------------
 
@@ -72,18 +73,24 @@ state.stateOfStep   = [];
 numStrategies = numel(strategy);
 totalIter = 1;
 prevError = inf*ones(2,1);
+carveddatas = cellfunNonUniformOutput(@(x) x(carvedMask),datas);
+carvedsigmasqs = cellfunNonUniformOutput(@(x) x(carvedMask),sigmasqs);
 for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
-        if mod(jj,params.doPloteveryN) == 1
-            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,prevError(1));
-        end
+        
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
         % use only carved mask
         bigLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
+        
+        LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
+        LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
+        if mod(jj,params.doPloteveryN) == 1
+            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,LLPP);
+        end
         for kk = 1:numel(bigDLambdas)
             if ~isscalar(bigDLambdas{kk})
                 bigDLambdas{kk} = bigDLambdas{kk}(carvedMask);
@@ -133,6 +140,9 @@ for ii = 1:numStrategies
             end
         end
         
+        
+        
+        
         totalIter = totalIter + 1;
         currError = sum(DLLDLambdas{1}(:).^2);
         changeInError = abs(prevError(1) - currError);
@@ -178,6 +188,9 @@ if exist('stateOfStep') == 1
 else
     state.stateOfStep = 'ok';
 end
+state.logLikePP = LLPP;
+state.logLikePG = LLPG;
+
 
 
 
