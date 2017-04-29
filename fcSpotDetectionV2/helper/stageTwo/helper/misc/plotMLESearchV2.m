@@ -148,7 +148,7 @@ else
                     prevampplotVals = oldParam{ii}{jj}{2:end}(ampIdx);
                     hold on;plot([prevIter,totalIter],[prevampplotVals ampplotVals],'-sr'); 
                 else
-                    plot([prevIter,totalIter],[oldParam{ii}{jj}{1} theta0s{ii}{jj}{1}],'-sk');
+                    hold on;plot([prevIter,totalIter],[oldParam{ii}{jj}{1} theta0s{ii}{jj}{1}],'-sk');
                 end
             end
         end

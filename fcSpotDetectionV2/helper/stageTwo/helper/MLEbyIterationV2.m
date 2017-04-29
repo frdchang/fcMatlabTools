@@ -83,6 +83,30 @@ for ii = 1:numStrategies
         
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
+        
+        % if a bkgnd only parameter was passed, and the output is a scalar,
+        % expand to look lik the size(datas{1}).
+        temp = ones(size(datas{1}));
+        for kk = 1:numel(bigLambdas)
+            if isscalar(bigLambdas{kk})
+                bigLambdas{kk} = bigLambdas{kk}*temp;
+            end
+        end
+        
+        for kk = 1:numel(bigDLambdas)
+            if isscalar(bigDLambdas{kk})
+                bigDLambdas{kk} = bigDLambdas{kk}*temp;
+            end
+        end
+        
+        for kk = 1:numel(bigD2Lambdas)
+            for ll = 1:numel(bigD2Lambdas{kk})
+                if isscalar(bigD2Lambdas{kk}{ll})
+                    bigD2Lambdas{kk}{ll} = bigD2Lambdas{kk}{ll}*temp;
+                end
+            end
+        end
+        
         % use only carved mask
         bigLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
         
@@ -116,13 +140,14 @@ for ii = 1:numStrategies
             newtheta0s = ensureBkndThetasPos(newtheta0s);
         end
         % if bkgnd <0 then set it to 0
-        
+        if exist('newtheta0s')==1
         if any(flattenTheta0s(newtheta0s) < 0)
             display('negative theta0s');
             break;
         else
             theta0s = newtheta0s;
         end
+end
         %         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
@@ -179,7 +204,6 @@ for ii = 1:numStrategies
         
         prevError(2) = prevError(1);
         prevError(1) = currError;
-        
     end
 end
 state.thetaMLEs = theta0s;
