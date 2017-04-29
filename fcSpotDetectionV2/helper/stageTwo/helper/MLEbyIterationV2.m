@@ -78,7 +78,7 @@ for ii = 1:numStrategies
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
         if mod(jj,params.doPloteveryN) == 1
-            plotMLESearchV2(carvedMask,A1s,datas,theta0s,sigmasqs,domains,totalIter);
+            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,prevError(1));
         end
         [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
@@ -106,8 +106,16 @@ for ii = 1:numStrategies
             DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
             DLLDThetas = sumCellContents(DLLDThetas);
             newtheta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
+            newtheta0s = ensureBkndThetasPos(newtheta0s);
         end
+        % if bkgnd <0 then set it to 0
         
+        if any(flattenTheta0s(newtheta0s) < 0)
+            display('negative theta0s');
+            break;
+        else
+            theta0s = newtheta0s;
+        end
         %         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
@@ -119,11 +127,12 @@ for ii = 1:numStrategies
             D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
             [newtheta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
+            newtheta0s = ensureBkndThetasPos(newtheta0s);
             if ~isequal(stateOfStep,'ok')
-               break; 
+                break;
             end
         end
-      
+        
         totalIter = totalIter + 1;
         currError = sum(DLLDLambdas{1}(:).^2);
         changeInError = abs(prevError(1) - currError);
@@ -131,32 +140,32 @@ for ii = 1:numStrategies
         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
         
         % if error increases too much just break and save old theta0
-%         if (currError - prevError(1)) > 2.3742e+03
-%             display('large error');
-%            break; 
-%         else
-%             theta0s = newtheta0s;
-%         end
-%         
+        %         if (currError - prevError(1)) > 2.3742e+03
+        %             display('large error');
+        %            break;
+        %         else
+        %             theta0s = newtheta0s;
+        %         end
+        %
         % if any of the theta0s values are negative break and save old
         % theta0
         
         if any(flattenTheta0s(newtheta0s) < 0)
-           display('negative theta0s');
-           break;
+            display('negative theta0s');
+            break;
         else
             theta0s = newtheta0s;
         end
         
         
-%         if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.0001)
-%             break;
-%         end
-%         
-%    
-%         if changeInError < params.newtonTol && ii == 2
-%             break;
-%         end
+        %         if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.0001)
+        %             break;
+        %         end
+        %
+        %
+        %         if changeInError < params.newtonTol && ii == 2
+        %             break;
+        %         end
         
         prevError(2) = prevError(1);
         prevError(1) = currError;

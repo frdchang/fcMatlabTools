@@ -27,7 +27,8 @@ end
 A1s = estimated.A1;
 for ii = 1:params.numSpots
     % to iterative fitting
-    maxThetaInputs = cellfunNonUniformOutput(@(x) maxAllThetas(x),theta0);
+%     maxThetaInputs = cellfunNonUniformOutput(@(x) maxAllThetas(x),theta0);
+    maxThetaInputs = cellfunNonUniformOutput(@(x) hybridAllThetas(x),theta0);
     newtonBuild    = newtonRaphsonBuild(maxThetaInputs);
     states{ii}     = MLEbyIterationV2(A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,params.gradSteps},{newtonBuild,params.newtonSteps}},'doPlotEveryN',params.doPlotEveryN);
     if ~isequal(states{ii}.stateOfStep,'ok')

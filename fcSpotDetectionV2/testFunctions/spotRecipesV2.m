@@ -7,7 +7,7 @@ sigmassq1 = [2,2,2].*binningXY.^2;
 [kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
 domains = genMeshFromData(kern1);
 kernObj1 = myPattern_Numeric(kern1,'binning',binningXY);
-buildThetas1 = {{kernObj1,[500 8.5 15.5 16.5]},{kernObj1,[500 11.5 18.5 19.5]},{0}};
+buildThetas1 = {{kernObj1,[7 8.5 15.5 16.5]},{kernObj1,[7 11.5 18.5 19.5]},{0}};
 Kmatrix      = 1;
 thetaInputs2 = {buildThetas1};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
@@ -18,7 +18,8 @@ kern1Sep = cropCenterSize(kern1Sep,size(kern1));
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 estimatedSep = findSpotsStage1V2(photonData,{kern1Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
 
-candidates = selectCandidates(estimatedSep,'LLRatioThresh',21076);
+candidates = selectCandidates(estimatedSep);
+% plot3Dstack(candidates.L);
 % candidatesSep = selectCandidates(estimatedSep);
 
 [MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1});

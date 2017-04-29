@@ -1,9 +1,10 @@
-function h = plotMLESearchV2(carvedMask,A1s,datas,theta0s,sigmasqs,domains,totalIter)
+function h = plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,error)
 %PLOTMLESEARCHV2 Summary of this function goes here
 %PLOT3DGRADSEARCH
 
 persistent oldParam;
 persistent prevIter;
+persistent prevError;
 
 yzIdx = [false false true true];
 zxIdx = [false true false true];
@@ -152,6 +153,12 @@ else
             end
         end
     end
+    
+    subplot(2,2,2);
+    if error ~= inf && ~isempty(prevError) && prevError ~= inf;
+       hold on;plot( [prevIter,totalIter],log([prevError,error]),'-sg');
+    end
+    prevError = error;
     oldParam = theta0s;    
     prevIter = totalIter;
     drawnow;
