@@ -1,3 +1,36 @@
+%% lets test two spots two channels
+%% lets test a 1 channel stage 3
+close all;
+clear;
+binningXY   = [1 1 1];
+patchSize = binningXY*31;
+sigmassq1 = [2,2,2].*binningXY.^2;
+sigmassq2 = [3,3,3].*binningXY.^2;
+[kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
+[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+domains = genMeshFromData(kern1);
+kernObj1 = myPattern_Numeric(kern1,'binning',binningXY);
+kernObj2 = myPattern_Numeric(kern2,'binning',binningXY);
+kernObjList  = {kernObj1,kernObj2};
+buildThetas1 = {{kernObj1,[7 8.5 15.5 16.5]},{0}};
+buildThetas2 = {{0}};
+Kmatrix      = [1 0.3; 0.3 1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+kern1 = threshPSF(kern1,0.015);
+kern1Sep = cropCenterSize(kern1Sep,size(kern1));
+kern2Sep = cropCenterSize(kern2Sep,size(kern1));
+[bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs2);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+
+candidates = selectCandidates(estimatedSep);
+% plot3Dstack(candidates.L);
+% candidatesSep = selectCandidates(estimatedSep);
+
+[MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1,kernObj2});
+
 %% lets test a 1 channel stage 3
 close all;
 clear;

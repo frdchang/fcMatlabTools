@@ -237,6 +237,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress
+* 20170501 __Big Lambda__ kernel manipulation should be pure functions.  its argument should be (domains,theta0,patterns). handle the case of {spot,spot} or {spot, bkgnd} with ease.
 * 20170328 __GPU stage 1__ for a titanX can handle 3 multispectral 2048x2048x11 datasets.  with separable convoltion can process this kind of dataset in 4 seconds.  for more channels, the code simply needs to process each channel separately on the gpu.. so when the need comes do that.  
 * 20170327 __multispectral LLRatio__  is equiv to the sum of LLRatios given MLE of each channel individually (derivation is dated today)  However,for GPU memory sake it is implemented differently.
 * 20170324 __checking LLRatio__ for multi spectral datasets you can use checkLLRatiomanually function.. which i am testing right now. but you can also check that the squared term equals the cross terms when there is perfect data provided... the squared error equals zero hence these things have to equal (when the data squared term is zerod out)

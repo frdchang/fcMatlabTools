@@ -18,7 +18,7 @@ B1valAtMax = B1valsAtIDX(idxOfMaxChannel);
 
 % update theta with new spot information
 littleTheta = {objKerns{idxOfMaxChannel},[A1valAtMax coordinateOfMax]};
-
+% do i update the bkgnd
 if isempty(theta0{idxOfMaxChannel+1})
     theta0{idxOfMaxChannel+1} = {{B1valAtMax}};
 end
