@@ -25,7 +25,7 @@ if ~iscell(camVar)
     camVars = cell(numel(datas),1);
     [camVars{:}] = deal(camVar);
 end
-states{1}     = MLEbyIterationV2(A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,params.newtonSteps}},'doPlotEveryN',params.doPlotEveryN);
+states{1}     = MLEbyIterationV2(A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,1}},'doPlotEveryN',inf);
 
 
 
