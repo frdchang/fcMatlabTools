@@ -22,7 +22,7 @@ if totalIter == 1
     maxDomains = cellfun(@(x) max(x(:)),domains);
     h = createMaxFigure();
     subplot(2,2,3);
-    imagesc(minDomains(2),minDomains(3),maxintensityproj(concatData,1)');axis equal;axis([minDomains(2) maxDomains(2)*numDatas minDomains(3) maxDomains(3)]);box off;hold on;xlabel('y');ylabel('z');%plot(y0,z0,'sr');
+    imagesc(minDomains(2),minDomains(3),maxintensityproj(concatData,1)');axis equal;axis([minDomains(2)-0.5 (maxDomains(2) +(numDatas-1)*(maxDomains(2)-minDomains(2)+1.5)) minDomains(3)-0.5 maxDomains(3)+0.5]);box off;hold on;xlabel('y');ylabel('z');%plot(y0,z0,'sr');
     thisSize = size(maxintensityproj(concatData,1)');
     for ii = 2:numel(theta0s)
         if iscell(theta0s{ii})
@@ -37,7 +37,7 @@ if totalIter == 1
     end
     
     for ii = 2:numDatas+1
-        plot([(ii-2)*thisSize(2)/numDatas,(ii-2)*thisSize(2)/numDatas],[minDomains(2) maxDomains(3)+1],'--w');
+        plot([minDomains(2)-0.5+(ii-2)*thisSize(2)/numDatas,minDomains(2)-0.5+(ii-2)*thisSize(2)/numDatas],[minDomains(3)-0.5 maxDomains(3)+1],'--w');
     end
 %     subplot(2,2,2);
 %     imagesc(minDomains(3),minDomains(1),maxintensityproj(concatData,2));axis square;box off;hold on;xlabel('z');ylabel('x');%plot(z0,x0,'sr')
@@ -55,7 +55,7 @@ if totalIter == 1
 %     
     
     subplot(2,2,1);
-    imagesc(minDomains(2),minDomains(1),maxintensityproj(concatData,3));axis equal;axis([minDomains(2) maxDomains(2)*numDatas minDomains(1) maxDomains(1)]);box off;hold on;xlabel('y');ylabel('x');%plot(y0,x0,'sr');
+    imagesc(minDomains(2),minDomains(1),maxintensityproj(concatData,3));axis equal;axis([minDomains(2)-0.5 (maxDomains(2) +(numDatas-1)*(maxDomains(2)-minDomains(2)+1.5)) minDomains(1)-0.5 maxDomains(1)+0.5]);box off;hold on;xlabel('y');ylabel('x');%plot(y0,x0,'sr');
     thisSize = size(maxintensityproj(concatData,3));
     for ii = 2:numel(theta0s)
         if iscell(theta0s{ii})
@@ -70,7 +70,7 @@ if totalIter == 1
     end
     
        for ii = 2:numDatas+1
-        plot([(ii-2)*thisSize(2)/numDatas,(ii-2)*thisSize(2)/numDatas],[minDomains(2) maxDomains(1)+1],'--w');
+        plot([minDomains(2)-0.5+(ii-2)*thisSize(2)/numDatas,minDomains(2)-0.5+(ii-2)*thisSize(2)/numDatas],[minDomains(1)-0.5 maxDomains(1)+1],'--w');
     end
     
     colormap gray;

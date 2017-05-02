@@ -3,7 +3,7 @@ function [ states ] = doMultiEmitterFitting(carvedMask,maskedPixelId,datas,estim
 
 %--parameters--------------------------------------------------------------
 params.numSpots     = 2;
-params.gradSteps    = 4000;
+params.gradSteps    = 2000;
 params.newtonSteps  = 100;
 params.doPlotEveryN = 100;
 %--------------------------------------------------------------------------
@@ -35,9 +35,10 @@ for ii = 1:params.numSpots
     if ~isequal(states{ii+1}.stateOfStep,'ok')
         break;
     end
-    theta0 = states{ii+1}.thetaMLEs;
-    
+    theta0 = states{ii+1}.thetaMLEs;  
 end
+
+dispaly('done');
 
 
 

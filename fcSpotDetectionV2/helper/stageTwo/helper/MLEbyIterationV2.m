@@ -110,11 +110,9 @@ for ii = 1:numStrategies
         % use only carved mask
         bigLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
         
-        LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
-        LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
-        if mod(jj,params.doPloteveryN) == 1
-            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,LLPP);
-        end
+        
+        
+        
         for kk = 1:numel(bigDLambdas)
             if ~isscalar(bigDLambdas{kk})
                 bigDLambdas{kk} = bigDLambdas{kk}(carvedMask);
@@ -168,12 +166,16 @@ for ii = 1:numStrategies
         
         
         
-        totalIter = totalIter + 1;
+        
         currError = sum(DLLDLambdas{1}(:).^2);
         changeInError = abs(prevError(1) - currError);
         display(flattenTheta0s(theta0s));
         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
         
+        if mod(jj,params.doPloteveryN) == 1
+            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,currError);
+        end
+        totalIter = totalIter + 1;
         % if error increases too much just break and save old theta0
         %         if (currError - prevError(1)) > 2.3742e+03
         %             display('large error');
@@ -206,12 +208,10 @@ for ii = 1:numStrategies
         prevError(1) = currError;
     end
 end
+
+LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
+LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
 state.thetaMLEs = theta0s;
-if exist('stateOfStep') == 1
-    state.stateOfStep = stateOfStep;
-else
-    state.stateOfStep = 'ok';
-end
 state.logLikePP = LLPP;
 state.logLikePG = LLPG;
 

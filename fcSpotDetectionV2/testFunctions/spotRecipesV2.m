@@ -29,7 +29,7 @@ candidates = selectCandidates(estimatedSep);
 % plot3Dstack(candidates.L);
 % candidatesSep = selectCandidates(estimatedSep);
 
-[MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1,kernObj2});
+MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1,kernObj2});
 
 %% lets test a 1 channel stage 3
 close all;
