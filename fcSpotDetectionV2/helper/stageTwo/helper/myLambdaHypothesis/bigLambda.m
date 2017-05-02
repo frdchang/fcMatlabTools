@@ -14,6 +14,7 @@ function [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs,v
 % note:the gradients and hessian are independent from each channel
 %--parameters--------------------------------------------------------------
 params.doMicroscopeBleedThru     = true;
+params.objKerns                  = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -48,7 +49,12 @@ if params.doMicroscopeBleedThru
         for jj = 1:numDatas
             if jj ~= ii
                 currInput = thetaInputs{jj};
-                currInput = replaceShapeObj(currInput,currShape);
+                if isscalar(currShape)
+                    currInput = replaceShapeObj(currInput,params.objKerns{ii});
+                else
+                    currInput = replaceShapeObj(currInput,currShape);
+                end
+                
                 currInput = {1,currInput{:}};
                 maxThetaInputs= maxAllThetas(currInput);
                 if isempty(varargin)

@@ -1,4 +1,4 @@
-function state = MLEbyIterationV2(A1s,carvedMask,datas,theta0s,sigmasqs,domains,strategy,varargin)
+function state = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0s,sigmasqs,domains,strategy,varargin)
 %MLEBYGRADIENTASCENT executes MLE by gradient ascent and/or newton raphson
 %
 % datas:        the measured data or datas in cell array
@@ -81,7 +81,7 @@ for ii = 1:numStrategies
     [selectorD,selectorD2] = thetaSelector(currStrategy);
     for jj = 1:numIterations
         
-        [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s);
+        [bigLambdas,bigDLambdas,bigD2Lambdas] = params.bigLambdaFunc(domains,theta0s,'objKerns',objKerns);
         [DLLDLambdas,D2LLDLambdas2] = doDLLDLambda(datas,bigLambdas,sigmasqs,params.DLLDLambda);
         
         % if a bkgnd only parameter was passed, and the output is a scalar,
@@ -141,13 +141,13 @@ for ii = 1:numStrategies
         end
         % if bkgnd <0 then set it to 0
         if exist('newtheta0s')==1
-        if any(flattenTheta0s(newtheta0s) < 0)
-            display('negative theta0s');
-            break;
-        else
-            theta0s = newtheta0s;
+            if any(flattenTheta0s(newtheta0s) < 0)
+                display('negative theta0s');
+                break;
+            else
+                theta0s = newtheta0s;
+            end
         end
-end
         %         % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;

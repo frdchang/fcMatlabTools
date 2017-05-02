@@ -4,7 +4,7 @@ function theta0 = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVa
 %value.
 
 
-bigLambdas = bigLambda(domains,theta0);
+bigLambdas = bigLambda(domains,theta0,'objKerns',objKerns);
 errors = cellfunNonUniformOutput(@(x,y) x-y,datas,bigLambdas);
 newEstimated = findSpotsStage1V2(errors,estimated.spotKern,camVar,'kMatrix',Kmatrix);
 
@@ -19,7 +19,7 @@ B1valAtMax = B1valsAtIDX(idxOfMaxChannel);
 % update theta with new spot information
 littleTheta = {objKerns{idxOfMaxChannel},[A1valAtMax coordinateOfMax]};
 % do i update the bkgnd
-if isempty(theta0{idxOfMaxChannel+1})
+if isempty(theta0{idxOfMaxChannel+1}) || isscalar(theta0{idxOfMaxChannel+1})
     theta0{idxOfMaxChannel+1} = {{B1valAtMax}};
 end
 

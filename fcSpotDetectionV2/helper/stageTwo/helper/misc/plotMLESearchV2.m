@@ -88,6 +88,11 @@ if totalIter == 1
             end
         end
     end
+    
+     subplot(2,2,2);
+    plot( [totalIter],[error],'-sg');
+       
+    prevError = error;   
     oldParam = theta0s;
     prevIter = totalIter;
     drawnow;
@@ -155,9 +160,8 @@ else
     end
     
     subplot(2,2,2);
-    if error ~= inf && ~isempty(prevError) && prevError ~= inf;
+    
        hold on;plot( [prevIter,totalIter],[prevError,error],'-sg');
-    end
 
     prevError = error;
     oldParam = theta0s;    
