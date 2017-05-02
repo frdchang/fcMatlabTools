@@ -72,9 +72,9 @@ state.stateOfStep   = [];
 
 numStrategies = numel(strategy);
 totalIter = 1;
-prevError = inf*ones(2,1);
 carveddatas = cellfunNonUniformOutput(@(x) x(carvedMask),datas);
 carvedsigmasqs = cellfunNonUniformOutput(@(x) x(carvedMask),sigmasqs);
+stateOfStep = 'ok';
 for ii = 1:numStrategies
     currStrategy = strategy{ii}{1};
     numIterations = strategy{ii}{2};
@@ -110,9 +110,6 @@ for ii = 1:numStrategies
         % use only carved mask
         bigLambdas = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
         
-        
-        
-        
         for kk = 1:numel(bigDLambdas)
             if ~isscalar(bigDLambdas{kk})
                 bigDLambdas{kk} = bigDLambdas{kk}(carvedMask);
@@ -137,8 +134,8 @@ for ii = 1:numStrategies
             newtheta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
             newtheta0s = ensureBkndThetasPos(newtheta0s);
         end
-        % if bkgnd <0 then set it to 0
-        if exist('newtheta0s')==1
+        
+        if exist('newtheta0s','var')==1
             if any(flattenTheta0s(newtheta0s) < 0)
                 display('negative theta0s');
                 break;
@@ -146,10 +143,10 @@ for ii = 1:numStrategies
                 theta0s = newtheta0s;
             end
         end
-        %         % do newton raphson update
+        % do newton raphson update
         newtonRaphsonSelctorD1 = selectorD{2};
         newtonRaphsonSelctorD2 = selectorD2;
-        %    -0.0018   -7.3817   -0.0000         0         0         0   -0.0252    0.0245
+        
         if any(newtonRaphsonSelctorD1)
             DLLDThetasRaphson = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,newtonRaphsonSelctorD1);
             D2LLD2ThetasRaphson = doD2LLDTheta2DotProduct(DLLDLambdas,D2LLDLambdas2,bigDLambdas,bigD2Lambdas,newtonRaphsonSelctorD1,newtonRaphsonSelctorD2);
@@ -163,12 +160,7 @@ for ii = 1:numStrategies
             end
         end
         
-        
-        
-        
-        
         currError = sum(DLLDLambdas{1}(:).^2);
-        changeInError = abs(prevError(1) - currError);
         display(flattenTheta0s(theta0s));
         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
         
@@ -176,16 +168,6 @@ for ii = 1:numStrategies
             plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,currError);
         end
         totalIter = totalIter + 1;
-        % if error increases too much just break and save old theta0
-        %         if (currError - prevError(1)) > 2.3742e+03
-        %             display('large error');
-        %            break;
-        %         else
-        %             theta0s = newtheta0s;
-        %         end
-        %
-        % if any of the theta0s values are negative break and save old
-        % theta0
         
         if any(flattenTheta0s(newtheta0s) < 0)
             display('negative theta0s');
@@ -193,27 +175,22 @@ for ii = 1:numStrategies
         else
             theta0s = newtheta0s;
         end
-        
-        
-        %         if changeInError < params.gradTol && ii == 1 || any(abs((prevError-currError))<0.0001)
-        %             break;
-        %         end
-        %
-        %
-        %         if changeInError < params.newtonTol && ii == 2
-        %             break;
-        %         end
-        
-        prevError(2) = prevError(1);
-        prevError(1) = currError;
     end
 end
 
-LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
-LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
-state.thetaMLEs = theta0s;
-state.logLikePP = LLPP;
-state.logLikePG = LLPG;
+state.stateOfStep = stateOfStep;
+if isequal(stateOfStep,'ok')
+    LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
+    LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
+    state.thetaMLEs = theta0s;
+    state.logLikePP = LLPP;
+    state.logLikePG = LLPG;
+else
+    state.thetaMLEs = theta0s;
+    state.logLikePP = 0;
+    state.logLikePG = 0;
+end
+
 
 
 

@@ -13,9 +13,10 @@ sigmaSteps = round(gaussDomSize*(sigma+lambda));
 gaussDOM = -sigmaSteps:sigmaSteps;
 shiftDOM = data+gaussDOM;
 shiftDOM = round(shiftDOM);
-gauss = normpdf(shiftDOM,0,sigma);
+gauss = normpdf(shiftDOM,data,sigma);
 gauss = gauss/sum(gauss(:));
 poiss = contPoissPDF(shiftDOM,lambda);
+poiss(isnan(poiss)) = 0;
 % no negative values
 
 probData = sum(gauss.*poiss);

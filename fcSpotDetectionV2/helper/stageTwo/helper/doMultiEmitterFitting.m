@@ -38,7 +38,5 @@ for ii = 1:params.numSpots
     theta0 = states{ii+1}.thetaMLEs;  
 end
 
-dispaly('done');
-
 
 
