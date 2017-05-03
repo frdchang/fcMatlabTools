@@ -159,8 +159,8 @@ for ii = 1:numStrategies
                 break;
             end
         end
-        
-        currError = sum(DLLDLambdas{1}(:).^2);
+        currError = sumCellContents(cellfunNonUniformOutput(@(x,y) (x-y).^2,bigLambdas,carveddatas));
+        currError = sum(currError(:));
         display(flattenTheta0s(theta0s));
         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
         

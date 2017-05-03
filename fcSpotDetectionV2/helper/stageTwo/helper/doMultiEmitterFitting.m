@@ -37,6 +37,5 @@ for ii = 1:params.numSpots
     end
     theta0 = states{ii+1}.thetaMLEs;  
 end
-
-
+states = cell2mat(states);
 
