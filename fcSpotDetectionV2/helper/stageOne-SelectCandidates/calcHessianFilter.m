@@ -1,4 +1,4 @@
-function [ hessians ] = calcHessianFilter(data,est,kern,kernDs,kernD2s,cameraVariance)
+function [ hessiansXYZ ] = calcHessianFilter(data,est,kern,kernDs,kernD2s,cameraVariance)
 %CALCHESSIAN Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -11,10 +11,10 @@ invVar4      = 1./cameraVariance.^2;
 dataN2       = data.*invVar2;
 dataN4       = data.*invVar4;
 
-hessians = cell(3,3);
+hessiansXYZ = cell(3,3);
 for ii = 1:3
     for jj = 1:3
-        hessians{ii,jj} = ...
+        hessiansXYZ{ii,jj} = ...
             - est.A1.*(est.B1.^2).*convF(invVar4,kernD2s{ii,jj}) ...
             - 2*(est.A1.^2).*est.B1.*convF(invVar4,kernD2s{ii,jj}.*kern) ...
             - (est.A1.^3).*convF(invVar4,kernD2s{ii,jj}.*(kern.^2)) ...

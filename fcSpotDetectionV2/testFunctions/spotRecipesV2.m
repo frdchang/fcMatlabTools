@@ -1,4 +1,27 @@
-%% lets test two spots two channels
+%% test expanded gradient filter, A,B and xyz
+patchSize = [21 21 21];
+sigmassq1 = [2,2,2];
+[kern1,~] = ndGauss(sigmassq1,patchSize);
+domains = genMeshFromData(kern1);
+cameraVariance = ones(size(kern1));
+kernObj = myPattern_Numeric(kern1);
+coor1 = getCenterCoor(patchSize) + 3;
+buildThetas = {{kernObj,[10 coor1]},{8}};
+thetaInputs = {1,buildThetas};
+[lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
+kern = cropCenterSize(lambdas,[7,7,7]);
+kernDs = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),gradLambdas);
+kernD2s = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),hessLambdas);
+bigLambdas = bigLambda(domains,thetaInputs);
+[sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+electronData = returnElectrons(sampledData,cameraParams);
+estimated = findSpotsStage1V2(kern1,kern,cameraVariance);
+gradientsXYZ = calcGradientFilter(kern1,estimated,kern,kernDs,cameraVariance);
+gradientAB = calcABGradientFilter(kern1,estimated,kern,cameraVariance);
+hessians  = calcHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
+hold on;colorQuiver3(domains{:},gradientsXYZ{:});
+colorQuiver3(domains{:},gradientsXYZ{1},gradientAB{:});
+colorQuiver3(domains{:},hessians{[1,5,9]});
 %% lets test a 1 channel stage 3
 close all;
 clear;
@@ -110,7 +133,7 @@ candidates = selectCandidates(estimated,'LLRatioThresh',7500);
 [MLEs] = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix,{kernObj1,kernObj2,kernObj3});
 
 
-%% i find binning sort of slow and unnecessary. linear interpolation is 
+%% i find binning sort of slow and unnecessary. linear interpolation is
 % the best compromise
 % first try a 3D psf in which binning is only done in xy and none in z
 % so binnning is a legacy word.  it now means upsample fact
@@ -160,7 +183,7 @@ for ii = 1:timeSteps
     truePSF = genPSF('xp',interp1(1:domainSize,xy,init0(1)),'yp',interp1(1:domainSize,xy,init0(2)),'zp',interp1(1:domainSize,z,init0(3)));
     truePSF = truePSF * max(lambda(:));
     clf;
-    plot3Dstack(cat(2,truePSF,lambda),'cRange',[0 1],'keepFigure',true);    
+    plot3Dstack(cat(2,truePSF,lambda),'cRange',[0 1],'keepFigure',true);
     colormap default;
     drawnow;
     writeVideo(writerObj,getframe(gcf));
