@@ -19,9 +19,12 @@ estimated = findSpotsStage1V2(kern1,kern,cameraVariance);
 gradientsXYZ = calcGradientFilter(kern1,estimated,kern,kernDs,cameraVariance);
 gradientAB = calcABGradientFilter(kern1,estimated,kern,cameraVariance);
 hessians  = calcHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
-hold on;colorQuiver3(domains{:},gradientsXYZ{:});
-colorQuiver3(domains{:},gradientsXYZ{1},gradientAB{:});
-colorQuiver3(domains{:},hessians{[1,5,9]});
+[ restHess ] = calcABHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
+%CALCHESSIAN Summary of this function goes here
+colorQuiver3(domains{:},gradientsXYZ{:});
+figure;colorQuiver3(domains{:},gradientsXYZ{1},gradientAB{:});
+figure;colorQuiver3(domains{:},gradientsXYZ{1:2},gradientAB{1});xlabel('x');ylabel('y');zlabel('z');
+figure;colorQuiver3(domains{:},hessians{[1,5,9]});
 %% lets test a 1 channel stage 3
 close all;
 clear;
