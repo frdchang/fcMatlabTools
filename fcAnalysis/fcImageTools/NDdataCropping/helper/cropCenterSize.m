@@ -3,6 +3,10 @@ function [ cropped ] = cropCenterSize(ndData,sizeCrop )
 %cell array that represents a separable kernel, it will go through each
 %dimension and crop by sizeCrop
 
+if isempty(ndData)
+   cropped = [];
+   return;
+end
 if iscell(ndData)
     numDims = numel(ndData);
     cropped = cell(numDims,1);

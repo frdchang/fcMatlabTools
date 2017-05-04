@@ -5,7 +5,7 @@ classdef myPattern_Numeric < myPattern_Interface
         centerCoorOG
         numDims
         heartFunc
-        binning
+        downSample
         newDomains
     end
     
@@ -16,10 +16,10 @@ classdef myPattern_Numeric < myPattern_Interface
             % increment of 1
             %
             % when you give it a domain of the pattern, the units are when
-            % after the binning happens.
+            % after the downSample happens.
             
             %--parameters--------------------------------------------------------------
-            params.binning          = [];
+            params.downSample          = [];
             params.domains          = [];
             params.normPeakHeight   = true;
             %--------------------------------------------------------------------------
@@ -42,16 +42,16 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.centerCoorOG    = cellfun(@(myDom) myDom(obj.centerCoorOG{:}),obj.domainsOG);
             obj.numDims         = numel(obj.centerCoorOG);
             
-            if isempty(params.binning)
-                obj.binning         = ones(size(obj.ndPatternOG));
+            if isempty(params.downSample)
+                obj.downSample         = ones(size(obj.ndPatternOG));
             else
-                obj.binning        = params.binning;
+                obj.downSample        = params.downSample;
             end
         end
         
         function [myOGShape,binnedShape] = returnShape(obj)
             myOGShape = obj.ndPatternOG;
-            binnedShape = NDbinData(obj.ndPatternOG,obj.binning);
+            binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
         end
         
         function [lambdas,heartFunc] = givenTheta(obj,domains,theta,varargin)
@@ -59,7 +59,7 @@ classdef myPattern_Numeric < myPattern_Interface
             % theta  is where the pattern is
             % 'interpMethod', is how you interpolate the pattern
             % it knows the bin mode, so the domain you give it doesn't have
-            % to take into account the binning.  so give it regular domain,
+            % to take into account the downSample.  so give it regular domain,
             % and this functino will expand the domain
             %--parameters--------------------------------------------------------------
             params.interpMethod     = 'linear';
@@ -71,7 +71,7 @@ classdef myPattern_Numeric < myPattern_Interface
             domainParams = calcMinMaxFromMeshData(domains);
             
             %             for ii = 1:numel(domains)
-            %                 myArg = num2cell(domainParams(ii,:).*[obj.binning(ii) obj.binning(ii) obj.binning(ii)]);
+            %                 myArg = num2cell(domainParams(ii,:).*[obj.downSample(ii) obj.downSample(ii) obj.downSample(ii)]);
             %                 domains{ii} = linspace(myArg{:});
             %             end
             %
@@ -85,7 +85,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.newDomains = domains;
             heartFunc = obj.heartFunc;
             lambdas = heartFunc;
-            %             lambdas = NDbinData(obj.heartFunc,obj.binning);
+            %             lambdas = NDbinData(obj.heartFunc,obj.downSample);
         end
         
         function [gradLambdas,hessLambdas] = getDerivatives(obj,maxThetas)
@@ -120,11 +120,11 @@ classdef myPattern_Numeric < myPattern_Interface
                     end
                     gradLambdas = isNaN2Zero(gradLambdas);
                     hessLambdas = isNaN2Zero(hessLambdas);
-                    %                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),hessLambdas);
+                    %                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.downSample),hessLambdas);
                 otherwise
                     error('number of arguments out is not 1 or 2');
             end
-            %             gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.binning),gradLambdas);
+            %             gradLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.downSample),gradLambdas);
         end
     end
 end

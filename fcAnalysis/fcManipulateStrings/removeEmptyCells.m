@@ -1,4 +1,4 @@
-function [cellArray] = removeEmptyCells(cellArray)
+function [cellArray,emptyOnes] = removeEmptyCells(cellArray)
 %REMOVEEMPTYCELLS finds empty cells and removes them
 
 emptyOnes = cellfun('isempty',cellArray);

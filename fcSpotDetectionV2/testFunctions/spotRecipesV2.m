@@ -1,3 +1,35 @@
+%% test filter generation
+patchSize = [31 31 31];
+sigmassq1 = [1,1,1];
+[kern1,~] = ndGauss(sigmassq1,patchSize);
+kernSize = [7 7 7];
+domains = genMeshFromData(kern1);
+[gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(kernSize,kern1);
+
+kernObj = myPattern_Numeric(kern1);
+coor1 = getCenterCoor(patchSize);
+buildThetas = {{kernObj,[5 coor1]},{0}};
+thetaInputs = {1,buildThetas};
+bigLambdas = bigLambda(domains,thetaInputs);
+cameraVariance = ones(size(bigLambdas{1}));
+
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+electronData = returnElectrons(sampledData,cameraParams);
+estimated = findSpotsStage1V2(electronData,kerns.kern,cameraVariance);
+gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
+hessOfData = calcFullHessianFilter(electronData,estimated,kerns.kern,kerns.kernDs,kerns.kernD2s,cameraVariance);
+
+[gradDotProduct] = convFieldKernels(gradOfData,gradientFieldFilters);
+[gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
+[gradABDotProduct] = convFieldKernels(gradOfData(1:2),gradientFieldFilters(1:2));
+
+[hessDotProduct] = convFieldKernels(hessOfData,hessFieldFilters);
+temp = hessFieldFilters;
+temp(1,:) = {[]};
+temp(2,:) = {[]};
+[hessXYZDotProducttemp] = convFieldKernels(hessOfData,temp);
+templateMatch = convFFTND(electronData,kerns.kern);
+plot3Dstack(cat(2,norm0to1(templateMatch.^20),norm0to1(estimated.LLRatio),norm0to1(gradXYZDotProduct),norm0to1(gradXYZDotProduct.*hessXYZDotProducttemp),norm0to1(hessXYZDotProducttemp)));
 %% test expanded gradient filter, A,B and xyz
 patchSize = [21 21 21];
 sigmassq1 = [2,2,2];
@@ -16,12 +48,13 @@ bigLambdas = bigLambda(domains,thetaInputs);
 [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(bigLambdas{1});
 electronData = returnElectrons(sampledData,cameraParams);
 estimated = findSpotsStage1V2(kern1,kern,cameraVariance);
-gradientsXYZ = calcGradientFilter(kern1,estimated,kern,kernDs,cameraVariance);
+gradients = calcFullGradientFilter(kern1,estimated,kern,kernDs,cameraVariance);
 gradientAB = calcABGradientFilter(kern1,estimated,kern,cameraVariance);
 hessians  = calcHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
-[ restHess ] = calcABHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
+[ fullHess ] = calcFullHessianFilter(kern1,estimated,kern,kernDs,kernD2s,cameraVariance);
 %CALCHESSIAN Summary of this function goes here
-colorQuiver3(domains{:},gradientsXYZ{:});
+quiver3(domains{:},gradientsXYZ{:});
+hold on;quiver3(domains{:},fullHess{[1,7,13]});
 figure;colorQuiver3(domains{:},gradientsXYZ{1},gradientAB{:});
 figure;colorQuiver3(domains{:},gradientsXYZ{1:2},gradientAB{1});xlabel('x');ylabel('y');zlabel('z');
 figure;colorQuiver3(domains{:},hessians{[1,5,9]});
