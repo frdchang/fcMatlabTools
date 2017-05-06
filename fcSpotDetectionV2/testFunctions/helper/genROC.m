@@ -29,9 +29,15 @@ withoutTargetCDF = cumsum(h2.Values*h2.BinWidth);
 wCDF = [0 withTargetCDF];
 woCDF = [0 withoutTargetCDF];
 Nsamples = max([1000,numel(wCDF),numel(woCDF)]);
- wCDF = interp1(1:numel(wCDF),wCDF,linspace(1,numel(wCDF),Nsamples),'pchip');
- woCDF = interp1(1:numel(woCDF),woCDF,linspace(1,numel(woCDF),Nsamples),'pchip');
+newDomain = linspace(min([h1.BinEdges h2.BinEdges]),max([h1.BinEdges h2.BinEdges]),Nsamples);
+wCDF = interp1(h1.BinEdges,wCDF,newDomain,'pchip');
+woCDF = interp1(h2.BinEdges,woCDF,newDomain,'pchip');
 
+wCDF(newDomain<min([h1.BinEdges])) = 0;
+wCDF(newDomain>max([h1.BinEdges])) = 1;
+
+woCDF(newDomain<min([h2.BinEdges])) = 0;
+woCDF(newDomain>max([h2.BinEdges])) = 1;
 % maxSize = max(numel(withTargetCDF),numel(withoutTargetCDF))+1;
 % % calculate ROC
 % wCDF = ones(maxSize,1);

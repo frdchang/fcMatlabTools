@@ -1,6 +1,26 @@
-%% test filter generation
+%% test ROC generator
+%% genROC checked against publication.  
+%"Advantages to transforming the receiver operating characteristic (ROC)
+%curve into likelihood ratio co-ordinates"
+close all;
+muB = 5;
+sigmaB = 1;
+muS = 8;
+sigmaS = 1;
+N = 10000;
+myFunc = @(x) x.^5 + 10;
+bkgnd = normrnd(muB,sigmaB,N);
+signal = normrnd(muS,sigmaS,N);
+reg = genROC('0 1 1 1',signal,bkgnd);
+powered = genROC('0 1 1 1 powered',myFunc(signal),myFunc(bkgnd));
+figure;plot(1-reg.withoutTargetCDF,1-reg.withTargetCDF);hold on;plot(1-powered.withoutTargetCDF,1-powered.withTargetCDF,'--');
+% ROC is indepdent of transofmration
+
+%% figure out the gradient field stuff by checking the residuals
+
+%% test filter generation, just a plurality of bkgnd and signal intensities and see if single threshold can win
 patchSize = [31 31 31];
-sigmassq1 = [1,1,1];
+sigmassq1 = [2,2,2];
 [kern1,~] = ndGauss(sigmassq1,patchSize);
 kernSize = [7 7 7];
 domains = genMeshFromData(kern1);
@@ -8,28 +28,45 @@ domains = genMeshFromData(kern1);
 
 kernObj = myPattern_Numeric(kern1);
 coor1 = getCenterCoor(patchSize);
-buildThetas = {{kernObj,[5 coor1]},{0}};
+buildThetas = {{kernObj,[2 coor1]},{0}};
 thetaInputs = {1,buildThetas};
 bigLambdas = bigLambda(domains,thetaInputs);
 cameraVariance = ones(size(bigLambdas{1}));
 
-[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas{1});
-electronData = returnElectrons(sampledData,cameraParams);
-estimated = findSpotsStage1V2(electronData,kerns.kern,cameraVariance);
-gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
-hessOfData = calcFullHessianFilter(electronData,estimated,kerns.kern,kerns.kernDs,kerns.kernD2s,cameraVariance);
+N = 10000;
+signal = num2cell(coor1);
+bkgnd  = num2cell(coor1 + kernSize);
+sigLL = zeros(N,1);
+bkLL = zeros(N,1);
 
-[gradDotProduct] = convFieldKernels(gradOfData,gradientFieldFilters);
-[gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
-[gradABDotProduct] = convFieldKernels(gradOfData(1:2),gradientFieldFilters(1:2));
+parfor ii = 1:N
+    display(ii);
+    [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+    electronData = returnElectrons(sampledData,cameraParams);
+    estimated = findSpotsStage1V2(electronData,kerns.kern,cameraVariance);
+   
+    sigLL(ii) = estimated.LLRatio(signal{:});
+    bkLL(ii) = estimated.LLRatio(bkgnd{:});
+   
+end
 
-[hessDotProduct] = convFieldKernels(hessOfData,hessFieldFilters);
-temp = hessFieldFilters;
-temp(1,:) = {[]};
-temp(2,:) = {[]};
-[hessXYZDotProducttemp] = convFieldKernels(hessOfData,temp);
-templateMatch = convFFTND(electronData,kerns.kern);
-plot3Dstack(cat(2,norm0to1(templateMatch.^20),norm0to1(estimated.LLRatio),norm0to1(gradXYZDotProduct),norm0to1(gradXYZDotProduct.*hessXYZDotProducttemp),norm0to1(hessXYZDotProducttemp)));
+LL = genROC('LLRatio',sigLL,bkLL);
+
+ gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
+% hessOfData = calcFullHessianFilter(electronData,estimated,kerns.kern,kerns.kernDs,kerns.kernD2s,cameraVariance);
+% 
+%  [gradDotProduct] = convFieldKernels(gradOfData,gradientFieldFilters);
+ [gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
+% [gradABDotProduct] = convFieldKernels(gradOfData(1:2),gradientFieldFilters(1:2));
+% 
+% [hessDotProduct] = convFieldKernels(hessOfData,hessFieldFilters);
+% temp = hessFieldFilters;
+% temp(1,:) = {[]};
+% temp(2,:) = {[]};
+% [hessXYZDotProducttemp] = convFieldKernels(hessOfData,temp);
+
+
+% plot3Dstack(cat(2,norm0to1(templateMatch.^20),norm0to1(estimated.LLRatio),norm0to1(gradXYZDotProduct),norm0to1(gradXYZDotProduct.*hessXYZDotProducttemp),norm0to1(hessXYZDotProducttemp)));
 %% test expanded gradient filter, A,B and xyz
 patchSize = [21 21 21];
 sigmassq1 = [2,2,2];
@@ -455,7 +492,7 @@ domains = genMeshFromData(kern1);
 cameraVariance = ones(size(kern1));
 kernObj = myPattern_Numeric(kern1);
 coor1 = getCenterCoor(patchSize) + 3;
-buildThetas = {{kernObj,[10 coor1]},{8}};
+buildThetas = {{kernObj,[2 coor1]},{0}};
 thetaInputs = {1,buildThetas};
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
 kern = cropCenterSize(lambdas,[7,7,7]);
