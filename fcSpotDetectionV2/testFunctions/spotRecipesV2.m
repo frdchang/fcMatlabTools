@@ -33,6 +33,15 @@ thetaInputs = {1,buildThetas};
 bigLambdas = bigLambda(domains,thetaInputs);
 cameraVariance = ones(size(bigLambdas{1}));
 
+
+Kmatrix = [1 0.3;0.2 1];
+psfs    = {ndGauss([0.9,0.9,0.9],[7 7 7]),ndGauss([1.2,1.2,1.2],[7 7 7])};
+theta1  = {[10 3 3 3],[5 20 20 20],5};
+theta2  = {[6 10 10 10], 5};
+thetas  = {theta1,theta2};
+[ bigThetas,objKerns ] = genBigTheta(Kmatrix,psfs,thetas);
+
+
 N = 10000;
 signal = num2cell(coor1);
 bkgnd  = num2cell(coor1 + kernSize);
@@ -176,6 +185,8 @@ Kmatrix      = [1 0.5 0.5;0.2 1 0.5; 0.5 0.5 1];
 % Kmatrix      = eye(size(Kmatrix));
 thetaInputs2 = {buildThetas1,buildThetas2,buildThetas3};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+
 
 % build max theta
 buildMaxThetas1 = {[1 1 1 1],[1 1 1 1],1};
