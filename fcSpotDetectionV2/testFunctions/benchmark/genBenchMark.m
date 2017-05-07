@@ -1,4 +1,4 @@
-function [benchConditions] = genBenchMark(varargin)
+function [benchStruct] = genBenchMark(varargin)
 %GENBENCHMARK will generate a battery datasets for the spot detection to do
 % benchmarking on
 
@@ -14,10 +14,10 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 3;
-params.As               = linspace(100,0,2);
+params.numSamples       = 5;
+params.As               = linspace(100,50,2);
 params.Bs               = linspace(0,10,2);
-params.dist2Spots       = linspace(10,0,2);
+params.dist2Spots       = linspace(0,10,2);
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -110,4 +110,8 @@ for ai = 1:numel(params.As)
         end
     end
 end
-save([saveFolder filesep 'benchConditions'],'benchConditions');
+benchStruct.Kmatrix     = Kmatrix;
+benchStruct.conditions  = benchConditions;
+benchStruct.psfs        = psfs;
+benchStruct.centerCoor  = centerCoor;
+save([saveFolder filesep 'benchStruct'],'benchStruct');
