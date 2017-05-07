@@ -58,7 +58,10 @@ for ii = 1:size(doTheSample,3)
    doTheSample(:,:,ii) =  inPaintNansWMedian(doTheSample(:,:,ii));
 end
 % convert from electrons to ADU
-doTheSample = doTheSample.*params.gain + params.offset;
+doTheSample = round(doTheSample.*params.gain + params.offset);
+doTheSample(doTheSample<0) = 0;
+doTheSample(doTheSample > (2^16 - 1)) = 2^16-1;
+doTheSample = uint16(doTheSample);
 myCameraParams.readNoiseData = params.readNoiseData;
 myCameraParams.gain          = params.gain;
 myCameraParams.offset        = params.offset;

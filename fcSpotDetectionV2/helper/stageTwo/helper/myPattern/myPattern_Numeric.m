@@ -68,7 +68,7 @@ classdef myPattern_Numeric < myPattern_Interface
             % calc how the shape will be moved
             deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
             % do domain expansino according to bin
-            domainParams = calcMinMaxFromMeshData(domains);
+%             domainParams = calcMinMaxFromMeshData(domains);
             
             %             for ii = 1:numel(domains)
             %                 myArg = num2cell(domainParams(ii,:).*[obj.downSample(ii) obj.downSample(ii) obj.downSample(ii)]);
