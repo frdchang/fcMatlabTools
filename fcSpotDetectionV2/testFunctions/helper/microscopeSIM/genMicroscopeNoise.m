@@ -45,11 +45,17 @@ doTheSample = poissrnd(doTheSample);
 poissonOnlySample = doTheSample;
 % read noise
 % if read noise value is infinity just put large number
-params.readNoise(params.readNoiseData==inf) = 10000;
+readNoiseData = params.readNoiseData;
+readNoiseData(params.readNoiseData==inf) = 10000;
 if isscalar(params.readNoiseData)
-    doTheSample = doTheSample + normrnd(0,sqrt(params.readNoiseData),size(myData));
+    doTheSample = doTheSample + normrnd(0,sqrt(readNoiseData),size(myData));
 else
-    doTheSample = doTheSample + normrnd(0,sqrt(params.readNoiseData));
+    doTheSample = doTheSample + normrnd(0,sqrt(readNoiseData));
+end
+% fill in neighbor pixels using inf information
+doTheSample(params.readNoiseData==inf) = nan;
+for ii = 1:size(doTheSample,3)
+   doTheSample(:,:,ii) =  inPaintNansWMedian(doTheSample(:,:,ii));
 end
 % convert from electrons to ADU
 doTheSample = doTheSample.*params.gain + params.offset;
