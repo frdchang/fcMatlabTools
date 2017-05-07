@@ -237,6 +237,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress
+* 20170507 __genMicroscopeNoise__ takes places where there is inf camera variance (where pixels are broken) and inpaints that place with neighboring median filter, which is what hammamtsu does.  
 * 20170501 __Big Lambda__ decided that i won't change biglambda interface.  but to insert patterns it will be a 'param' argument.  awkward but will do for now.
 * 20170501 __Big Lambda__ kernel manipulation should be pure functions.  its argument should be (domains,theta0,patterns). handle the case of {spot,spot} or {spot, bkgnd} with ease.
 * 20170328 __GPU stage 1__ for a titanX can handle 3 multispectral 2048x2048x11 datasets.  with separable convoltion can process this kind of dataset in 4 seconds.  for more channels, the code simply needs to process each channel separately on the gpu.. so when the need comes do that.  
