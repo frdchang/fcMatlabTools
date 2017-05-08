@@ -1,6 +1,16 @@
 function stack = importStack(filename)
 %IMPORTSTACK imports either tif or fits stack.
 
+if iscell(filename)
+    stack = cellfunNonUniformOutput(@(x) stackImpoter(x),filename);
+else
+    stack = stackImpoter(filename);
+end
+
+end
+
+
+function stack = stackImpoter(filename)
 [~,~,ext] = fileparts(filename);
 if exist(filename) == 0
    stack = [];
@@ -34,4 +44,3 @@ end
 
 
 end
-

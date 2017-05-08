@@ -4,14 +4,14 @@ function [sig,bkgnd ] = measureSigBkgnd(data,sigCoor,kernSize)
 
 sigCoorCell = num2cell(sigCoor);
 sig = data(sigCoorCell{:});
-hkern = round(kernSize/2);
+hkern = floor(kernSize/2);
 bottom = sigCoor - hkern;
 top    = sigCoor + hkern;
 sizeData = size(data);
 selectorSig = cell(numel(bottom),1);
 
 for ii = 1:numel(bottom)
-    selectorSig{ii} = min(1,bottom(ii)):min(sizeData(ii),top(ii));
+    selectorSig{ii} = max(1,bottom(ii)):min(sizeData(ii),top(ii));
 end
 
 data(selectorSig{:}) = nan;

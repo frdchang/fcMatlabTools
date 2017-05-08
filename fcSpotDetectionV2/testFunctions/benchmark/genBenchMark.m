@@ -5,7 +5,7 @@ function [benchStruct] = genBenchMark(varargin)
 
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
-params.sizeData         = [51 51 9];
+params.sizeData         = [21 21 9];
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
@@ -14,9 +14,9 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 5;
-params.As               = linspace(100,50,2);
-params.Bs               = linspace(0,10,2);
+params.numSamples       = 10;
+params.As               = linspace(0,20,5);
+params.Bs               = linspace(0,20,5);
 params.dist2Spots       = linspace(0,10,2);
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -27,15 +27,22 @@ year = temp(1);
 month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
+psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
 
 switch params.benchType
     case 1
         typeOfBenchMark = '1spot1Channel';
         Kmatrix = 1;
         params.dist2Spots = 0;
+        psfs = psfs(1);
+        psfObjs = psfObjs(1);
     case 2
         typeOfBenchMark = '2spot1Channel';
         Kmatrix = 1;
+        psfs = psfs(1);
+        psfObjs = psfObjs(1);
     case 3
         typeOfBenchMark = '2spot2Channel';
         Kmatrix = [1 0.2; 0.2 1];
@@ -48,9 +55,7 @@ saveFolder = [params.saveFolder filesep today filesep 'genBenchMark' filesep typ
 
 centerCoor  = getCenterCoor(params.sizeData);
 domains     = genMeshFromData(zeros(params.sizeData));
-psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+
 
 benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots));
 for ai = 1:numel(params.As)
@@ -92,11 +97,11 @@ for ai = 1:numel(params.As)
                 if iscell(sampledData)
                     saveFile = cell(numel(sampledData),1);
                     for jj = 1:numel(sampledData)
-                        saveFile{jj} = [saveFolder filesep conditionStr filesep 'channel' num2str(jj) '-' conditionStr '-' num2str(ii)];
+                        saveFile{jj} = [saveFolder filesep conditionStr filesep 'channel' num2str(jj) '-' conditionStr '-' num2str(ii) '.tif'];
                         exportSingleTifStack(saveFile{jj},sampledData{jj});
                     end
                 else
-                    saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii)];
+                    saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
                     exportSingleTifStack(saveFile,round(sampledData));
                 end
                 fileList{ii} = saveFile;
