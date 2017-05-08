@@ -496,6 +496,8 @@ candidates = selectCandidates(estimated,'LLRatioThresh',7500);
 % LLRatio by itself!
 % does it for both [10 coor1]},{8}
 % and low photon [2 coor1]},{0}
+%
+% squaring the output also recapitulates much of this improvement.  
 patchSize = [21 21 21];
 sigmassq1 = [2,2,2];
 [kern1,~] = ndGauss(sigmassq1,patchSize);
@@ -503,7 +505,7 @@ domains = genMeshFromData(kern1);
 cameraVariance = ones(size(kern1));
 kernObj = myPattern_Numeric(kern1);
 coor1 = getCenterCoor(patchSize) + 3;
-buildThetas = {{kernObj,[2 coor1]},{0}};
+buildThetas = {{kernObj,[1 coor1]},{1}};
 thetaInputs = {1,buildThetas};
 [lambdas,gradLambdas,hessLambdas] = kernObj.givenThetaGetDerivatives(domains,getCenterCoor(patchSize),[1 1 1]);
 kern = cropCenterSize(lambdas,[7,7,7]);
@@ -511,7 +513,7 @@ kernDs = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),gradLambdas);
 kernD2s = cellfunNonUniformOutput(@(x)cropCenterSize(x,[7,7,7]),hessLambdas);
 [bigLambdas,bigDLambdas,bigD2Lambdas] = bigLambda(domains,thetaInputs);
 
-N = 10000;
+N = 1000;
 LLRatioCoor1 = zeros(N,1);
 LLRatioBkgnd = zeros(N,1);
 LLRatioCoor1Dot   = zeros(N,1);
@@ -539,7 +541,10 @@ end
 % figure;histogram(LLRatioBkgnd(:));hold on;histogram(LLRatioCoor1(:));legend('bkgnddot','coor1dot');title('normal');
 rocdot = genROC('dot',LLRatioCoor1Dot,LLRatioBkgndDot);
 rocLLR  = genROC('LLRatio',LLRatioCoor1,LLRatioBkgnd);
-figure;plot(1-rocdot.withoutTargetCDF,1-rocdot.withTargetCDF);hold on;plot(1-rocLLR.withoutTargetCDF,1-rocLLR.withTargetCDF);legend('dot','llr');
+rocLLRsq  = genROC('LLRatio',LLRatioCoor1.^2,LLRatioBkgnd.^2);
+figure;plot(1-rocdot.withoutTargetCDF,1-rocdot.withTargetCDF);hold on;plot(1-rocLLR.withoutTargetCDF,1-rocLLR.withTargetCDF);
+hold on;plot(1-rocLLRsq.withoutTargetCDF,1-rocLLRsq.withTargetCDF);
+legend('dot','llr','llrsq');
 %% start building the iterative MLE for multi spot multi color
 close all;
 clear;

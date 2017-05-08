@@ -1,6 +1,6 @@
 function datas = genROC(nameOfMeasure,withTarget,withoutTarget)
 %GENROC will generate a ROC curve and histogram
-
+Nsamples = 10000;
 titleText = [nameOfMeasure ' as Measure'];
 xLabelText = [nameOfMeasure ' Value'];
 yLabelText = 'pdf';
@@ -28,16 +28,19 @@ withoutTargetCDF = cumsum(h2.Values*h2.BinWidth);
 
 wCDF = [0 withTargetCDF];
 woCDF = [0 withoutTargetCDF];
-Nsamples = max([1000,numel(wCDF),numel(woCDF)]);
+Nsamples = max([Nsamples,numel(wCDF),numel(woCDF)]);
 newDomain = linspace(min([h1.BinEdges h2.BinEdges]),max([h1.BinEdges h2.BinEdges]),Nsamples);
 wCDF = interp1(h1.BinEdges,wCDF,newDomain,'pchip');
 woCDF = interp1(h2.BinEdges,woCDF,newDomain,'pchip');
 
-wCDF(newDomain<min([h1.BinEdges])) = 0;
-wCDF(newDomain>max([h1.BinEdges])) = 1;
+
 
 woCDF(newDomain<min([h2.BinEdges])) = 0;
 woCDF(newDomain>max([h2.BinEdges])) = 1;
+figure;plot(newDomain,woCDF);hold on;plot(newDomain,wCDF);legend('wo','w');
+wCDF(newDomain<min([h1.BinEdges])) = 0;
+wCDF(newDomain>max([h1.BinEdges])) = 1;
+
 % maxSize = max(numel(withTargetCDF),numel(withoutTargetCDF))+1;
 % % calculate ROC
 % wCDF = ones(maxSize,1);
