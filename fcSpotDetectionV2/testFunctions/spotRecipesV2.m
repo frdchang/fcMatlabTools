@@ -1,4 +1,13 @@
-%% test ROC generator
+%% 
+% photonData, psfs, camVars,Kmatrix
+estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+
+candidates = selectCandidates(estimatedSep);
+% plot3Dstack(candidates.L);
+% candidatesSep = selectCandidates(estimatedSep);
+MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1,kernObj2});
+
+
 %% genROC checked against publication.  
 %"Advantages to transforming the receiver operating characteristic (ROC)
 %curve into likelihood ratio co-ordinates"

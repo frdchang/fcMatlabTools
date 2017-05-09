@@ -10,10 +10,10 @@ for ii = 1:prod(sizeAB)
     currConditions = conditions{ii};
     subplot_tight(sizeAB(1),sizeAB(2),ii);
     hBk  = histogram(currConditions.bkLL);
-    hBk.Normalization = 'pdf';
+    hBk.Normalization = 'probability';
     hold on;
     hSig = histogram(currConditions.sigLL);
-    hSig.Normalization = 'pdf';
+    hSig.Normalization = 'probability';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
     title(['A' num2str(currConditions.A) ' B' num2str(currConditions.B)]);
