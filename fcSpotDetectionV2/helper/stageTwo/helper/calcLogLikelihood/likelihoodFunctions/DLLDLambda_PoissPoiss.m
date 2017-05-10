@@ -8,6 +8,7 @@ function DLLDLambda = DLLDLambda_PoissPoiss(data,lambda,sigmasq,order)
 % order:    derivative order (can be 1 or 2)
 % 
 % [notes] - does binary singleton expansion on sigmasq to dataset
+%         - for nan value (when sigmasq = inf) it replaces with zero
 
 
 switch order
@@ -19,3 +20,4 @@ switch order
         error('derivative order needs to be 1 or 2');
 end
 
+        DLLDLambda(isnan(DLLDLambda)) = 0;

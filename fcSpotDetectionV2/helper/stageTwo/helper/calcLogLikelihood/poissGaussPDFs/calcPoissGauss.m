@@ -7,6 +7,11 @@ probData = arrayfun(@localCalcPoissGauss,data,lambda,sigma);
 end
 
 function probData = localCalcPoissGauss(data,lambda,sigma)
+
+if sigma == inf || sigma == -inf
+   probData = nan;
+   return;
+end
 gaussDomSize = 6;
 
 sigmaSteps = round(gaussDomSize*(sigma+lambda));

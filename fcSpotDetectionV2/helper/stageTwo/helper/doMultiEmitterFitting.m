@@ -17,6 +17,7 @@ theta0 = cell(numel(datas)+1,1);
 [theta0{:}] = deal({});
 theta0{1} = Kmatrix;
 theta0 = setFirstTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
+theta0 = ensureBkndThetasPos(theta0);
 maxThetaInputs = cellfunNonUniformOutput(@(x) bgkdnOnlyThetas(x),theta0);
 % setup inputs-------
 A1s = estimated.A1;
@@ -25,7 +26,7 @@ if ~iscell(camVar)
     camVars = cell(numel(datas),1);
     [camVars{:}] = deal(camVar);
 end
-states{1}     = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,1}},'doPlotEveryN',inf);
+states{1}     = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,1}},'doPlotEveryN',1);
 
 for ii = 1:params.numSpots
     theta0 = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);

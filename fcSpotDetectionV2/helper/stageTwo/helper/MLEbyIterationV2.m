@@ -161,9 +161,9 @@ for ii = 1:numStrategies
         end
         currError = sumCellContents(cellfunNonUniformOutput(@(x,y) (x-y).^2,bigLambdas,carveddatas));
         currError = sum(currError(:));
-        display(flattenTheta0s(theta0s));
-        display(['error:' num2str(currError) 'strat:' num2str(ii)]);
-        
+%         display(flattenTheta0s(theta0s));
+%         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
+%         
         if mod(jj,params.doPloteveryN) == 1
             plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,currError);
         end
