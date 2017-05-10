@@ -29,6 +29,7 @@ for ii = 1:numConditions
     currB           = currStageI.B;
     currD           = currStageI.D;
     myFuncOutSave   = cell(numel(currFileList),1);
+    states          = cell(numel(currFileList),1);
     if currA == 0 
         continue;
     end
@@ -60,21 +61,22 @@ for ii = 1:numConditions
             [camVars{:}] = deal(cameraVarianceInElectrons);
         end
         %-----APPY MY FUNC-------------------------------------------------
-        state = MLEbyIterationV2(psfObjs,estimated.A1,candidates.L>0,electrons,theta0,camVars,domains,{{maxThetaInputs,1},{newtonBuild,20}},'doPloteveryN',inf);
+        states{jj} = MLEbyIterationV2(psfObjs,estimated.A1,candidates.L>0,electrons,theta0,camVars,domains,{{maxThetaInputs,1},{newtonBuild,20}},'doPloteveryN',inf);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@MLEbyIterationV2);
         makeDIRforFilename(myFuncOutSave{jj});
-        parForSave(myFuncOutSave{jj},state);
+        parForSave(myFuncOutSave{jj},states{jj});
     end
     conditions{ii}.A                     = currA;
     conditions{ii}.B                     = currB;
     conditions{ii}.D                     = currD;
     conditions{ii}.MLEbyIterationV2      = myFuncOutSave;
+    conditions{ii}.state                 = states;
     conditions{ii}.bigTheta              = theta0;
 end
 
 benchStruct.MLEbyIterationV2  = conditions;
-savePath = conditions{end}.MLEbyIterationV2{1};
+savePath = benchStruct.MLEbyIterationV2{end}.MLEbyIterationV2{1};
 savePath = grabProcessedRest(savePath);
 savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];
