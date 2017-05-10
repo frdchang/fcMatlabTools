@@ -28,8 +28,9 @@ month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
 psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
 
 switch params.benchType
     case 1
@@ -115,6 +116,7 @@ for ai = 1:numel(params.As)
         end
     end
 end
+benchStruct.psfObjs     = psfObjs;
 benchStruct.Kmatrix     = Kmatrix;
 benchStruct.conditions  = benchConditions;
 benchStruct.psfs        = psfs;
