@@ -39,9 +39,47 @@ for ii = 1:numConds
     end
 end
 
-% asdf
+% histograms
+% iterate over distances, numspots, conditions
+numTheta      =  getFirstNonEmptyCellContent(analysis);
+numTheta      =  size(numTheta.thetaHolder,2);
+sizeConditions = size(stageIIconds);
 
-display('fred');s
+% get std map
+stdForEachTheta = cell(numTheta,1);
+for ii = 1:numTheta
+    [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
+end
 
+% get mean map
+meanForEachTheta = cell(numTheta,1);
+for ii = 1:numTheta
+    [meanForEachTheta{ii},~] = applyFunc(stageIIconds,analysis,@mean,ii);
+end
+end
 
+function [stdMap,domains] = applyFunc(stageIIconds,analysis,myFunc,currTheta)
+
+sizeConditions = size(analysis);
+stdMap = zeros(sizeConditions);
+conditionA = zeros(sizeConditions);
+conditionB = zeros(sizeConditions);
+conditionD = zeros(sizeConditions);
+for ii = 1:numel(stdMap)
+    if isempty(analysis{ii})
+        stdMap(ii) = nan;
+        conditionA(ii) = nan;
+        conditionB(ii) = nan;
+        conditionD(ii) = nan;
+    else
+        conditionA(ii) = stageIIconds{ii}.A;
+        conditionB(ii) = stageIIconds{ii}.B;
+        conditionD(ii) = stageIIconds{ii}.D;
+        stdMap(ii) =  myFunc(analysis{ii}.thetaHolder(currTheta,:));
+    end
+end
+domains{3} = conditionD;
+domains{2} = conditionB;
+domains{1} = conditionA;
+end
 
