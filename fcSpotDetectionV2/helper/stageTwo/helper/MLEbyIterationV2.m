@@ -170,7 +170,7 @@ for ii = 1:numStrategies
         totalIter = totalIter + 1;
         
         if any(flattenTheta0s(newtheta0s) < 0)
-            display('negative theta0s');
+            stateOfStep = 'negative thet0s';
             break;
         else
             theta0s = newtheta0s;

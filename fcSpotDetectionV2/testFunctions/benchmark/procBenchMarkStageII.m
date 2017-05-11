@@ -18,7 +18,7 @@ trueCoor        = benchStruct.centerCoor;
 benchCC         = benchStruct.conditions;
 numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
-for ii = 1:numConditions
+parfor ii = 1:numConditions
     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};
     conditionsbench     = benchCC{ii};
@@ -47,11 +47,12 @@ for ii = 1:numConditions
         L(cellCoor{:}) = 1;
         sizeKern = size(psfs{1});
         L = imdilate(L,strel(ones(sizeKern(:)')));
-        L = bwlabeln(L>0);
-        stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
-        candidates.L        = L;
-        % candidates.BWmask   = BWmask;
-        candidates.stats    = stats;
+%         
+%         L = bwlabeln(L>0);
+%         stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+%         candidates.L        = L;
+%         % candidates.BWmask   = BWmask;
+%         candidates.stats    = stats;
         domains = genMeshFromData(electrons{1});
         theta0 = conditionsbench.bigTheta;
         maxThetaInputs = cellfunNonUniformOutput(@(x) hybridAllThetas(x),theta0);
@@ -61,7 +62,7 @@ for ii = 1:numConditions
             [camVars{:}] = deal(cameraVarianceInElectrons);
         end
         %-----APPY MY FUNC-------------------------------------------------
-        states{jj} = MLEbyIterationV2(psfObjs,estimated.A1,candidates.L>0,electrons,theta0,camVars,domains,{{maxThetaInputs,1},{newtonBuild,20}},'doPloteveryN',inf);
+          states{jj} = MLEbyIterationV2(psfObjs,estimated.A1,L>0,electrons,theta0,camVars,domains,{{maxThetaInputs,20},{newtonBuild,20}},'doPloteveryN',inf);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@MLEbyIterationV2);
         makeDIRforFilename(myFuncOutSave{jj});
