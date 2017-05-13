@@ -35,7 +35,6 @@ parfor ii = 1:numConditions
     conditions{ii}.A                     = currA;
     conditions{ii}.B                     = currB;
     conditions{ii}.D                     = currD;
-    conditions{ii}.selectCandidates      = candidates;
     conditions{ii}.selectCandidatesFile  = myFuncOutSave;
 end
 

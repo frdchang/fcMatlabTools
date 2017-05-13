@@ -33,6 +33,9 @@ for ii = 1:numel(stats)
             currClust = num2cell(round(currClust));
             seeds(currClust{:}) = 1;
         end
+    elseif numel(getCoors) == 1
+        
+        seeds(getCoors)= 1;
     end
 end
 

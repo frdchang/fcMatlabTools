@@ -6,6 +6,7 @@ function [benchStruct] = genBenchMark(varargin)
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
 params.sizeData         = [21 21 9];
+params.centerCoor       = [11.5,11.5,5.5];
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
@@ -14,7 +15,7 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 10;
+params.numSamples       = 1000;
 params.As               = linspace(0,20,5);
 params.Bs               = linspace(0,20,5);
 params.dist2Spots       = linspace(0,10,2);
@@ -54,7 +55,7 @@ end
 saveFolder = [params.saveFolder filesep today filesep 'genBenchMark' filesep typeOfBenchMark];
 [~,~,~] = mkdir(saveFolder);
 
-centerCoor  = getCenterCoor(params.sizeData);
+centerCoor  = params.centerCoor;
 domains     = genMeshFromData(zeros(params.sizeData));
 
 
