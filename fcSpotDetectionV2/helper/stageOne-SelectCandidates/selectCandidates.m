@@ -18,13 +18,13 @@ function candidates = selectCandidates(estimated,varargin)
 
 %--parameters--------------------------------------------------------------
 % you can just use simple 'threshold' or 'hdome'
-params.strategy             = 'threshold';         % {'hdome','threshold'}
+params.strategy             = 'threshold';         % {'hdome','threshold','otsu'}
 %==universal parameters====================================================
 params.Athreshold           = 0;               % select regions where A > Athreshold
 params.clearBorder          = true;            % clear border on xy perimeter
 params.minVol               = 1;               % min volume of feature
 params.imposeMinSize        = true;
-%==hdome specific parameters==========?=====================================
+%==hdome specific parameters==========?====================================
 params.hdomeH               = 1e3;
 params.thresholdHDome       = 'otsu';  %{'otsu',thresholdValue}
 %==threshold specific parameters===========================================
@@ -64,6 +64,9 @@ switch params.strategy
             [params.LLRatioThresh, ~, ~] = threshold(multithresh(smoothLLRatio(:)), max(smoothLLRatio(:)), maxintensityproj(smoothLLRatio,3));
         end
         selectedRegions = smoothLLRatio > params.LLRatioThresh;
+    case 'otsu'
+        thresh = multithresh(smoothLLRatio(:),1);
+        selectedRegions = smoothLLRatio > thresh;
     otherwise
         error('unrecognized strategy');
 end
