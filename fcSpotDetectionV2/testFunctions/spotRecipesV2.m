@@ -1,11 +1,34 @@
-%% 
-% photonData, psfs, camVars,Kmatrix
-estimatedSep = findSpotsStage1V2(photonData,{kern1Sep,kern2Sep},ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+%% lets check low snr 2 channel
+close all;
+clear;
+psfSize     = [11,11,11];
+domainSize  = [29 29 9];
+centerCoor = domainSize/2;
+psfArgs = {{'lambda',514e-9},{'lambda',610e-9}};
+psfs        = cellfunNonUniformOutput(@(x) genPSF(x{:}),psfArgs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,psfSize),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
 
-candidates = selectCandidates(estimatedSep);
-% plot3Dstack(candidates.L);
+domains = genMeshFromData(ones(domainSize));
+
+buildThetas1 = {{psfObjs{1},[5 centerCoor]},{0}};
+buildThetas2 = {{psfObjs{2},[5 centerCoor]},{0}};
+Kmatrix      = [1 0.2; 0.2 1];
+thetaInputs2 = {buildThetas1,buildThetas2};
+thetaInputs2 = {Kmatrix,thetaInputs2{:}};
+
+[bigLambdas,~,~] = bigLambda(domains,thetaInputs2,'objKerns',psfObjs);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+estimatedSep = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+plot3Dstack(estimatedSep.LLRatio);
+drawnow;
+candidates = selectCandidates(estimatedSep,'strategy','otsu');
+plot3Dstack(candidates.L);
+drawnow;
 % candidatesSep = selectCandidates(estimatedSep);
-MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,{kernObj1,kernObj2});
+
+MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,psfObjs,'plotEveryN',10);
 
 
 %% genROC checked against publication.  

@@ -49,9 +49,9 @@ classdef myPattern_Numeric < myPattern_Interface
             end
         end
         
-        function [myOGShape,binnedShape] = returnShape(obj)
+        function [myOGShape] = returnShape(obj)
             myOGShape = obj.ndPatternOG;
-            binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
+%             binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
         end
         
         function [lambdas,heartFunc] = givenTheta(obj,domains,theta,varargin)

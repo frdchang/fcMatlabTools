@@ -6,7 +6,7 @@ function [benchStruct] = genBenchMark(varargin)
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
 params.sizeData         = [21 21 9];
-params.centerCoor       = [11.5,11.5,5.5];
+params.centerCoor       = params.sizeData/2;
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
@@ -15,7 +15,7 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 1000;
+params.numSamples       = 10;
 params.As               = linspace(0,20,5);
 params.Bs               = linspace(0,20,5);
 params.dist2Spots       = linspace(0,10,2);
@@ -29,9 +29,8 @@ month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
-
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
 
 switch params.benchType
     case 1
