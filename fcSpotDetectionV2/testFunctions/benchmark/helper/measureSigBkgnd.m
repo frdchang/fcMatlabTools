@@ -1,7 +1,7 @@
 function [sig,bkgnd ] = measureSigBkgnd(data,sigCoor,kernSize)
 %MEASURESIGBKGND will measure signal and bkgnd of data given a signal coor
 %and kernSize will carve out what is bkgnd.
-
+sigCoor = round(sigCoor);
 sigCoorCell = num2cell(sigCoor);
 sig = data(sigCoorCell{:});
 hkern = floor(kernSize/2);

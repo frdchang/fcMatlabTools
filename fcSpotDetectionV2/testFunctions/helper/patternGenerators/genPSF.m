@@ -113,7 +113,7 @@ if params.fitGauss
     for i = 1:numel(maxCoor)
         sigmaBasket(i) = sqrt(((fitBasket{i}.c1)^2)/2);
     end
-    psfDataStruct.gaussKern = ndGauss(sigmaBasket,size(psfData));
+    psfDataStruct.gaussKern = ndGauss(sigmaBasket.^2,size(psfData));
     switch params.normType
         case 1
             psfDataStruct.gaussKern = psfDataStruct.gaussKern ./ sum(psfDataStruct.gaussKern(:));

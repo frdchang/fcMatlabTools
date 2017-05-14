@@ -1,27 +1,65 @@
-%% lets check low snr 2 channel
+%% lets check low snr 2 channel and compare against gaussian
+%
+% notes. ROC for 1 photon peak is at 50%  
+%        - LOG 3d filter doesn't do so well.  
+
 close all;
 clear;
-psfSize     = [11,11,11];
-domainSize  = [29 29 9];
-centerCoor = domainSize/2;
-psfArgs = {{'lambda',514e-9},{'lambda',610e-9}};
-psfs        = cellfunNonUniformOutput(@(x) genPSF(x{:}),psfArgs);
+psfSize     = [17,17,17];
+psfSizeForFilter = [11,11,11];
+domainSize  = [29 29 29];
+centerCoor = round(domainSize/2);
+psfArgs = {{'lambda',514e-9,'onlyPSF',false},{'lambda',610e-9,'onlyPSF',false}};
+psfsStructs        = cellfunNonUniformOutput(@(x) genPSF(x{:}),psfArgs);
+close all;
+psfs        = cellfunNonUniformOutput(@(x) x.glPSF,psfsStructs);
+gausses     = cellfunNonUniformOutput(@(x) x.gaussKern,psfsStructs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,psfSize),psfs);
+gausses     = cellfunNonUniformOutput(@(x) threshPSF(x,psfSize),gausses);
 psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+gaussObjs   = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),gausses);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,psfSizeForFilter),psfs);
+gausses     = cellfunNonUniformOutput(@(x) threshPSF(x,psfSizeForFilter),gausses);
+logFilters  = {LOG3D(psfsStructs{1}.gaussSigmas.^2  ,psfSizeForFilter),LOG3D(psfsStructs{1}.gaussSigmas.^2  ,psfSizeForFilter)};
 
 domains = genMeshFromData(ones(domainSize));
 
-buildThetas1 = {{psfObjs{1},[5 centerCoor]},{0}};
-buildThetas2 = {{psfObjs{2},[5 centerCoor]},{0}};
+buildThetas1 = {{psfObjs{1},[4 centerCoor]},{0}};
+buildThetas2 = {{psfObjs{2},[4 centerCoor]},{0}};
 Kmatrix      = [1 0.2; 0.2 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};
 
 [bigLambdas,~,~] = bigLambda(domains,thetaInputs2,'objKerns',psfObjs);
+
+N = 1000;
+sigFull = zeros(N,1);
+bkgndFull = cell(N,1);
+sigWG  = zeros(N,1);
+bkgndWG = cell(N,1);
+
+
+parfor ii = 1:N
+    display(ii);
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 estimatedSep = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
-plot3Dstack(estimatedSep.LLRatio);
+estimatedWG = findSpotsStage1V2(photonData,gausses,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+
+chan1 = convFFTND(photonData{1},logFilters{1});
+chan2 = convFFTND(photonData{2},logFilters{2});
+chan = chan1 + chan2;
+[sigFull(ii),bkgndFull{ii} ] = measureSigBkgnd(estimatedSep.LLRatio,centerCoor,psfSize);
+[sigWG(ii),bkgndWG{ii} ] = measureSigBkgnd(estimatedWG.LLRatio,centerCoor,psfSize);
+end
+bkgndFull =cell2mat(bkgndFull);
+bkgndWG   = cell2mat(bkgndWG);
+full = genROC('FULLPSF',sigFull,bkgndFull);
+WG = genROC('gaussPSF',sigWG,bkgndWG);
+figure;plot(1-full.withoutTargetCDF,1-full.withTargetCDF);hold on;plot(1-WG.withoutTargetCDF,1-WG.withTargetCDF);
+legend('fullPSF','gaussPSF');
+
+plot3Dstack(catNorm(estimatedSep.LLRatio,estimatedWG.LLRatio));
 drawnow;
 candidates = selectCandidates(estimatedSep,'strategy','otsu');
 plot3Dstack(candidates.L);
