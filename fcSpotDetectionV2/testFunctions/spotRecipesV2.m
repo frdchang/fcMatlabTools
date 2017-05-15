@@ -1,7 +1,10 @@
 %% lets check low snr 2 channel and compare against gaussian
 %
 % notes. ROC for 1 photon peak is at 50%  
-%        - LOG 3d filter doesn't do so well.  
+%        - LOG 3d filter doesn't do so well. 
+%        - there is a significant performance increase if you use real psf
+%        versus gaussian approximation.  the more symmetric the psf is in
+%        z, the less this difference is.  
 
 close all;
 clear;
@@ -9,7 +12,7 @@ psfSize     = [17,17,17];
 psfSizeForFilter = [11,11,11];
 domainSize  = [29 29 29];
 centerCoor = round(domainSize/2);
-psfArgs = {{'lambda',514e-9,'onlyPSF',false},{'lambda',610e-9,'onlyPSF',false}};
+psfArgs = {{'lambda',514e-9,'onlyPSF',false,'Ns',1.33},{'lambda',610e-9,'onlyPSF',false,'Ns',1.33}};
 psfsStructs        = cellfunNonUniformOutput(@(x) genPSF(x{:}),psfArgs);
 close all;
 psfs        = cellfunNonUniformOutput(@(x) x.glPSF,psfsStructs);
@@ -24,8 +27,8 @@ logFilters  = {LOG3D(psfsStructs{1}.gaussSigmas.^2  ,psfSizeForFilter),LOG3D(psf
 
 domains = genMeshFromData(ones(domainSize));
 
-buildThetas1 = {{psfObjs{1},[4 centerCoor]},{0}};
-buildThetas2 = {{psfObjs{2},[4 centerCoor]},{0}};
+buildThetas1 = {{psfObjs{1},[1 centerCoor]},{0}};
+buildThetas2 = {{psfObjs{2},[1 centerCoor]},{0}};
 Kmatrix      = [1 0.2; 0.2 1];
 thetaInputs2 = {buildThetas1,buildThetas2};
 thetaInputs2 = {Kmatrix,thetaInputs2{:}};

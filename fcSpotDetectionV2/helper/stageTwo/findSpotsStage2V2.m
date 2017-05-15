@@ -6,7 +6,15 @@ params.doParallel     = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-
+if isstruct(candidates)
+    
+else
+    stats = regionprops(candidates,'PixelList','SubarrayIdx','PixelIdxList');
+    
+    candidatesT.L = candidates;
+    candidatesT.stats = stats;
+    candidates = candidatesT;
+end
 ids = unique(candidates.L(:));
 ids(~isNaturalNum(ids)) = [];
 
@@ -19,6 +27,8 @@ ids(~isNaturalNum(ids)) = [];
 % else
 %     sizeKern = size(estimated.spotKern);
 % end
+
+
 sizeKern = [0,0,0];
 MLEs = cell(numel(ids));
 for ii = 1:numel(ids)

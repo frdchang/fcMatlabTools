@@ -11,23 +11,23 @@ if ~isfield(benchStruct,'findSpotsStage1V2')
     error('NEED TO RUN STAGE 1 first');
 end
 
-if ~isfield(benchStruct,'selectCandidates')
-    error('NEED TO RUN select Candidates first');
-end
+% if ~isfield(benchStruct,'selectCandidates')
+%     error('NEED TO RUN select Candidates first');
+% end
 
 psfObjs         = benchStruct.psfObjs;
 psfs            = benchStruct.psfs;
 Kmatrix         = benchStruct.Kmatrix;
 trueCoor        = benchStruct.centerCoor;
-
+sizeKern = size(psfs{1});
 stageIConds     = benchStruct.findSpotsStage1V2;
-selectConds     = benchStruct.selectCandidates;
+% selectConds     = benchStruct.selectCandidates;
 benchCC         = benchStruct.conditions;
 
 numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
 
-for ii = 1:numConditions
+parfor ii = 1:numConditions
     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};
     thetaTrue          = benchCC{ii}.bigTheta;
@@ -39,11 +39,11 @@ for ii = 1:numConditions
     currB           = currStageI.B;
     currD           = currStageI.D;
     % get select candidates stuff
-    currSelectFiles = selectConds{ii}.selectCandidatesFile;
+%     currSelectFiles = selectConds{ii}.selectCandidatesFile;
     
     myFuncOutSave   = cell(numel(currFileList),1);
     MLEs            = cell(numel(currFileList),1);
-    if currA == 0 
+    if currA == 0
         continue;
     end
     for jj = 1:numel(currFileList)
@@ -54,11 +54,16 @@ for ii = 1:numConditions
         [~,photonData]              = returnElectrons(stack,camVar.cameraParams);
         estimated                   = load(currStageIFiles{jj});
         estimated                   = estimated.x;
-        candidates                  = load(currSelectFiles{jj});
-        candidates                  = candidates.x;
+        %         candidates                  = load(currSelectFiles{jj});
+        %         candidates                  = candidates.x;
+                L = zeros(size(stack{1}));
+                cellCoor = num2cell(round(trueCoor));
+                L(cellCoor{:}) = 1;
+                
+                L = imdilate(L,strel(ones(sizeKern(:)')));
         
         %-----APPY MY FUNC-------------------------------------------------
-        MLEs{jj} = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,candidates,Kmatrix,psfObjs,params);
+        MLEs{jj} = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,L,Kmatrix,psfObjs,params);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@findSpotsStage2V2);
         makeDIRforFilename(myFuncOutSave{jj});
@@ -90,7 +95,7 @@ display(['saving:' saveFile]);
 %         L(cellCoor{:}) = 1;
 %         sizeKern = size(psfs{1});
 %         L = imdilate(L,strel(ones(sizeKern(:)')));
-% %         
+% %
 % %         L = bwlabeln(L>0);
 % %         stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
 % %         candidates.L        = L;
