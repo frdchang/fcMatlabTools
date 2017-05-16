@@ -6,7 +6,7 @@ function [benchStruct] = genBenchMark(varargin)
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
 params.sizeData         = [21 21 9];
-params.centerCoor       = params.sizeData/2;
+params.centerCoor       = round(params.sizeData/2);
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;

@@ -1,4 +1,4 @@
-function [ benchStruct ] = procBenchMarkStageI(benchStruct,varargin)
+function [ benchStruct ] = procBenchMarkStageI(benchStruct,myFunc,varargin)
 %PROCESSBENCHSTRUCT 
 
 %--parameters--------------------------------------------------------------
@@ -28,22 +28,22 @@ parfor ii = 1:numConditions
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);
         electrons                   = returnElectrons(stack,camVar.cameraParams);
         %-----APPY MY FUNC-------------------------------------------------
-        estimated                   = findSpotsStage1V2(electrons,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
+        estimated                   = myFunc(electrons,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
-        myFuncOutSave{jj}           = genProcessedFileName(currFileList{jj},@findSpotsStage1V2);
+        myFuncOutSave{jj}           = genProcessedFileName(currFileList{jj},myFunc);
         makeDIRforFilename(myFuncOutSave{jj});
         parForSave(myFuncOutSave{jj},estimated);
     end
     conditions{ii}.A                     = currA;
     conditions{ii}.B                     = currB;
     conditions{ii}.D                     = currD;
-    conditions{ii}.findSpotsStage1V2     = myFuncOutSave;
+    conditions{ii}.(func2str(myFunc))     = myFuncOutSave;
     conditions{ii}.dataFiles             = currFileList;
     conditions{ii}.camVarFile            = currCamVarList;
 end
 
-benchStruct.findSpotsStage1V2  = conditions;
-savePath = conditions{1,1}.findSpotsStage1V2{1};
+benchStruct.(func2str(myFunc))  = conditions;
+savePath = conditions{1,1}.(func2str(myFunc)){1};
 savePath = grabProcessedRest(savePath);
 savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];
