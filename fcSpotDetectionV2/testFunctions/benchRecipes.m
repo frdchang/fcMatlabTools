@@ -1,3 +1,7 @@
+%% to do
+% -when 2 spots are separated by distance d, what is the ROC for that?
+%
+
 %% 2 spot 2 colors
 benchStruct = genBenchMark('benchType',3,'numSamples',1000);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);

@@ -1,8 +1,11 @@
 function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field)
+% first plots cdf
+% then it plots overlap percentage
+% then it plots global ROC for A>=B
 
 conditionFunc = func2str(conditionFunc);
 %ANALYZESTAGEI will analyze the stageI output
-myAxis = [0.1 1000000 0.01 1];
+myMin = 0.1;
 conditions = benchStruct.(conditionFunc);
 sizeAB = [size(conditions,1) size(conditions,2)];
 idxConditions = zeros(size(conditions));
@@ -11,8 +14,8 @@ conditions = conditions(logical(idxConditions));
 
 h = createMaxFigure(conditionFunc);
 conditionHolder = cell(size(conditions));
-minAxis = inf;
-maxAxis = -inf;
+currMin = inf;
+currMax = -inf;
 for ii = 1:prod(sizeAB)
     display(ii);
     currA = conditions{ii}.A;
@@ -34,13 +37,32 @@ for ii = 1:prod(sizeAB)
             [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
             
         else
-            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));  
+            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
         end
     end
     bk = cell2mat(bk);
     conditionHolder{ii}.sig = sig;
     conditionHolder{ii}.bk  = bk;
-    
+    minSig = min(sig);
+    maxSig = max(sig);
+    minBK  = min(bk);
+    maxBK  = max(bk);
+    minMin = min(minSig,minBK);
+    maxMax = max(maxSig,maxBK);
+    if currMin > minMin
+        currMin = minMin;
+    end
+    if currMax < maxMax
+        currMax = maxMax;
+    end
+end
+
+
+for ii = 1:prod(sizeAB)
+    currA = conditions{ii}.A;
+    currB = conditions{ii}.B;
+    sig = conditionHolder{ii}.sig + currMin + myMin;
+    bk = conditionHolder{ii}.bk+ currMin + myMin;
     subplot(sizeAB(1),sizeAB(2),ii);
     hBk  = histogram(bk);
     hBk.Normalization = 'cdf';
@@ -49,30 +71,14 @@ for ii = 1:prod(sizeAB)
     hSig.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
-    currMin = min([hSig.BinEdges hBk.BinEdges]);
-    currMax = max([hSig.BinEdges hBk.BinEdges]);
-    if currMin < minAxis
-        minAxis = currMin;
-    end
-    if currMax > maxAxis
-        maxAxis = currMax;
-    end
     title(['A' num2str(currA) ' B' num2str(currB)]);
-
-%     set(gca,'XScale','log');
-    %     set(gca,'YScale','log');
 end
 legend('bk','sig');
 
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(1),sizeAB(2),ii);
-    axis([minAxis maxAxis 0 1]);
-    if minAxis <0 || maxAxis < 0
-        
-    else
-            set(gca,'XScale','log');
-
-    end
+    axis([myMin 10^ceil(log10(currMax)) 0 1]);
+    set(gca,'XScale','log');
 end
 
 
