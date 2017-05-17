@@ -1,7 +1,11 @@
-function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field)
+function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,varargin)
 % first plots cdf
 % then it plots overlap percentage
 % then it plots global ROC for A>=B
+%--parameters--------------------------------------------------------------
+params.fitGamma     = false;
+%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
 
 conditionFunc = func2str(conditionFunc);
 %ANALYZESTAGEI will analyze the stageI output
@@ -58,12 +62,16 @@ for ii = 1:prod(sizeAB)
 end
 
 h = createMaxFigure([conditionFunc ' cdf']);
+minA = inf;
+minB = inf;
+maxA = -inf;
+maxB = -inf;
 for ii = 1:prod(sizeAB)
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     sig = conditionHolder{ii}.sig + currMin + myMin;
     bk = conditionHolder{ii}.bk+ currMin + myMin;
-    subplot(sizeAB(1),sizeAB(2),ii);
+    subplot(sizeAB(2),sizeAB(1),ii);
     hBk  = histogram(bk);
     hBk.Normalization = 'cdf';
     hold on;
@@ -72,12 +80,24 @@ for ii = 1:prod(sizeAB)
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
     title(['A' num2str(currA) ' B' num2str(currB)]);
+    if currA < minA
+       minA = currA; 
+    end
+    if currA > maxA
+        maxA = currA;
+    end
+    if currB < minB
+        minB = currB;
+    end
+    if currB > maxB
+        maxB = currB;
+    end
 end
 legend('bk','sig');
 
 
 for ii = 1:prod(sizeAB)
-    hold on;subplot(sizeAB(1),sizeAB(2),ii);
+    hold on;subplot(sizeAB(2),sizeAB(1),ii);
     axis([myMin 10^ceil(log10(currMax)) 0 1]);
     set(gca,'XScale','log');
 end
@@ -85,51 +105,54 @@ end
 
 
 
-
-%% fit gamma distribution
-h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);
-bkShape = zeros(sizeAB);
-bkScale = zeros(sizeAB);
-for ii = 1:prod(sizeAB)
-    currA = conditions{ii}.A;
-    currB = conditions{ii}.B;
-%     sig = conditionHolder{ii}.sig + currMin + myMin;
-    bk = conditionHolder{ii}.bk;
-    subplot(sizeAB(1),sizeAB(2),ii);
-    hBk  = histogram(bk);
-    phat = gamfit(bk);
-    hBk.Normalization = 'pdf';
-    hold on;
-    plot(hBk.BinEdges,gampdf(hBk.BinEdges,phat(1),phat(2)));
-    hBk.EdgeColor = 'none';
-    title({['A' num2str(currA) ' B' num2str(currB)],[num2str(phat(1)) ',' num2str(phat(2))]});
-    axis tight;
-    bkShape(ii) = phat(1);
-    bkScale(ii) = phat(2);
+if params.fitGamma
+    %% fit gamma distribution
+    h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);
+    bkShape = zeros(sizeAB);
+    bkScale = zeros(sizeAB);
+    for ii = 1:prod(sizeAB)
+        currA = conditions{ii}.A;
+        currB = conditions{ii}.B;
+        %     sig = conditionHolder{ii}.sig + currMin + myMin;
+        bk = conditionHolder{ii}.bk;
+        bk(bk<=0) = [];
+        subplot(sizeAB(2),sizeAB(1),ii);
+        hBk  = histogram(bk);
+        phat = gamfit(bk);
+        hBk.Normalization = 'pdf';
+        hold on;
+        plot(hBk.BinEdges,gampdf(hBk.BinEdges,phat(1),phat(2)),'LineWidth',2);
+        hBk.EdgeColor = 'none';
+        title({['A' num2str(currA) ' B' num2str(currB)],[num2str(phat(1)) ',' num2str(phat(2))]});
+        axis tight;
+        bkShape(ii) = phat(1);
+        bkScale(ii) = phat(2);
+    end
+    figure;imagesc([minA,maxA],[minB,maxB],bkShape');colorbar;title('bk shape');xlabel('A');ylabel('B');
+    figure;imagesc([minA,maxA],[minB,maxB],bkScale');colorbar;title('bk scale');xlabel('A');ylabel('B');
+    
+    %% fit gamma distribution
+    h = createMaxFigure([conditionFunc ' pdf signal ']);
+    sigShape = zeros(sizeAB);
+    sigScale = zeros(sizeAB);
+    for ii = 1:prod(sizeAB)
+        currA = conditions{ii}.A;
+        currB = conditions{ii}.B;
+        sig = conditionHolder{ii}.sig;
+        sig(sig<=0) = [];
+        subplot(sizeAB(2),sizeAB(1),ii);
+        hBk  = histogram(sig);
+        phat = gamfit(sig);
+        hBk.Normalization = 'pdf';
+        hold on;
+        plot(hBk.BinEdges,gampdf(hBk.BinEdges,phat(1),phat(2)),'LineWidth',2);
+        hBk.EdgeColor = 'none';
+        title({['A' num2str(currA) ' B' num2str(currB)],[num2str(phat(1)) ',' num2str(phat(2))]});
+        axis tight;
+        sigShape(ii) = phat(1);
+        sigScale(ii) = phat(2);
+    end
+    figure;imagesc([minA,maxA],[minB,maxB],sigShape');colorbar;title('sig shape');xlabel('A');ylabel('B');
+    figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');
+    
 end
-figure;imagesc(bkShape');colorbar;title('bk shape');
-figure;imagesc(bkScale');colorbar;title('bk scale');
-
-%% fit gamma distribution
-h = createMaxFigure([conditionFunc ' pdf signal ']);
-sigShape = zeros(sizeAB);
-sigScale = zeros(sizeAB);
-for ii = 1:prod(sizeAB)
-    currA = conditions{ii}.A;
-    currB = conditions{ii}.B;
-     sig = conditionHolder{ii}.sig;
-    subplot(sizeAB(1),sizeAB(2),ii);
-    hBk  = histogram(sig);
-    phat = gamfit(sig);
-    hBk.Normalization = 'pdf';
-    hold on;
-    plot(hBk.BinEdges,gampdf(hBk.BinEdges,phat(1),phat(2)));
-    hBk.EdgeColor = 'none';
- title({['A' num2str(currA) ' B' num2str(currB)],[num2str(phat(1)) ',' num2str(phat(2))]});
-    axis tight;
-    sigShape(ii) = phat(1);
-    sigScale(ii) = phat(2);
-end
-figure;imagesc(sigShape');colorbar;title('sig shape');
-figure;imagesc(sigScale');colorbar;title('sig scale');
-
