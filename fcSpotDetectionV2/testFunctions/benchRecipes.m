@@ -26,4 +26,9 @@ benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 analyzeStageI(benchStruct,@logConv,'logConv');
 analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-analyzeStageI(benchStruct,@regularConv,'regularConv');?
+analyzeStageI(benchStruct,@regularConv,'regularConv');
+
+%% gamma fit test
+benchStruct = genBenchMark('benchType',1,'numSamples',10000);
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
