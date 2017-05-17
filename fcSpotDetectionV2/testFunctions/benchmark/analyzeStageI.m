@@ -66,9 +66,13 @@ minA = inf;
 minB = inf;
 maxA = -inf;
 maxB = -inf;
+Adomain = zeros(sizeAB);
+Bdomain = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
+    Adomain(ii) = currA;
+    Bdomain(ii) = currB;
     sig = conditionHolder{ii}.sig + currMin + myMin;
     bk = conditionHolder{ii}.bk+ currMin + myMin;
     subplot(sizeAB(2),sizeAB(1),ii);
@@ -102,8 +106,44 @@ for ii = 1:prod(sizeAB)
     set(gca,'XScale','log');
 end
 
+h = createMaxFigure([conditionFunc ' cdf raw']);
+minA = inf;
+minB = inf;
+maxA = -inf;
+maxB = -inf;
+Adomain = zeros(sizeAB);
+Bdomain = zeros(sizeAB);
+for ii = 1:prod(sizeAB)
+    currA = conditions{ii}.A;
+    currB = conditions{ii}.B;
+    Adomain(ii) = currA;
+    Bdomain(ii) = currB;
+    sig = conditionHolder{ii}.sig;
+    bk = conditionHolder{ii}.bk;
+    subplot(sizeAB(2),sizeAB(1),ii);
+    hBk  = histogram(bk);
+    hBk.Normalization = 'cdf';
+    hold on;
+    hSig = histogram(sig);
+    hSig.Normalization = 'cdf';
+    hBk.EdgeColor = 'none';
+    hSig.EdgeColor = 'none';
+    title(['A' num2str(currA) ' B' num2str(currB)]);
+    axis tight;
+end
+legend('bk','sig');
 
 
+myEER = zeros(sizeAB);
+for ii = 1:prod(sizeAB)
+    display(ii);
+    sig = conditionHolder{ii}.sig;
+    bk = conditionHolder{ii}.bk;
+    subplot(sizeAB(2),sizeAB(1),ii);
+    ROC = genROC('adsf',sig,bk,'doPlot',false);
+    myEER(ii) = ROC.EER;    
+end
+figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title('EER');xlabel('A');ylabel('B');
 
 if params.fitGamma
     %% fit gamma distribution
