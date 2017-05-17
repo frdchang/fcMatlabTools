@@ -16,7 +16,7 @@ params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
 params.numSamples       = 10;
-params.As               = linspace(0,30,10);
+params.As               = linspace(0,20,10);
 params.Bs               = linspace(0,20,5);
 params.dist2Spots       = linspace(0,10,2);
 %--------------------------------------------------------------------------
