@@ -77,7 +77,7 @@ parfor ii = 1:numConditions
 end
 
 benchStruct.MLEbyIterationV2  = conditions;
-savePath = benchStruct.MLEbyIterationV2{end}.MLEbyIterationV2{1};
+savePath = genProcessedFileName(stageIConds{1}.findSpotsStage1V2{1},@findSpotsStage2V2);
 savePath = grabProcessedRest(savePath);
 savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];

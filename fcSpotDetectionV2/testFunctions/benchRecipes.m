@@ -26,4 +26,4 @@ benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio');
 analyzeStageI(benchStruct,@logConv,'logConv');
 analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-analyzeStageI(benchStruct,@regularConv,'regularConv');
+analyzeStageI(benchStruct,@regularConv,'regularConv');?
