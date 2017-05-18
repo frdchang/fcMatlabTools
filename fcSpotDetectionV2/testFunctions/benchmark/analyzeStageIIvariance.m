@@ -53,7 +53,7 @@ for ii = 1:numConds
         thetaHolder = thetaHolder(:,LLPPHolder>0);
         LLPPBasket = LLPPBasket(:,LLPPHolder>0);
         LLPGBasket = LLPGBasket(:,LLPPHolder>0);
-                LLPPHolder = LLPPHolder(LLPPHolder>0);
+        LLPPHolder = LLPPHolder(LLPPHolder>0);
 
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
@@ -72,10 +72,10 @@ numTheta      =  getFirstNonEmptyCellContent(analysis);
 numTheta      =  size(numTheta.thetaHolder,1);
 
 % gen histogram maps
-% histograms = cell(numTheta,1);
-% for ii = 1:numTheta
-%     histograms{ii} = genHist(analysis,ii,saveFolder);
-% end
+histograms = cell(numTheta,1);
+for ii = 1:numTheta
+    histograms{ii} = genHist(analysis,ii,saveFolder);
+end
 
 
 % get std map
