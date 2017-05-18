@@ -19,6 +19,8 @@ params.numSamples       = 10;
 params.As               = linspace(0,30,11);
 params.Bs               = linspace(0,24,5);
 params.dist2Spots       = linspace(0,10,3);
+params.dist2SpotsAtA    = [3,15,27];
+params.dist2SpotsAtB    = [0,6,24];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -62,6 +64,22 @@ benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots
 for ai = 1:numel(params.As)
     for bi = 1:numel(params.Bs)
         for di = 1:numel(params.dist2Spots)
+            benchConditions{ai,bi,di}.bigTheta = {};
+            benchConditions{ai,bi,di}.fileList = {};
+            benchConditions{ai,bi,di}.cameraVarList = {};
+            benchConditions{ai,bi,di}.A = params.As(ai);
+            benchConditions{ai,bi,di}.B = params.Bs(bi);
+            benchConditions{ai,bi,di}.D = params.dist2Spots(di);
+            currA = params.As(ai);
+            currB = params.Bs(bi);
+            currD = params.dist2Spots(di);
+            idxs = arrayfun(@(A,B) find(A==currA,1) & find(B==currB,1),params.dist2SpotsAtA,params.dist2SpotsAtB,'UniformOutput',false);
+            idxs = cell2mat(idxs);
+            rightAandB = any(idxs);
+            if ~rightAandB && ~isequal(currD,0)
+                continue;
+            end
+            
             
             switch params.benchType
                 case 1
@@ -110,9 +128,7 @@ for ai = 1:numel(params.As)
             benchConditions{ai,bi,di}.bigTheta = bigTheta;
             benchConditions{ai,bi,di}.fileList = fileList;
             benchConditions{ai,bi,di}.cameraVarList = cameraVarList;
-            benchConditions{ai,bi,di}.A = params.As(ai);
-            benchConditions{ai,bi,di}.B = params.Bs(bi);
-            benchConditions{ai,bi,di}.D = params.dist2Spots(di);
+            
         end
     end
 end

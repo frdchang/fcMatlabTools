@@ -28,18 +28,21 @@ for ii = 1:numConds
         thetaHolder  = zeros(numel(trueTheta),numSamples);
         LLPPHolder   = zeros(numSamples,1);
         
+        LLPPBasket   = zeros(3,numSamples);
+        LLPGBasket   = zeros(3,numSamples);
         for jj = 1:numSamples
-            currMLE           = MLEs{jj}{1};
-            idxOfMatch = cellfun(@(x) isSameThetaStructure(masterTheta,x),{currMLE.thetaMLEs});
+            currMLEholder           = MLEs{jj}{1};
+            idxOfMatch = cellfun(@(x) isSameThetaStructure(masterTheta,x),{currMLEholder.thetaMLEs});
             
             if ~any(idxOfMatch)
                 continue;
             end
-            currMLE = currMLE(idxOfMatch);
+            currMLE = currMLEholder(idxOfMatch);
             if ~isequal(currMLE.stateOfStep,'ok')
                 continue;
             end
-            
+            LLPPBasket(:,jj) = [currMLEholder.logLikePP];
+            LLPGBasket(:,jj) = [currMLEholder.logLikePG];
             LLPPHolder(jj)       = currMLE.logLikePP;
             currMLE              = flattenTheta0s(currMLE.thetaMLEs);
             currMLE(1:numel(Kmatrix)) = [];
@@ -48,9 +51,14 @@ for ii = 1:numConds
         % remove empty thetas in thetaHolder
         %         thetaHolder(:,~any(thetaHolder,1)) = [];
         thetaHolder = thetaHolder(:,LLPPHolder>0);
-        LLPPHolder = LLPPHolder(LLPPHolder>0);
+        LLPPBasket = LLPPBasket(:,LLPPHolder>0);
+        LLPGBasket = LLPGBasket(:,LLPPHolder>0);
+                LLPPHolder = LLPPHolder(LLPPHolder>0);
+
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
+        analysis{ii}.LLPPBasket  = LLPPBasket;
+        analysis{ii}.LLPGBasket  = LLPGBasket;
         analysis{ii}.trueTheta   = trueTheta;
         analysis{ii}.A           = currA;
         analysis{ii}.B           = currB;
