@@ -12,6 +12,7 @@
 *.jpeg
 *.fits
 *.png
+*.eps
 
 # ignore movie files
 *.mov

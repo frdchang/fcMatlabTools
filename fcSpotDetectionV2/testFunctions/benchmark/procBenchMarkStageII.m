@@ -1,6 +1,7 @@
-function [ benchStruct ] = procBenchMarkStageII( benchStruct,varargin)
+function [ benchStruct ] = procBenchMarkStageII(benchStruct,varargin)
 %PROCBENCHMARKSTAGEII
 %--parameters--------------------------------------------------------------
+params.doN          = inf;
 params.numSpots     = 2;
 params.doPlotEveryN = inf;
 %--------------------------------------------------------------------------
@@ -40,14 +41,14 @@ parfor ii = 1:numConditions
     currD           = currStageI.D;
     % get select candidates stuff
 %     currSelectFiles = selectConds{ii}.selectCandidatesFile;
-    
-    myFuncOutSave   = cell(numel(currFileList),1);
-    MLEs            = cell(numel(currFileList),1);
+    doNum = min(params.doN,numel(currFileList));
+    myFuncOutSave   = cell(doNum,1);
+    MLEs            = cell(doNum,1);
     if currA == 0
         continue;
     end
-    for jj = 1:numel(currFileList)
-        display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(numel(currFileList))]);
+    for jj = 1:doNum
+        display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(doNum)]);
         stack                       = importStack(currFileList{jj});
         camVar                      = load(currCamVarList{jj});
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);
