@@ -20,6 +20,5 @@ else
     BBox = centroidWSize2BBox(centroid,sizeCrop);
     [cropped] = getSubsetwBBoxND(ndData,BBox);
 end
-
 end
 
