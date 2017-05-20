@@ -107,10 +107,6 @@ for ii = 1:prod(sizeAB)
 end
 
 h = createMaxFigure([conditionFunc ' cdf raw']);
-minA = inf;
-minB = inf;
-maxA = -inf;
-maxB = -inf;
 Adomain = zeros(sizeAB);
 Bdomain = zeros(sizeAB);
 for ii = 1:prod(sizeAB)

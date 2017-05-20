@@ -23,7 +23,7 @@ params.dist2SpotsAtA    = [3,15,27];
 params.dist2SpotsAtB    = [0,6,24];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
+params.NoiseFuncArgs{1} = params.sizeData;
 % generate date string
 temp = datevec(date);
 year = temp(1);
