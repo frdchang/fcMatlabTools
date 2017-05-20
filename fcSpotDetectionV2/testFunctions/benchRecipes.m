@@ -29,13 +29,13 @@ analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
 analyzeStageI(benchStruct,@regularConv,'regularConv');
 
 %% gamma fit test
-benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',[11,11,11]);
+benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',[9,9,9]);
+benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[9,9,9]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',[7,7,7]);
+benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[7,7,7]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 
