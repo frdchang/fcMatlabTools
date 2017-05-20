@@ -20,6 +20,10 @@ for ii = 1:numConds
         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
         
         MLEs         = stageIIconds{ii}.MLEs;
+        
+        if isempty(stageIIconds{ii}.bigTheta)
+            continue;
+        end
         masterTheta  = stageIIconds{ii}.bigTheta;
         trueTheta    = flattenTheta0s(stageIIconds{ii}.bigTheta);
         numSamples   = numel(MLEs);
@@ -54,7 +58,7 @@ for ii = 1:numConds
         LLPPBasket = LLPPBasket(:,LLPPHolder>0);
         LLPGBasket = LLPGBasket(:,LLPPHolder>0);
         LLPPHolder = LLPPHolder(LLPPHolder>0);
-
+        
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
         analysis{ii}.LLPPBasket  = LLPPBasket;
@@ -118,9 +122,9 @@ switch numel(sizeConditions)
         currSizeConditions = size(analysis);
         for ii = 1:prod(currSizeConditions)
             if ~isempty(analysis{ii})
-                subplot(currSizeConditions(1), currSizeConditions(2),ii);
+                subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
-                hSub.Normalization = 'pdf';
+                %                 hSub.Normalization = 'pdf';
                 title(['A:' num2str(analysis{ii}.A) ' B:' num2str(analysis{ii}.B)]);
             end
         end
@@ -133,19 +137,23 @@ switch numel(sizeConditions)
             currDFirst = getFirstNonEmptyCellContent(currAnalysis);
             currD = currDFirst.D;
             myTitle = ['distance ' num2str(currD) ' theta ' num2str(currTheta) ' of ' mat2str(currDFirst.trueTheta(:)')];
-            hBasket = createMaxFigure(myTitle);
+            hBasket = createFullMaxFigure(myTitle);
             
             currSizeConditions = size(currAnalysis);
             for ii = 1:prod(currSizeConditions)
                 if ~isempty(currAnalysis{ii})
-                    subplot(currSizeConditions(1), currSizeConditions(2),ii);
+                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     hSub = histogram(currAnalysis{ii}.thetaHolder(currTheta,:));
-                    hSub.Normalization = 'pdf';
-                    title(['A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
+                                         hSub.Normalization = 'pdf';
+                    title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
+                    xlabel(num2str(numel(currAnalysis{ii}.thetaHolder(currTheta,:))));
                 end
             end
+            print('-painters','-depsc', [saveFolder filesep myTitle]);
+
+%             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
+            close all;
         end
-        saveas(hBasket,[saveFolder filesep myTitle],'epsc');
         close all;
     otherwise
         error('sizeConditions not 2 or 3');
