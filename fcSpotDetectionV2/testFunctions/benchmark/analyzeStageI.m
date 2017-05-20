@@ -166,7 +166,8 @@ if params.fitGamma
     end
     figure;imagesc([minA,maxA],[minB,maxB],bkShape');colorbar;title('bk shape');xlabel('A');ylabel('B');
     figure;imagesc([minA,maxA],[minB,maxB],bkScale');colorbar;title('bk scale');xlabel('A');ylabel('B');
-    figure;plot([minB:maxB],bkScale);
+    figure;plot(minB:maxB,bkScale);title(['psfSize' mat2str(size(benchStruct.psfs{1}))]);
+    
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf signal ']);
     sigShape = zeros(sizeAB);
