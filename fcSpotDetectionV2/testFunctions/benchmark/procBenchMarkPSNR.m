@@ -38,7 +38,7 @@ for ii = 1:numConditions
     myMax = max(cellfun(@(x) max(x(:)),bigLambdas));
     myIMMSEBasket = cell2mat(myIMMSEBasket);
     myIMMSEBasket = myIMMSEBasket(:);
-    myPSNR = (myMax^2)/mean(myIMMSEBasket);
+    myPSNR = 10*log10((myMax^2)/mean(myIMMSEBasket));
 
     conditions{ii}.A                     = currA;
     conditions{ii}.B                     = currB;
@@ -47,6 +47,7 @@ for ii = 1:numConditions
     PSNRmatrix(ii) = myPSNR;
 end
 
+% imagesc(PSNRmatrix);
 benchStruct.PSNR = conditions;
 
 savePath = genProcessedFileName(benchConditions{1}.fileList{1}{1},@sum);
