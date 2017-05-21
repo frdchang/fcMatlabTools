@@ -80,14 +80,14 @@ numTheta      =  size(numTheta.thetaHolder,1);
 % for ii = 1:numTheta
 %     histograms{ii} = genHist(analysis,ii,saveFolder);
 % end
-% 
-% 
+%
+%
 % % get std map
 % stdForEachTheta = cell(numTheta,1);
 % for ii = 1:numTheta
 %     [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
 % end
-% 
+%
 % for ii = 1:numTheta
 %     close all;
 %     currTheta = ii;
@@ -99,7 +99,7 @@ numTheta      =  size(numTheta.thetaHolder,1);
 %     colorbar;
 %     saveas(gcf,[saveFolder filesep myTitle],'epsc');
 % end
-% 
+%
 % % get mean map
 % meanForEachTheta = cell(numTheta,1);
 % for ii = 1:numTheta
@@ -110,19 +110,27 @@ numTheta      =  size(numTheta.thetaHolder,1);
 sizeConditions = size(analysis);
 switch numel(sizeConditions)
     case 2
+        currAnalysis = analysis;
         currDFirst = getFirstNonEmptyCellContent(analysis);
-        myTitle = [' theta' num2str(currTheta) ' of ' mat2str(currDFirst.trueTheta(:)')];
-        hBasket = createMaxFigure(myTitle);
-        
-        currSizeConditions = size(analysis);
-        for ii = 1:prod(currSizeConditions)
-            if ~isempty(analysis{ii})
-                subplot(currSizeConditions(2), currSizeConditions(1),ii);
-                hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
-                %                 hSub.Normalization = 'pdf';
-                title(['A:' num2str(analysis{ii}.A) ' B:' num2str(analysis{ii}.B)]);
+        myTitle = ['LLRatio CDF - distance ' num2str(currD) ' theta(' mat2str(currDFirst.trueTheta(:)') ')'];
+        hBasket = createFullMaxFigure(myTitle);
+        currSizeConditions = size(currAnalysis);
+            for ii = 1:prod(currSizeConditions)
+                display(ii);
+                if ~isempty(currAnalysis{ii}) && ~isempty(currAnalysis{ii}.LLPPBasket)
+                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                    currLLR = currAnalysis{ii}.LLPPBasket;
+                    for jj = 1:size(currLLR,1)
+                        jjSpotLLR = currLLR(jj,:);
+                        jjSpotLLR(imag(jjSpotLLR) > 0) = [];
+                        hold on;hSub = histogram(jjSpotLLR);
+                        hSub.Normalization = 'cdf';
+                    end
+                    title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
+                    xlabel(num2str(numel(currLLR(jj,:))));
+                end
             end
-        end
+            print('-painters','-depsc', [saveFolder filesep myTitle]);
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
         close all;
         
@@ -133,7 +141,6 @@ switch numel(sizeConditions)
             currD = currDFirst.D;
             myTitle = ['LLRatio CDF - distance ' num2str(currD) ' theta(' mat2str(currDFirst.trueTheta(:)') ')'];
             hBasket = createFullMaxFigure(myTitle);
-            
             currSizeConditions = size(currAnalysis);
             for ii = 1:prod(currSizeConditions)
                 display(ii);
