@@ -22,7 +22,7 @@ parfor ii = 1:numConditions
     currD           = currConditions.D;
     myFuncOutSave       = cell(numel(currFileList),1);
     for jj = 1:numel(currFileList)
-        display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(numel(currFileList))]);
+        display(['procBenchMarkStageI() A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(numel(currFileList))]);
         stack                       = importStack(currFileList{jj});
         camVar                      = load(currCamVarList{jj});
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);

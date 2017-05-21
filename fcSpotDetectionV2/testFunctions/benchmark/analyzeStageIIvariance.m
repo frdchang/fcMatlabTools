@@ -76,37 +76,89 @@ numTheta      =  getFirstNonEmptyCellContent(analysis);
 numTheta      =  size(numTheta.thetaHolder,1);
 
 % gen histogram maps
-histograms = cell(numTheta,1);
-for ii = 1:numTheta
-    histograms{ii} = genHist(analysis,ii,saveFolder);
+% histograms = cell(numTheta,1);
+% for ii = 1:numTheta
+%     histograms{ii} = genHist(analysis,ii,saveFolder);
+% end
+% 
+% 
+% % get std map
+% stdForEachTheta = cell(numTheta,1);
+% for ii = 1:numTheta
+%     [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
+% end
+% 
+% for ii = 1:numTheta
+%     close all;
+%     currTheta = ii;
+%     d = 1;
+%     [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
+%     set (h, 'LineWidth', 2);
+%     myTitle = ['std deviation theta ' num2str(ii)];
+%     xlabel('A');ylabel('B');title(myTitle);
+%     colorbar;
+%     saveas(gcf,[saveFolder filesep myTitle],'epsc');
+% end
+% 
+% % get mean map
+% meanForEachTheta = cell(numTheta,1);
+% for ii = 1:numTheta
+%     [meanForEachTheta{ii},~] = applyFunc(stageIIconds,analysis,@mean,ii);
+% end
+
+%% do LLRatio CDFS
+sizeConditions = size(analysis);
+switch numel(sizeConditions)
+    case 2
+        currDFirst = getFirstNonEmptyCellContent(analysis);
+        myTitle = [' theta' num2str(currTheta) ' of ' mat2str(currDFirst.trueTheta(:)')];
+        hBasket = createMaxFigure(myTitle);
+        
+        currSizeConditions = size(analysis);
+        for ii = 1:prod(currSizeConditions)
+            if ~isempty(analysis{ii})
+                subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
+                %                 hSub.Normalization = 'pdf';
+                title(['A:' num2str(analysis{ii}.A) ' B:' num2str(analysis{ii}.B)]);
+            end
+        end
+        saveas(hBasket,[saveFolder filesep myTitle],'epsc');
+        close all;
+        
+    case 3
+        for di = 1:sizeConditions(3)
+            currAnalysis = analysis(:,:,di);
+            currDFirst = getFirstNonEmptyCellContent(currAnalysis);
+            currD = currDFirst.D;
+            myTitle = ['LLRatio CDF - distance ' num2str(currD) ' theta(' mat2str(currDFirst.trueTheta(:)') ')'];
+            hBasket = createFullMaxFigure(myTitle);
+            
+            currSizeConditions = size(currAnalysis);
+            for ii = 1:prod(currSizeConditions)
+                display(ii);
+                if ~isempty(currAnalysis{ii}) && ~isempty(currAnalysis{ii}.LLPPBasket)
+                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                    currLLR = currAnalysis{ii}.LLPPBasket;
+                    for jj = 1:size(currLLR,1)
+                        jjSpotLLR = currLLR(jj,:);
+                        jjSpotLLR(imag(jjSpotLLR) > 0) = [];
+                        hold on;hSub = histogram(jjSpotLLR);
+                        hSub.Normalization = 'cdf';
+                    end
+                    title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
+                    xlabel(num2str(numel(currLLR(jj,:))));
+                end
+            end
+            print('-painters','-depsc', [saveFolder filesep myTitle]);
+            
+            %             saveas(hBasket,[saveFolder filesep myTitle],'epsc');a
+            close all;
+        end
+        close all;
+    otherwise
+        error('sizeConditions not 2 or 3');
 end
-
-
-% get std map
-stdForEachTheta = cell(numTheta,1);
-for ii = 1:numTheta
-    [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
-end
-
-for ii = 1:numTheta
-    close all;
-    currTheta = ii;
-    d = 1;
-    [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
-    set (h, 'LineWidth', 2);
-    myTitle = ['std deviation theta ' num2str(ii)];
-    xlabel('A');ylabel('B');title(myTitle);
-    colorbar;
-    saveas(gcf,[saveFolder filesep myTitle],'epsc');
-end
-
-% get mean map
-meanForEachTheta = cell(numTheta,1);
-for ii = 1:numTheta
-    [meanForEachTheta{ii},~] = applyFunc(stageIIconds,analysis,@mean,ii);
-end
-
-
 
 end
 
@@ -144,14 +196,14 @@ switch numel(sizeConditions)
                 if ~isempty(currAnalysis{ii})
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     hSub = histogram(currAnalysis{ii}.thetaHolder(currTheta,:));
-                                         hSub.Normalization = 'pdf';
+                    hSub.Normalization = 'pdf';
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currAnalysis{ii}.thetaHolder(currTheta,:))));
                 end
             end
             print('-painters','-depsc', [saveFolder filesep myTitle]);
-
-%             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
+            
+            %             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
             close all;
         end
         close all;

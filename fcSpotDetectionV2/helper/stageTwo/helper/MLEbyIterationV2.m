@@ -137,7 +137,7 @@ for ii = 1:numStrategies
         
         if exist('newtheta0s','var')==1
             if any(flattenTheta0s(newtheta0s) < 0)
-                display('negative theta0s');
+                display('negative theta0s by gradient');
                 break;
             else
                 theta0s = newtheta0s;
@@ -170,7 +170,7 @@ for ii = 1:numStrategies
         totalIter = totalIter + 1;
         
         if any(flattenTheta0s(newtheta0s) < 0)
-            stateOfStep = 'negative thet0s';
+            stateOfStep = 'negative thet0s by newton';
             break;
         else
             theta0s = newtheta0s;
@@ -179,6 +179,14 @@ for ii = 1:numStrategies
 end
 
 state.stateOfStep = stateOfStep;
+
+if any(flattenTheta0s(theta0s) <0)
+    state.thetaMLEs = NaN;
+    state.stateOfStep = 'negative thetas for some reason';
+    state.logLikePP = 0;
+    state.logLikePG = 0;
+    return;
+end
 if isequal(stateOfStep,'ok')
     LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
     LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
