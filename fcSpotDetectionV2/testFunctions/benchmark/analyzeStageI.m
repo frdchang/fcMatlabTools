@@ -61,7 +61,7 @@ for ii = 1:prod(sizeAB)
     end
 end
 
-h = createMaxFigure([conditionFunc ' cdf']);
+h = createMaxFigure([conditionFunc ' ' field ' cdf']);
 minA = inf;
 minB = inf;
 maxA = -inf;
@@ -106,7 +106,7 @@ for ii = 1:prod(sizeAB)
     set(gca,'XScale','log');
 end
 
-h = createMaxFigure([conditionFunc ' cdf raw']);
+h = createMaxFigure([conditionFunc ' ' field ' cdf raw']);
 Adomain = zeros(sizeAB);
 Bdomain = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
@@ -139,7 +139,7 @@ for ii = 1:prod(sizeAB)
     ROC = genROC('adsf',sig,bk,'doPlot',false);
     myEER(ii) = ROC.EER;    
 end
-figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title('EER');xlabel('A');ylabel('B');
+figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title([conditionFunc ' ' field 'EER']);xlabel('A');ylabel('B');
 
 if params.fitGamma
     %% fit gamma distribution

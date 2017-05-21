@@ -15,5 +15,5 @@ for ii = 1:numel(bottom)
 end
 
 data(selectorSig{:}) = nan;
-data = unpadarrayByKernSize(data,kernSize);
+% data = unpadarrayByKernSize(data,kernSize);
 bkgnd = data(~isnan(data));
