@@ -1,10 +1,38 @@
+%% confirm convergence quality for 2 spots
+Kmatrix = [1 0.2; 0.2 1];
+
+params.sizeData         = [21 21 9];
+params.centerCoor       = round(params.sizeData/2);
+
+params.psfFunc          = @genPSF;
+params.psfFuncArgs      = {{'lambda',514e-9},{'lambda',610e-9}};
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.As               = 12;
+params.Bs               = 6;
+params.dist2Spots       = 0;
+
+centerCoor = params.centerCoor ;
+psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.Bs}};
+bigTheta    = genBigTheta(Kmatrix,psfs,spotCoors);
+
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+
 %% lets check low snr 2 channel and compare against gaussian
 %
-% notes. ROC for 1 photon peak is at 50%  
-%        - LOG 3d filter doesn't do so well. 
+% notes. ROC for 1 photon peak is at 50%
+%        - LOG 3d filter doesn't do so well.
 %        - there is a significant performance increase if you use real psf
 %        versus gaussian approximation.  the more symmetric the psf is in
-%        z, the less this difference is.  
+%        z, the less this difference is.
 
 close all;
 clear;
@@ -44,16 +72,16 @@ bkgndWG = cell(N,1);
 
 parfor ii = 1:N
     display(ii);
-[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
-[~,photonData] = returnElectrons(sampledData,cameraParams);
-estimatedSep = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
-estimatedWG = findSpotsStage1V2(photonData,gausses,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
-
-chan1 = convFFTND(photonData{1},logFilters{1});
-chan2 = convFFTND(photonData{2},logFilters{2});
-chan = chan1 + chan2;
-[sigFull(ii),bkgndFull{ii} ] = measureSigBkgnd(estimatedSep.LLRatio,centerCoor,psfSize);
-[sigWG(ii),bkgndWG{ii} ] = measureSigBkgnd(estimatedWG.LLRatio,centerCoor,psfSize);
+    [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+    [~,photonData] = returnElectrons(sampledData,cameraParams);
+    estimatedSep = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+    estimatedWG = findSpotsStage1V2(photonData,gausses,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+    
+    chan1 = convFFTND(photonData{1},logFilters{1});
+    chan2 = convFFTND(photonData{2},logFilters{2});
+    chan = chan1 + chan2;
+    [sigFull(ii),bkgndFull{ii} ] = measureSigBkgnd(estimatedSep.LLRatio,centerCoor,psfSize);
+    [sigWG(ii),bkgndWG{ii} ] = measureSigBkgnd(estimatedWG.LLRatio,centerCoor,psfSize);
 end
 bkgndFull =cell2mat(bkgndFull);
 bkgndWG   = cell2mat(bkgndWG);
@@ -72,7 +100,7 @@ drawnow;
 MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimatedSep,candidates,Kmatrix,psfObjs,'plotEveryN',10);
 
 
-%% genROC checked against publication.  
+%% genROC checked against publication.
 %"Advantages to transforming the receiver operating characteristic (ROC)
 %curve into likelihood ratio co-ordinates"
 close all;
@@ -126,21 +154,21 @@ parfor ii = 1:N
     [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas{1});
     electronData = returnElectrons(sampledData,cameraParams);
     estimated = findSpotsStage1V2(electronData,kerns.kern,cameraVariance);
-   
+    
     sigLL(ii) = estimated.LLRatio(signal{:});
     bkLL(ii) = estimated.LLRatio(bkgnd{:});
-   
+    
 end
 
 LL = genROC('LLRatio',sigLL,bkLL);
 
- gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
+gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
 % hessOfData = calcFullHessianFilter(electronData,estimated,kerns.kern,kerns.kernDs,kerns.kernD2s,cameraVariance);
-% 
+%
 %  [gradDotProduct] = convFieldKernels(gradOfData,gradientFieldFilters);
- [gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
+[gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
 % [gradABDotProduct] = convFieldKernels(gradOfData(1:2),gradientFieldFilters(1:2));
-% 
+%
 % [hessDotProduct] = convFieldKernels(hessOfData,hessFieldFilters);
 % temp = hessFieldFilters;
 % temp(1,:) = {[]};
@@ -570,7 +598,7 @@ candidates = selectCandidates(estimated,'LLRatioThresh',7500);
 % does it for both [10 coor1]},{8}
 % and low photon [2 coor1]},{0}
 %
-% squaring the output also recapitulates much of this improvement.  
+% squaring the output also recapitulates much of this improvement.
 patchSize = [21 21 21];
 sigmassq1 = [2,2,2];
 [kern1,~] = ndGauss(sigmassq1,patchSize);
