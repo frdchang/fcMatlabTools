@@ -25,6 +25,15 @@ spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.B
 bigTheta    = genBigTheta(Kmatrix,psfs,spotCoors);
 
 bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+
+estimated = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+candidates = selectCandidates(estimated,'strategy','otsu');
+plot3Dstack(candidates.L);
+% candidatesSep = selectCandidates(estimatedSep);
+
+MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10,'gradSteps',1000);
 
 %% lets check low snr 2 channel and compare against gaussian
 %

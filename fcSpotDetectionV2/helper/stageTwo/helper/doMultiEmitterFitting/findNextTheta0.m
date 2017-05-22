@@ -11,19 +11,41 @@ newEstimated = findSpotsStage1V2(errors,estimated.spotKern,camVar,'kMatrix',Kmat
 idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:));
 A1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.A1);
 B1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.B1);
-idxOfMaxChannel = find(A1valsAtIDX==max(A1valsAtIDX));
+idxOfMaxA1Channel = find(A1valsAtIDX==max(A1valsAtIDX));
 coordinateOfMax = cellfun(@(x) x(idxOfMax),domains);
-A1valAtMax = A1valsAtIDX(idxOfMaxChannel);
-B1valAtMax = B1valsAtIDX(idxOfMaxChannel);
 
-% update theta with new spot information
-littleTheta = {objKerns{idxOfMaxChannel},[A1valAtMax coordinateOfMax]};
-% do i update the bkgnd
-if isempty(theta0{idxOfMaxChannel+1}) || isscalar(theta0{idxOfMaxChannel+1})
-    theta0{idxOfMaxChannel+1} = {{B1valAtMax}};
+
+if isempty(theta0{idxOfMaxA1Channel+1}) || isscalar(theta0{idxOfMaxA1Channel+1})
+    A1valsAtIDX = cellfun(@(x) x(idxOfMax),estimated.A1);
+    B1valsAtIDX = cellfun(@(x) x(idxOfMax),estimated.B1);
+    A1valAtMax = A1valsAtIDX(idxOfMaxA1Channel);
+    B1valAtMax = B1valsAtIDX(idxOfMaxA1Channel);
+    littleTheta = {objKerns{idxOfMaxA1Channel},[A1valAtMax coordinateOfMax]};
+    theta0{idxOfMaxA1Channel+1} = {littleTheta, {B1valAtMax}};
+else
+    A1valAtMax = A1valsAtIDX(idxOfMaxA1Channel);
+%     B1valAtMax = B1valsAtIDX(idxOfMaxA1Channel);
+    littleTheta = {objKerns{idxOfMaxA1Channel},[A1valAtMax coordinateOfMax]};
+    theta0{idxOfMaxA1Channel+1} = {littleTheta, theta0{idxOfMaxA1Channel+1}{:}};
 end
 
-theta0{idxOfMaxChannel+1} = {littleTheta, theta0{idxOfMaxChannel+1}{:}};
 
-end
 
+% idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:));
+% A1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.A1);
+% B1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.B1);
+% idxOfMaxChannel = find(A1valsAtIDX==max(A1valsAtIDX));
+% coordinateOfMax = cellfun(@(x) x(idxOfMax),domains);
+% A1valAtMax = A1valsAtIDX(idxOfMaxChannel);
+% B1valAtMax = B1valsAtIDX(idxOfMaxChannel);
+%
+% % update theta with new spot information
+% littleTheta = {objKerns{idxOfMaxChannel},[A1valAtMax coordinateOfMax]};
+% % do i update the bkgnd
+% if isempty(theta0{idxOfMaxChannel+1}) || isscalar(theta0{idxOfMaxChannel+1})
+%     theta0{idxOfMaxChannel+1} = {{B1valAtMax}};
+% end
+%
+% theta0{idxOfMaxChannel+1} = {littleTheta, theta0{idxOfMaxChannel+1}{:}};
+%
+% end
