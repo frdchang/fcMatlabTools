@@ -18,14 +18,23 @@ benchStruct = procBenchMarkStageII(benchStruct);
 
 
 %% 1 spot
-benchStruct = genBenchMark('benchType',1,'numSamples',10000);
+timings = [];
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',10000);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
+timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
+timings(end+1) = toc;
 analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
