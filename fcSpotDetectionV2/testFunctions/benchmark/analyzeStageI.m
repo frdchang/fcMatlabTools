@@ -134,7 +134,10 @@ myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
     display(ii);
     sig = conditionHolder{ii}.sig;
+    sig = min(realmax-1,sig);
     bk = conditionHolder{ii}.bk;
+    bk = min(realmax,bk);
+    
     subplot(sizeAB(2),sizeAB(1),ii);
     ROC = genROC('adsf',sig,bk,'doPlot',false);
     myEER(ii) = ROC.EER;    

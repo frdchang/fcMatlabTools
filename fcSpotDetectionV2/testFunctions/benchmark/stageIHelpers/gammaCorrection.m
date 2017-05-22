@@ -11,5 +11,5 @@ gammaA = 0.5;
 gammaB = @(b) 2.6*b + 2.1;
 
 gamsig = arrayfun(@(llr,b) 1-gamcdf(llr,gammaA,gammaB(b)),estimated.LLRatio,estimated.B1);
-estimated.gammaSig = gamsig;
+estimated.gammaSig = -log(gamsig);
 

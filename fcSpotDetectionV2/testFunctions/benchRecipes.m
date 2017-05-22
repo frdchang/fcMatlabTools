@@ -18,7 +18,7 @@ benchStruct = procBenchMarkStageII(benchStruct);
 
 
 %% 1 spot
-benchStruct = genBenchMark('benchType',1,'numSamples',10000);
+benchStruct = genBenchMark('benchType',1,'numSamples',10);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
