@@ -1,8 +1,9 @@
 %% confirm convergence quality for 2 spots
+% alright fixed bugs and it works!
 Kmatrix = [1 0.2; 0.2 1];
 binning = 3;
 params.sizeData         = [21 21 9];
-params.centerCoor       = round(params.sizeData/2);
+params.centerCoor       = round(params.sizeData/2)+0.2;
 
 params.psfFunc          = @genPSF;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
@@ -10,14 +11,15 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 1200;
-params.Bs               = 0;
+params.As               = 12;
+params.Bs               = 12;
 params.dist2Spots       = 0;
 
 centerCoor = params.centerCoor ;
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
 psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
 psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[binning,binning,binning]),psfs);
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
 
 domains     = genMeshFromData(zeros(params.sizeData));
@@ -34,7 +36,7 @@ candidates = selectCandidates(estimated,'strategy','otsu');
 plot3Dstack(candidates.L);
 % candidatesSep = selectCandidates(estimatedSep);
 
-MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10,'gradSteps',1000);
+MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
 
 %% lets check low snr 2 channel and compare against gaussian
 %
@@ -801,7 +803,7 @@ sigmassq2 = [3,3,3];
 
 % build the numeric multi emitter
 [kern1,kern1Sep] = ndGauss(sigmassq1,patchSize);
-[kern2,kern2Sep] = ndGauss(sigmassq2,patchSize);
+[kern2,~] = ndGauss(sigmassq2,patchSize);
 
 domains = genMeshFromData(kern1);
 kernObj1 = myPattern_Numeric(kern1);

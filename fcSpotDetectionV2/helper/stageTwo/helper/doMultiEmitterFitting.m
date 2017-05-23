@@ -5,9 +5,9 @@ function [ states ] = doMultiEmitterFitting(carvedMask,maskedPixelId,datas,estim
 
 %--parameters--------------------------------------------------------------
 params.numSpots     = 2;
-params.gradSteps    = 1000;
-params.hybridSteps   = 1000;
-params.newtonSteps  = 100;
+params.gradSteps    = 200;
+params.hybridSteps  = 100;
+params.newtonSteps  = 30;
 params.doPlotEveryN = 100;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);

@@ -33,7 +33,7 @@ classdef myPattern_Numeric < myPattern_Interface
             end
             
             if isempty(params.downSample)
-                obj.downSample         = ones(size(obj.ndPatternOG));
+                obj.downSample        = ones(size(obj.ndPatternOG));
             else
                 obj.downSample        = params.downSample;
             end
@@ -52,7 +52,13 @@ classdef myPattern_Numeric < myPattern_Interface
         end
         
         function [myOGShape] = returnShape(obj)
-            myOGShape = obj.ndPatternOG;
+            selector = cell(ndims(obj.ndPatternOG),1);
+            centerCoor = getCenterCoor(size(obj.ndPatternOG));
+
+            for ii = 1:ndims(obj.ndPatternOG)
+                selector{ii} = [flip(centerCoor(ii)-obj.downSample(ii):-obj.downSample(ii):1) centerCoor(ii):obj.downSample(ii):size(obj.ndPatternOG,ii)];
+            end
+            myOGShape = obj.ndPatternOG(selector{:});
 %             binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
         end
         
