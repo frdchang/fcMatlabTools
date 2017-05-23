@@ -32,8 +32,14 @@ classdef myPattern_Numeric < myPattern_Interface
                 obj.ndPatternOG    = ndPatternOG;
             end
             
+            if isempty(params.downSample)
+                obj.downSample         = ones(size(obj.ndPatternOG));
+            else
+                obj.downSample        = params.downSample;
+            end
+            
             if isempty(params.domains)
-                obj.domainsOG      = genMeshFromData(obj.ndPatternOG);
+                obj.domainsOG      = genMeshFromData(obj.ndPatternOG,params.downSample);
             else
                 obj.domainsOG      = params.domains;
             end
@@ -42,11 +48,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.centerCoorOG    = cellfun(@(myDom) myDom(obj.centerCoorOG{:}),obj.domainsOG);
             obj.numDims         = numel(obj.centerCoorOG);
             
-            if isempty(params.downSample)
-                obj.downSample         = ones(size(obj.ndPatternOG));
-            else
-                obj.downSample        = params.downSample;
-            end
+
         end
         
         function [myOGShape] = returnShape(obj)

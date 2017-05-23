@@ -1,28 +1,29 @@
 %% confirm convergence quality for 2 spots
 Kmatrix = [1 0.2; 0.2 1];
-
+binning = 3;
 params.sizeData         = [21 21 9];
 params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
-params.psfFuncArgs      = {{'lambda',514e-9},{'lambda',610e-9}};
+params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 12;
-params.Bs               = 6;
+params.As               = 1200;
+params.Bs               = 0;
 params.dist2Spots       = 0;
 
 centerCoor = params.centerCoor ;
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[binning,binning,binning]),psfs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
 
 domains     = genMeshFromData(zeros(params.sizeData));
 secondCoor = centerCoor+[params.dist2Spots 0 0];
 spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.Bs}};
-bigTheta    = genBigTheta(Kmatrix,psfs,spotCoors);
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 
 bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);

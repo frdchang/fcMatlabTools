@@ -13,7 +13,12 @@ function [bigThetas,kernObjs] = genBigTheta(Kmatrix,psfs,thetas)
 % [ bigThetas ] = genBigTheta(Kmatrix,psfs,thetas);
 
 numChannels = size(Kmatrix,2);
-kernObjs = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+if isobject(psfs{1})
+    kernObjs = psfs;
+else
+    kernObjs = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+
+end
 
 buildThetas = cell(numChannels,1);
 [buildThetas{:}] = deal({});
