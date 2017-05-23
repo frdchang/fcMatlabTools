@@ -12,7 +12,7 @@ function [bigThetas,kernObjs] = genBigTheta(Kmatrix,psfs,thetas)
 % thetas  = {theta1,theta2};
 % [ bigThetas ] = genBigTheta(Kmatrix,psfs,thetas);
 
-numChannels = size(Kmatrix,2);
+numChannels = numel(thetas);
 if isobject(psfs{1})
     kernObjs = psfs;
 else

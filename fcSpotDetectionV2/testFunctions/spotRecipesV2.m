@@ -1,4 +1,46 @@
 %% confirm convergence quality for 1 channel 2 spots
+Kmatrix = 1;
+binning = 3;
+params.sizeData         = [42 21 9];
+params.centerCoor       = round(params.sizeData/2);
+
+params.psfFunc          = @genPSF;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.As               = 12;
+params.Bs               = 6;
+params.dist2Spots       = 2;
+
+cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
+
+centerCoor = params.centerCoor ;
+psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[binning,binning,binning]),psfs);
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+psfs = psfs(1);
+psfObjs = psfObjs(1);
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As centerCoor],[params.As secondCoor],params.Bs}};
+
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+
+estimated = findSpotsStage1V2(photonData,psfs,cameraVar,'kMatrix',Kmatrix,'nonNegativity',true);
+candidates = selectCandidates(estimated,'strategy','otsu');
+plot3Dstack(candidates.L);
+% candidatesSep = selectCandidates(estimatedSep);
+
+MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
 
 %% confirm convergence quality for 2 spots
 % alright fixed bugs and it works!
@@ -35,12 +77,12 @@ bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
 [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 
-estimated = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);
+estimated = findSpotsStage1V2(photonData,psfs,cameraVar,'kMatrix',Kmatrix,'nonNegativity',true);
 candidates = selectCandidates(estimated,'strategy','otsu');
 plot3Dstack(candidates.L);
 % candidatesSep = selectCandidates(estimatedSep);
 
-MLEs = findSpotsStage2V2(photonData,ones(size(bigLambdas{1})),estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
+MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
 
 %% lets check low snr 2 channel and compare against gaussian
 %
