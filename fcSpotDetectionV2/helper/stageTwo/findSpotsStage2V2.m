@@ -30,11 +30,11 @@ ids(~isNaturalNum(ids)) = [];
 
 
 sizeKern = [0,0,0];
-MLEs = cell(numel(ids));
+MLEs = cell(numel(ids),1);
 for ii = 1:numel(ids)
     currMask = candidates.L == ids(ii);
     carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
-    carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern);
+    carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern,'spotKern','convFunc');
     carvedCamVar            = carveOutWithMask(cameraVariances,currMask,sizeKern);
     carvedMask              = carveOutWithMask(currMask,currMask,sizeKern);
     carvedRectSubArrayIdx   = candidates.stats(ii).SubarrayIdx;

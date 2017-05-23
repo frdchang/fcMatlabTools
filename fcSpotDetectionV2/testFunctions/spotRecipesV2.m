@@ -1,9 +1,11 @@
+%% confirm convergence quality for 1 channel 2 spots
+
 %% confirm convergence quality for 2 spots
 % alright fixed bugs and it works!
 Kmatrix = [1 0.2; 0.2 1];
 binning = 3;
-params.sizeData         = [21 21 9];
-params.centerCoor       = round(params.sizeData/2)+0.2;
+params.sizeData         = [42 21 9];
+params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
@@ -12,8 +14,10 @@ params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
 params.As               = 12;
-params.Bs               = 12;
-params.dist2Spots       = 0;
+params.Bs               = 6;
+params.dist2Spots       = 3;
+
+cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
 
 centerCoor = params.centerCoor ;
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
@@ -28,7 +32,7 @@ spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.B
 bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 
 bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
-[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 
 estimated = findSpotsStage1V2(photonData,psfs,ones(size(bigLambdas{1})),'kMatrix',Kmatrix,'nonNegativity',false);

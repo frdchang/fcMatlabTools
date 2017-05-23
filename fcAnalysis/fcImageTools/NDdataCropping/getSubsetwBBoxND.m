@@ -74,6 +74,7 @@ end
 newBBox([1,2]) = newBBox([2,1]);
 newBBox([1+numDims,2+numDims]) = newBBox([2+numDims,1+numDims]);
 % carveout nD matrix with coorDomains
+
 subImg = paddedNdData(coorDomains{:});
 
 

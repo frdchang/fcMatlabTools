@@ -1,6 +1,7 @@
-function [carved,carvedMask,BBox] = carveOutWithMask(datas,mask,sizeOfKern )
+function [carved,carvedMask,BBox] = carveOutWithMask(datas,mask,sizeOfKern,varargin)
 %CARVEOUTWITHMASK will carve out datas, which can be a structure of datas
 %or cell or numeric and will carve out the mask with sizeOfKern as a border
+% skp fields are added as varargin stuff
 
 S = regionprops(mask,'BoundingBox');
 
@@ -15,6 +16,10 @@ if iscell(datas)
     carvedMask = getSubsetwBBoxND(mask,myBBox,'borderVector',sizeOfKern,'padValue',0);
 elseif isstruct(datas)
     fields = fieldnames(datas);
+    if ~isempty(varargin)
+        offender = ismember(fields,varargin{1});
+        fields(offender) = [];
+    end
     carved = struct;
     carvedMask = getSubsetwBBoxND(mask,myBBox,'borderVector',sizeOfKern);
    
