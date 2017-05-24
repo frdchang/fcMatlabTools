@@ -26,11 +26,12 @@ benchCC         = benchStruct.conditions;
 numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
 
-parfor ii = 1:numConditions
+for ii = 1:numConditions
     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};
     thetaTrue       = benchCC{ii}.bigTheta;
     % generate sequence of thetas from thetaTrue and num spots to fit
+    numSpots        = numSpotsInTheta(thetaTrue);
     % get stage I stuff
     currStageIFiles = currStageI.findSpotsStage1V2;
     currFileList    = currStageI.dataFiles;
@@ -39,7 +40,7 @@ parfor ii = 1:numConditions
     currB           = currStageI.B;
     currD           = currStageI.D;
     % get select candidates stuff
-%     currSelectFiles = selectConds{ii}.selectCandidatesFile;
+    %     currSelectFiles = selectConds{ii}.selectCandidatesFile;
     doNum = min(params.doN,numel(currFileList));
     myFuncOutSave   = cell(doNum,1);
     MLEs            = cell(doNum,1);
@@ -54,40 +55,42 @@ parfor ii = 1:numConditions
         [~,photonData]              = returnElectrons(stack,camVar.cameraParams);
         estimated                   = load(currStageIFiles{jj});
         estimated                   = estimated.x;
+        myTheta0s                   = genSequenceOfThetas(thetaTrue,estimated);
+
         % define candidates
         L = zeros(size(stack{1}));
         cellCoor = num2cell(trueCoor);
         L(cellCoor{:}) = 1;
         L = imdilate(L,strel(ones(sizeKern(:)')));
-%
-%         L = bwlabeln(L>0);
-%         stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
-%         candidates.L        = L;
-%         % candidates.BWmask   = BWmask;
-%         candidates.stats    = stats;
-        domains = genMeshFromData(photonData{1});
-        if ~iscell(cameraVarianceInElectrons)
-            camVars = cell(numel(electrons),1);
-            [camVars{:}] = deal(cameraVarianceInElectrons);
-        end
+        L = bwlabeln(L>0);
+        stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+        
+        currMask = L;
+
+        carvedDatas                 = carveOutWithMask(photonData,currMask,[0,0,0]);
+        carvedEstimates             = carveOutWithMask(estimated,currMask,[0,0,0],'spotKern','convFunc');
+        carvedCamVar                = carveOutWithMask(cameraVarianceInElectrons,currMask,[0,0,0]);
+        carvedMask                  = carveOutWithMask(currMask,currMask,[0,0,0]);
+        carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
+        carvedEstimates.spotKern    = estimated.spotKern;
         %-----APPY MY FUNC-------------------------------------------------
-%           MLEs{jj} = MLEbyIterationV2(psfObjs,estimated.A1,L>0,photonData,theta0,camVars,domains,{{maxThetaInputs,20},{newtonBuild,20}},'doPloteveryN',inf);
-          MLEs{jj} = doMultiEmitterFitting(carvedMask,maskedPixelId,datas,estimated,camVar,Kmatrix,objKerns,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',params.doPlotEveryN);
+        MLEs{jj}{1}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',10);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
-        myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@MLEbyIterationV2);
+        myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@directFitting);
         makeDIRforFilename(myFuncOutSave{jj});
         parForSave(myFuncOutSave{jj},MLEs{jj});
-
+        
     end
-    conditions{ii}.A                     = currA;
-    conditions{ii}.B                     = currB;
-    conditions{ii}.D                     = currD;
-    conditions{ii}.MLEs                  = MLEs;
-    conditions{ii}.bigTheta              = thetaTrue;
+    conditions{ii}.A                = currA;
+    conditions{ii}.B                = currB;
+    conditions{ii}.D                = currD;
+    conditions{ii}.MLEsByDirect     = MLEs;
+    conditions{ii}.bigTheta         = thetaTrue;
+    conditions{ii}.saveFiles        = myFuncOutSave;
 end
 
-benchStruct.MLEbyIterationV2  = conditions;
-savePath = genProcessedFileName(stageIConds{1}.findSpotsStage1V2{1},@findSpotsStage2V2);
+benchStruct.directFitting  = conditions;
+savePath = genProcessedFileName(stageIConds{1}.findSpotsStage1V2{1},@directFitting);
 savePath = grabProcessedRest(savePath);
 savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];

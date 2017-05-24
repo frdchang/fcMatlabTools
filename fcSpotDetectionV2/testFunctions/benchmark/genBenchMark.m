@@ -10,7 +10,9 @@ params.centerCoor       = round(params.sizeData/2);
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
-params.psfFuncArgs      = {{'lambda',514e-9},{'lambda',610e-9}};
+params.binning          = 3;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
+
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
@@ -30,9 +32,14 @@ year = temp(1);
 month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
+
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning]),psfs);
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x),psfs);
+
+
 
 switch params.benchType
     case 1
@@ -102,7 +109,7 @@ for ai = 1:numel(params.As)
                     spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)},{[params.As(ai) secondCoor],params.Bs(bi)}};
             end
             
-            bigTheta    = genBigTheta(Kmatrix,psfs,spotCoors);
+            bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
             bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
             fileList        = cell(params.numSamples,1);
             cameraVarList   = cell(params.numSamples,1);

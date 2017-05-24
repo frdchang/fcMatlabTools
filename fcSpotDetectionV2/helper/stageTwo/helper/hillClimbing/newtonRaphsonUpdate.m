@@ -5,7 +5,7 @@ mleThetas = flattenTheta0s(theta0s);
 
 
 conditionNumber = rcond(D2LLD2ThetasRaphson);
-if  conditionNumber < 3e-16 || isnan(conditionNumber)
+if  conditionNumber < 3e-17 || isnan(conditionNumber)
     % this is a bad hessian matrix
     %             warning('hessian is either not posDef or rconditinon number is < eps');
     state = 'hessian was either not posDef or condition number for inversion was poor';

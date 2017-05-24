@@ -16,6 +16,11 @@ benchStruct = procBenchMarkStageII(benchStruct);
 % analyzeStageI(benchStruct);
 % analyzeStageII(benchStruct);
 
+%% 2 spot 2 colors 
+benchStruct = genBenchMark('benchType',3,'numSamples',5,'As',12,'Bs',0,'Ds',2);
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+benchStruct = procBenchMarkStageIIDirect(benchStruct);
+
 
 %% 1 spot
 timings = [];

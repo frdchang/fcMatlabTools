@@ -11,7 +11,7 @@ params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
 params.As               = 12;
-params.Bs               = 6;
+params.Bs               = 0;
 params.dist2Spots       = 2;
 
 cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
@@ -55,9 +55,9 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 12;
-params.Bs               = 6;
-params.dist2Spots       = 3;
+params.As               = 5;
+params.Bs               = 0;
+params.dist2Spots       = 2;
 
 cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
 
