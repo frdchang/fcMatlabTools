@@ -2,6 +2,7 @@ function [ states ] = doMultiEmitterFitting(carvedMask,maskedPixelId,datas,estim
 %DOMULTIEMITTERFITTING will iteratively do multi emitter fitting
 % for multi spots, it keeps doing gradient, then finishes with newton, but
 % next iteration uses gradient theta0
+% theta0 is provided it will use theta0
 
 %--parameters--------------------------------------------------------------
 params.numSpots     = 2;
@@ -9,6 +10,7 @@ params.gradSteps    = 200;
 params.hybridSteps  = 100;
 params.newtonSteps  = 30;
 params.doPlotEveryN = 100;
+params.theta0       = {};
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -16,11 +18,16 @@ states = cell(params.numSpots+1,1);
 domains{ndims(datas{1})} = 0;
 [domains{:}] = ndgrid(maskedPixelId{:});
 % for first fitting just define a background model
-theta0 = cell(numel(datas)+1,1);
-[theta0{:}] = deal({});
-theta0{1} = Kmatrix;
-theta0 = setFirstTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
-theta0 = ensureBkndThetasPos(theta0);
+if isempty(params.theta0)
+    theta0 = cell(numel(datas)+1,1);
+    [theta0{:}] = deal({});
+    theta0{1} = Kmatrix;
+    theta0 = setFirstTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
+    theta0 = ensureBkndThetasPos(theta0);
+else
+    theta0 = params.theta0{1};
+end
+
 maxThetaInputs = cellfunNonUniformOutput(@(x) bgkdnOnlyThetas(x),theta0);
 % setup inputs-------
 A1s = estimated.A1;
@@ -41,10 +48,13 @@ states{1}.logLikePGHybrid     = states{1}.logLikePG;
 
 theta0ByGrad = cell(params.numSpots,1);
 for ii = 1:params.numSpots
-    
-    theta0                  = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
-    theta0                  = ensureBkndThetasPos(theta0);
-    
+    if isempty(params.theta0)
+        theta0                  = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
+        theta0                  = ensureBkndThetasPos(theta0);
+    else
+        theta0 = params.theta0{ii};
+    end
+
     maxThetaInputs          = cellfunNonUniformOutput(@(x) maxAllThetas(x),theta0);
     maxThetaInputsHybrid    = cellfunNonUniformOutput(@(x) hybridAllThetas(x),theta0);
     newtonBuild             = newtonRaphsonBuild(maxThetaInputs);
