@@ -132,7 +132,7 @@ for ii = 1:numStrategies
             DLLDThetas = doDLLDThetaDotProduct(DLLDLambdas,bigDLambdas,gradientSelectorD);
             DLLDThetas = sumCellContents(DLLDThetas);
             newtheta0s = gradUpdate(theta0s,DLLDThetas,gradientSelectorD,params);
-            newtheta0s = ensureBkndThetasPos(newtheta0s);
+            newtheta0s = ensureAllThetasPos(newtheta0s);
         end
         
         if exist('newtheta0s','var')==1
@@ -154,7 +154,7 @@ for ii = 1:numStrategies
             D2LLD2ThetasRaphson = sumCellContents(D2LLD2ThetasRaphson);
             DLLDThetasRaphson = DLLDThetasRaphson(newtonRaphsonSelctorD1);
             [newtheta0s,stateOfStep] = newtonRaphsonUpdate(theta0s,newtonRaphsonSelctorD1,DLLDThetasRaphson,D2LLD2ThetasRaphson);
-            newtheta0s = ensureBkndThetasPos(newtheta0s);
+            newtheta0s = ensureAllThetasPos(newtheta0s);
             if ~isequal(stateOfStep,'ok')
                 break;
             end

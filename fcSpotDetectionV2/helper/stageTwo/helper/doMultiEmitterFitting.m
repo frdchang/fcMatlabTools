@@ -70,7 +70,7 @@ for ii = 1:params.numSpots
     % do by gradient
     stateByGrad             = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,params.gradSteps}},'doPlotEveryN',params.doPlotEveryN);
     if ~isequal(stateByGrad.stateOfStep,'ok')
-        display('break at gradient');
+%         display('break at gradient');
         states{ii+1}                        = stateByGrad;
         states{ii+1}.thetaMLEsByGrad        = {};
         states{ii+1}.logLikePPGrad          = 0;
@@ -85,7 +85,7 @@ for ii = 1:params.numSpots
     % do by newtone
     stateByHybrid           = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByGrad.thetaMLEs,camVars,domains,{{maxThetaInputsHybrid,params.hybridSteps}},'doPlotEveryN',params.doPlotEveryN);
     if ~isequal(stateByHybrid.stateOfStep,'ok')
-        display('break at hybrid');
+%         display('break at hybrid');
         states{ii+1}                        = stateByGrad;
         states{ii+1}.stateOfStep            = stateByHybrid.stateOfStep;
         states{ii+1}.thetaMLEsByGrad        = theta0ByGrad{ii};
@@ -108,7 +108,7 @@ for ii = 1:params.numSpots
         states{ii+1}.thetaMLEsByHybrid      = stateByHybrid.thetaMLEs;
         states{ii+1}.logLikePPHybrid        = stateByHybrid.logLikePP;
         states{ii+1}.logLikePGHybrid        = stateByHybrid.logLikePG;
-        display('break at newton');
+%         display('break at newton');
         break;
     end
     states{ii+1}                        = stateByNewt;
