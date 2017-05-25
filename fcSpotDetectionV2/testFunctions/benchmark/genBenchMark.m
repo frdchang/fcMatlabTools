@@ -83,7 +83,7 @@ for ai = 1:numel(params.As)
             idxs = arrayfun(@(A,B) find(A==currA,1) & find(B==currB,1),params.dist2SpotsAtA,params.dist2SpotsAtB,'UniformOutput',false);
             idxs = cell2mat(idxs);
             rightAandB = any(idxs);
-            if ~rightAandB && ~isequal(currD,0)
+            if ~rightAandB && ~isequal(currD,0) && numel(params.dist2Spots) ~= 1
                 continue;
             end
             

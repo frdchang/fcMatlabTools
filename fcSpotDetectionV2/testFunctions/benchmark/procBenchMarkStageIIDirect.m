@@ -56,17 +56,21 @@ for ii = 1:numConditions
         estimated                   = load(currStageIFiles{jj});
         estimated                   = estimated.x;
         myTheta0s                   = genSequenceOfThetas(thetaTrue,estimated);
-
+        
         % define candidates
         L = zeros(size(stack{1}));
-        cellCoor = num2cell(trueCoor);
-        L(cellCoor{:}) = 1;
+        spotCoors = getSpotCoorsFromTheta(thetaTrue);
+        for zz = 1:numel(spotCoors)
+            cellCoor = num2cell(spotCoors{zz});
+            L(cellCoor{:}) = 1;
+        end
+        
+        
         L = imdilate(L,strel(ones(sizeKern(:)')));
         L = bwlabeln(L>0);
         stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
         
-        currMask = L;
-
+        currMask = L == 1;
         carvedDatas                 = carveOutWithMask(photonData,currMask,[0,0,0]);
         carvedEstimates             = carveOutWithMask(estimated,currMask,[0,0,0],'spotKern','convFunc');
         carvedCamVar                = carveOutWithMask(cameraVarianceInElectrons,currMask,[0,0,0]);
