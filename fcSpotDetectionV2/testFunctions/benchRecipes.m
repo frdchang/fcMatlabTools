@@ -17,7 +17,7 @@ benchStruct = procBenchMarkStageII(benchStruct);
 % analyzeStageII(benchStruct);
 
 %% 2 spot 2 colors 
-benchStruct = genBenchMark('benchType',3,'numSamples',2,'As',12,'Bs',0,'dist2Spots',2);
+benchStruct = genBenchMark('benchType',3,'numSamples',100,'As',linspace(0,20,5),'Bs',linspace(0,20,5),'dist2Spots',2);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageIIDirect(benchStruct);
 

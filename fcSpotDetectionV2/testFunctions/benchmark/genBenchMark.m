@@ -68,15 +68,20 @@ domains     = genMeshFromData(zeros(params.sizeData));
 
 
 benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots));
-for ai = 1:numel(params.As)
-    for bi = 1:numel(params.Bs)
-        for di = 1:numel(params.dist2Spots)
-            benchConditions{ai,bi,di}.bigTheta = {};
-            benchConditions{ai,bi,di}.fileList = {};
-            benchConditions{ai,bi,di}.cameraVarList = {};
-            benchConditions{ai,bi,di}.A = params.As(ai);
-            benchConditions{ai,bi,di}.B = params.Bs(bi);
-            benchConditions{ai,bi,di}.D = params.dist2Spots(di);
+totNum = numel(params.As)*numel(params.Bs)*numel(params.dist2Spots);
+display('genBenchMark() starting...');
+setupParForProgress(totNum)
+parfor zz = 1:totNum
+    incrementParForProgress();
+      [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
+%     for bi = 1:numel(params.Bs)
+%         for di = 1:numel(params.dist2Spots)
+            benchConditions{zz}.bigTheta = {};
+            benchConditions{zz}.fileList = {};
+            benchConditions{zz}.cameraVarList = {};
+            benchConditions{zz}.A = params.As(ai);
+            benchConditions{zz}.B = params.Bs(bi);
+            benchConditions{zz}.D = params.dist2Spots(di);
             currA = params.As(ai);
             currB = params.Bs(bi);
             currD = params.dist2Spots(di);
@@ -91,19 +96,19 @@ for ai = 1:numel(params.As)
             switch params.benchType
                 case 1
                     % generate a single spot
-                    display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi))]);
+%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi))]);
                     conditionStr = ['A' num2str(ai) 'B' num2str(bi)];
                     spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)}};
                 case 2
                     % generate spots given that there is 1 channel
-                    display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
+%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
                     conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
                     secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
                     spotCoors = {{[params.As(ai) centerCoor],[params.As(ai) secondCoor],params.Bs(bi)}};
                     
                 case 3
                     % generate spots given that there is 2 channels
-                    display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
+%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
                     conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
                     secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
                     spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)},{[params.As(ai) secondCoor],params.Bs(bi)}};
@@ -118,7 +123,7 @@ for ai = 1:numel(params.As)
                 [sampledData,~,cameraParams]  = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
                 saveFileVar = [saveFolder filesep conditionStr filesep 'cameraVar' filesep 'cameraVar-' conditionStr '-' num2str(ii)];
                 makeDIRforFilename(saveFileVar);
-                save(saveFileVar,'cameraParams');
+                 saveCameraVar(saveFileVar,cameraParams);
                 cameraVarList{ii} = saveFileVar;
                 if iscell(sampledData)
                     saveFile = cell(numel(sampledData),1);
@@ -132,16 +137,16 @@ for ai = 1:numel(params.As)
                 end
                 fileList{ii} = saveFile;
             end
-            benchConditions{ai,bi,di}.bigTheta = bigTheta;
-            benchConditions{ai,bi,di}.fileList = fileList;
-            benchConditions{ai,bi,di}.cameraVarList = cameraVarList;
+            benchConditions{zz}.bigTheta = bigTheta;
+            benchConditions{zz}.fileList = fileList;
+            benchConditions{zz}.cameraVarList = cameraVarList;
             
-        end
-    end
 end
+display('genBenchMark() done...');
 benchStruct.psfObjs     = psfObjs;
 benchStruct.Kmatrix     = Kmatrix;
 benchStruct.conditions  = benchConditions;
 benchStruct.psfs        = psfs;
 benchStruct.centerCoor  = centerCoor;
 save([saveFolder filesep 'benchStruct'],'benchStruct');
+display('genBenchmark() saved...');

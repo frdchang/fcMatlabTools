@@ -2,7 +2,7 @@ function [ benchStruct ] = procBenchMarkStageIIDirect(benchStruct,varargin)
 %PROCBENCHMARKSTAGEII
 %--parameters--------------------------------------------------------------
 params.doN          = inf;
-params.doPlotEveryN = inf;
+params.doPlotEveryN = 10;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -25,9 +25,11 @@ benchCC         = benchStruct.conditions;
 
 numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
-
-for ii = 1:numConditions
-    display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
+display('procBenchMarkStageIIDirect() starting...');
+setupParForProgress(numConditions);
+parfor ii = 1:numConditions
+    incrementParForProgress();
+%     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};
     thetaTrue       = benchCC{ii}.bigTheta;
     % generate sequence of thetas from thetaTrue and num spots to fit
@@ -48,7 +50,7 @@ for ii = 1:numConditions
         continue;
     end
     for jj = 1:doNum
-        display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(doNum)]);
+%         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(doNum)]);
         stack                       = importStack(currFileList{jj});
         camVar                      = load(currCamVarList{jj});
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);
@@ -78,7 +80,7 @@ for ii = 1:numConditions
         carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
         carvedEstimates.spotKern    = estimated.spotKern;
         %-----APPY MY FUNC-------------------------------------------------
-        MLEs{jj}{1}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',10);
+        MLEs{jj}{1}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',params.doPlotEveryN);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@directFitting);
         makeDIRforFilename(myFuncOutSave{jj});
@@ -92,6 +94,7 @@ for ii = 1:numConditions
     conditions{ii}.bigTheta         = thetaTrue;
     conditions{ii}.saveFiles        = myFuncOutSave;
 end
+display('procBenchMarkStageIIDirect() finished...');
 
 benchStruct.directFitting  = conditions;
 savePath = genProcessedFileName(stageIConds{1}.findSpotsStage1V2{1},@directFitting);
@@ -101,6 +104,7 @@ saveFile = [savePath filesep 'benchStruct'];
 makeDIRforFilename(saveFile);
 save(saveFile,'benchStruct');
 display(['saving:' saveFile]);
+display('procBenchMarkStageIIDirect() saved...');
 
 
 

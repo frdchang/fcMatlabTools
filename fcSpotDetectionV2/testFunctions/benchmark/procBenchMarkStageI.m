@@ -12,8 +12,11 @@ Kmatrix         = benchStruct.Kmatrix;
 
 numConditions = numel(benchConditions);
 conditions    = cell(size(benchConditions));
+display('procBenchMarkStageI() starting...');
+setupParForProgress(numConditions);
 parfor ii = 1:numConditions
-    display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
+    incrementParForProgress();
+%     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currConditions  = benchConditions{ii};
     currFileList    = currConditions.fileList;
     currCamVarList  = currConditions.cameraVarList;
@@ -22,7 +25,7 @@ parfor ii = 1:numConditions
     currD           = currConditions.D;
     myFuncOutSave       = cell(numel(currFileList),1);
     for jj = 1:numel(currFileList)
-        display(['procBenchMarkStageI() A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(numel(currFileList))]);
+%         display(['procBenchMarkStageI() A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(numel(currFileList))]);
         stack                       = importStack(currFileList{jj});
         camVar                      = load(currCamVarList{jj});
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);
@@ -41,6 +44,7 @@ parfor ii = 1:numConditions
     conditions{ii}.dataFiles             = currFileList;
     conditions{ii}.camVarFile            = currCamVarList;
 end
+display('procBenchMarkStageI() finished...');
 
 benchStruct.(func2str(myFunc))  = conditions;
 savePath = conditions{1,1}.(func2str(myFunc)){1};
@@ -50,4 +54,5 @@ saveFile = [savePath filesep 'benchStruct'];
 makeDIRforFilename(saveFile);
 save(saveFile,'benchStruct');
 display(['saving:' saveFile]);
+display('procBenchMarkStageI() saved...');
 
