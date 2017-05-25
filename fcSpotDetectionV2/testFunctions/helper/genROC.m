@@ -3,6 +3,7 @@ function datas = genROC(nameOfMeasure,withTarget,withoutTarget,varargin)
 
 %--parameters--------------------------------------------------------------
 params.doPlot     = false;
+params.NumBinsMAX       = 2000;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -32,6 +33,15 @@ ylabel(yLabelText);
 set(gca,'Color',[1 1 1]);
 set(gcf,'Color',[1 1 1]);
 legend('with spot','without spot');
+set(gca,'Yscale','log');
+h1.EdgeColor = 'none';
+h2.EdgeColor = 'none';
+if h1.NumBins > params.NumBinsMAX
+    h1.NumBins = params.NumBinsMAX;
+end
+if h2.NumBins > params.NumBinsMAX
+    h2.NumBins = params.NumBinsMAX;
+end
 
 % calculate cdf
 withTargetCDF = cumsum(h1.Values*h1.BinWidth);
@@ -51,8 +61,8 @@ woCDF(newDomain>max([h2.BinEdges])) = 1;
 wCDF(newDomain<min([h1.BinEdges])) = 0;
 wCDF(newDomain>max([h1.BinEdges])) = 1;
 if params.doPlot
-figure;plot(newDomain,woCDF);hold on;plot(newDomain,wCDF);legend('wo','w');
-axis tight;
+    figure;plot(newDomain,woCDF);hold on;plot(newDomain,wCDF);legend('wo','w');
+    axis tight;
 end
 % maxSize = max(numel(withTargetCDF),numel(withoutTargetCDF))+1;
 % % calculate ROC
@@ -68,17 +78,17 @@ idxOfEER = error ==  min(error);
 EER = x0(idxOfEER);
 
 if params.doPlot
-figure;plot(1-woCDF,1-wCDF,'LineWidth',2); axis equal;axis([0 1 0 1]);
-set(gca,'Color',[1 1 1]);
-set(gcf,'Color',[1 1 1]);
-title(['Reciever Operator Characteristic: ' titleText]);
-xlabel('False Positive Rate');
-ylabel('True Positive Rate');
-hold on;plot([0,1],[1,0],'--r');
-
-text(EER,1-EER,...
-     ['\leftarrow EER ' num2str(EER)],...
-     'FontSize',16)
+    figure;plot(1-woCDF,1-wCDF,'LineWidth',2); axis equal;axis([0 1 0 1]);
+    set(gca,'Color',[1 1 1]);
+    set(gcf,'Color',[1 1 1]);
+    title(['Reciever Operator Characteristic: ' titleText]);
+    xlabel('False Positive Rate');
+    ylabel('True Positive Rate');
+    hold on;plot([0,1],[1,0],'--r');
+    
+    text(EER,1-EER,...
+        ['\leftarrow EER ' num2str(EER)],...
+        'FontSize',16)
 end
 
 

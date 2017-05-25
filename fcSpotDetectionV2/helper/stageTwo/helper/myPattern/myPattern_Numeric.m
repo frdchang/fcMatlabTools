@@ -33,13 +33,13 @@ classdef myPattern_Numeric < myPattern_Interface
             end
             
             if isempty(params.downSample)
-                obj.downSample        = ones(size(obj.ndPatternOG));
+                obj.downSample        = ones(1,ndims(obj.ndPatternOG));
             else
                 obj.downSample        = params.downSample;
             end
             
             if isempty(params.domains)
-                obj.domainsOG      = genMeshFromData(obj.ndPatternOG,params.downSample);
+                obj.domainsOG      = genMeshFromData(obj.ndPatternOG,obj.downSample);
             else
                 obj.domainsOG      = params.domains;
             end

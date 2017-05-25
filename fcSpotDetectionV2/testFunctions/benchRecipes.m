@@ -26,7 +26,7 @@ toc
 
 %% 1 spot
 timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',10000);
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',10);
 timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;

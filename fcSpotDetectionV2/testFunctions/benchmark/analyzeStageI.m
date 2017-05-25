@@ -3,7 +3,10 @@ function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,var
 % then it plots overlap percentage
 % then it plots global ROC for A>=B
 %--parameters--------------------------------------------------------------
-params.fitGamma     = false;
+params.fitGamma         = false;
+params.NumBinsMAX       = 500;
+params.contourLines     = [0.05];
+params.minAForGlobalROC = 0;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -20,8 +23,10 @@ conditions = conditions(logical(idxConditions));
 conditionHolder = cell(size(conditions));
 currMin = inf;
 currMax = -inf;
+disp('analyzeStageI(): extracting data');
+setupParForProgress(prod(sizeAB));
 for ii = 1:prod(sizeAB)
-    display(ii);
+    incrementParForProgress();
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     currD = conditions{ii}.D;
@@ -61,14 +66,17 @@ for ii = 1:prod(sizeAB)
     end
 end
 
-h = createMaxFigure([conditionFunc ' ' field ' cdf']);
+h = createMaxFigure([conditionFunc ' ' field ' cdf log']);
 minA = inf;
 minB = inf;
 maxA = -inf;
 maxB = -inf;
 Adomain = zeros(sizeAB);
 Bdomain = zeros(sizeAB);
+disp('analyzeStageI(): plotting cdf log scale');
+setupParForProgress(prod(sizeAB));
 for ii = 1:prod(sizeAB)
+    incrementParForProgress();
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     Adomain(ii) = currA;
@@ -78,14 +86,20 @@ for ii = 1:prod(sizeAB)
     subplot(sizeAB(2),sizeAB(1),ii);
     hBk  = histogram(bk);
     hBk.Normalization = 'cdf';
+    if hBk.NumBins > params.NumBinsMAX
+        hBk.NumBins = params.NumBinsMAX;
+    end
     hold on;
     hSig = histogram(sig);
+    if hSig.NumBins > params.NumBinsMAX
+        hSig.NumBins = params.NumBinsMAX;
+    end
     hSig.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
     title(['A' num2str(currA) ' B' num2str(currB)]);
     if currA < minA
-       minA = currA; 
+        minA = currA;
     end
     if currA > maxA
         maxA = currA;
@@ -96,9 +110,9 @@ for ii = 1:prod(sizeAB)
     if currB > maxB
         maxB = currB;
     end
+    drawnow;
 end
 legend('bk','sig');
-
 
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
@@ -106,10 +120,14 @@ for ii = 1:prod(sizeAB)
     set(gca,'XScale','log');
 end
 
+disp('analyzeStageI(): plotting cdf raw');
+setupParForProgress(prod(sizeAB));
+
 h = createMaxFigure([conditionFunc ' ' field ' cdf raw']);
 Adomain = zeros(sizeAB);
 Bdomain = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
+    incrementParForProgress();
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     Adomain(ii) = currA;
@@ -118,31 +136,74 @@ for ii = 1:prod(sizeAB)
     bk = conditionHolder{ii}.bk;
     subplot(sizeAB(2),sizeAB(1),ii);
     hBk  = histogram(bk);
+    if hBk.NumBins > params.NumBinsMAX
+        hBk.NumBins = params.NumBinsMAX;
+    end
     hBk.Normalization = 'cdf';
     hold on;
     hSig = histogram(sig);
+    if hSig.NumBins > params.NumBinsMAX
+        hSig.NumBins = params.NumBinsMAX;
+    end
     hSig.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
     title(['A' num2str(currA) ' B' num2str(currB)]);
     axis tight;
+    drawnow;
 end
 legend('bk','sig');
 
-
+disp('analyzeStageI(): processing EER');
+setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
-    display(ii);
+    incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     sig = min(realmax-1,sig);
     bk = conditionHolder{ii}.bk;
     bk = min(realmax,bk);
-    
     subplot(sizeAB(2),sizeAB(1),ii);
     ROC = genROC('adsf',sig,bk,'doPlot',false);
-    myEER(ii) = ROC.EER;    
+    myEER(ii) = ROC.EER;
 end
 figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title([conditionFunc ' ' field 'EER']);xlabel('A');ylabel('B');
+caxis([0 0.5]);
+% 
+% % draw contour plot version
+% hold on;[C,h] = contour(Adomain,Bdomain,myEER,[params.contourLines,0.5],'LineWidth',3, 'Color',[1 1 1 ]);
+% clabel(C,h,'Color',[1 1 1],'FontSize',15);
+% set(gca,'Ydir','reverse');
+% axis equal;
+
+hold on;
+[newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
+F = scatteredInterpolant(Adomain(:),Bdomain(:),myEER(:));
+F.Method = 'natural';
+hold on;[C,h] = contour(newA,newB,F(newA,newB),[params.contourLines,params.contourLines],'LineWidth',3, 'Color',[1 1 1 ]);
+clabel(C,h,'Color',[1 1 1],'FontSize',15);
+set(gca,'Ydir','reverse');
+axis equal;
+
+% do global ROC
+
+disp('analyzeStageI(): global ROC...');
+setupParForProgress(prod(sizeAB));
+sigHolder = cell(prod(sizeAB),1);
+bkHolder  = cell(prod(sizeAB),1);
+for ii = 1:prod(sizeAB)
+    incrementParForProgress();
+    currA = conditions{ii}.A;
+    currB = conditions{ii}.B;
+    if currA <= params.minAForGlobalROC
+        continue;
+    end
+    sigHolder{ii} = conditionHolder{ii}.sig;
+    bkHolder{ii} = conditionHolder{ii}.bk;
+end
+sigHolder = cell2mat(sigHolder);
+bkHolder = cell2mat(bkHolder);
+ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
 
 if params.fitGamma
     %% fit gamma distribution
@@ -169,7 +230,7 @@ if params.fitGamma
     end
     figure;imagesc([minA,maxA],[minB,maxB],bkShape');colorbar;title('bk shape');xlabel('A');ylabel('B');
     figure;imagesc([minA,maxA],[minB,maxB],bkScale');colorbar;title('bk scale');xlabel('A');ylabel('B');
-    figure;plot(minB:maxB,bkScale);title(['psfSize' mat2str(size(benchStruct.psfs{1}))]);
+    figure;plot(linspace(minB,maxB,size(bkScale,2)),bkScale(1,:));title(['bkscale w psfSize' mat2str(size(benchStruct.psfs{1}))]);
     
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf signal ']);
