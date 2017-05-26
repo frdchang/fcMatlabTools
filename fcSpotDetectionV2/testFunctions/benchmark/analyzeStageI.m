@@ -4,7 +4,7 @@ function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,var
 % then it plots global ROC for A>=B
 %--parameters--------------------------------------------------------------
 params.fitGamma         = false;
-params.NumBinsMAX       = 500;
+params.NumBinsMAX       = 1000;
 params.contourLines     = [0.05];
 params.minAForGlobalROC = 0;
 %--------------------------------------------------------------------------
@@ -84,17 +84,9 @@ for ii = 1:prod(sizeAB)
     sig = conditionHolder{ii}.sig + currMin + myMin;
     bk = conditionHolder{ii}.bk+ currMin + myMin;
     subplot(sizeAB(2),sizeAB(1),ii);
-    hBk  = histogram(bk);
-    hBk.Normalization = 'cdf';
-    if hBk.NumBins > params.NumBinsMAX
-        hBk.NumBins = params.NumBinsMAX;
-    end
-    hold on;
-    hSig = histogram(sig);
-    if hSig.NumBins > params.NumBinsMAX
-        hSig.NumBins = params.NumBinsMAX;
-    end
+    [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
     hSig.Normalization = 'cdf';
+    hBk.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
     title(['A' num2str(currA) ' B' num2str(currB)]);
@@ -135,16 +127,9 @@ for ii = 1:prod(sizeAB)
     sig = conditionHolder{ii}.sig;
     bk = conditionHolder{ii}.bk;
     subplot(sizeAB(2),sizeAB(1),ii);
-    hBk  = histogram(bk);
-    if hBk.NumBins > params.NumBinsMAX
-        hBk.NumBins = params.NumBinsMAX;
-    end
+        [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
+
     hBk.Normalization = 'cdf';
-    hold on;
-    hSig = histogram(sig);
-    if hSig.NumBins > params.NumBinsMAX
-        hSig.NumBins = params.NumBinsMAX;
-    end
     hSig.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
     hSig.EdgeColor = 'none';
@@ -160,9 +145,9 @@ myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
-    sig = min(realmax-1,sig);
+    %sig = min(realmax-1,sig);
     bk = conditionHolder{ii}.bk;
-    bk = min(realmax,bk);
+    %bk = min(realmax,bk);
     subplot(sizeAB(2),sizeAB(1),ii);
     ROC = genROC('adsf',sig,bk,'doPlot',false);
     myEER(ii) = ROC.EER;

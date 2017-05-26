@@ -18,8 +18,12 @@ if params.doPlot
 else
     grandf = figure('Visible','off');
 end
-hold on;h1 = histogram(withTarget,'Normalization','pdf');
-h2 = histogram(withoutTarget,'Normalization','pdf');
+hold on;
+[h1,h2] = histSigBkgnd(withTarget,withoutTarget);
+h1.Normalization = 'pdf';
+h2.Normalization = 'pdf';
+% h1 = histogram(withTarget,'Normalization','pdf');
+% h2 = histogram(withoutTarget,'Normalization','pdf');
 % h1.BinWidth = max(h1.BinWidth,h2.BinWidth);
 % h2.BinWidth = max(h1.BinWidth,h2.BinWidth);
 % minEdge = min(min(h1.BinEdges),min(h2.BinEdges));
@@ -44,8 +48,14 @@ if h2.NumBins > params.NumBinsMAX
 end
 
 % calculate cdf
-withTargetCDF = cumsum(h1.Values*h1.BinWidth);
-withoutTargetCDF = cumsum(h2.Values*h2.BinWidth);
+binWidthH1 = unique(diff(h1.BinEdges));
+binWidthH1(binWidthH1 == inf | binWidthH1 == -inf) = [];
+binWidthH1 = binWidthH1(1);
+binWidthH2 = unique(diff(h2.BinEdges));
+binWidthH2(binWidthH2 == inf | binWidthH2 == -inf) = [];
+binWidthH2 = binWidthH2(1);
+withTargetCDF = cumsum(h1.Values*binWidthH1);
+withoutTargetCDF = cumsum(h2.Values*binWidthH2);
 
 wCDF = [0 withTargetCDF];
 woCDF = [0 withoutTargetCDF];
