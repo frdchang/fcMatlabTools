@@ -143,6 +143,7 @@ disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
+    display(ii);
     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     %sig = min(realmax-1,sig);
