@@ -11,7 +11,7 @@ params = updateParams(params,varargin);
 Nsamples = 10000;
 titleText = [nameOfMeasure ' as Measure'];
 xLabelText = [nameOfMeasure ' Value'];
-yLabelText = 'pdf';
+yLabelText = 'counts';
 % plot pdfs
 if params.doPlot
     grandf = figure;
@@ -36,7 +36,7 @@ xlabel(xLabelText);
 ylabel(yLabelText);
 set(gca,'Color',[1 1 1]);
 set(gcf,'Color',[1 1 1]);
-legend('with spot','without spot');
+legend('bkgnd','signal');
 set(gca,'Yscale','log');
 h1.EdgeColor = 'none';
 h2.EdgeColor = 'none';
@@ -48,30 +48,56 @@ if h2.NumBins > params.NumBinsMAX
 end
 
 % calculate cdf
-binWidthH1 = unique(diff(h1.BinEdges));
-binWidthH1(binWidthH1 == inf | binWidthH1 == -inf) = [];
+binWidthH1 = h1.BinEdges;
+binWidthH1(binWidthH1==inf) = [];
+if numel(binWidthH1)==1
 binWidthH1 = binWidthH1(1);
-binWidthH2 = unique(diff(h2.BinEdges));
-binWidthH2(binWidthH2 == inf | binWidthH2 == -inf) = [];
+else
+    binWidthH1 = diff(binWidthH1);
+    binWidthH1 = binWidthH1(1);
+end
+binWidthH2 = h2.BinEdges;
+binWidthH2(binWidthH2==inf) = [];
+if numel(binWidthH2)==1
 binWidthH2 = binWidthH2(1);
+else
+    binWidthH2 = diff(binWidthH2);
+    binWidthH2 = binWidthH2(1);
+end
 withTargetCDF = cumsum(h1.Values*binWidthH1);
 withoutTargetCDF = cumsum(h2.Values*binWidthH2);
 
-wCDF = [0 withTargetCDF];
-woCDF = [0 withoutTargetCDF];
-Nsamples = max([Nsamples,numel(wCDF),numel(woCDF)]);
-newDomain = linspace(min([h1.BinEdges h2.BinEdges]),max([h1.BinEdges h2.BinEdges]),Nsamples);
-wCDF = interp1(h1.BinEdges,wCDF,newDomain,'pchip');
-woCDF = interp1(h2.BinEdges,woCDF,newDomain,'pchip');
+wCDFold = [0 withTargetCDF];
+woCDFold = [0 withoutTargetCDF];
+Nsamples = max([Nsamples,numel(wCDFold),numel(woCDFold)]);
+h1Edges = h1.BinEdges;
+h2Edges = h2.BinEdges;
+idxINF1 = find(h1Edges==inf);
+idxINF2 = find(h2Edges==inf);
+h2Edges(idxINF2) = [];
+h1Edges(idxINF1) = [];
+wCDFold(idxINF1) = [];
+woCDFold(idxINF2) = [];
+newDomain = linspace(min([h1Edges h2Edges]),max([h1Edges+1, h2Edges+1]),Nsamples);
+
+if numel(h1Edges) == 1
+    wCDF = newDomain > h1Edges;
+else
+    wCDF = interp1(h1Edges,wCDFold,newDomain,'pchip');
+
+end
+woCDF = interp1(h2Edges,woCDFold,newDomain,'pchip');
 
 
 
-woCDF(newDomain<min([h2.BinEdges])) = 0;
-woCDF(newDomain>max([h2.BinEdges])) = 1;
-wCDF(newDomain<min([h1.BinEdges])) = 0;
-wCDF(newDomain>max([h1.BinEdges])) = 1;
+woCDF(newDomain<min([h2Edges])) = 0;
+woCDF(newDomain>max([h2Edges])) = 1;
+wCDF(newDomain<min([h1Edges])) = 0;
+wCDF(newDomain>max([h1Edges])) = 1;
 if params.doPlot
-    figure;plot(newDomain,woCDF);hold on;plot(newDomain,wCDF);legend('wo','w');
+    figure;plot(newDomain,woCDF,'LineWidth',1.5);hold on;plot(newDomain,wCDF,'LineWidth',1.5);legend('wo','w');
+    plot(h1Edges,wCDFold,'o');plot(h2Edges,woCDFold,'o');
+    title('CDFs');
     axis tight;
 end
 % maxSize = max(numel(withTargetCDF),numel(withoutTargetCDF))+1;
@@ -109,6 +135,19 @@ datas.withTargetBinEdges = h1.BinEdges;
 datas.withoutTargetPDF = h2.Values;
 datas.withoutTargetBinEdges = h2.BinEdges;
 datas.EER  = EER;
+
+h1.Normalization = 'count';
+h2.Normalization = 'count';
+
+if h1.BinEdges(end) == Inf && h1.Values(end) ~=0
+    figure(grandf);
+    hold on;text(h1.BinEdges(end-1),h1.Values(end),'Infinity');
+end
+
+if h2.BinEdges(end) == Inf && h2.Values(end) ~=0
+    figure(grandf);
+    hold on;text(h2.BinEdges(end-1),h2.Values(end),'Infinity');
+end
 
 if params.doPlot
     

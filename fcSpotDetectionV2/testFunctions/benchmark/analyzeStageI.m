@@ -103,6 +103,8 @@ for ii = 1:prod(sizeAB)
         maxB = currB;
     end
     drawnow;
+    axis tight;
+    
 end
 legend('bk','sig');
 
@@ -127,8 +129,8 @@ for ii = 1:prod(sizeAB)
     sig = conditionHolder{ii}.sig;
     bk = conditionHolder{ii}.bk;
     subplot(sizeAB(2),sizeAB(1),ii);
-        [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
-
+    [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
+    
     hBk.Normalization = 'cdf';
     hSig.Normalization = 'cdf';
     hBk.EdgeColor = 'none';
@@ -143,7 +145,6 @@ disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
-    display(ii);
     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     %sig = min(realmax-1,sig);
@@ -155,7 +156,7 @@ for ii = 1:prod(sizeAB)
 end
 figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title([conditionFunc ' ' field 'EER']);xlabel('A');ylabel('B');
 caxis([0 0.5]);
-% 
+%
 % % draw contour plot version
 % hold on;[C,h] = contour(Adomain,Bdomain,myEER,[params.contourLines,0.5],'LineWidth',3, 'Color',[1 1 1 ]);
 % clabel(C,h,'Color',[1 1 1],'FontSize',15);
@@ -174,16 +175,16 @@ axis equal;
 % do global ROC
 
 disp('analyzeStageI(): global ROC...');
-setupParForProgress(prod(sizeAB));
 sigHolder = cell(prod(sizeAB),1);
 bkHolder  = cell(prod(sizeAB),1);
 for ii = 1:prod(sizeAB)
-    incrementParForProgress();
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     if currA <= params.minAForGlobalROC
         continue;
     end
+    display(['A:' num2str(currA) ',B:' num2str(currB)]);
+    
     sigHolder{ii} = conditionHolder{ii}.sig;
     bkHolder{ii} = conditionHolder{ii}.bk;
 end
