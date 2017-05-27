@@ -5,24 +5,35 @@ function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,var
 %--parameters--------------------------------------------------------------
 params.fitGamma         = false;
 params.NumBinsMAX       = 1000;
-params.contourLines     = [0.05];
+params.contourLineSig   = 0.05;
+params.contourLines     = [0.1:0.1:0.5];
 params.minAForGlobalROC = 0;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 conditionFunc = func2str(conditionFunc);
-%ANALYZESTAGEI will analyze the stageI output
-myMin = 0.1;
-conditions = benchStruct.(conditionFunc);
-sizeAB = [size(conditions,1) size(conditions,2)];
-idxConditions = zeros(size(conditions));
-idxConditions(:,:,1) = 1;
-conditions = conditions(logical(idxConditions));
 
+if ~isfield(benchStruct,conditionFunc)
+    error(['need to run ' conditionFunc ' directFitting bench']);
+end
 
-conditionHolder = cell(size(conditions));
-currMin = inf;
-currMax = -inf;
+[ ~,saveFolder ] = genProcessedPathForBench(benchStruct,'analyzeStageI');
+makeDIR(saveFolder);
+
+myMin                   = 0.1;
+conditions              = benchStruct.(conditionFunc);
+% stage I analysis only applies to distance = 0
+sizeAB                  = [size(conditions,1) size(conditions,2)];
+idxConditions           = zeros(size(conditions));
+idxConditions(:,:,1)    = 1;
+conditions              = conditions(logical(idxConditions));
+
+conditionHolder         = cell(size(conditions));
+currMin                 = inf;
+currMax                 = -inf;
+
+close all;
+%--------------------------------------------------------------------------
 disp('analyzeStageI(): extracting data');
 setupParForProgress(prod(sizeAB));
 for ii = 1:prod(sizeAB)
@@ -37,14 +48,12 @@ for ii = 1:prod(sizeAB)
     for jj = 1:numel(currFuncConditions)
         currFuncOutput = load(currFuncConditions{jj});
         currFuncOutput=  currFuncOutput.x;
-        
         currFuncOutput = currFuncOutput.(field);
         % if is a cell that means its multi color, so just measure from
         % channel 1
         if iscell(currFuncOutput)
             currFuncOutput = currFuncOutput{1};
             [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
-            
         else
             [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
         end
@@ -65,8 +74,9 @@ for ii = 1:prod(sizeAB)
         currMax = maxMax;
     end
 end
-
-h = createMaxFigure([conditionFunc ' ' field ' cdf log']);
+%--------------------------------------------------------------------------
+myTitle = [conditionFunc ' ' field ' cdf'];
+h = createFullMaxFigure(myTitle);
 minA = inf;
 minB = inf;
 maxA = -inf;
@@ -102,11 +112,12 @@ for ii = 1:prod(sizeAB)
     if currB > maxB
         maxB = currB;
     end
-    drawnow;
     axis tight;
-    
+    drawnow;
 end
 legend('bk','sig');
+
+print('-painters','-depsc', [saveFolder filesep myTitle]);
 
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
@@ -114,33 +125,10 @@ for ii = 1:prod(sizeAB)
     set(gca,'XScale','log');
 end
 
-disp('analyzeStageI(): plotting cdf raw');
-setupParForProgress(prod(sizeAB));
+print('-painters','-depsc', [saveFolder filesep myTitle ' log' ]);
+close all;
 
-h = createMaxFigure([conditionFunc ' ' field ' cdf raw']);
-Adomain = zeros(sizeAB);
-Bdomain = zeros(sizeAB);
-for ii = 1:prod(sizeAB)
-    incrementParForProgress();
-    currA = conditions{ii}.A;
-    currB = conditions{ii}.B;
-    Adomain(ii) = currA;
-    Bdomain(ii) = currB;
-    sig = conditionHolder{ii}.sig;
-    bk = conditionHolder{ii}.bk;
-    subplot(sizeAB(2),sizeAB(1),ii);
-    [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
-    
-    hBk.Normalization = 'cdf';
-    hSig.Normalization = 'cdf';
-    hBk.EdgeColor = 'none';
-    hSig.EdgeColor = 'none';
-    title(['A' num2str(currA) ' B' num2str(currB)]);
-    axis tight;
-    drawnow;
-end
-legend('bk','sig');
-
+%--------------------------------------------------------------------------
 disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
@@ -154,26 +142,33 @@ for ii = 1:prod(sizeAB)
     ROC = genROC('adsf',sig,bk,'doPlot',false);
     myEER(ii) = ROC.EER;
 end
-figure;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title([conditionFunc ' ' field 'EER']);xlabel('A');ylabel('B');
+myTitle = [conditionFunc ' ' field ' EER heatmap'];
+h1 = figure;
+hold on;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
 caxis([0 0.5]);
-%
-% % draw contour plot version
-% hold on;[C,h] = contour(Adomain,Bdomain,myEER,[params.contourLines,0.5],'LineWidth',3, 'Color',[1 1 1 ]);
-% clabel(C,h,'Color',[1 1 1],'FontSize',15);
-% set(gca,'Ydir','reverse');
-% axis equal;
 
 hold on;
 [newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
 F = scatteredInterpolant(Adomain(:),Bdomain(:),myEER(:));
 F.Method = 'natural';
-hold on;[C,h] = contour(newA,newB,F(newA,newB),[params.contourLines,params.contourLines],'LineWidth',3, 'Color',[1 1 1 ]);
+hold on;[C,h] = contour(newA,newB,F(newA,newB),[params.contourLineSig,params.contourLineSig],'LineWidth',3, 'Color',[1 1 1 ]);
 clabel(C,h,'Color',[1 1 1],'FontSize',15);
 set(gca,'Ydir','reverse');
 axis equal;
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+close all;
+%--------------------------------------------------------------------------
 
-% do global ROC
+myTitle = [conditionFunc ' ' field ' EER contour'];
+[C,h]=contour(newA,newB,F(newA,newB),params.contourLines,'LineWidth',3,'ShowText','on');
+% clabel(C,h,'Color',[1 1 1],'FontSize',15);
+set(gca,'Ydir','reverse');
+axis equal;
+title(myTitle);xlabel('A');ylabel('B');
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+close all;
 
+%--------------------------------------------------------------------------
 disp('analyzeStageI(): global ROC...');
 sigHolder = cell(prod(sizeAB),1);
 bkHolder  = cell(prod(sizeAB),1);
@@ -184,14 +179,22 @@ for ii = 1:prod(sizeAB)
         continue;
     end
     display(['A:' num2str(currA) ',B:' num2str(currB)]);
-    
     sigHolder{ii} = conditionHolder{ii}.sig;
     bkHolder{ii} = conditionHolder{ii}.bk;
 end
 sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
 ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
-
+figure(ROC.histHandle);
+myTitle = [conditionFunc ' ' field ' ROC-histograms'];
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+figure(ROC.CDFHandle);
+myTitle = [conditionFunc ' ' field ' ROC-CDFs'];
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+figure(ROC.ROCHandle);
+myTitle = [conditionFunc ' ' field ' ROC'];
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+close all;
 if params.fitGamma
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);
@@ -215,10 +218,15 @@ if params.fitGamma
         bkShape(ii) = phat(1);
         bkScale(ii) = phat(2);
     end
+    myTitle = [conditionFunc ' ' field];
+    print('-painters','-depsc', [saveFolder filesep myTitle '-pdf background and gamma fit']);
     figure;imagesc([minA,maxA],[minB,maxB],bkShape');colorbar;title('bk shape');xlabel('A');ylabel('B');
+    print('-painters','-depsc', [saveFolder filesep myTitle '-bkshape']);
     figure;imagesc([minA,maxA],[minB,maxB],bkScale');colorbar;title('bk scale');xlabel('A');ylabel('B');
+    print('-painters','-depsc', [saveFolder filesep myTitle '-bkscale']);
     figure;plot(linspace(minB,maxB,size(bkScale,2)),bkScale(1,:));title(['bkscale w psfSize' mat2str(size(benchStruct.psfs{1}))]);
-    
+    print('-painters','-depsc', [saveFolder filesep myTitle '-bkscaleVsB']);
+    close all;
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf signal ']);
     sigShape = zeros(sizeAB);
@@ -240,7 +248,10 @@ if params.fitGamma
         sigShape(ii) = phat(1);
         sigScale(ii) = phat(2);
     end
+    print('-painters','-depsc', [saveFolder filesep myTitle '-pdf signal and gamma fit']);
     figure;imagesc([minA,maxA],[minB,maxB],sigShape');colorbar;title('sig shape');xlabel('A');ylabel('B');
+    print('-painters','-depsc', [saveFolder filesep myTitle '-sigShape']);
     figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');
-    
+    print('-painters','-depsc', [saveFolder filesep myTitle '-sigScale']);
+    close all;
 end

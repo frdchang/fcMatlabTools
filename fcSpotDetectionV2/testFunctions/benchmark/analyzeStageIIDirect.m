@@ -4,7 +4,7 @@ function [h,analysis] = analyzeStageIIDirect( benchStruct )
 if ~isfield(benchStruct,'directFitting')
     error('need to run STage ii  directFitting bench');
 end
-[ procRoot,saveFolder ] = genProcessedPathForBench( benchStruct,'analyzeStageII');
+[ ~,saveFolder ] = genProcessedPathForBench( benchStruct,'analyzeStageII');
 makeDIR(saveFolder);
 
 stageIIconds = benchStruct.directFitting;

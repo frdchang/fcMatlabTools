@@ -3,7 +3,7 @@ function datas = genROC(nameOfMeasure,withTarget,withoutTarget,varargin)
 
 %--parameters--------------------------------------------------------------
 params.doPlot     = false;
-params.NumBinsMAX       = 2000;
+params.NumBinsMAX = 2000;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -95,9 +95,9 @@ woCDF(newDomain>max([h2Edges])) = 1;
 wCDF(newDomain<min([h1Edges])) = 0;
 wCDF(newDomain>max([h1Edges])) = 1;
 if params.doPlot
-    figure;plot(newDomain,woCDF,'LineWidth',1.5);hold on;plot(newDomain,wCDF,'LineWidth',1.5);legend('wo','w');
+    cdfH=figure;plot(newDomain,woCDF,'LineWidth',1.5);hold on;plot(newDomain,wCDF,'LineWidth',1.5);legend('wo','w');
     plot(h1Edges,wCDFold,'o');plot(h2Edges,woCDFold,'o');
-    title('CDFs');
+    title(['CDF: ' titleText]);
     axis tight;
 end
 % maxSize = max(numel(withTargetCDF),numel(withoutTargetCDF))+1;
@@ -114,7 +114,7 @@ idxOfEER = error ==  min(error);
 EER = x0(idxOfEER);
 
 if params.doPlot
-    figure;plot(1-woCDF,1-wCDF,'LineWidth',2); axis equal;axis([0 1 0 1]);
+    ROCh=figure;plot(1-woCDF,1-wCDF,'LineWidth',2); axis equal;axis([0 1 0 1]);
     set(gca,'Color',[1 1 1]);
     set(gcf,'Color',[1 1 1]);
     title(['Reciever Operator Characteristic: ' titleText]);
@@ -150,7 +150,9 @@ if h2.BinEdges(end) == Inf && h2.Values(end) ~=0
 end
 
 if params.doPlot
-    
+    datas.histHandle = grandf;
+    datas.ROCHandle = ROCh;
+    datas.CDFHandle = cdfH;
 else
     close(grandf);
 end
