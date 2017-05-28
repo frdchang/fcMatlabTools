@@ -4,6 +4,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - segmentation
 - nD experiment processing
 - (microscope control is located in fcMicroscope)
+- do benchmarking 
 
 ## to do
 - multi-emmiter fitting
