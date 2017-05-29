@@ -2,14 +2,32 @@ function DprobData = DPoissGaussDLambda(data,lambda,sigma)
 %DPOISSGAUSSDLAMBDA Summary of this function goes here
 %   Detailed explanation goes here
 
-gaussDomSize = 4;
+% gaussDomSize = 4;
+% 
+% sigmaSteps = round(gaussDomSize*sigma);
+% gaussDOM = -sigmaSteps:sigmaSteps;
+% gauss = normpdf(gaussDOM,0,sigma);
+% gauss = gauss/sum(gauss(:));
+% poiss = DPoissDLambdaPDF(data+gaussDOM,lambda);
+% DprobData = sum(gauss.*poiss);
 
-sigmaSteps = round(gaussDomSize*sigma);
+
+if sigma == inf || sigma == -inf
+   DprobData = nan;
+   return;
+end
+gaussDomSize = 6;
+
+sigmaSteps = round(gaussDomSize*(sigma+lambda));
 gaussDOM = -sigmaSteps:sigmaSteps;
-gauss = normpdf(gaussDOM,0,sigma);
+shiftDOM = data+gaussDOM;
+shiftDOM = round(shiftDOM);
+gauss = normpdf(shiftDOM,data,sigma);
 gauss = gauss/sum(gauss(:));
-poiss = DPoissDLambdaPDF(data+gaussDOM,lambda);
-DprobData = sum(gauss.*poiss);
+poiss = DPoissDLambdaPDF(shiftDOM,lambda);
+poiss(isnan(poiss)) = 0;
+% no negative values
 
+DprobData = sum(gauss.*poiss);
 end
 

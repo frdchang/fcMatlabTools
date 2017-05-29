@@ -45,7 +45,7 @@ if ~iscell(camVar)
     camVars = cell(numel(datas),1);
     [camVars{:}] = deal(camVar);
 end
-states{1}     = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,1}});
+states{1}     = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,1}},params);
 states{1}.thetaMLEsByGrad    = states{1}.thetaMLEs;
 states{1}.logLikePPGrad      = states{1}.logLikePP;
 states{1}.logLikePGGrad      = states{1}.logLikePG;
@@ -68,7 +68,7 @@ for ii = 1:params.numSpots
     maxThetaInputsHybrid    = cellfunNonUniformOutput(@(x) hybridAllThetas(x),theta0);
     newtonBuild             = newtonRaphsonBuild(maxThetaInputs);
     % do by gradient
-    stateByGrad             = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,params.gradSteps}},'doPlotEveryN',params.doPlotEveryN);
+    stateByGrad             = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0,camVars,domains,{{maxThetaInputs,params.gradSteps}},params);
     if ~isequal(stateByGrad.stateOfStep,'ok')
 %         display('break at gradient');
         states{ii+1}                        = stateByGrad;
@@ -83,7 +83,7 @@ for ii = 1:params.numSpots
     theta0ByGrad{ii}        = stateByGrad.thetaMLEs;
     
     % do by newtone
-    stateByHybrid           = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByGrad.thetaMLEs,camVars,domains,{{maxThetaInputsHybrid,params.hybridSteps}},'doPlotEveryN',params.doPlotEveryN);
+    stateByHybrid           = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByGrad.thetaMLEs,camVars,domains,{{maxThetaInputsHybrid,params.hybridSteps}},paras);
     if ~isequal(stateByHybrid.stateOfStep,'ok')
 %         display('break at hybrid');
         states{ii+1}                        = stateByGrad;
@@ -98,7 +98,7 @@ for ii = 1:params.numSpots
     end
     
     
-    stateByNewt             = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByHybrid.thetaMLEs,camVars,domains,{{newtonBuild,params.newtonSteps}},'doPlotEveryN',params.doPlotEveryN);
+    stateByNewt             = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByHybrid.thetaMLEs,camVars,domains,{{newtonBuild,params.newtonSteps}},params);
     if ~isequal(stateByNewt.stateOfStep,'ok')
         states{ii+1}                        = stateByHybrid;
         states{ii+1}.stateOfStep            = stateByNewt.stateOfStep;

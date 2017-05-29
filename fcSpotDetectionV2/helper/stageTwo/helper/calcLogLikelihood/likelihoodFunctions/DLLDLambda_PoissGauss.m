@@ -10,9 +10,12 @@ function DLLDLambda = DLLDLambda_PoissGauss(data,lambda,sigmasq,order)
 sigma = sqrt(sigmasq);
 switch order
     case 1
-        DLLDLambda = calcDPoissGaussDLambda(data,lambda,sigma);
+        DLLDLambda = calcDPoissGaussDLambda(data,lambda,sigma)./calcPoissGauss(data,lambda,sigma);
     case 2
-        DLLDLambda = calcD2PoissGaussDLambda2(data,lambda,sigma);
+        f = calcPoissGauss(data,lambda,sigma);
+        d1 = calcDPoissGaussDLambda(data,lambda,sigma);
+        d2 = calcD2PoissGaussDLambda2(data,lambda,sigma);
+        DLLDLambda = (-d1.^2 + f.*d2)./(f.^2);
     otherwise
         error('derivative order needs to be 1 or 2');
 end

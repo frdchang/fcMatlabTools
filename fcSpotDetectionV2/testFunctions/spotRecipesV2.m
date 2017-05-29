@@ -1,5 +1,28 @@
+%% check poissGauss derivatives
+d = 0:5:20;
+readNoise = 1.6;
+lambda = linspace(0,25,100);
+order = 2;
+for ii = 1:numel(d)
+    for jj = 1:numel(lambda)
+        % this is wrong because it is returning D of the likelihood not the
+        % log likelhood
+        dpg(jj) = DLLDLambda_PoissGauss(d(ii),lambda(jj),readNoise^2,order);
+    end
+    hold on;plot(lambda,dpg,'-');
+end
+legend(arrayfun(@(x) ['d=' num2str(x)],d,'UniformOutput',false));
+xlabel('lambda');
+for ii = 1:numel(d)
+    for jj = 1:numel(lambda)
+        % this is wrong because it is returning D of the likelihood not the
+        % log likelhood
+        dpp(jj) = DLLDLambda_PoissPoiss(d(ii),lambda(jj),readNoise^2,order);% DPoissDLambdaPDF(d(ii)+readNoise^2,lambda(jj)+readNoise^2);
+    end
+    plot(lambda,dpp,'--');
+end
 %% test discrimination ability of two spots
-Kmatrix = [1 0.2; 0.2 1];
+Kmatrix = [1 0; 0 1];
 binning = 3;
 params.sizeData         = [31 21 9];
 params.centerCoor       = round(params.sizeData/2);
@@ -37,10 +60,20 @@ estimated = findSpotsStage1V2(photonData,psfs,cameraVar,'kMatrix',Kmatrix,'nonNe
 candidates = genCandidatesFromTheta0(params.sizeData,bigTheta,params.threshPSFArgs{1});
 % candidatesSep = selectCandidates(estimatedSep);
 
-MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
+MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10,'DLLDLambda',@DLLDLambda_PoissGauss);
 
-mse = logLike_MSE(photonData,bigLambdas);
+mse(1) = logLike_MSE(photonData,bigLambda(domains,MLEs{1}(1).thetaMLEs,'objKerns',psfObjs));
+mse(2) = logLike_MSE(photonData,bigLambda(domains,MLEs{1}(2).thetaMLEs,'objKerns',psfObjs));
+mse(3) = logLike_MSE(photonData,bigLambda(domains,MLEs{1}(2).thetaMLEs,'objKerns',psfObjs));
 
+LLPP = [MLEs{1}.logLikePP];
+LLPG = [MLEs{1}.logLikePG];
+
+figure;
+plot(norm0to1(mse),'-x');hold on;
+plot(norm0to1(LLPP),'-o');
+plot(norm0to1(LLPG),'-s');
+legend('mse','pp','pg');
 %% confirm convergence quality for 1 channel 2 spots
 Kmatrix = 1;
 binning = 3;

@@ -1,7 +1,9 @@
 function [probData] = calcPoissGauss(data,lambda,sigma)
 %POISSGAUSS returns the probability of seeing data given lambda sigma and
 %zero offset, for now it is not vectorized.
-
+if isscalar(lambda) && ~isscalar(data)
+   lambda = lambda*ones(size(data)); 
+end
 probData = arrayfun(@localCalcPoissGauss,data,lambda,sigma);
 
 end
