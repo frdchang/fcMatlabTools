@@ -258,7 +258,6 @@ set(gca,'Ytick',xRange);
 set(gca,'XAxisLocation','top');
 box off;
 
-
 if forPoster
     set(gca,'fontsize',10,'Xcolor','k','Ycolor','k');
     set(get(gca,'Title'),'Color','k');

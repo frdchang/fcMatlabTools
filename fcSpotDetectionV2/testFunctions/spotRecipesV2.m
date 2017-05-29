@@ -1,3 +1,46 @@
+%% test discrimination ability of two spots
+Kmatrix = [1 0.2; 0.2 1];
+binning = 3;
+params.sizeData         = [31 21 9];
+params.centerCoor       = round(params.sizeData/2);
+
+params.psfFunc          = @genPSF;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.As               = 3;
+params.Bs               = 0;
+params.dist2Spots       = 0;
+
+cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
+
+centerCoor = params.centerCoor ;
+psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[binning,binning,binning]),psfs);
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.Bs}};
+
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+[sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+
+estimated = findSpotsStage1V2(photonData,psfs,cameraVar,'kMatrix',Kmatrix,'nonNegativity',true);
+candidates = genCandidatesFromTheta0(params.sizeData,bigTheta,params.threshPSFArgs{1});
+% candidatesSep = selectCandidates(estimatedSep);
+
+MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
+
+mse = logLike_MSE(photonData,bigLambdas);
+
 %% confirm convergence quality for 1 channel 2 spots
 Kmatrix = 1;
 binning = 3;
@@ -10,9 +53,9 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 12;
+params.As               = 3;
 params.Bs               = 0;
-params.dist2Spots       = 2;
+params.dist2Spots       = 0;
 
 cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
 
