@@ -22,7 +22,7 @@ function state = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,theta0s,sigmasqs
 params.gradTol          = 0.01;
 params.newtonTol        = 0.00001;
 % plotting parameters
-params.doPloteveryN     = inf;
+params.doPlotEveryN     = inf;
 % MLE functions
 params.DLLDTheta        = @DLLDThetaV2;
 params.DLLDLambda       = @DLLDLambda_PoissPoiss;
@@ -164,7 +164,7 @@ for ii = 1:numStrategies
 %         display(flattenTheta0s(theta0s));
 %         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
 %         
-        if mod(jj,params.doPloteveryN) == 1
+        if mod(jj,params.doPlotEveryN) == 1
             plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,currError);
         end
         totalIter = totalIter + 1;

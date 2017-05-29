@@ -83,7 +83,7 @@ for ii = 1:params.numSpots
     theta0ByGrad{ii}        = stateByGrad.thetaMLEs;
     
     % do by newtone
-    stateByHybrid           = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByGrad.thetaMLEs,camVars,domains,{{maxThetaInputsHybrid,params.hybridSteps}},paras);
+    stateByHybrid           = MLEbyIterationV2(objKerns,A1s,carvedMask,datas,stateByGrad.thetaMLEs,camVars,domains,{{maxThetaInputsHybrid,params.hybridSteps}},params);
     if ~isequal(stateByHybrid.stateOfStep,'ok')
 %         display('break at hybrid');
         states{ii+1}                        = stateByGrad;
