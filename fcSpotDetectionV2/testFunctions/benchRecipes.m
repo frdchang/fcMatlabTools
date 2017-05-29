@@ -26,7 +26,7 @@ toc
 
 %% 1 spot
 timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',10);
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',10000,'saveFolder','/mnt/btrfs/fcDataStorage/fcCheckout/');
 timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
@@ -42,6 +42,10 @@ benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
 timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 timings(end+1) = toc;
+analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+analyzeStageI(benchStruct,@logConv,'logConv');
+analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageI(benchStruct,@regularConv,'regularConv');
 analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
@@ -50,12 +54,6 @@ analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
 analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
 analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
-
-analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-analyzeStageI(benchStruct,@logConv,'logConv');
-analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-analyzeStageI(benchStruct,@regularConv,'regularConv');
-
 %% gamma fit test
 benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
