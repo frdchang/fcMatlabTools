@@ -54,7 +54,7 @@ persistent Normalization;
 
 %--parameters--------------------------------------------------------------
 params.kMatrix       = [];
-params.nonNegativity = false;
+params.nonNegativity = true;
 params.loadIntoGpu   = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -235,7 +235,7 @@ else
     
     if params.nonNegativity
         selectNegVals = cellfunNonUniformOutput(@(x) x<0,A1);
-        selectNegVals = multiCellContents(selectNegVals);
+        selectNegVals = sumCellContents(selectNegVals);
         LLRatio(selectNegVals>0) = 0;
         for ii = 1:size(kMatrix,2)
             A0{ii}(A0{ii}<0) = 0;

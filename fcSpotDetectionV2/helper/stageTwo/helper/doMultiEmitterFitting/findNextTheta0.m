@@ -6,7 +6,10 @@ function theta0 = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVa
 
 bigLambdas = bigLambda(domains,theta0,'objKerns',objKerns);
 errors = cellfunNonUniformOutput(@(x,y) x-y,datas,bigLambdas);
-newEstimated = findSpotsStage1V2(errors,estimated.spotKern,camVar,'kMatrix',Kmatrix);
+newEstimated = findSpotsStage1V2(errors,estimated.spotKern,camVar,'kMatrix',Kmatrix,'nonNegativity',false);
+selectNegVals = cellfunNonUniformOutput(@(x) x<0,newEstimated.A1);
+selectNegVals = sumCellContents(selectNegVals);
+newEstimated.LLRatio(selectNegVals>0) = 0;
 
 idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:));
 A1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.A1);
