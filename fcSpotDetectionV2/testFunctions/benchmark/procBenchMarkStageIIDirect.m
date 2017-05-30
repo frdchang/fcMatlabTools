@@ -3,7 +3,7 @@ function [ benchStruct ] = procBenchMarkStageIIDirect(benchStruct,varargin)
 %--parameters--------------------------------------------------------------
 params.doN          = inf;
 params.doPlotEveryN = inf;
-params.DLLDLambda  = @DLLDLambda_PoissGauss;
+params.DLLDLambda  = @DLLDLambda_PoissPoiss;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
