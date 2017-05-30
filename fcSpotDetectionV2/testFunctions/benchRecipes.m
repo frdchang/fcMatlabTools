@@ -26,7 +26,8 @@ toc
 
 %% 1 spot
 timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',1000,'saveFolder','/mnt/btrfs/fcDataStorage/fcCheckout/');
+% tic;benchStruct = genBenchMark('benchType',1,'numSamples',1000,'saveFolder','/mnt/btrfs/fcDataStorage/fcCheckout/');
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',1000);
 timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
