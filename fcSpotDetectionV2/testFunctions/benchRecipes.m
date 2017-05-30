@@ -18,7 +18,7 @@ benchStruct = procBenchMarkStageII(benchStruct);
 
 %% 2 spot 2 colors 
 tic;
-benchStruct = genBenchMark('benchType',3,'numSamples',1000);
+benchStruct = genBenchMark('benchType',3,'numSamples',10);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageIIDirect(benchStruct);
 analyzeStageIIDirect(benchStruct);
