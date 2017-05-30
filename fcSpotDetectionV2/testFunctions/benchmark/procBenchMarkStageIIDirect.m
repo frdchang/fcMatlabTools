@@ -28,7 +28,7 @@ numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
 display('procBenchMarkStageIIDirect() starting...');
 setupParForProgress(numConditions);
-parfor ii = 1:numConditions
+for ii = 1:numConditions
     incrementParForProgress();
 %     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};

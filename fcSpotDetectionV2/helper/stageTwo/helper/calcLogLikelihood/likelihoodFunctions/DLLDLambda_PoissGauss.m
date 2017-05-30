@@ -19,3 +19,5 @@ switch order
     otherwise
         error('derivative order needs to be 1 or 2');
 end
+
+DLLDLambda(isnan(DLLDLambda)) = 0;

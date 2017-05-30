@@ -1,5 +1,5 @@
 %% check poissGauss derivatives
-d = 0:5:20;
+d = -3:5:20;
 readNoise = 1.6;
 lambda = linspace(0,25,100);
 order = 2;

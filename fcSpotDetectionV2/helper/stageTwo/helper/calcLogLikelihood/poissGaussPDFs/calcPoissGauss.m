@@ -11,10 +11,14 @@ end
 function probData = localCalcPoissGauss(data,lambda,sigma)
 
 if sigma == inf || sigma == -inf
-   probData = nan;
+   probData = 0;
    return;
 end
 gaussDomSize = 6;
+
+if lambda<0
+    lambda = 0;
+end
 
 sigmaSteps = round(gaussDomSize*(sigma+lambda));
 gaussDOM = -sigmaSteps:sigmaSteps;
@@ -23,6 +27,7 @@ shiftDOM = round(shiftDOM);
 gauss = normpdf(shiftDOM,data,sigma);
 gauss = gauss/sum(gauss(:));
 poiss = contPoissPDF(shiftDOM,lambda);
+poiss(shiftDOM<0) = 0;
 poiss(isnan(poiss)) = 0;
 % no negative values
 
