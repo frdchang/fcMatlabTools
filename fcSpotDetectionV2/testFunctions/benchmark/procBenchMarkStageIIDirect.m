@@ -2,7 +2,8 @@ function [ benchStruct ] = procBenchMarkStageIIDirect(benchStruct,varargin)
 %PROCBENCHMARKSTAGEII
 %--parameters--------------------------------------------------------------
 params.doN          = inf;
-params.doPlotEveryN = 10;
+params.doPlotEveryN = inf;
+params.DLLDLambda  = @DLLDLambda_PoissGauss;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -80,7 +81,7 @@ parfor ii = 1:numConditions
         carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
         carvedEstimates.spotKern    = estimated.spotKern;
         %-----APPY MY FUNC-------------------------------------------------
-        MLEs{jj}{1}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',params.doPlotEveryN);
+        MLEs{jj}{1}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',params.doPlotEveryN,'DLLDLambda',params.DLLDLambda);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currStageIFiles{jj},@directFitting);
         makeDIRforFilename(myFuncOutSave{jj});
