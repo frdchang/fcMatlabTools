@@ -143,8 +143,8 @@ for ii = 1:prod(sizeAB)
     myEER(ii) = ROC.EER;
 end
 myTitle = [conditionFunc ' ' field ' EER heatmap'];
-h1 = figure;
-hold on;imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
+close all;
+imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
 caxis([0 0.5]);
 
 hold on;
