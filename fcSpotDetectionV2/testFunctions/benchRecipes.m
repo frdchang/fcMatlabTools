@@ -44,6 +44,7 @@ benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
 timings(end+1) = toc;
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 timings(end+1) = toc;
+
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 analyzeStageI(benchStruct,@logConv,'logConv');
 analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
@@ -56,6 +57,21 @@ analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
 analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
 analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
 analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
+
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
+
+
 %% gamma fit test
 benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
