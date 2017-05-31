@@ -4,7 +4,7 @@ function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,var
 % then it plots global ROC for A>=B
 %--parameters--------------------------------------------------------------
 params.fitGamma         = false;
-params.NumBinsMAX       = 1000;
+params.NumBinsMAX       = 200;
 params.contourLineSig   = 0.05;
 params.contourLines     = [0.1:0.1:0.5];
 params.minAForGlobalROC = 0;
@@ -75,6 +75,84 @@ for ii = 1:prod(sizeAB)
     end
 end
 %--------------------------------------------------------------------------
+myTitle = [conditionFunc ' ' field ' log pdf'];
+h = createFullMaxFigure(myTitle);
+minA = inf;
+minB = inf;
+maxA = -inf;
+maxB = -inf;
+Adomain = zeros(sizeAB);
+Bdomain = zeros(sizeAB);
+disp('analyzeStageI(): plotting log pdf scale');
+setupParForProgress(prod(sizeAB));
+for ii = 1:prod(sizeAB)
+    incrementParForProgress();
+    currA = conditions{ii}.A;
+    currB = conditions{ii}.B;
+    Adomain(ii) = currA;
+    Bdomain(ii) = currB;
+    sig = conditionHolder{ii}.sig + currMin + myMin;
+    bk = conditionHolder{ii}.bk+ currMin + myMin;
+    subplot(sizeAB(2),sizeAB(1),ii);
+    [hSig,hBk ] = histSigBkgnd(sig,bk,'NumBinsMAX',params.NumBinsMAX);
+    hSig.Normalization = 'pdf';
+    hBk.Normalization = 'pdf';
+    hBk.EdgeColor = 'none';
+    hSig.EdgeColor = 'none';
+    set(gca,'YScale','log');
+    title(['A' num2str(currA) ' B' num2str(currB)]);
+    if currA < minA
+        minA = currA;
+    end
+    if currA > maxA
+        maxA = currA;
+    end
+    if currB < minB
+        minB = currB;
+    end
+    if currB > maxB
+        maxB = currB;
+    end
+    axis tight;
+    drawnow;
+end
+legend('bk','sig');
+
+minXaxis = inf;
+maxXaxis = -inf;
+minYaxis = inf;
+maxYaxis = -inf;
+for ii = 1:prod(sizeAB)
+    hold on;subplot(sizeAB(2),sizeAB(1),ii);
+    V = axis;
+    if minXaxis > V(1)
+       minXaxis = V(1);
+    end
+    if maxXaxis < V(2)
+       maxXaxis = V(2); 
+    end
+    if minYaxis > V(3)
+       minYaxis = V(3); 
+    end
+    if maxYaxis < V(4)
+        maxYaxis = V(4);
+    end
+end
+
+
+for ii = 1:prod(sizeAB)
+    hold on;subplot(sizeAB(2),sizeAB(1),ii);
+    if currMin < 0
+        axis([minXaxis maxXaxis minYaxis maxYaxis]);
+    else
+        axis([myMin 10^ceil(log10(currMax))  minYaxis maxYaxis]);
+        set(gca,'XScale','log');
+    end
+end
+
+print('-painters','-depsc', [saveFolder filesep myTitle]);
+close all;
+%--------------------------------------------------------------------------
 myTitle = [conditionFunc ' ' field ' cdf'];
 h = createFullMaxFigure(myTitle);
 minA = inf;
@@ -119,6 +197,7 @@ legend('bk','sig');
 
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 
+if currMin >= 0
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
     axis([myMin 10^ceil(log10(currMax)) 0 1]);
@@ -126,8 +205,8 @@ for ii = 1:prod(sizeAB)
 end
 
 print('-painters','-depsc', [saveFolder filesep myTitle ' log' ]);
+end
 close all;
-
 %--------------------------------------------------------------------------
 disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
