@@ -7,6 +7,7 @@ classdef myPattern_Numeric < myPattern_Interface
         heartFunc
         downSample
         newDomains
+        interpMethod
     end
     
     methods
@@ -19,9 +20,10 @@ classdef myPattern_Numeric < myPattern_Interface
             % after the downSample happens.
             
             %--parameters--------------------------------------------------------------
-            params.downSample          = [];
+            params.downSample       = [];
             params.domains          = [];
             params.normPeakHeight   = true;
+            params.interpMethod     = 'linear';
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
             % myNumericPattern
@@ -48,6 +50,7 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.centerCoorOG    = cellfun(@(myDom) myDom(obj.centerCoorOG{:}),obj.domainsOG);
             obj.numDims         = numel(obj.centerCoorOG);
             
+            obj.interpMethod    = params.interpMethod;
 
         end
         
@@ -70,7 +73,7 @@ classdef myPattern_Numeric < myPattern_Interface
             % to take into account the downSample.  so give it regular domain,
             % and this functino will expand the domain
             %--parameters--------------------------------------------------------------
-            params.interpMethod     = 'linear';
+            params.default     = [];
             %--------------------------------------------------------------------------
             params = updateParams(params,varargin);
             % calc how the shape will be moved
@@ -88,7 +91,7 @@ classdef myPattern_Numeric < myPattern_Interface
             for ii = 1:numel(domains)
                 shiftdomains{ii} = domains{ii} - deltaPosition(ii);
             end
-            obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},params.interpMethod);
+            obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},obj.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
             obj.newDomains = domains;
             heartFunc = obj.heartFunc;

@@ -12,6 +12,7 @@ for ii = 1:ndims(psfData)
    selector{ii} = goodPart(ii,1):(goodPart(ii,2)-goodPart(ii,1)+1);
 end
 centeredPSF = centeredPSF(selector{:});
+centeredPSF(centeredPSF == -inf) = 0;
 % minDim = ones(ndims(psfData));
 % maxDim = size(psfData);
 %

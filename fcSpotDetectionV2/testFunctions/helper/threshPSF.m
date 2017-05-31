@@ -14,6 +14,7 @@ else
     brightestCoor = findCoorWithMax(psfData);
     [psfData,thresh] = getSubsetwCentroidANdBBoxSizeND(psfData,cell2mat(brightestCoor),thresh);
 end
+psfData(psfData == -inf) = 0;
 
 
 
