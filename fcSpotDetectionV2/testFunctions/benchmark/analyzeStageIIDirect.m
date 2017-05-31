@@ -11,6 +11,10 @@ stageIIconds = benchStruct.directFitting;
 numConds     = numel(stageIIconds);
 Kmatrix      = benchStruct.Kmatrix;
 analysis     = cell(size(stageIIconds));
+minA = inf;
+maxA = -inf;
+minB = inf;
+maxB = -inf;
 for ii = 1:numConds
     if isempty(stageIIconds{ii})
         % analysis was not done,e.g. when A=0
@@ -18,6 +22,18 @@ for ii = 1:numConds
         currA        = stageIIconds{ii}.A;
         currB        = stageIIconds{ii}.B;
         currD        = stageIIconds{ii}.D;
+        if currA < minA
+           minA = currA; 
+        end
+        if currB < minB
+           minB = currB;
+        end
+        if currA > maxA;
+            maxA = currA;
+        end
+        if currB > maxB;
+            maxB = currB;
+        end
         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
         
         MLEs         = stageIIconds{ii}.MLEsByDirect;
@@ -103,7 +119,34 @@ for ii = 1:numTheta
     colorbar;
     saveas(gcf,[saveFolder filesep myTitle],'epsc');
 end
+close all;
 
+
+for ii = 1:numTheta
+    close all;
+    currD = 1;
+    currSTDMap = stdForEachTheta{ii}(:,:,currD);
+    minMaxOfDomains = calcMinMaxFromMeshData(domains);
+    ADoms = minMaxOfDomains(1,:);
+    BDoms = minMaxOfDomains(2,:);
+    [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
+    AA = domains{1}(:,:,d);
+    BB = domains{2}(:,:,d);
+    AA(isnan(currSTDMap)) = [];
+    BB(isnan(currSTDMap)) = [];
+    currSTDMap(isnan(currSTDMap)) = [];
+    F = scatteredInterpolant(AA(:),BB(:),currSTDMap(:));
+    F.Method = 'natural';
+    [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
+    set(gca,'Ydir','reverse');
+    axis equal;
+    myTitle = ['std deviation theta ' num2str(ii)];
+    title(myTitle);
+    xlabel('A');ylabel('B');
+    box off;
+    print('-painters','-depsc', [saveFolder filesep myTitle]);
+end
+close all;
 % get mean map
 meanForEachTheta = cell(numTheta,1);
 for ii = 1:numTheta
@@ -178,23 +221,44 @@ end
 end
 
 function hBasket = genHist(analysis,currTheta,saveFolder)
+minBinLimits = 1;
 sizeConditions = size(analysis);
 close all;
+currMin = inf;
+currMax = -inf;
+peakMax = -inf;
 switch numel(sizeConditions)
     case 2
         currDFirst = getFirstNonEmptyCellContent(analysis);
         myTitle = [' theta' num2str(currTheta) ' of ' mat2str(currDFirst.trueTheta(:)')];
-        hBasket = createMaxFigure(myTitle);
-        
+        hBasket = createFullMaxFigure(myTitle);
         currSizeConditions = size(analysis);
         for ii = 1:prod(currSizeConditions)
             if ~isempty(analysis{ii})
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
                 hSub.Normalization = 'pdf';
+                if currMin > min(hSub.BinEdges)
+                    currMin = min(hSub.BinEdges);
+                end
+                if currMax < max(hSub.BinEdges)
+                    currMax = max(hSub.BinEdges);
+                end
+                if abs(diff(hSub.BinLimits)) > minBinLimits
+                    
+                    if peakMax < max(hSub.Values)
+                        peakMax = max(hSub.Values);
+                    end
+                end
                 title(['A:' num2str(analysis{ii}.A) ' B:' num2str(analysis{ii}.B)]);
                 xlabel(num2str(numel(analysis{ii}.thetaHolder(currTheta,:))));
-                
+            end
+        end
+        
+        for ii = 1:prod(currSizeConditions)
+            if ~isempty(analysis{ii})
+                subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                axis([currMin currMax 0 peakMax]);
             end
         end
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
@@ -216,6 +280,24 @@ switch numel(sizeConditions)
                     hSub.Normalization = 'pdf';
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currAnalysis{ii}.thetaHolder(currTheta,:))));
+                    if currMin > min(hSub.BinEdges)
+                        currMin = min(hSub.BinEdges);
+                    end
+                    if currMax < max(hSub.BinEdges)
+                        currMax = max(hSub.BinEdges);
+                    end
+                    if abs(diff(hSub.BinLimits)) > minBinLimits
+                        
+                        if peakMax < max(hSub.Values)
+                            peakMax = max(hSub.Values);
+                        end
+                    end
+                end
+            end
+            for ii = 1:prod(currSizeConditions)
+                if ~isempty(analysis{ii})
+                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                    axis([currMin currMax 0 peakMax]);
                 end
             end
             print('-painters','-depsc', [saveFolder filesep myTitle]);
