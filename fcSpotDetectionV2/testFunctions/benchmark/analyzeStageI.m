@@ -133,19 +133,21 @@ disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
-    incrementParForProgress();
+    display(ii);
+%     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
-    %sig = min(realmax-1,sig);
     bk = conditionHolder{ii}.bk;
-    %bk = min(realmax,bk);
-    subplot(sizeAB(2),sizeAB(1),ii);
-    ROC = genROC('adsf',sig,bk,'doPlot',false);
-    myEER(ii) = ROC.EER;
+    pause(1);
+    ROC = genROC('adsf',sig,bk,'doPlot',true);
+    pause(1);
+    close all;
+     myEER(ii) = ROC.EER;
 end
-myTitle = [conditionFunc ' ' field ' EER heatmap'];
 close all;
 imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
 caxis([0 0.5]);
+myTitle = [conditionFunc ' ' field ' EER heatmap'];
+
 
 hold on;
 [newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
