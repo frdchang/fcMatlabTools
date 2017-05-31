@@ -15,7 +15,9 @@ minA = inf;
 maxA = -inf;
 minB = inf;
 maxB = -inf;
+setupParForProgress(numConds);
 for ii = 1:numConds
+    incrementParForProgress();
     if isempty(stageIIconds{ii})
         % analysis was not done,e.g. when A=0
     else
@@ -23,10 +25,10 @@ for ii = 1:numConds
         currB        = stageIIconds{ii}.B;
         currD        = stageIIconds{ii}.D;
         if currA < minA
-           minA = currA; 
+            minA = currA;
         end
         if currB < minB
-           minB = currB;
+            minB = currB;
         end
         if currA > maxA;
             maxA = currA;
@@ -34,7 +36,7 @@ for ii = 1:numConds
         if currB > maxB;
             maxB = currB;
         end
-        display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
+%         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
         
         MLEs         = stageIIconds{ii}.MLEsByDirect;
         
@@ -51,7 +53,6 @@ for ii = 1:numConds
         LLPPBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         LLPGBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         for jj = 1:numSamples
-            display(jj);
             currMLEholder           = MLEs{jj}{1};
             if ~all(abs([currMLEholder.logLikePP])>0) || numel([currMLEholder.logLikePG]) ~= (numSpotsInTheta(masterTheta)+1)
                 continue;
@@ -95,11 +96,7 @@ end
 numTheta      =  getFirstNonEmptyCellContent(analysis);
 numTheta      =  size(numTheta.thetaHolder,1);
 
-% gen histogram maps
-histograms = cell(numTheta,1);
-for ii = 1:numTheta
-    histograms{ii} = genHist(analysis,ii,saveFolder);
-end
+
 
 
 % get std map
@@ -108,18 +105,18 @@ for ii = 1:numTheta
     [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
 end
 
-for ii = 1:numTheta
-    close all;
-    currTheta = ii;
-    d = 1;
-    [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
-    set (h, 'LineWidth', 2);
-    myTitle = ['std deviation theta ' num2str(ii)];
-    xlabel('A');ylabel('B');title(myTitle);
-    colorbar;
-    saveas(gcf,[saveFolder filesep myTitle],'epsc');
-end
-close all;
+% for ii = 1:numTheta
+%     close all;
+%     currTheta = ii;
+%     d = 1;
+%     [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
+%     set (h, 'LineWidth', 2);
+%     myTitle = ['std deviation theta ' num2str(ii)];
+%     xlabel('A');ylabel('B');title(myTitle);
+%     colorbar;
+%     saveas(gcf,[saveFolder filesep myTitle],'epsc');
+% end
+% close all;
 
 
 for ii = 1:numTheta
@@ -130,8 +127,8 @@ for ii = 1:numTheta
     ADoms = minMaxOfDomains(1,:);
     BDoms = minMaxOfDomains(2,:);
     [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
-    AA = domains{1}(:,:,d);
-    BB = domains{2}(:,:,d);
+    AA = domains{1}(:,:,currD);
+    BB = domains{2}(:,:,currD);
     AA(isnan(currSTDMap)) = [];
     BB(isnan(currSTDMap)) = [];
     currSTDMap(isnan(currSTDMap)) = [];
@@ -153,6 +150,12 @@ for ii = 1:numTheta
     [meanForEachTheta{ii},~] = applyFunc(stageIIconds,analysis,@mean,ii);
 end
 
+% gen histogram maps
+histograms = cell(numTheta,1);
+for ii = 1:numTheta
+    histograms{ii} = genHist(analysis,ii,saveFolder,stdForEachTheta,meanForEachTheta);
+end
+
 %% do LLRatio CDFS
 sizeConditions = size(analysis);
 switch numel(sizeConditions)
@@ -163,7 +166,6 @@ switch numel(sizeConditions)
         hBasket = createFullMaxFigure(myTitle);
         currSizeConditions = size(currAnalysis);
         for ii = 1:prod(currSizeConditions)
-            display(ii);
             if ~isempty(currAnalysis{ii}) && ~isempty(currAnalysis{ii}.LLPPBasket)
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 currLLR = currAnalysis{ii}.LLPPBasket;
@@ -192,7 +194,7 @@ switch numel(sizeConditions)
             hBasket = createFullMaxFigure(myTitle);
             currSizeConditions = size(currAnalysis);
             for ii = 1:prod(currSizeConditions)
-                display(ii);
+%                 display(ii);
                 if ~isempty(currAnalysis{ii}) && ~isempty(currAnalysis{ii}.LLPPBasket)
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     currLLR = currAnalysis{ii}.LLPPBasket;
@@ -220,13 +222,15 @@ end
 
 end
 
-function hBasket = genHist(analysis,currTheta,saveFolder)
+function hBasket = genHist(analysis,currTheta,saveFolder,stdForEachTheta,meanForEachTheta)
 minBinLimits = 1;
 sizeConditions = size(analysis);
 close all;
 currMin = inf;
 currMax = -inf;
 peakMax = -inf;
+currStd = stdForEachTheta{currTheta};
+currMean = meanForEachTheta{currTheta};
 switch numel(sizeConditions)
     case 2
         currDFirst = getFirstNonEmptyCellContent(analysis);
@@ -245,7 +249,6 @@ switch numel(sizeConditions)
                     currMax = max(hSub.BinEdges);
                 end
                 if abs(diff(hSub.BinLimits)) > minBinLimits
-                    
                     if peakMax < max(hSub.Values)
                         peakMax = max(hSub.Values);
                     end
@@ -259,6 +262,8 @@ switch numel(sizeConditions)
             if ~isempty(analysis{ii})
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 axis([currMin currMax 0 peakMax]);
+                xDomain = linspace(currMin,currMax,100);
+                hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
             end
         end
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
@@ -298,10 +303,11 @@ switch numel(sizeConditions)
                 if ~isempty(analysis{ii})
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     axis([currMin currMax 0 peakMax]);
+                    xDomain = linspace(currMin,currMax,100);
+                    hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
                 end
             end
             print('-painters','-depsc', [saveFolder filesep myTitle]);
-            
             %             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
             close all;
         end
@@ -333,7 +339,6 @@ for ii = 1:numel(stdMap)
         if isempty(myData)
             stdMap(ii) =  NaN;
         else
-            myData
             stdMap(ii) =  myFunc(myData);
         end
     end
