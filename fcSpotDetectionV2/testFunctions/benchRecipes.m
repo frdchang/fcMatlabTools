@@ -43,10 +43,10 @@ benchStruct = genBenchMark('benchType',1,'numSamples',1000);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
-benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
-benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
-benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
-benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
+% benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+% benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+% benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
+% benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 analyzeStageI(benchStruct,@logConv,'logConv');
