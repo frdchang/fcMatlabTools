@@ -15,14 +15,18 @@ analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
 benchStruct = procBenchMarkStageII(benchStruct);
 % analyzeStageI(benchStruct);
 % analyzeStageII(benchStruct);
-
-%% 2 spot 2 colors 
+structOut = cellfunNonUniformOutput(@(x) x{1},benchStruct.directFitting{1}.MLEsByDirect);
+LLPG  = cellfunNonUniformOutput(@(x) [x.logLikePG],structOut);
+LLPP  = cellfunNonUniformOutput(@(x) [x.logLikePP],structOut);
+MLEs  = cellfunNonUniformOutput(@(x) {structOut{1}.thetaMLEs},structOut);
+%% check convergence
 tic;
 % benchStruct = genBenchMark('benchType',3,'numSamples',30,'As',linspace(0,12,5),'Bs',linspace(0,12,5),'dist2Spots',0);
-benchStruct = genBenchMark('benchType',3,'numSamples',2,'As',3,'Bs',0,'dist2Spots',0,'binning',3,'interpMethod','linear');
+benchStruct = genBenchMark('benchType',3,'numSamples',10,'As',1,'Bs',0,'dist2Spots',0,'binning',3,'interpMethod','linear');
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
-benchStruct = procBenchMarkStageIIDirect(benchStruct,'doPlotEveryN',5,'DLLDLambda',@DLLDLambda_PoissGauss);
-analyzeStageIIDirect(benchStruct);
+benchStruct = procBenchMarkStageIIDirect(benchStruct,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+benchStruct.directFitting{1}.MLEsByDirect{2}{1}
+% analyzeStageIIDirect(benchStruct);
 toc
 
 %% 1 spot
