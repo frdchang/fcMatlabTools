@@ -216,9 +216,9 @@ for ii = 1:prod(sizeAB)
 %     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     bk = conditionHolder{ii}.bk;
-    pause(1);
-    ROC = genROC('adsf',sig,bk,'doPlot',true);
-    pause(1);
+%     pause(1);
+    ROC = genROC('adsf',sig,bk,'doPlot',false);
+%     pause(1);
     close all;
      myEER(ii) = ROC.EER;
 end

@@ -1,4 +1,25 @@
+%% check LOG3D against numerical derivative of gaussian to check
+% looks good
+
+%
+sigma = 11;
+patch = 101;
+sV = [sigma,sigma,sigma];
+pV = [patch,patch,patch];
+myLog = LOG3D(sV,pV);
+myGauss = ndGauss(sV,pV);
+% [myLogProfiles] = getNDXYZProfiles(myLog);
+% [myGaussProfiles] = getNDXYZProfiles(myGauss);
+[xx,yy,zz] = gradient(myGauss);
+[xx,~,~] = gradient(xx);
+[~,yy,~] = gradient(yy);
+[~,~,zz] = gradient(zz);
+estLap = xx + yy + zz;
+imtool3D(cat(2,norm0to1(-estLap),norm0to1(myLog)))
+
+
 %% check poissGauss derivatives
+% so far looks good
 d = -3:5:20;
 readNoise = 1.6;
 lambda = linspace(0,25,100);

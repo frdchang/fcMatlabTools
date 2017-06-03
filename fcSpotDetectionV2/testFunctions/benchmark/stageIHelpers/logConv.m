@@ -13,7 +13,10 @@ sizePsfs = cellfunNonUniformOutput(@size,psfs);
 psfs = {psfs1,psfs2};
 
 for ii = 1:numel(electrons)
-    estimated.logConv{ii} = convFFTND(electrons{ii},LOG3D(psfs{ii}.^2,sizePsfs{ii}));
+    data = electrons{ii};
+    data = padarray(data,size(psfs{ii}),'replicate');
+    output = convFFTND(data,LOG3D(psfs{ii}.^2,sizePsfs{ii}));
+    estimated.logConv{ii} = unpadarray(output,size(electrons{ii}));
 end
 
 
