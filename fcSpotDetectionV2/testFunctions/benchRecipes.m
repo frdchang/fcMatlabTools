@@ -38,7 +38,7 @@ switch computer
     otherwise
    error('asdf');     
 end
-benchStruct = genBenchMark('benchType',1,'numSamples',1000,'saveFolder',saveFolder);
+benchStruct = genBenchMark('benchType',1,'numSamples',2000,'saveFolder',saveFolder);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
