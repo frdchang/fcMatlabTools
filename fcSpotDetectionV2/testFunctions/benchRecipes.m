@@ -49,21 +49,25 @@ benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
-% analyzeStageI(benchStruct,@logConv,'logConv');
-% analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-% analyzeStageI(benchStruct,@regularConv,'regularConv');
-% analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
-% analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
-% analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
-% analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
+analyzeStageI(benchStruct,@logConv,'logConv');
+analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageI(benchStruct,@regularConv,'regularConv');
+analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
+analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
+analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
+analyzeStageI(benchStruct,@gammaCorrection,'gammaSig2');
+analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig2');
+analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
-% analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
 analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
 analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
 analyzeStageIDataOut(benchStruct,@logConv,'logConv');
@@ -79,6 +83,9 @@ analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
 analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig2');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
 
 %% gamma fit test
