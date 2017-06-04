@@ -258,6 +258,7 @@ switch numel(sizeConditions)
             end
         end
         
+        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
         for ii = 1:prod(currSizeConditions)
             if ~isempty(analysis{ii})
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
@@ -265,6 +266,7 @@ switch numel(sizeConditions)
                 xDomain = linspace(currMin,currMax,100);
                 hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
             end
+        end
         end
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
         close all;
