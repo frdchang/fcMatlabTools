@@ -267,6 +267,7 @@ sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
 ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
 figure(ROC.histHandle);
+pause(1);
 myTitle = [conditionFunc ' ' field ' ROC-histograms'];
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 figure(ROC.CDFHandle);
