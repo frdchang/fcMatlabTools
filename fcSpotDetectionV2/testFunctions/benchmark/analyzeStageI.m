@@ -191,13 +191,14 @@ for ii = 1:prod(sizeAB)
         maxB = currB;
     end
     axis tight;
+    set(gca,'YScale','log');
     drawnow;
 end
 legend('bk','sig');
 
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 
-if currMin >= 0
+if currMin >= -1
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
     axis([myMin 10^ceil(log10(currMax)) 0 1]);
@@ -212,8 +213,8 @@ disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
-    display(ii);
-%     incrementParForProgress();
+%     display(ii);
+     incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     bk = conditionHolder{ii}.bk;
 %     pause(1);
