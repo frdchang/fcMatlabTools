@@ -86,11 +86,14 @@ parfor zz = 1:totNum
             currA = params.As(ai);
             currB = params.Bs(bi);
             currD = params.dist2Spots(di);
+            
+            if ~isempty(params.dist2SpotsAtA) && ~isempty(params.dist2SpotsAtB)
             idxs = arrayfun(@(A,B) find(A==currA,1) & find(B==currB,1),params.dist2SpotsAtA,params.dist2SpotsAtB,'UniformOutput',false);
             idxs = cell2mat(idxs);
             rightAandB = any(idxs);
             if ~rightAandB && ~isequal(currD,0) && numel(params.dist2Spots) ~= 1
                 continue;
+            end
             end
             
             

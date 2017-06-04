@@ -8,6 +8,11 @@ if ~isequal(masterTheta{1},slaveTheta{1})
    return;
 end
 
+if numel(masterTheta{2})~= numel(slaveTheta{2})
+    trueOrFalse = false;
+    return;
+end
+
 for ii = 2:numel(masterTheta)
     for jj = 1:numel(masterTheta{ii})
        if isobject(masterTheta{ii}{jj}{1})
