@@ -118,11 +118,18 @@ end
 % end
 % close all;
 
-
+if ismatrix(analysis) == 2
+    numDs = 1;
+else
+   numDs = size(analysis,3); 
+end
 for ii = 1:numTheta
+    for currD = 1:numDs
     close all;
-    currD = 1;
     currSTDMap = stdForEachTheta{ii}(:,:,currD);
+    if all(isnan(currSTDMap(:)))
+       continue; 
+    end
     minMaxOfDomains = calcMinMaxFromMeshData(domains);
     ADoms = minMaxOfDomains(1,:);
     BDoms = minMaxOfDomains(2,:);
@@ -137,11 +144,12 @@ for ii = 1:numTheta
     [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
     set(gca,'Ydir','reverse');
     axis equal;
-    myTitle = ['std deviation theta ' num2str(ii)];
+    myTitle = ['std deviation theta ' num2str(ii) ' at d' num2str(currD)];
     title(myTitle);
     xlabel('A');ylabel('B');
     box off;
     print('-painters','-depsc', [saveFolder filesep myTitle]);
+    end
 end
 close all;
 % get mean map
@@ -258,6 +266,7 @@ switch numel(sizeConditions)
             end
         end
         
+        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
         for ii = 1:prod(currSizeConditions)
             if ~isempty(analysis{ii})
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
@@ -265,6 +274,7 @@ switch numel(sizeConditions)
                 xDomain = linspace(currMin,currMax,100);
                 hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
             end
+        end
         end
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
         close all;
@@ -299,6 +309,8 @@ switch numel(sizeConditions)
                     end
                 end
             end
+                    if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
+
             for ii = 1:prod(currSizeConditions)
                 if ~isempty(analysis{ii})
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
@@ -307,6 +319,7 @@ switch numel(sizeConditions)
                     hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
                 end
             end
+                    end
             print('-painters','-depsc', [saveFolder filesep myTitle]);
             %             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
             close all;

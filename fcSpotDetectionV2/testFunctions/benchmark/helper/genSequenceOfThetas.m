@@ -8,7 +8,7 @@ theRestOfThetas = trueTheta0(2:end);
 
 % if thereis only 1 spot just return trueTheta0
 if numSpotsInTheta(trueTheta0) <= 1
- seqTheta0 = cell(1+numel(theRestOfThetas),1);
+    seqTheta0 = cell(1+numel(theRestOfThetas),1);
     seqTheta0{1} = {};
     xyzcoor1 = trueTheta0{2}{1}{2}(2:end);
     cellxyz1 = num2cell(xyzcoor1);
@@ -23,24 +23,40 @@ if numSpotsInTheta(trueTheta0) == 2
     seqTheta0 = cell(1+numel(theRestOfThetas),1);
     seqTheta0{1} = {};
     xyzcoor1 = trueTheta0{2}{1}{2}(2:end);
-    xyzcoor2 = trueTheta0{3}{1}{2}(2:end);
     cellxyz1 = num2cell(xyzcoor1);
-    cellxyz2 = num2cell(xyzcoor2);
     amp1 = estimated.A1{1}(cellxyz1{:});
-    amp2 = estimated.A1{2}(cellxyz2{:});
     bkgnd1 = estimated.B1{1}(cellxyz1{:});
-    bkgnd2 = estimated.B1{2}(cellxyz2{:});
-    obj1   = trueTheta0{2}{1}{1};
-    obj2   = trueTheta0{3}{1}{1};
-    
     b01   = estimated.B0{1}(cellxyz1{:});
-    b02   = estimated.B0{2}(cellxyz2{:});
-    if amp1 > amp2
-        seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{b02}}});
+    obj1   = trueTheta0{2}{1}{1};
+    if numel(trueTheta0) == 2
+        xyzcoor2 = trueTheta0{2}{2}{2}(2:end);
+        cellxyz2 = num2cell(xyzcoor2);
+        obj2   = trueTheta0{2}{2}{1};
+        amp1 = estimated.A1{1}(cellxyz1{:});
+        amp2 = estimated.A1{1}(cellxyz2{:});
+%         if amp1 > amp2
+            seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}});
+%         else
+%             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
+%         end
+        seqTheta0{3} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{obj2,[amp2 xyzcoor2+0.02]},{bkgnd1}}});
+       
     else
-        seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{b01}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
+        xyzcoor2 = trueTheta0{3}{1}{2}(2:end);
+        cellxyz2 = num2cell(xyzcoor2);
+        obj2   = trueTheta0{3}{1}{1};
+        amp2 = estimated.A1{2}(cellxyz2{:});
+        bkgnd2 = estimated.B1{2}(cellxyz2{:});
+        b02   = estimated.B0{2}(cellxyz2{:});
+        if amp1 > amp2
+            seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{b02}}});
+        else
+            seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{b01}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
+        end
+        seqTheta0{3} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
     end
-    seqTheta0{3} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
+    
+    
     return;
 else
     error('num spots greater than 2, which i didnt code for');

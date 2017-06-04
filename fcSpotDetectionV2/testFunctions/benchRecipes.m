@@ -101,12 +101,42 @@ analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 
 
 %% do cramer rao test
+switch computer
+    case 'MACI64'
+        saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+    case 'GLNXA64'
+        saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+    otherwise
+   error('asdf');     
+end
 timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',2,'As',[1 3],'Bs',0);
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',1000,'saveFolder',saveFolder);
 timings(end+1) = toc;
 tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
-tic;benchStruct = procBenchMarkStageII(benchStruct,'doN',100);
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
 timings(end+1) = toc;
-tic;analyzeStageIIvariance(benchStruct);
+tic;analyzeStageIIDirect(benchStruct);
 timings(end+1) = toc;
+
+timings = [];
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',1000,'saveFolder',saveFolder);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissGauss);
+timings(end+1) = toc;
+tic;analyzeStageIIDirect(benchStruct);
+timings(end+1) = toc;
+
+timings = [];
+tic;benchStruct = genBenchMark('benchType',2,'numSamples',2,'As',[5 7],'Bs',[0 2],'dist2Spots',[0 10],'dist2SpotsAtA',[],'dist2SpotsAtB',[],'saveFolder',saveFolder);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+timings(end+1) = toc;
+tic;analyzeStageIIDirect(benchStruct);
+timings(end+1) = toc;
+
+
