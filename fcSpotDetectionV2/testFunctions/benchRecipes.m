@@ -102,11 +102,11 @@ analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 
 %% do cramer rao test
 timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',2,'As',[1 3],'Bs',0);
+tic;benchStruct = genBenchMark('benchType',1,'numSamples',2,'As',[3 6],'Bs',[0 5]);
 timings(end+1) = toc;
 tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
-tic;benchStruct = procBenchMarkStageII(benchStruct,'doN',100);
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',3);
 timings(end+1) = toc;
-tic;analyzeStageIIvariance(benchStruct);
+tic;analyzeStageIIDirect(benchStruct);
 timings(end+1) = toc;
