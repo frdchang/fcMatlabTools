@@ -101,6 +101,11 @@ benchStruct1 = procBenchMarkStageI(benchStruct1,@regularConv);
 analyzeStageI(benchStruct1,@regularConv,'regularConv','noEdgeEffects',true);
 benchStruct1 = procBenchMarkStageI(benchStruct1,@logConv);
 analyzeStageI(benchStruct1,@logConv,'logConv','noEdgeEffects',true);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
+analyzeStageI(benchStruct1,@findSpotsStage1V2,'LLRatio','noEdgeEffects',true);
+analyzeStageI(benchStruct1,@findSpotsStage1V2,'A1','noEdgeEffects',true);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@testTemplateMatching);
+analyzeStageI(benchStruct1,@testTemplateMatching,'testTemplateMatching','noEdgeEffects',true);
 
 
 benchStruct2 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(1,3,3)],'sizeData',[15,15,9]);
@@ -114,6 +119,13 @@ benchStruct2 = procBenchMarkStageI(benchStruct2,@regularConv);
 analyzeStageI(benchStruct2,@regularConv,'regularConv','noEdgeEffects',false);
 benchStruct2 = procBenchMarkStageI(benchStruct2,@logConv);
 analyzeStageI(benchStruct2,@logConv,'logConv','noEdgeEffects',false);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@findSpotsStage1V2);
+analyzeStageI(benchStruct2,@findSpotsStage1V2,'LLRatio','noEdgeEffects',false);
+analyzeStageI(benchStruct2,@findSpotsStage1V2,'A1','noEdgeEffects',false);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@testTemplateMatching);
+analyzeStageI(benchStruct2,@testTemplateMatching,'testTemplateMatching','noEdgeEffects',false);
+
+
 %% gamma fit test
 benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
