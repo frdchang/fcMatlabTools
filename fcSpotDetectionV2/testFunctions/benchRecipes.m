@@ -89,8 +89,16 @@ analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
 
 %% test edge effects versus without and see bkgnd creep
+switch computer
+    case 'MACI64'
+        saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+    case 'GLNXA64'
+        saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+    otherwise
+   error('asdf');     
+end
 
-benchStruct1 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(1,3,3)],'sizeData',[31,31,31]);
+benchStruct1 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(0,3,4)],'sizeData',[31,31,31],'saveFolder',saveFolder);
 benchStruct1 = procBenchMarkStageI(benchStruct1,@gammaCorrection);
 analyzeStageI(benchStruct1,@gammaCorrection,'negLoggammaSig','noEdgeEffects',true);
 benchStruct1 = procBenchMarkStageI(benchStruct1,@fieldEstimator);
@@ -108,7 +116,7 @@ benchStruct1 = procBenchMarkStageI(benchStruct1,@testTemplateMatching);
 analyzeStageI(benchStruct1,@testTemplateMatching,'testTemplateMatching','noEdgeEffects',true);
 
 
-benchStruct2 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(1,3,3)],'sizeData',[15,15,9]);
+benchStruct2 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(0,3,4)],'sizeData',[15,15,9],'saveFolder',saveFolder);
 benchStruct2 = procBenchMarkStageI(benchStruct2,@gammaCorrection);
 analyzeStageI(benchStruct2,@gammaCorrection,'negLoggammaSig','noEdgeEffects',false);
 benchStruct2 = procBenchMarkStageI(benchStruct2,@fieldEstimator);
