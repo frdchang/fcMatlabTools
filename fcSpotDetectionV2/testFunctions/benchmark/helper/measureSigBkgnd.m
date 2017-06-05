@@ -1,4 +1,4 @@
-function [sig,bkgnd ] = measureSigBkgnd(data,sigCoor,kernSize)
+function [sig,bkgnd ] = measureSigBkgnd(data,sigCoor,kernSize,dotheunpad)
 %MEASURESIGBKGND will measure signal and bkgnd of data given a signal coor
 %and kernSize will carve out what is bkgnd.
 sigCoor = round(sigCoor);
@@ -15,5 +15,7 @@ for ii = 1:numel(bottom)
 end
 
 data(selectorSig{:}) = nan;
-% data = unpadarrayByKernSize(data,kernSize);
+if dotheunpad
+ data = unpadarrayByKernSize(data,kernSize);
+end
 bkgnd = data(~isnan(data));

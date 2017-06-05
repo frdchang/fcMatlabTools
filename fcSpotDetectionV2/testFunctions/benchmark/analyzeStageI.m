@@ -6,8 +6,9 @@ function [h,conditionHolder] = analyzeStageI(benchStruct,conditionFunc,field,var
 params.fitGamma         = false;
 params.NumBinsMAX       = 200;
 params.contourLineSig   = 0.05;
-params.contourLines     = [0.1:0.1:0.5];
+params.contourLines     = 0.05:0.05:0.5;
 params.minAForGlobalROC = 0;
+params.noEdgeEffects    = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -18,6 +19,12 @@ if ~isfield(benchStruct,conditionFunc)
 end
 
 [ ~,saveFolder ] = genProcessedPathForBench(benchStruct,'analyzeStageI');
+if params.noEdgeEffects
+    saveFolder = [saveFolder filesep 'noEdgeEffects'];
+else
+    saveFolder = [saveFolder filesep 'withEdgeEffects'];
+end
+
 makeDIR(saveFolder);
 
 myMin                   = 0.1;
@@ -53,9 +60,9 @@ for ii = 1:prod(sizeAB)
         % channel 1
         if iscell(currFuncOutput)
             currFuncOutput = currFuncOutput{1};
-            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
+            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}),params.noEdgeEffects);
         else
-            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}));
+            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}),params.noEdgeEffects);
         end
     end
     bk = cell2mat(bk);
@@ -75,7 +82,7 @@ for ii = 1:prod(sizeAB)
     end
 end
 %--------------------------------------------------------------------------
-myTitle = [conditionFunc ' ' field ' log pdf'];
+myTitle = ['log pdf' filesep conditionFunc ' ' field ' log pdf'];
 h = createFullMaxFigure(myTitle);
 minA = inf;
 minB = inf;
@@ -126,13 +133,13 @@ for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
     V = axis;
     if minXaxis > V(1)
-       minXaxis = V(1);
+        minXaxis = V(1);
     end
     if maxXaxis < V(2)
-       maxXaxis = V(2); 
+        maxXaxis = V(2);
     end
     if minYaxis > V(3)
-       minYaxis = V(3); 
+        minYaxis = V(3);
     end
     if maxYaxis < V(4)
         maxYaxis = V(4);
@@ -150,10 +157,10 @@ for ii = 1:prod(sizeAB)
     end
 end
 
-print('-painters','-depsc', [saveFolder filesep myTitle]);
+exportFigEPS([saveFolder filesep myTitle]);
 close all;
 %--------------------------------------------------------------------------
-myTitle = [conditionFunc ' ' field ' cdf'];
+myTitle = ['logcdf' filesep conditionFunc ' ' field ' logcdf'];
 h = createFullMaxFigure(myTitle);
 minA = inf;
 minB = inf;
@@ -196,16 +203,18 @@ for ii = 1:prod(sizeAB)
 end
 legend('bk','sig');
 
-print('-painters','-depsc', [saveFolder filesep myTitle]);
+exportFigEPS([saveFolder filesep myTitle]);
+
+myTitle = ['loglogcdf' filesep conditionFunc ' ' field ' loglogcdf'];
 
 if currMin >= -1
-for ii = 1:prod(sizeAB)
-    hold on;subplot(sizeAB(2),sizeAB(1),ii);
-    axis([myMin 10^ceil(log10(currMax)) 0 1]);
-    set(gca,'XScale','log');
-end
-
-print('-painters','-depsc', [saveFolder filesep myTitle ' log' ]);
+    for ii = 1:prod(sizeAB)
+        hold on;subplot(sizeAB(2),sizeAB(1),ii);
+        axis([myMin 10^ceil(log10(currMax)) 0 1]);
+        set(gca,'XScale','log');
+    end
+    
+    exportFigEPS([saveFolder filesep myTitle]);
 end
 close all;
 %--------------------------------------------------------------------------
@@ -213,43 +222,43 @@ disp('analyzeStageI(): processing EER');
 setupParForProgress(prod(sizeAB));
 myEER = zeros(sizeAB);
 for ii = 1:prod(sizeAB)
-%     display(ii);
-     incrementParForProgress();
+    %     display(ii);
+    incrementParForProgress();
     sig = conditionHolder{ii}.sig;
     bk = conditionHolder{ii}.bk;
-%     pause(1);
+    %     pause(1);
     ROC = genROC('adsf',sig,bk,'doPlot',false);
-%     pause(1);
+    %     pause(1);
     close all;
-     myEER(ii) = ROC.EER;
+    myEER(ii) = ROC.EER;
 end
 close all;
 imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
 caxis([0 0.5]);
-myTitle = [conditionFunc ' ' field ' EER heatmap'];
+myTitle = ['EER heatmap' filesep conditionFunc ' ' field ' EER heatmap'];
 
-if size(conditions,1) > 1&& size(conditions,2) > 1 
-
-hold on;
-[newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
-F = scatteredInterpolant(Adomain(:),Bdomain(:),myEER(:));
-F.Method = 'natural';
-hold on;[C,h] = contour(newA,newB,F(newA,newB),[params.contourLineSig,params.contourLineSig],'LineWidth',3, 'Color',[1 1 1 ]);
-clabel(C,h,'Color',[1 1 1],'FontSize',15);
-set(gca,'Ydir','reverse');
-axis equal;
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-close all;
-%--------------------------------------------------------------------------
-
-myTitle = [conditionFunc ' ' field ' EER contour'];
-[C,h]=contour(newA,newB,F(newA,newB),params.contourLines,'LineWidth',3,'ShowText','on');
-% clabel(C,h,'Color',[1 1 1],'FontSize',15);
-set(gca,'Ydir','reverse');
-axis equal;
-title(myTitle);xlabel('A');ylabel('B');
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-close all;
+if size(conditions,1) > 1&& size(conditions,2) > 1
+    
+    hold on;
+    [newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
+    F = scatteredInterpolant(Adomain(:),Bdomain(:),myEER(:));
+    F.Method = 'natural';
+    hold on;[C,h] = contour(newA,newB,F(newA,newB),[params.contourLineSig,params.contourLineSig],'LineWidth',3, 'Color',[1 1 1 ]);
+    clabel(C,h,'Color',[1 1 1],'FontSize',15);
+    set(gca,'Ydir','reverse');
+    axis equal;
+    exportFigEPS([saveFolder filesep myTitle]);
+    close all;
+    %--------------------------------------------------------------------------
+    
+    myTitle = ['EER contour' conditionFunc ' ' field ' EER contour'];
+    [C,h]=contour(newA,newB,F(newA,newB),params.contourLines,'LineWidth',3,'ShowText','on');
+    % clabel(C,h,'Color',[1 1 1],'FontSize',15);
+    set(gca,'Ydir','reverse');
+    axis equal;
+    title(myTitle);xlabel('A');ylabel('B');
+    exportFigEPS([saveFolder filesep myTitle]);
+    close all;
 end
 %--------------------------------------------------------------------------
 disp('analyzeStageI(): global ROC...');
@@ -258,7 +267,7 @@ bkHolder  = cell(prod(sizeAB),1);
 for ii = 1:prod(sizeAB)
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
-    if currA <= params.minAForGlobalROC 
+    if currA <= params.minAForGlobalROC
         continue;
     end
     display(['A:' num2str(currA) ',B:' num2str(currB)]);
@@ -268,20 +277,20 @@ end
 sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
 if ~isempty(sigHolder) && ~isempty(bkHolder)
-ROC = genROC([conditionFunc ' ' field ' global ROC'],sigHolder,bkHolder,'doPlot',true);
-figure(ROC.histHandle);
-pause(1);
-myTitle = [conditionFunc ' ' field ' ROC-histograms'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-figure(ROC.CDFHandle);
-myTitle = [conditionFunc ' ' field ' ROC-CDFs'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-pause(1);
-figure(ROC.ROCHandle);
-pause(1);
-myTitle = [conditionFunc ' ' field ' ROC'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-close all;
+    ROC = genROC(['global ROC' filesep conditionFunc ' ' field ' global ROC'],sigHolder,bkHolder,'doPlot',true);
+    figure(ROC.histHandle);
+    pause(1);
+    myTitle = ['ROC-histograms' filesep conditionFunc ' ' field ' ROC-histograms'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    figure(ROC.CDFHandle);
+    myTitle = ['ROC-CDFs' filesep conditionFunc ' ' field ' ROC-CDFs'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    pause(1);
+    figure(ROC.ROCHandle);
+    pause(1);
+    myTitle = ['ROC' filesep conditionFunc ' ' field ' ROC'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    close all;
 end
 
 %--------------------------------------------------------------------------
@@ -301,20 +310,56 @@ end
 sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
 if ~isempty(sigHolder) && ~isempty(bkHolder)
-ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
-figure(ROC.histHandle);
-myTitle = [conditionFunc ' ' field ' ROC-histograms-AlessthenB'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-figure(ROC.CDFHandle);
-myTitle = [conditionFunc ' ' field ' ROC-CDFs-AlessthenB'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-pause(1);
-figure(ROC.ROCHandle);
-pause(1);
-myTitle = [conditionFunc ' ' field ' ROC-AlessthenB'];
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-close all;
+    ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
+    figure(ROC.histHandle);
+    myTitle = ['ROC-histograms-AlessthenB' filesep conditionFunc ' ' field ' ROC-histograms-AlessthenB'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    figure(ROC.CDFHandle);
+    myTitle = ['ROC-CDFs-AlessthenB' filesep conditionFunc ' ' field ' ROC-CDFs-AlessthenB'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    pause(1);
+    figure(ROC.ROCHandle);
+    pause(1);
+    myTitle = ['ROC-AlessthenB' filesep conditionFunc ' ' field ' ROC-AlessthenB'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    close all;
 end
+
+%--------------------------------------------------------------------------
+disp('analyzeStageI(): analyze if bkgnd shifts...');
+bkHolder  = {};
+Bvals  = {};
+for ii = 1:prod(sizeAB)
+    currA = conditions{ii}.A;
+    currB = conditions{ii}.B;
+    if currA ~= 0
+        continue;
+    end
+    display(['A:' num2str(currA) ',B:' num2str(currB)]);
+    bkHolder{ii} = conditionHolder{ii}.bk;
+    Bvals{ii} = currB;
+end
+
+figure;
+for ii = numel(bkHolder):-1:1
+    hold on; h = histogram(bkHolder{ii},'DisplayStyle','stairs');
+    h.Normalization = 'pdf';
+end
+legend(cellfunNonUniformOutput(@num2str,Bvals));
+xlabel([conditionFunc ' ' field ' values']);
+
+ylabel('log pdf');
+title('bkgnd pdf at different Bs');
+set(gca,'YScale','log');
+
+if currMin > -1
+    set(gca,'XScale','log');
+end
+
+myTitle = ['bkgndCreepLogPDF' filesep conditionFunc ' ' field ' bkgndCreepLogPDF'];
+exportFigEPS([saveFolder filesep myTitle]);
+close all;
+
 if params.fitGamma
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);

@@ -44,22 +44,22 @@ benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
 benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
 benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
-% benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
+benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
-% analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-% analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
-% analyzeStageI(benchStruct,@logConv,'logConv');
-% analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-% analyzeStageI(benchStruct,@regularConv,'regularConv');
+analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageI(benchStruct,@logConv,'logConv');
+analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageI(benchStruct,@regularConv,'regularConv');
 analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
 analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
 analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
 analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
 analyzeStageI(benchStruct,@gammaCorrection,'gammaSig2');
@@ -67,37 +67,53 @@ analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig2');
 analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
 
-% analyzeStageIDataOut(benchStruct,@conditions,'fileList');
-% analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
-% analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
-% analyzeStageIDataOut(benchStruct,@logConv,'logConv');
-% analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
-% analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
-% analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
-% analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
-% analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig2');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
 
-%% test if more samples make things better
-tic;
-benchStruct = genBenchMark('benchType',1,'numSamples',200,'As',[0],'Bs',[0 6]);
-benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
-analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
-analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-toc
+%% test edge effects versus without and see bkgnd creep
+
+benchStruct1 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(1,3,3)],'sizeData',[31,31,31]);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@gammaCorrection);
+analyzeStageI(benchStruct1,@gammaCorrection,'negLoggammaSig','noEdgeEffects',true);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@fieldEstimator);
+analyzeStageI(benchStruct1,@fieldEstimator,'gradDOTLLRatio','noEdgeEffects',true);
+analyzeStageI(benchStruct1,@fieldEstimator,'hessDOTLLRatio','noEdgeEffects',true);
+analyzeStageI(benchStruct1,@fieldEstimator,'gradHessDOTLLRatio','noEdgeEffects',true);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@regularConv);
+analyzeStageI(benchStruct1,@regularConv,'regularConv','noEdgeEffects',true);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@logConv);
+analyzeStageI(benchStruct1,@logConv,'logConv','noEdgeEffects',true);
 
 
+benchStruct2 = genBenchMark('benchType',1,'numSamples',1000,'As',0,'Bs',[0 logspace(1,3,3)],'sizeData',[15,15,9]);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@gammaCorrection);
+analyzeStageI(benchStruct2,@gammaCorrection,'negLoggammaSig','noEdgeEffects',false);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@fieldEstimator);
+analyzeStageI(benchStruct2,@fieldEstimator,'gradDOTLLRatio','noEdgeEffects',false);
+analyzeStageI(benchStruct2,@fieldEstimator,'hessDOTLLRatio','noEdgeEffects',false);
+analyzeStageI(benchStruct2,@fieldEstimator,'gradHessDOTLLRatio','noEdgeEffects',false);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@regularConv);
+analyzeStageI(benchStruct2,@regularConv,'regularConv','noEdgeEffects',false);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@logConv);
+analyzeStageI(benchStruct2,@logConv,'logConv','noEdgeEffects',false);
 %% gamma fit test
 benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);

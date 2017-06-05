@@ -20,8 +20,8 @@ hessOfData = calcFullHessianFilter(data,estimated,kerns.kern,kerns.kernDs,kerns.
 gradXYZDotProduct(gradXYZDotProduct<0) = 0;
 hessXYZDotProduct(hessXYZDotProduct<0) = 0;
 
-gradXYZDotProduct = norm0to1(gradXYZDotProduct);
-hessXYZDotProduct = norm0to1(hessXYZDotProduct);
+% gradXYZDotProduct = norm0to1(gradXYZDotProduct);
+% hessXYZDotProduct = norm0to1(hessXYZDotProduct);
 
 
 gradDOTLLRatio = gradXYZDotProduct.*estimated.LLRatio;

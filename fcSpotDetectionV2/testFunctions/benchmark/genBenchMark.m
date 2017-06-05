@@ -5,7 +5,7 @@ function [benchStruct] = genBenchMark(varargin)
 
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
-params.sizeData         = [21 21 9];
+params.sizeData         = [15 15 9];
 params.centerCoor       = round(params.sizeData/2);
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
@@ -27,12 +27,14 @@ params.dist2SpotsAtB    = [0,6,24];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 params.NoiseFuncArgs{1} = params.sizeData;
+
 % generate date string
 temp = datevec(date);
 year = temp(1);
 month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
+
 
 psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
 psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
@@ -61,7 +63,9 @@ switch params.benchType
         error('benchType needs to be {1,2,3}');
 end
 
-saveFolder = [params.saveFolder filesep today filesep 'genBenchMark' filesep typeOfBenchMark];
+folderSave = [today '-genBenchMark-' typeOfBenchMark '-N' num2str(params.numSamples) '-size' vector2Str(params.sizeData) '-A' vector2Str(params.As) '-B' vector2Str(params.Bs) '-Ds' vector2Str(params.dist2Spots)];
+
+saveFolder = [params.saveFolder filesep folderSave filesep typeOfBenchMark];
 [~,~,~] = mkdir(saveFolder);
 
 centerCoor  = params.centerCoor;
