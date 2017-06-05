@@ -228,6 +228,7 @@ imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylab
 caxis([0 0.5]);
 myTitle = [conditionFunc ' ' field ' EER heatmap'];
 
+if size(conditions,1) > 1&& size(conditions,2) > 1 
 
 hold on;
 [newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
@@ -249,7 +250,7 @@ axis equal;
 title(myTitle);xlabel('A');ylabel('B');
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 close all;
-
+end
 %--------------------------------------------------------------------------
 disp('analyzeStageI(): global ROC...');
 sigHolder = cell(prod(sizeAB),1);
@@ -266,7 +267,8 @@ for ii = 1:prod(sizeAB)
 end
 sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
-ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
+if ~isempty(sigHolder) && ~isempty(bkHolder)
+ROC = genROC([conditionFunc ' ' field ' global ROC'],sigHolder,bkHolder,'doPlot',true);
 figure(ROC.histHandle);
 pause(1);
 myTitle = [conditionFunc ' ' field ' ROC-histograms'];
@@ -280,6 +282,7 @@ pause(1);
 myTitle = [conditionFunc ' ' field ' ROC'];
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 close all;
+end
 
 %--------------------------------------------------------------------------
 disp('analyzeStageI(): global ROC...');
@@ -297,6 +300,7 @@ for ii = 1:prod(sizeAB)
 end
 sigHolder = cell2mat(sigHolder);
 bkHolder = cell2mat(bkHolder);
+if ~isempty(sigHolder) && ~isempty(bkHolder)
 ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
 figure(ROC.histHandle);
 myTitle = [conditionFunc ' ' field ' ROC-histograms-AlessthenB'];
@@ -310,6 +314,7 @@ pause(1);
 myTitle = [conditionFunc ' ' field ' ROC-AlessthenB'];
 print('-painters','-depsc', [saveFolder filesep myTitle]);
 close all;
+end
 if params.fitGamma
     %% fit gamma distribution
     h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);

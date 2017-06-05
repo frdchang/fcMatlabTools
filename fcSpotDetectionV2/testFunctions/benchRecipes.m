@@ -88,6 +88,16 @@ analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
 analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
 
 
+%% test if more samples make things better
+tic;
+benchStruct = genBenchMark('benchType',1,'numSamples',200,'As',[0],'Bs',[0 6]);
+benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+toc
+
+
 %% gamma fit test
 benchStruct = genBenchMark('benchType',1,'numSamples',4000,'As',0,'Bs',linspace(0,9,10),'sizeData',[51,51,51],'threshPSFArgs',{[11,11,11]});
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
