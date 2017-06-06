@@ -1,6 +1,28 @@
 %% to do
-% -when 2 spots are separated by distance d, what is the ROC for that?
-%
+
+%% 2 spot 2 colors see gamma fit
+switch computer
+    case 'MACI64'
+        saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+        N = 10;
+    case 'GLNXA64'
+        saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+        N = 1000;
+    otherwise
+   error('asdf');     
+end
+
+benchStruct1 = genBenchMark('benchType',3,'dist2Spots',0,'sizeData',[37 21 9],'numSamples',N,'saveFolder',saveFolder);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
+analyzeStageI(benchStruct1,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+
+benchStruct2 = genBenchMark('benchType',3,'dist2Spots',10,'sizeData',[37 21 9],'numSamples',N,'saveFolder',saveFolder);
+benchStruct2 = procBenchMarkStageI(benchStruct2,@findSpotsStage1V2);
+analyzeStageI(benchStruct2,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+
+% measure signal is ok for second case for separated spots.  
+% measure signal is ok for first case for overlapping spots and measure
+% bkgnd is ok for this case for both.  
 
 %% 2 spot 2 colors
 benchStruct = genBenchMark('benchType',3,'numSamples',1000);

@@ -8,7 +8,7 @@ params.NumBinsMAX       = 200;
 params.contourLineSig   = 0.05;
 params.contourLines     = 0.05:0.05:0.5;
 params.minAForGlobalROC = 0;
-params.noEdgeEffects    = true;
+params.noEdgeEffects    = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -362,7 +362,7 @@ close all;
 
 if params.fitGamma
     %% fit gamma distribution
-    h = createMaxFigure([conditionFunc ' pdf background and gamma fit']);
+    h = createFullMaxFigure([conditionFunc ' pdf background and gamma fit']);
     bkShape = zeros(sizeAB);
     bkScale = zeros(sizeAB);
     for ii = 1:prod(sizeAB)
@@ -390,13 +390,22 @@ if params.fitGamma
     print('-painters','-depsc', [saveFolder filesep myTitle '-bkshape']);
     figure;imagesc([minA,maxA],[minB,maxB],bkScale');colorbar;title('bk scale');xlabel('A');ylabel('B');
     print('-painters','-depsc', [saveFolder filesep myTitle '-bkscale']);
-    figure;plot(linspace(minB,maxB,size(bkScale,2)),bkScale(1,:));title(['bkscale w psfSize' mat2str(size(benchStruct.psfs{1}))]);xlabel('B');ylabel('scale');
+    f=figure;
+    xx = linspace(minB,maxB,size(bkScale,2));
+    yy = bkScale(1,:);
+    [curve, goodness] = fit( xx', yy', 'poly1' );
+    hold on;plot(curve,xx,yy);title(['bkscale w psfSize' mat2str(size(benchStruct.psfs{1}))]);xlabel('B');ylabel('scale');
+    text(0.2*maxB,0.8*max(yy),sprintf('%0.3f x + %0.3f',curve.p1, curve.p2));
     print('-painters','-depsc', [saveFolder filesep myTitle '-bkscaleVsB']);
+    saveas(f,[saveFolder filesep myTitle '-bkscaleVsB.fig']);
+    
     close all;
     %% fit gamma distribution
-    h = createMaxFigure([conditionFunc ' pdf signal ']);
+    h = createFullMaxFigure([conditionFunc ' pdf signal ']);
     sigShape = zeros(sizeAB);
     sigScale = zeros(sizeAB);
+    xx = [];
+    yy = [];
     for ii = 1:prod(sizeAB)
         currA = conditions{ii}.A;
         currB = conditions{ii}.B;
@@ -413,11 +422,22 @@ if params.fitGamma
         axis tight;
         sigShape(ii) = phat(1);
         sigScale(ii) = phat(2);
+        xx(end+1) = currB;
+        yy(end+1) = currA;
     end
     print('-painters','-depsc', [saveFolder filesep myTitle '-pdf signal and gamma fit']);
     figure;imagesc([minA,maxA],[minB,maxB],sigShape');colorbar;title('sig shape');xlabel('A');ylabel('B');
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigShape']);
     figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigScale']);
+    close all;
+
+    [shapeFit] = fit([xx',yy'],sigShape(:),'poly11');
+    [scaleFit] = fit([xx',yy'],sigScale(:),'poly11');
+    plot(shapeFit,[xx',yy'],sigShape(:));xlabel('B');ylabel('A');title(['shapeFit(B,A) = ' num2str(shapeFit.p00) ' + ' num2str(shapeFit.p10) '*B + ' num2str(shapeFit.p01) ' *A']);
+    print('-painters','-depsc', [saveFolder filesep myTitle '-sigShapeFit']);
+    close all;
+    plot(scaleFit,[xx',yy'],sigScale(:));xlabel('B');ylabel('A');title(['scaleFit(B,A) = ' num2str(scaleFit.p00) ' + ' num2str(scaleFit.p10) '*B + ' num2str(scaleFit.p01) ' *A']);
+    print('-painters','-depsc', [saveFolder filesep myTitle '-sigScaleFit']);
     close all;
 end

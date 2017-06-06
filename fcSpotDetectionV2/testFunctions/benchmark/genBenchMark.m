@@ -6,7 +6,6 @@ function [benchStruct] = genBenchMark(varargin)
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
 params.sizeData         = [15 15 9];
-params.centerCoor       = round(params.sizeData/2);
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
@@ -27,6 +26,7 @@ params.dist2SpotsAtB    = [0,6,24];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 params.NoiseFuncArgs{1} = params.sizeData;
+params.centerCoor       = round(params.sizeData/2);
 
 % generate date string
 temp = datevec(date);
@@ -46,24 +46,24 @@ psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),
 
 switch params.benchType
     case 1
-        typeOfBenchMark = '1spot1Channel';
+        typeOfBenchMark = '1S1C';
         Kmatrix = 1;
         params.dist2Spots = 0;
         psfs = psfs(1);
         psfObjs = psfObjs(1);
     case 2
-        typeOfBenchMark = '2spot1Channel';
+        typeOfBenchMark = '2S1C';
         Kmatrix = 1;
         psfs = psfs(1);
         psfObjs = psfObjs(1);
     case 3
-        typeOfBenchMark = '2spot2Channel';
-        Kmatrix = [1 0.2; 0.2 1];
+        typeOfBenchMark = '2S2C';
+        Kmatrix = [1 0.2; 0 1];
     otherwise
         error('benchType needs to be {1,2,3}');
 end
 
-folderSave = [today '-genBenchMark-' typeOfBenchMark '-N' num2str(params.numSamples) '-size' vector2Str(params.sizeData) '-A' vector2Str(params.As) '-B' vector2Str(params.Bs) '-Ds' vector2Str(params.dist2Spots)];
+folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' vector2Str(params.As) '-B' vector2Str(params.Bs) '-D' vector2Str(params.dist2Spots)];
 
 saveFolder = [params.saveFolder filesep folderSave filesep typeOfBenchMark];
 [~,~,~] = mkdir(saveFolder);
