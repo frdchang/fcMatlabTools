@@ -324,7 +324,7 @@ if ~isempty(sigHolder) && ~isempty(bkHolder)
     exportFigEPS([saveFolder filesep myTitle]);
     close all;
 end
-
+close all;
 %--------------------------------------------------------------------------
 disp('analyzeStageI(): analyze if bkgnd shifts...');
 bkHolder  = {};
@@ -339,7 +339,7 @@ for ii = 1:prod(sizeAB)
     bkHolder{ii} = conditionHolder{ii}.bk;
     Bvals{ii} = currB;
 end
-
+close all;
 figure;
 for ii = numel(bkHolder):-1:1
     hold on; h = histogram(bkHolder{ii},'DisplayStyle','stairs');
