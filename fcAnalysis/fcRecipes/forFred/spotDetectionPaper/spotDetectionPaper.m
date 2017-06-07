@@ -7,7 +7,7 @@ params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
-params.threshPSFArgs    = {[11,11,11]};
+params.threshPSFArgs    = {[7,7,7]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
@@ -53,21 +53,45 @@ psf = psfs{1};
 centerCoor = params.centerCoor;
 
 estimated = findSpotsStage1V2(myData,psf,cameraVar,'kMatrix',1,'nonNegativity',true);
-estimatedGamma = gammaCorrection(myData,psf,cameraVar,'kMatrix',1,'nonNegativity',true);
+estimatedGamma = gammaCorrection(myData,psf,cameraVar,'kMatrix',1,'nonNegativity',false);
 
-plot3Dstack(smoothBKGNDKern);
 plot3Dstack(theBigLambda);
+plot3Dstack(photonData);
 plot3Dstack(estimatedGamma.A1);
 plot3Dstack(estimatedGamma.LLRatio);
 plot3Dstack(estimatedGamma.negLoggammaSig);
-% % prep data output
-% trueData = xyMaxProjND( bigLambdas{1});
-% 
-% candidates = selectCandidates(estimated,'strategy','otsu');
-% plot3Dstack(candidates.L);
+plot3Dstack(catNorm(estimated.LLRatio,estimatedGamma.LLRatio,estimatedGamma.negLoggammaSig));
+% prep data output
+signalXY = xyMaxExtremumProjND(bigLambdas{1});
+bkgndXY  = xyMaxExtremumProjND(bkgnd);
+photonsXY = xyMaxExtremumProjND(photonData);
+photonsXY(photonsXY<0) = 0;
+A1XY = xyMaxExtremumProjND(estimated.A1);
+B1XY = xyMaxExtremumProjND(estimated.B1);
+B0XY = xyMaxExtremumProjND(estimated.B0);
+LLRXY = xyMaxExtremumProjND(estimated.LLRatio);
+uberImage = cat(2,signalXY,bkgndXY,photonsXY,A1XY,B1XY,B0XY);
+exportStack('~/Desktop/sigBkgndPhotonsA1B1B0',norm2UINT255(uberImage));
+exportStack('~/Desktop/LLRatio',norm2UINT255(LLRXY));
+
+gamXY = estimatedGamma.negLoggammaSig;
+gamXY(gamXY==inf) = 100;
+gamXY = xyMaxExtremumProjND(gamXY);
+exportStack('~/Desktop/gamma',norm2UINT255(gamXY));
+
+% select candidates
+test = estimatedGamma;
+test.LLRatio(estimatedGamma.negLoggammaSig == inf) = 1000;
+candidates = selectCandidates(test,'LLRatioThresh',999);
+candLabel = xyMaxProjND(candidates.L);
+candLabel = label2rgb(candLabel,'lines','k');
+imwrite(candLabel,'~/Desktop/candidates.tif');
 % candidatesSep = selectCandidates(estimatedSep);
 % 
-% MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',10);
+estimated = findSpotsStage1V2({myData},psfs(1),cameraVar,'kMatrix',1,'nonNegativity',true);
+
+MLEs = findSpotsStage2V2({myData},cameraVar,estimated,candidates,1,psfObjs(1),'doPlotEveryN',2,'numSpots',1);
+
 % 
 % 
 

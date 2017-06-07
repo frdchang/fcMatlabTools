@@ -23,6 +23,7 @@ params.gradTol          = 0.01;
 params.newtonTol        = 0.00001;
 % plotting parameters
 params.doPlotEveryN     = inf;
+params.prevIter         = [];
 % MLE functions
 params.DLLDTheta        = @DLLDThetaV2;
 params.DLLDLambda       = @DLLDLambda_PoissPoiss;
@@ -71,7 +72,11 @@ state.stateOfStep   = [];
 % curate by params.types
 
 numStrategies = numel(strategy);
+if isempty(params.prevIter)
 totalIter = 1;
+else
+    totalIter = params.prevIter;
+end
 carveddatas = cellfunNonUniformOutput(@(x) x(carvedMask),datas);
 carvedsigmasqs = cellfunNonUniformOutput(@(x) x(carvedMask),sigmasqs);
 stateOfStep = 'ok';
@@ -165,7 +170,9 @@ for ii = 1:numStrategies
 %         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
 %         
         if mod(jj,params.doPlotEveryN) == 1
-            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,currError);
+                LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
+
+            plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,LLPP);
         end
         totalIter = totalIter + 1;
         
