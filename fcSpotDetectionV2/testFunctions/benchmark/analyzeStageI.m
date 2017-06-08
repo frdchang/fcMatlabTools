@@ -237,7 +237,7 @@ imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylab
 caxis([0 0.5]);
 myTitle = ['EER heatmap' filesep conditionFunc ' ' field ' EER heatmap'];
 
-if size(conditions,1) > 1&& size(conditions,2) > 1
+if sizeAB(1) > 1 && sizeAB(2) > 1
     
     hold on;
     [newA,newB] = meshgrid(minA:0.1:maxA,minB:0.1:maxB);
