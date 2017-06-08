@@ -8,7 +8,7 @@ bigLambdas = bigLambda(domains,theta0,'objKerns',objKerns);
 errors = cellfunNonUniformOutput(@(x,y) x-y,datas,bigLambdas);
 newEstimated = findSpotsStage1V2(errors,estimated.spotKern,camVar,'kMatrix',Kmatrix,'nonNegativity',false);
 selectNegVals = cellfunNonUniformOutput(@(x) x<0,newEstimated.A1);
-selectNegVals = sumCellContents(selectNegVals);
+selectNegVals = multiCellContents(selectNegVals);
 newEstimated.LLRatio(selectNegVals>0) = 0;
 
 idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:));
