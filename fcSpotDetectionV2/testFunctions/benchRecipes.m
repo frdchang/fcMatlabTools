@@ -117,7 +117,7 @@ switch computer
         N = 10;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-        N = 2000;
+        N = 1000;
     otherwise
    error('asdf');     
 end

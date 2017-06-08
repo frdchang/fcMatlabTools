@@ -16,6 +16,6 @@ end
 
 data(selectorSig{:}) = nan;
 if dotheunpad
- data = unpadarrayByKernSize(data,kernSize);
+ data = unpadarrayByKernSize(data,floor(kernSize/2));
 end
 bkgnd = data(~isnan(data));
