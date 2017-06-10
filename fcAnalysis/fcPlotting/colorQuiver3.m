@@ -10,7 +10,7 @@ mags = sqrt(sum(cat(2, q.UData(:), q.VData(:), ...
             reshape(q.WData, numel(q.UData), [])).^2, 2));
 
 %// Get the current colormap
-currentColormap = colormap(gca);
+currentColormap = colormap(jet);
 
 %// Now determine the color to make each arrow using a colormap
 [~, ~, ind] = histcounts(mags, size(currentColormap, 1));

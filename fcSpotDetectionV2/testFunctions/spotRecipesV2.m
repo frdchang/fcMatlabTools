@@ -1,3 +1,53 @@
+% check field estimators
+patchSize = [31 31 31];
+sigmassq1 = [2,2,2];
+[kern1,~] = ndGauss(sigmassq1,patchSize);
+kernSize = [7 7 7];
+domains = genMeshFromData(kern1);
+[gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(kernSize,kern1);
+
+kernObj = myPattern_Numeric(kern1);
+coor1 = getCenterCoor(patchSize);
+buildThetas = {{kernObj,[2 coor1]},{0}};
+thetaInputs = {1,buildThetas};
+bigLambdas = bigLambda(domains,thetaInputs);
+cameraVariance = ones(size(bigLambdas{1}));
+
+
+Kmatrix = [1 0.3;0.2 1];
+psfs    = {ndGauss([0.9,0.9,0.9],[7 7 7]),ndGauss([1.2,1.2,1.2],[7 7 7])};
+theta1  = {[10 3 3 3],[5 20 20 20],5};
+theta2  = {[6 10 10 10], 5};
+thetas  = {theta1,theta2};
+[ bigThetas,objKerns ] = genBigTheta(Kmatrix,psfs,thetas);
+
+
+N = 10000;
+signal = num2cell(coor1);
+bkgnd  = num2cell(coor1 + kernSize);
+sigLL = zeros(N,1);
+bkLL = zeros(N,1);
+
+parfor ii = 1:N
+    display(ii);
+    [sampledData,~,cameraParams] = genMicroscopeNoise(bigLambdas{1});
+    electronData = returnElectrons(sampledData,cameraParams);
+    estimated = findSpotsStage1V2(electronData,kerns.kern,cameraVariance);
+    estField = fieldEstimator(electronData,kerns.kern,cameraVariance);
+    sigLL(ii) = estimated.LLRatio(signal{:});
+    bkLL(ii) = estimated.LLRatio(bkgnd{:});
+    
+end
+
+LL = genROC('LLRatio',sigLL,bkLL);
+
+gradOfData = calcFullGradientFilter(electronData,estimated,kerns.kern,kerns.kernDs,cameraVariance);
+% hessOfData = calcFullHessianFilter(electronData,estimated,kerns.kern,kerns.kernDs,kerns.kernD2s,cameraVariance);
+%
+%  [gradDotProduct] = convFieldKernels(gradOfData,gradientFieldFilters);
+[gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
+
+
 %% check LOG3D against numerical derivative of gaussian to check
 % looks good
 

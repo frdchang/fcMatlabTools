@@ -9,7 +9,7 @@ end
 
 estimated = findSpotsStage1V2(data,spotKern,cameraVariance,varargin{:});
 [gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(size(spotKern),spotKern);
-
+[ estGamma ] = gammaCorrection( data,spotKern,cameraVariance);
 
 gradOfData = calcFullGradientFilter(data,estimated,kerns.kern,kerns.kernDs,cameraVariance);
 [gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
@@ -20,16 +20,14 @@ hessOfData = calcFullHessianFilter(data,estimated,kerns.kern,kerns.kernDs,kerns.
 gradXYZDotProduct(gradXYZDotProduct<0) = 0;
 hessXYZDotProduct(hessXYZDotProduct<0) = 0;
 
-% gradXYZDotProduct = norm0to1(gradXYZDotProduct);
-% hessXYZDotProduct = norm0to1(hessXYZDotProduct);
-
-
 gradDOTLLRatio = gradXYZDotProduct.*estimated.LLRatio;
 hessDOTLLRatio = hessXYZDotProduct.*estimated.LLRatio;
 
 gradHessDOTLLRatio = gradXYZDotProduct.*hessXYZDotProduct.*estimated.LLRatio;
+gradHesDOTGamma = gradXYZDotProduct.*hessXYZDotProduct.*estGamma.negLoggammaSig;
 
 estimated.gradDOTLLRatio = gradDOTLLRatio;
 estimated.hessDOTLLRatio = hessDOTLLRatio;
 estimated.gradHessDOTLLRatio = gradHessDOTLLRatio;
+estimated.gradHessDOTGamma = gradHesDOTGamma;
 
