@@ -247,11 +247,11 @@ if sizeAB(1) > 1 && sizeAB(2) > 1
     clabel(C,h,'Color',[1 1 1],'FontSize',15);
     set(gca,'Ydir','reverse');
     axis equal;
-    exportFigEPS([saveFolder filesep myTitle]);
+    exportFigEPS([saveFolder filesep myTitle 'wContour']);
     close all;
     %--------------------------------------------------------------------------
     
-    myTitle = ['EER contour' conditionFunc ' ' field ' EER contour'];
+    myTitle = ['EER contour' filesep conditionFunc ' ' field ' EER contour'];
     [C,h]=contour(newA,newB,F(newA,newB),params.contourLines,'LineWidth',3,'ShowText','on');
     % clabel(C,h,'Color',[1 1 1],'FontSize',15);
     set(gca,'Ydir','reverse');
