@@ -54,7 +54,7 @@ persistent Normalization;
 
 %--parameters--------------------------------------------------------------
 params.kMatrix       = [];
-params.nonNegativity = false;
+params.nonNegativity = true;
 params.loadIntoGpu   = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
