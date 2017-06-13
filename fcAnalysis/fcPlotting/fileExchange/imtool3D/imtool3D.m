@@ -50,6 +50,9 @@ classdef imtool3D < handle
     %properly sync if you are displaying multiple imtool3D objects in the
     %same figure.
     %
+    %tool = imtool3D(I,position,h,range,tools,mask) allows you to overlay a
+    %semitransparent binary mask on the image data.
+    %
     %Note that you can pass an empty matrix for any input variable to have
     %the constructor use default values. ex. tool=imtool3D([],[],h,[]).
     %----------------------------------------------------------------------
@@ -57,7 +60,14 @@ classdef imtool3D < handle
     %
     %   setImage(tool, I) displays a new image.
     %
-    %   I = getimage(tool) returns the image being shown by the tool
+    %   I = getImage(tool) returns the image being shown by the tool
+    %
+    %   setMask(tool,mask) replaces the overlay mask with a new one
+    %
+    %   setAlpha(tool,alpha) sets the transparency of the overlaid mask
+    %
+    %   alpha = getAlpha(tool) gets the current transparency of the
+    %   overlaid mask
     %
     %   setPostion(tool,position) sets the position of tool.
     %
@@ -86,29 +96,20 @@ classdef imtool3D < handle
     %   [W,L] = getWindowLevel(tool) returns the display range of the image
     %   in terms of its window (W) and level (L)
     %
-    %   ROI = getCurrentROI(tool) returns info about the currently selected
-    %   region of interest (ROI). If no ROI is currently selected, the
-    %   method returns an empty matrix. ROI is a structured variable with
-    %   the following fields:
-    %       -ROI.mask is a binary mask that defines the pixels within the
-    %       ROI.
-    %       -ROI.stats is a structured variable containing stats about the
-    %       ROI. Included stats are, Area, Perimeter, MaxIntensity,
-    %       MinIntensity, MeanIntensity, and STD. 
-    %
     %   setCurrentSlice(tool,slice) sets the current displayed slice.
     %
     %   slice = getCurrentSlice(tool) returns the currently displayed
-    %   slice.
+    %   slice number.
     %
     %----------------------------------------------------------------------
     %Notes:
     %
-    %   Author: Justin Solomon, July, 26 2013
+    %   Author: Justin Solomon, July, 26 2013 (Latest update April, 16,
+    %   2016)
     %
     %   Contact: justin.solomon@duke.edu
     %
-    %   Current Version 2.1
+    %   Current Version 2.4
     %   Version Notes:
     %                   1.1-added method to get information about the
     %                   currently selected ROI.
@@ -131,17 +132,66 @@ classdef imtool3D < handle
     %                   want to zoom out quickly. Also made the window and
     %                   level adjustable by draging the lines on the
     %                   histogram
+    %
+    %                   2.2- Added support for Matlab 2014b. Added ability
+    %                   to overlay a semi-transparent binary mask on the
+    %                   image data. Useful to visiulize segmented data.
+    %
+    %                   2.3- Simplified the ROI tools. imtool3D no longer
+    %                   relies on MATLAB'S imroi classes, rather I've made
+    %                   a set of ROI classes just for imtool3D. This
+    %                   greatly simplifies the integration of the ROI
+    %                   tools. You can export and delete the ROIs directly
+    %                   from their context menus.
+    %
+    %                   2.3.1- Make sure the figure is centered when
+    %                   creating an imtool3D object in a new figure
+    % 
+    %                   2.3.2- Squished a few bugs for older Matlab
+    %                   versions. Added method to set and get the
+    %                   transparency of the overlaid mask. Refined the
+    %                   panning and zooming.
+    %
+    %                   2.3.3- Fixed a bug with the cropping function
+    %
+    %                   2.3.4- Added check box to toggle on and off the
+    %                   mask overlay. Fixed a bug with the interactive
+    %                   window and leveling using the histogram view. Added
+    %                   a paint brush to allow user to quickly segment
+    %                   something
+    %
+    %                   2.4- Added methods to get the min, max, and range
+    %                   of pixel values. Updated the window and leveling to
+    %                   be adaptive to the dynamic range of the image data.
+    %                   Should work well if the range is small or large.
+    %
+    %                   2.4.1- fixed a small bug related to windowing with
+    %                   the mouse.
+    %
+    %                   2.4.2- Added a "smart" paint brush which helps to
+    %                   segment borders cleanly.
     %   
-    %   Created in MATLAB_R2013b
+    %   Created in MATLAB_R2015b
     %
     %   Requires the image processing toolbox
     
     properties (SetAccess = private, GetAccess = private)
-        I           %Image data (MxNxK) matrix of image data    
+        I           %Image data (MxNxK) matrix of image data   
+        mask        %Binary mask that can be overlaid on the image data
+        maskColor   %1x3 vector specifying the RGB color of the overlaid mask. Default is red (i.e., [1 0 0]);
         handles     %Structured variable with all the handles
         centers     %list of bin centers for histogram
-        ROIhandles  %list of ROI handles
-        CurrentROI  %Currently selected ROI
+        alpha       %transparency of the overlaid mask (default is .2)
+        aspectRatio = [1 1];
+    end
+    
+    properties
+        windowSpeed=2; %Ratio controls how fast the window and level change when you change them with the mouse
+    end
+    
+    events
+        newImage
+        maskChanged
     end
      
     methods
@@ -152,27 +202,36 @@ classdef imtool3D < handle
             switch nargin
                 case 0  %tool = imtool3d()
                     I=random('unif',-50,50,[100 100 3]);
-                    position=[0 0 1 1]; h=figure; set(h,'Toolbar','none','Menubar','none')
-                    range=[-50 50]; tools=[];
+                    position=[0 0 1 1]; h=[];
+                    range=[-50 50]; tools=[]; mask=false(size(I));
                 case 1  %tool = imtool3d(I)
-                    I=double(varargin{1}); position=[0 0 1 1]; h=figure; set(h,'Toolbar','none','Menubar','none')
-                    range=[min(I(:)) max(I(:))]; tools=[];
+                    I=varargin{1}; position=[0 0 1 1]; h=[];
+                    range=[min(I(:)) max(I(:))]; tools=[]; mask=false(size(I));
                 case 2  %tool = imtool3d(I,position)
-                    I=double(varargin{1}); position=varargin{2}; h=figure; set(h,'Toolbar','none','Menubar','none')
-                    range=[min(I(:)) max(I(:))]; tools=[];
+                    I=varargin{1}; position=varargin{2}; h=[];
+                    range=[min(I(:)) max(I(:))]; tools=[]; mask=false(size(I));
                 case 3  %tool = imtool3d(I,position,h)
-                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
-                    range=[min(I(:)) max(I(:))]; tools=[];
+                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    range=[min(I(:)) max(I(:))]; tools=[]; mask=false(size(I));
                 case 4  %tool = imtool3d(I,position,h,range)
-                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
-                    range=varargin{4}; tools=[];
+                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    range=varargin{4}; tools=[]; mask=false(size(I));
                 case 5  %tool = imtool3d(I,position,h,range,tools)
-                    I=double(varargin{1}); position=varargin{2}; h=varargin{3};
-                    range=varargin{4}; tools=varargin{5};
+                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    range=varargin{4}; tools=varargin{5}; mask=false(size(I));
+                case 6  %tool = imtool3d(I,position,h,range,tools,mask)
+                    I=varargin{1}; position=varargin{2}; h=varargin{3};
+                    range=varargin{4}; tools=varargin{5}; mask=varargin{6};
             end
+            
             
             if isempty(I)
                 I=random('unif',-50,50,[100 100 3]);
+            end
+            
+            if islogical(I)
+                I=double(I);
+                range = [0 1];
             end
             
             if isempty(position)
@@ -181,41 +240,53 @@ classdef imtool3D < handle
             
             if isempty(h)
                 h=figure;
+                set(h,'Toolbar','none','Menubar','none','NextPlot','new')
+                set(h,'Units','Pixels');
+                pos=get(h,'Position');
+                Af=pos(3)/pos(4);   %input Ratio of the figure
+                AI=size(I,2)/size(I,1); %input Ratio of the image
+                if Af>AI    %Figure is too wide, make it taller to match
+                   pos(4)=pos(3)/AI; 
+                elseif Af<AI    %Figure is too long, make it wider to match
+                    pos(3)=AI*pos(4);
+                end
+                %make sure the figure is centered
+                screensize = get(0,'ScreenSize');
+                pos(1) = ceil((screensize(3)-pos(3))/2);
+                pos(2) = ceil((screensize(4)-pos(4))/2); 
+                set(h,'Position',pos)
+                set(h,'Units','normalized');
             end
             
             if isempty(range)
                 range=[min(I(:)) max(I(:))];
             end
             
-            %Make the aspect ratio of the figure match that of the image
-            if nargin<3
-                set(h,'Units','Pixels');
-                pos=get(h,'Position');
-                Af=pos(3)/pos(4);   %Aspect Ratio of the figure
-                AI=size(I,2)/size(I,1); %Aspect Ratio of the image
-                if Af>AI    %Figure is too wide, make it taller to match
-                   pos(4)=pos(3)/AI; 
-                elseif Af<AI    %Figure is too long, make it wider to match
-                    pos(3)=AI*pos(4);
-                end
-                set(h,'Position',pos)
-                set(h,'Units','normalized');
+            if isempty(mask)
+                mask=logical(zeros(size(I)));
             end
             
-            
-            I=double(I);
+            %find the parent figure handle if the given parent is not a
+            %figure
+            if ~strcmp(get(h,'type'),'figure')
+                fig = getParentFigure(h);
+            else
+                fig = h;
+            end
             
             %--------------------------------------------------------------
-            tool.I          = I;
-            tool.handles.fig=h;
-            ROIhandles=[];
-            CurrentROI=[];
+            tool.I      = I;
+            tool.mask   =mask;
+            tool.handles.fig=fig;
+            tool.handles.parent = h;
+            tool.maskColor = [1 0 0];
+            tool.alpha = .2;
             
             %Create the panels and slider
             w=30; %Pixel width of the side panels
             h=110; %Pixel height of the histogram panel
             wbutt=20; %Pixel size of the buttons
-            tool.handles.Panels.Large   =   uipanel(tool.handles.fig,'Position',position,'Title','','Tag','imtool3D'); set(tool.handles.Panels.Large,'Units','Pixels'); pos=get(tool.handles.Panels.Large,'Position'); set(tool.handles.Panels.Large,'Units','normalized');
+            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Position',position,'Title','','Tag','imtool3D'); set(tool.handles.Panels.Large,'Units','Pixels'); pos=get(tool.handles.Panels.Large,'Position'); set(tool.handles.Panels.Large,'Units','normalized');
             tool.handles.Panels.Hist   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w pos(4)-w-h pos(3)-2*w h],'Title','');
             tool.handles.Panels.Image   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w w pos(3)-2*w pos(4)-2*w],'Title','');
             tool.handles.Panels.Tools   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 pos(4)-w pos(3) w],'Title','');
@@ -235,30 +306,28 @@ classdef imtool3D < handle
             tool.handles.Slider         =   uicontrol(tool.handles.Panels.Slider,'Style','Slider','Units','Normalized','Position',[0 0 1 1],'TooltipString','Change Slice (can use scroll wheel also)');
             setupSlider(tool)
             fun=@(scr,evnt)multipleScrollWheel(scr,evnt,[tool tools]);
-            %fun=@(scr,evnt) scrollWheel(scr,evnt,tool);
-%             fncs=get(tool.handles.fig,'WindowScrollWheelFcn');
-%             if isempty(fncs)
-%                 fncs{end+1}=fun;
-%             elseif ~iscell(fncs)
-%                 fncs={fncs};
-%                 fncs{end+1}=fun;
-%             else
-%                 fncs{end+1}=fun;
-%             end
             set(tool.handles.fig,'WindowScrollWheelFcn',fun);
            
             
             %Create image axis
             tool.handles.Axes           =   axes('Position',[0 0 1 1],'Parent',tool.handles.Panels.Image,'Color','none');
-            tool.handles.I              =   imshow(I(:,:,1),range);
+            tool.handles.I              =   imshow(I(:,:,1),range,'Parent',tool.handles.Axes); hold on; set(tool.handles.I,'Clipping','off')
+            set(tool.handles.Axes,'XLimMode','manual','YLimMode','manual','Clipping','off');
+            
+            
+            %Set up the binary mask viewer
+            im=zeros(size(I,1),size(I,2),3);
+            im(:,:,1)=tool.maskColor(1); im(:,:,2)=tool.maskColor(2); im(:,:,3)=tool.maskColor(3);
+            tool.handles.mask           =   imshow(im);
+            set(tool.handles.mask,'AlphaData',.3*tool.mask(:,:,1))
             set(tool.handles.Axes,'Position',[0 0 1 1],'Color','none','XColor','r','YColor','r','GridLineStyle','--','LineWidth',1.5,'XTickLabel','','YTickLabel','');
             axis off
             grid off
             axis fill
             
+            
             %Set up image info display
             tool.handles.Info=uicontrol(tool.handles.Panels.Info,'Style','text','String','(x,y) val','Units','Normalized','Position',[0 .1 .5 .8],'BackgroundColor','k','ForegroundColor','w','FontSize',12,'HorizontalAlignment','Left');
-            tool.handles.ROIinfo=uicontrol(tool.handles.Panels.Info,'Style','text','String','STD:                    Mean:                    ','Units','Normalized','Position',[.5 .1 .5 .8],'BackgroundColor','k','ForegroundColor','w','FontSize',12,'HorizontalAlignment','Right');
             fun=@(src,evnt)getImageInfo(src,evnt,tool);
             set(tool.handles.fig,'WindowButtonMotionFcn',fun);
             tool.handles.SliceText=uicontrol(tool.handles.Panels.Tools,'Style','text','String',['1/' num2str(size(I,3))],'Units','Normalized','Position',[.5 .1 .48 .8],'BackgroundColor','k','ForegroundColor','w','FontSize',12,'HorizontalAlignment','Right');
@@ -266,6 +335,7 @@ classdef imtool3D < handle
             
             %Set up mouse button controls
             fun=@(hObject,eventdata) imageButtonDownFunction(hObject,eventdata,tool);
+            set(tool.handles.mask,'ButtonDownFcn',fun)
             set(tool.handles.I,'ButtonDownFcn',fun)
             
             %create the tool buttons
@@ -276,7 +346,7 @@ classdef imtool3D < handle
             %Create the histogram plot
             tool.handles.HistAxes           =   axes('Position',[.025 .15 .95 .55],'Parent',tool.handles.Panels.Hist);
             im=tool.I(:,:,1);
-            centers=linspace(min(I(:)),max(I(:)),256);
+            centers=linspace(double(min(I(:))),double(max(I(:))),256); 
             nelements=hist(im(:),centers); nelements=nelements./max(nelements);
             tool.handles.HistLine=plot(centers,nelements,'-w','LineWidth',1);
             set(tool.handles.HistAxes,'Color','none','XColor','w','YColor','w','FontSize',9,'YTick',[])
@@ -316,9 +386,9 @@ classdef imtool3D < handle
             
             %Create window and level boxes
             tool.handles.Tools.TW       =   uicontrol(tool.handles.Panels.Tools,'Style','text','String','W','Position',[lp+buff buff w w],'BackgroundColor','k','ForegroundColor','w','TooltipString','Window Width');
-            tool.handles.Tools.W        =   uicontrol(tool.handles.Panels.Tools,'Style','Edit','String',num2str(range(2)-range(1)),'Position',[lp+buff+w buff 2*w w],'TooltipString','Window Width'); 
+            tool.handles.Tools.W        =   uicontrol(tool.handles.Panels.Tools,'Style','Edit','String',num2str(range(2)-range(1)),'Position',[lp+buff+w buff 2*w w],'TooltipString','Window Width','BackgroundColor',[.2 .2 .2],'ForegroundColor','w'); 
             tool.handles.Tools.TL       =   uicontrol(tool.handles.Panels.Tools,'Style','text','String','L','Position',[lp+2*buff+3*w buff w w],'BackgroundColor','k','ForegroundColor','w','TooltipString','Window Level');
-            tool.handles.Tools.L        =   uicontrol(tool.handles.Panels.Tools,'Style','Edit','String',num2str(mean(range)),'Position',[lp+2*buff+4*w buff 2*w w],'TooltipString','Window Level');
+            tool.handles.Tools.L        =   uicontrol(tool.handles.Panels.Tools,'Style','Edit','String',num2str(mean(range)),'Position',[lp+2*buff+4*w buff 2*w w],'TooltipString','Window Level','BackgroundColor',[.2 .2 .2],'ForegroundColor','w');
             lp=lp+buff+7*w;
             
             %Creat window and level callbacks
@@ -365,13 +435,19 @@ classdef imtool3D < handle
             set(tool.handles.Tools.Grid,'TooltipString','Toggle Gridlines')
             lp=lp+2.5*w;
             
+            %Create the mask view switch
+            tool.handles.Tools.Mask           =   uicontrol(tool.handles.Panels.Tools,'Style','checkbox','String','Mask?','Position',[lp buff 3*w w],'BackgroundColor','k','ForegroundColor','w','TooltipString','Toggle Binary Mask','Value',1);
+            fun=@(hObject,evnt) toggleMask(hObject,evnt,tool);
+            set(tool.handles.Tools.Mask,'Callback',fun)
+            lp=lp+3*w;
+            
             %Create colormap pulldown menu
             mapNames={'Gray','Hot','Jet','HSV','Cool','Spring','Summer','Autumn','Winter','Bone','Copper','Pink','Lines','colorcube','flag','prism','white'};
-            tool.handles.Tools.Color          =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',mapNames,'Position',[lp buff 4*w w]);
+            tool.handles.Tools.Color          =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',mapNames,'Position',[lp buff 3.5*w w]);
             fun=@(hObject,evnt) changeColormap(hObject,evnt,tool);
             set(tool.handles.Tools.Color,'Callback',fun)
             set(tool.handles.Tools.Color,'TooltipString','Select a colormap')
-            lp=lp+4*w;
+            lp=lp+3.5*w;
             
             %Create save button
             tool.handles.Tools.Save           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w]);
@@ -382,7 +458,6 @@ classdef imtool3D < handle
             fun=@(hObject,evnt) saveImage(hObject,evnt,tool);
             set(tool.handles.Tools.Save,'Callback',fun)
             set(tool.handles.Tools.Save,'TooltipString','Save image as slice or tiff stack')
-            
             
             %Create Circle ROI button
             tool.handles.Tools.CircleROI           =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff w w],'TooltipString','Create Elliptical ROI');
@@ -403,32 +478,30 @@ classdef imtool3D < handle
             fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'polygon');
             set(tool.handles.Tools.PolyROI,'Callback',fun)
             
-            %Create Delete Button
-            tool.handles.Tools.DeleteROI          =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','X','Position',[buff buff+3*w w w],'TooltipString','Delete ROI','ForegroundColor','r');
-            fun=@(hObject,evnt) deleteCurrentROI(hObject,evnt,tool);
-            set(tool.handles.Tools.DeleteROI,'Callback',fun)
-            
-            %Create Export ROI Button
-            tool.handles.Tools.ExportROI          =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','->','Position',[buff buff+4*w w w],'TooltipString','Export ROI to Workspace','ForegroundColor','k');
-            fun=@(hObject,evnt) exportROI(hObject,evnt,tool);
-            set(tool.handles.Tools.ExportROI,'Callback',fun)
-            
-            %Create Ruler button
-            tool.handles.Tools.Ruler             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+6*w w w],'TooltipString','Measure Distance');
+            %Create line profile button
+            tool.handles.Tools.Ruler             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+3*w w w],'TooltipString','Measure Distance');
             icon_distance = makeToolbarIconFromPNG([MATLABdir '/tool_line.png']);
             set(tool.handles.Tools.Ruler,'CData',icon_distance);
-            fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'ruler');
+            fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'profile');
             set(tool.handles.Tools.Ruler,'Callback',fun)
             
-            %Create Line Profile button
-            tool.handles.Tools.Profile             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+7*w w w],'TooltipString','Get Line Profile');
-            icon_profile = makeToolbarIconFromPNG([iptdir '/profile.png']);
-            set(tool.handles.Tools.Profile,'Cdata',icon_profile)
-            fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'profile');
-            set(tool.handles.Tools.Profile,'Callback',fun)
+            %Paint brush tool button
+            tool.handles.Tools.PaintBrush        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String','','Position',[buff buff+4*w w w],'TooltipString','Paint Brush Tool');
+            icon_profile = makeToolbarIconFromPNG([MATLABdir '/tool_data_brush.png']);
+            set(tool.handles.Tools.PaintBrush ,'Cdata',icon_profile)
+            fun=@(hObject,evnt) PaintBrushCallback(hObject,evnt,tool,'Normal');
+            set(tool.handles.Tools.PaintBrush ,'Callback',fun)
+            tool.handles.PaintBrushObject=[];
+            
+            %Smart Paint brush tool button
+            tool.handles.Tools.SmartBrush        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String','','Position',[buff buff+5*w w w],'TooltipString','Smart Brush Tool');
+            set(tool.handles.Tools.SmartBrush ,'Cdata',icon_profile)
+            fun=@(hObject,evnt) PaintBrushCallback(hObject,evnt,tool,'Smart');
+            set(tool.handles.Tools.SmartBrush ,'Callback',fun)
+            
             
             %Create Crop tool button
-            tool.handles.Tools.Crop             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+9*w w w],'TooltipString','Crop Image');
+            tool.handles.Tools.Crop             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+6*w w w],'TooltipString','Crop Image');
             icon_profile = makeToolbarIconFromPNG([iptdir '/crop_tool.png']);
             set(tool.handles.Tools.Crop ,'Cdata',icon_profile)
             fun=@(hObject,evnt) CropImageCallback(hObject,evnt,tool);
@@ -450,6 +523,11 @@ classdef imtool3D < handle
                 set(objarr,'FontSize',9,'Units','Pixels')
             end
             
+            set(tool.handles.fig,'NextPlot','new')
+            
+            %run the reset view callback
+            resetViewCallback([],[],tool)
+            
         end
         
         function setPosition(tool,position)
@@ -465,20 +543,69 @@ classdef imtool3D < handle
         end
         
         function units = getUnits(tool)
-            units = get(tool.handles.Panels.Large,'Units')
+            units = get(tool.handles.Panels.Large,'Units');
+        end
+        
+        function setMask(tool,mask)
+            tool.mask=mask;
+            showSlice(tool)
+            notify(tool,'maskChanged')
+        end
+        
+        function mask = getMask(tool)
+            mask = tool.mask;
+        end
+        
+        function setMaskColor(tool,maskColor)
+            
+            if ischar(maskColor)
+                switch maskColor
+                    case 'y'
+                        maskColor = [1 1 0];
+                    case 'm'
+                        maskColor = [1 0 1];
+                    case 'c'
+                        maskColor = [0 1 1];
+                    case 'r'
+                        maskColor = [1 0 0];
+                    case 'g'
+                        maskColor = [0 1 0];
+                    case 'b'
+                        maskColor = [0 0 1];
+                    case 'w'
+                        maskColor = [1 1 1];
+                    case 'k'
+                        maskColor = [0 0 0];
+                end
+            end
+            
+            
+            C = get(tool.handles.mask,'CData');
+            C(:,:,1) = maskColor(1);
+            C(:,:,2) = maskColor(2);
+            C(:,:,3) = maskColor(3);
+            set(tool.handles.mask,'CData',C);
+            
+        end
+        
+        function maskColor = getMaskColor(tool)
+            maskColor = tool.maskColor;
         end
         
         function setImage(varargin)
             switch nargin
                 case 1
                     tool=varargin{1}; I=random('unif',-50,50,[100 100 3]);
-                    range=[-50 50];
+                    range=[-50 50]; mask=false(size(I));
                 case 2
                     tool=varargin{1}; I=varargin{2};
-                    range=[min(I(:)) max(I(:))];
+                    range=[min(I(:)) max(I(:))]; mask=false(size(I));
                 case 3
                     tool=varargin{1}; I=varargin{2};
-                    range=varargin{3};
+                    range=varargin{3}; mask=false(size(I));
+                case 4
+                    tool=varargin{1}; I=varargin{2};
+                    range=varargin{3}; mask=varargin{4};
             end
             
             if isempty(I)
@@ -489,6 +616,8 @@ classdef imtool3D < handle
             end
             
             tool.I=I;
+            tool.mask=mask;
+            
             
             %Update the histogram
             im=tool.I(:,:,1);
@@ -496,14 +625,18 @@ classdef imtool3D < handle
             nelements=hist(im(:),tool.centers); nelements=nelements./max(nelements);
             set(tool.handles.HistLine,'XData',tool.centers,'YData',nelements);
             axes(tool.handles.HistAxes);
-            xlim([tool.centers(1) tool.centers(end)])
+            try
+                xlim([tool.centers(1) tool.centers(end)])
+            catch
+                xlim([tool.centers(1) tool.centers(end)+.1])
+            end
             axis fill
             
             %Update the window and level
             setWL(tool,diff(range),mean(range))
 
             %Update the image
-            set(tool.handles.I,'CData',im)
+            %set(tool.handles.I,'CData',im)
             axes(tool.handles.Axes);
             xlim([0 size(I,2)])
             ylim([0 size(I,1)])
@@ -520,25 +653,34 @@ classdef imtool3D < handle
             gColor=[255 38 38]./256;
             mColor=[255 102 102]./256;
             for i=1:nGrid
-                tool.handles.grid(end+1)=plot([.5 size(I,2)-.5],[y(i) y(i)],'-','LineWidth',1.2,'HitTest','off','Color',gColor);
-                tool.handles.grid(end+1)=plot([x(i) x(i)],[.5 size(I,1)-.5],'-','LineWidth',1.2,'HitTest','off','Color',gColor);
+                tool.handles.grid(end+1)=plot([.5 size(I,2)-.5],[y(i) y(i)],'-','LineWidth',1.2,'HitTest','off','Color',gColor,'Parent',tool.handles.Axes);
+                tool.handles.grid(end+1)=plot([x(i) x(i)],[.5 size(I,1)-.5],'-','LineWidth',1.2,'HitTest','off','Color',gColor,'Parent',tool.handles.Axes);
                 if i<nGrid
                     xm=linspace(x(i),x(i+1),nMinor+2); xm=xm(2:end-1);
                     ym=linspace(y(i),y(i+1),nMinor+2); ym=ym(2:end-1);
                     for j=1:nMinor
-                        tool.handles.grid(end+1)=plot([.5 size(I,2)-.5],[ym(j) ym(j)],'-r','LineWidth',.9,'HitTest','off','Color',mColor);
-                        tool.handles.grid(end+1)=plot([xm(j) xm(j)],[.5 size(I,1)-.5],'-r','LineWidth',.9,'HitTest','off','Color',mColor);
+                        tool.handles.grid(end+1)=plot([.5 size(I,2)-.5],[ym(j) ym(j)],'-r','LineWidth',.9,'HitTest','off','Color',mColor,'Parent',tool.handles.Axes);
+                        tool.handles.grid(end+1)=plot([xm(j) xm(j)],[.5 size(I,1)-.5],'-r','LineWidth',.9,'HitTest','off','Color',mColor,'Parent',tool.handles.Axes);
                     end
                 end
             end
-            tool.handles.grid(end+1)=scatter(.5+size(I,2)/2,.5+size(I,1)/2,'r','filled');
+            tool.handles.grid(end+1)=scatter(.5+size(I,2)/2,.5+size(I,1)/2,'r','filled','Parent',tool.handles.Axes);
             toggleGrid(tool.handles.Tools.Grid,[],tool)
+            
+            %update the mask cdata (in case it has changed size)
+            C=zeros(size(I,1),size(I,2),3);
+            C(:,:,1)=tool.maskColor(1); C(:,:,2)=tool.maskColor(2); C(:,:,3)=tool.maskColor(3);
+            set(tool.handles.mask,'CData',C);
             
             %Update the slider
             setupSlider(tool)
             
             %Show the first slice
             showSlice(tool)
+            
+            %Broadcast that the image has been updated
+            notify(tool,'newImage')
+            notify(tool,'maskChanged')
             
             
         end
@@ -547,8 +689,26 @@ classdef imtool3D < handle
             I=tool.I;
         end
         
+        function m = max(tool)
+            m = max(tool.I(:));
+        end
+        
+        function m = min(tool)
+            m = min(tool.I(:));
+        end
+        
+        function r = range(tool)
+            r = range(tool.I(:));
+        end
+        
         function handles=getHandles(tool)
             handles=tool.handles;
+        end
+        
+        function setAspectRatio(tool,psize)
+            %This sets the proper aspect ratio of the viewer for cases
+            %where you have non-square pixels
+            set(tool.handles.Axes,'DataAspectRatio',1./psize)
         end
         
         function setDisplayRange(tool,range)
@@ -571,22 +731,6 @@ classdef imtool3D < handle
             L=mean(range);
         end
         
-        function ROI = getCurrentROI(tool)
-            CurrentROI=tool.CurrentROI;
-            if ~isempty(CurrentROI)
-                if isvalid(CurrentROI)
-                    mask = createMask(CurrentROI);
-                    im=get(tool.handles.I,'CData');
-                    stats= regionprops(mask,im,'Area','Perimeter','MaxIntensity','MinIntensity','MeanIntensity');
-                    stats.STD=std(im(mask));
-                    ROI.mask=mask;
-                    ROI.stats=stats;
-                end
-            else
-                ROI=[];
-            end   
-        end
-        
         function setCurrentSlice(tool,slice)
             showSlice(tool,slice)
         end
@@ -594,53 +738,82 @@ classdef imtool3D < handle
         function slice = getCurrentSlice(tool)
             slice=round(get(tool.handles.Slider,'value'));
         end
+        
+        function mask = getCurrentMaskSlice(tool)
+            slice = getCurrentSlice(tool);
+            mask=tool.mask(:,:,slice);
+        end
+        
+        function setCurrentMaskSlice(tool,mask)
+            slice = getCurrentSlice(tool);
+            tool.mask(:,:,slice)=mask;
+            showSlice(tool,slice)
+        end
+        
+        function im = getCurrentImageSlice(tool)
+            slice = getCurrentSlice(tool);
+            im = tool.I(:,:,slice);
+        end
+        
+        function setAlpha(tool,alpha)
+            if alpha <=1 && alpha >=0
+                tool.alpha = alpha;
+                slice = getCurrentSlice(tool);
+                showSlice(tool,slice)
+            else
+                warning('Alpha value should be between 0 and 1')
+            end
+        end
+        
+        function alpha = getAlpha(tool)
+            alpha = tool.alpha;
+        end
+        
+        function S = getImageSize(tool)
+            S=size(tool.I);
+        end
+        
+        function addImageValues(tool,im,lims)
+            %this function adds im to the image at location specified by
+            %lims . Lims defines the box in which the new data, im, will be
+            %inserted. lims = [ymin ymax; xmin xmax; zmin zmax];
+            
+            tool.I(lims(1,1):lims(1,2),lims(2,1):lims(2,2),lims(3,1):lims(3,2))=...
+                tool.I(lims(1,1):lims(1,2),lims(2,1):lims(2,2),lims(3,1):lims(3,2))+im;
+            showSlice(tool);
+        end
+        
+        function im = getImageValues(tool,lims)
+            im = tool.I(lims(1,1):lims(1,2),lims(2,1):lims(2,2),lims(3,1):lims(3,2));
+        end
+        
+        function createBrushObject(tool,style)
+            switch style
+                case 'Normal'
+                    tool.handles.PaintBrushObject=maskPaintBrush(tool);
+                case 'Smart'
+                    tool.handles.PaintBrushObject=maskSmartBrush(tool);
+            end
+        end
+        
+        function removeBrushObject(tool)
+            try
+                delete(tool.handles.PaintBrushObject)
+                
+            end
+            tool.handles.PaintBrushObject=[];
+        end
+        
+        function delete(tool)
+            try
+                delete(tool.handles.Panels.Large)
+            end
+        end
      
     end
     
     methods (Access = private)
-        
-        function addROIhandles(tool,h)
-            ROIhandles=tool.ROIhandles;
-            ROIhandles{end+1}=h;
-            tool.ROIhandles=ROIhandles;
-        end
-        
-        function multipleScrollWheel(scr,evnt,tools)
-            for i=1:length(tools)
-                scrollWheel(scr,evnt,tools(i))
-            end
-        end
-        
-        function scrollWheel(scr,evnt,tool)
-            %Check to see if the mouse is hovering over the axis
-            units=get(tool.handles.fig,'Units');
-            set(tool.handles.fig,'Units','Pixels')
-            point=get(tool.handles.fig, 'CurrentPoint');
-            set(tool.handles.fig,'Units',units)
-            
-            units=get(tool.handles.Panels.Large,'Units');
-            set(tool.handles.Panels.Large,'Units','Pixels')
-            pos_p=get(tool.handles.Panels.Large,'Position');
-            set(tool.handles.Panels.Large,'Units',units)
-            
-            units=get(tool.handles.Panels.Image,'Units');
-            set(tool.handles.Panels.Image,'Units','Pixels')
-            pos_a=get(tool.handles.Panels.Image,'Position');
-            set(tool.handles.Panels.Image,'Units',units)
-            
-            xmin=pos_p(1)+pos_a(1); xmax=xmin+pos_a(3);
-            ymin=pos_p(2)+pos_a(2); ymax=ymin+pos_a(4);
-            
-            if point(1)>=xmin && point(1)<=xmax && point(2)>=ymin && point(2)<=ymax
-                newSlice=get(tool.handles.Slider,'value')-evnt.VerticalScrollCount;
-                if newSlice>=1 && newSlice <=size(tool.I,3)
-                    set(tool.handles.Slider,'value',newSlice);
-                    showSlice(tool)
-                end
-            end
-            
-        end
-
+                
         function showSlice(varargin)
             switch nargin
                 case 1
@@ -663,7 +836,9 @@ classdef imtool3D < handle
                 n=size(tool.I,3);
             end
             
+            set(tool.handles.I,'AlphaData',1)
             set(tool.handles.I,'CData',tool.I(:,:,n))
+            set(tool.handles.mask,'AlphaData',tool.alpha*tool.mask(:,:,n))
             set(tool.handles.SliceText,'String',[num2str(n) '/' num2str(size(tool.I,3))])
             if get(tool.handles.Tools.Hist,'value')
                 im=tool.I(:,:,n);
@@ -688,214 +863,44 @@ classdef imtool3D < handle
         end
         
         function setWL(tool,W,L)
-            set(tool.handles.Axes,'Clim',[L-W/2 L+W/2])
-            set(tool.handles.Tools.W,'String',num2str(W));
-            set(tool.handles.Tools.L,'String',num2str(L));
-            set(tool.handles.HistImageAxes,'Clim',[L-W/2 L+W/2])
-            set(tool.handles.Histrange(1),'XData',[L-W/2 L-W/2 L-W/2])
-            set(tool.handles.Histrange(2),'XData',[L+W/2 L+W/2 L+W/2])
-            set(tool.handles.Histrange(3),'XData',[L L L])
-        end
-        
-        function WindowLevel_callback(hobject,evnt,tool)
-            range=get(tool.handles.Axes,'Clim');
-            Wold=range(2)-range(1); Lold=mean(range);
-            W=str2num(get(tool.handles.Tools.W,'String'));
-            if isempty(W) || W<=0
-                W=Wold;
-                set(tool.handles.Tools.W,'String',num2str(W))
-            end
-            L=str2num(get(tool.handles.Tools.L,'String'));
-            if isempty(L)
-                L=Lold;
-                set(tool.handles.Tools.L,'String',num2str(L))
-            end
-            setWL(tool,W,L)
-        end
-        
-        function imageButtonDownFunction(hObject,eventdata,tool)
-            bp=get(tool.handles.Axes,'CurrentPoint');
-            bp=[bp(1,1) bp(1,2)];
-            switch get(tool.handles.fig,'SelectionType')
-                case 'normal'   %Adjust window and level
-                    CLIM=get(tool.handles.Axes,'Clim');
-                    W=CLIM(2)-CLIM(1);
-                    L=mean(CLIM);
-                    fun=@(src,evnt) adjustContrastMouse(src,evnt,bp,tool.handles.Axes,tool,W,L);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-                case 'extend'  %Zoom
-                    fun=@(src,evnt) adjustZoomMouse(src,evnt,bp,tool.handles.Axes,tool);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-                case 'alt'
-                    xlims=get(tool.handles.Axes,'Xlim');
-                    ylims=get(tool.handles.Axes,'Ylim');
-                    fun=@(src,evnt) adjustPanMouse(src,evnt,bp,tool.handles.Axes,xlims,ylims);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
+            try
+                set(tool.handles.Axes,'Clim',[L-W/2 L+W/2])
+                set(tool.handles.Tools.W,'String',num2str(W));
+                set(tool.handles.Tools.L,'String',num2str(L));
+                set(tool.handles.HistImageAxes,'Clim',[L-W/2 L+W/2])
+                set(tool.handles.Histrange(1),'XData',[L-W/2 L-W/2 L-W/2])
+                set(tool.handles.Histrange(2),'XData',[L+W/2 L+W/2 L+W/2])
+                set(tool.handles.Histrange(3),'XData',[L L L])
             end
         end
-        
-        function histogramButtonDownFunction(hObject,evnt,tool,line)
-            
-            switch line
-                case 1 %Lower limit of range
-                    fun=@(src,evnt) newLowerRangePosition(src,evnt,tool.handles.HistAxes,tool);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-                case 2 %Upper limt of range
-                    fun=@(src,evnt) newUpperRangePosition(src,evnt,tool.handles.HistAxes,tool);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-                case 3 %Middle line
-                    fun=@(src,evnt) newLevelRangePosition(src,evnt,tool.handles.HistAxes,tool);
-                    fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-                    set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-            end
-        end
-        
-        function toggleGrid(hObject,eventdata,tool)
-            if get(hObject,'Value')
-                set(tool.handles.grid,'Visible','on')
-            else
-                set(tool.handles.grid,'Visible','off')
-            end
-        end
-        
-        function changeColormap(hObject,eventdata,tool)
-            n=get(hObject,'Value');
-            maps=get(hObject,'String');
-            colormap(maps{n})
-        end
-        
-        function exportROI(hObject,evnt,tool)
-            CurrentROI=tool.CurrentROI;
-            if ~isempty(CurrentROI)
-                if isvalid(CurrentROI)
-                    mask = createMask(CurrentROI);
-                    im=get(tool.handles.I,'CData');
-                    stats= regionprops(mask,im,'Area','Perimeter','MaxIntensity','MinIntensity','MeanIntensity');
-                    stats.STD=std(im(mask));
-                    ROI.mask=mask;
-                    ROI.stats=stats;
-                    name = inputdlg('Enter variable name');
-                    name=name{1};
-                    assignin('base', name, ROI)
-                end
-            end
-        end
-        
-        function measureImageCallback(hObject,evnt,tool,type)
-            
-            switch type
-                case 'ellipse'
-                    fcn = makeConstrainToRectFcn('imellipse',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-                    h = imellipse(tool.handles.Axes,'PositionConstraintFcn',fcn);
-                    addROIhandles(tool,h)
-                    fcn=@(pos) newROIposition(pos,h,tool);
-                    addNewPositionCallback(h,fcn);
-                    setPosition(h,getPosition(h));
-                case 'rectangle'
-                    fcn = makeConstrainToRectFcn('imrect',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-                    h = imrect(tool.handles.Axes,'PositionConstraintFcn',fcn);
-                    addROIhandles(tool,h)
-                    fcn=@(pos) newROIposition(pos,h,tool);
-                    addNewPositionCallback(h,fcn);
-                    setPosition(h,getPosition(h));
-                case 'polygon'
-                    fcn = makeConstrainToRectFcn('impoly',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-                    h = impoly(tool.handles.Axes,'PositionConstraintFcn',fcn);
-                    addROIhandles(tool,h)
-                    fcn=@(pos) newROIposition(pos,h,tool);
-                    addNewPositionCallback(h,fcn);
-                    setPosition(h,getPosition(h));
-                case 'ruler'
-                    h = imdistline(tool.handles.Axes);
-                    fcn = makeConstrainToRectFcn('imline',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-                    setPositionConstraintFcn(h,fcn);
-                case 'profile'
-                    axes(tool.handles.Axes);
-                    improfile(); grid on;
-                otherwise
-            end
-            
-            
-        end
-        
-        function deleteCurrentROI(hObject,evnt,tool)
-            CurrentROI=tool.CurrentROI;
-            if length(CurrentROI)>0
-                if isvalid(CurrentROI)
-                    delete(CurrentROI)
-                    set(tool.handles.ROIinfo,'String','STD:                    Mean:                    ');
-                end
-            end
-        end
-        
-        function displayHelp(hObject,evnt,tool)
-            
-            message={'Welcome to imtool3D', ...
-                '',...
-                'Left Mouse Button: Window and Level', ...
-                'Right Mouse Button: Pan', ...
-                'Middle Mouse Button: Zoom', ...
-                'Scroll Wheel: Change Slice',...
-                '',...
-                'Written by Justin Solomon',...
-                'Send questions to justin.solomon@duke.edu'};
-            
-            msgbox(message)
-        end
-        
-        function CropImageCallback(hObject,evnt,tool)
-            [I2 rect] = imcrop(tool.handles.Axes);
-            rect=round(rect);
-            setImage(tool, tool.I(rect(2):rect(2)+rect(4)-1,rect(1):rect(1)+rect(3)-1,:))
-            
-        end
-        
-        function resetViewCallback(hObject,evnt,tool)
-            set(tool.handles.Axes,'Xlim',get(tool.handles.I,'XData'))
-            set(tool.handles.Axes,'Ylim',get(tool.handles.I,'YData'))
-        end
-  
+                                                    
     end
 
     
 end
 
-function deleteCurrentROI(hObject,evnt,tool)
-CurrentROI=tool.CurrentROI;
-if length(CurrentROI)>0
-    if isvalid(CurrentROI)
-        delete(CurrentROI)
-        set(tool.handles.ROIinfo,'String','STD:                    Mean:                    ');
+function PaintBrushCallback(hObject,evnt,tool,style)
+%Remove any old brush
+removeBrushObject(tool);
+
+if get(hObject,'Value')
+    switch style
+        case 'Normal'
+            set(tool.handles.Tools.SmartBrush,'Value',0);
+        case 'Smart'
+            set(tool.handles.Tools.PaintBrush,'Value',0);
     end
-end
+    createBrushObject(tool,style);    
 end
 
-function exportROI(hObject,evnt,tool)
-CurrentROI=tool.CurrentROI;
-if ~isempty(CurrentROI)
-    if isvalid(CurrentROI)
-        mask = createMask(CurrentROI);
-        im=get(tool.handles.I,'CData');
-        stats= regionprops(mask,im,'Area','Perimeter','MaxIntensity','MinIntensity','MeanIntensity');
-        stats.STD=std(im(mask));
-        ROI.mask=mask;
-        ROI.stats=stats;
-        name = inputdlg('Enter variable name');
-        name=name{1};
-        assignin('base', name, ROI)
-    end
-end
 end
 
 function CropImageCallback(hObject,evnt,tool)
 [I2 rect] = imcrop(tool.handles.Axes);
 rect=round(rect);
-setImage(tool, tool.I(rect(2):rect(2)+rect(4)-1,rect(1):rect(1)+rect(3)-1,:))
+mask = getMask(tool);
+range=getDisplayRange(tool);
+setImage(tool, tool.I(rect(2):rect(2)+rect(4)-1,rect(1):rect(1)+rect(3)-1,:),range,mask(rect(2):rect(2)+rect(4)-1,rect(1):rect(1)+rect(3)-1,:))
 
 end
 
@@ -903,60 +908,73 @@ function measureImageCallback(hObject,evnt,tool,type)
 
 switch type
     case 'ellipse'
-        fcn = makeConstrainToRectFcn('imellipse',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-        h = imellipse(tool.handles.Axes,'PositionConstraintFcn',fcn);
-        addROIhandles(tool,h)
-        fcn=@(pos) newROIposition(pos,h,tool);
-        addNewPositionCallback(h,fcn);
-        setPosition(h,getPosition(h));
+        h = getHandles(tool);
+        ROI = imtool3DROI_ellipse(h.I);
     case 'rectangle'
-        fcn = makeConstrainToRectFcn('imrect',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-        h = imrect(tool.handles.Axes,'PositionConstraintFcn',fcn);
-        addROIhandles(tool,h)
-        fcn=@(pos) newROIposition(pos,h,tool);
-        addNewPositionCallback(h,fcn);
-        setPosition(h,getPosition(h));
+        h = getHandles(tool);
+        ROI = imtool3DROI_rect(h.I);
     case 'polygon'
-        fcn = makeConstrainToRectFcn('impoly',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-        h = impoly(tool.handles.Axes,'PositionConstraintFcn',fcn);
-        addROIhandles(tool,h)
-        fcn=@(pos) newROIposition(pos,h,tool);
-        addNewPositionCallback(h,fcn);
-        setPosition(h,getPosition(h));
-    case 'ruler'
-        h = imdistline(tool.handles.Axes);
-        fcn = makeConstrainToRectFcn('imline',[1 size(tool.I,2)],[1 size(tool.I,1)]);
-        setPositionConstraintFcn(h,fcn);
+        h = getHandles(tool);
+        ROI = imtool3DROI_poly(h.I);
     case 'profile'
-        axes(tool.handles.Axes);
-        improfile(); grid on;
+        h = getHandles(tool);
+        ROI = imtool3DROI_line(h.I);
     otherwise
 end
 
 
 end
 
-function imageButtonDownFunction(hObject,eventdata,tool)
-bp=get(tool.handles.Axes,'CurrentPoint');
-bp=[bp(1,1) bp(1,2)];
-switch get(tool.handles.fig,'SelectionType')
-    case 'normal'   %Adjust window and level
-        CLIM=get(tool.handles.Axes,'Clim');
-        W=CLIM(2)-CLIM(1);
-        L=mean(CLIM);
-        fun=@(src,evnt) adjustContrastMouse(src,evnt,bp,tool.handles.Axes,tool,W,L);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-        set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-    case 'extend'  %Zoom
-        fun=@(src,evnt) adjustZoomMouse(src,evnt,bp,tool.handles.Axes,tool);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-        set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-    case 'alt'
-        xlims=get(tool.handles.Axes,'Xlim');
-        ylims=get(tool.handles.Axes,'Ylim');
-        fun=@(src,evnt) adjustPanMouse(src,evnt,bp,tool.handles.Axes,xlims,ylims);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
-        set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
+function varargout = imageButtonDownFunction(hObject,eventdata,tool)
+switch nargout
+    case 0
+        bp = get(0,'PointerLocation');
+        WBMF_old = get(tool.handles.fig,'WindowButtonMotionFcn');
+        WBUF_old = get(tool.handles.fig,'WindowButtonUpFcn');
+        switch get(tool.handles.fig,'SelectionType')
+            case 'normal'   %Adjust window and level
+                CLIM=get(tool.handles.Axes,'Clim');
+                W=CLIM(2)-CLIM(1);
+                L=mean(CLIM);
+                %make the contrast icon for the pointer
+                icon = zeros(16);
+                x = 1:16; [X,Y]= meshgrid(x,x); R = sqrt((X-8).^2 + (Y-8).^2);
+                icon(Y>8) = 1;
+                icon(Y<=8) = 2;
+                icon(R>8) = nan;
+                set(tool.handles.fig,'PointerShapeCData',icon);
+                set(tool.handles.fig,'Pointer','custom')
+                fun=@(src,evnt) adjustContrastMouse(src,evnt,bp,tool.handles.Axes,tool,W,L);
+                fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
+                set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
+            case 'extend'  %Zoom
+                xlims=get(tool.handles.Axes,'Xlim');
+                ylims=get(tool.handles.Axes,'Ylim');
+                bpA=get(tool.handles.Axes,'CurrentPoint');
+                bpA=[bpA(1,1) bpA(1,2)];
+                setptr(tool.handles.fig,'glass');
+                fun=@(src,evnt) adjustZoomMouse(src,evnt,bp,tool.handles.Axes,tool,xlims,ylims,bpA);
+                fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
+                set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
+            case 'alt' %pan
+                xlims=get(tool.handles.Axes,'Xlim');
+                ylims=get(tool.handles.Axes,'Ylim');
+                oldUnits =  get(tool.handles.Axes,'Units'); set(tool.handles.Axes,'Units','Pixels');
+                pos = get(tool.handles.Axes,'Position'); 
+                set(tool.handles.Axes,'Units',oldUnits);
+                axesPixels = pos(3:end);
+                imagePixels = [diff(xlims) diff(ylims)];
+                scale = imagePixels./axesPixels;
+                scale = scale(1);
+                setptr(tool.handles.fig,'closedhand');
+                fun=@(src,evnt) adjustPanMouse(src,evnt,bp,tool.handles.Axes,xlims,ylims,scale);
+                fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
+                set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
+        end
+    case 2
+        bp=get(tool.handles.Axes,'CurrentPoint');
+        x=bp(1,1); y=bp(1,2);
+        varargout{1}=x; varargout{2}=y;
 end
 end
 
@@ -973,25 +991,19 @@ else
 end
 end
 
+function toggleMask(hObject,eventdata,tool)
+if get(hObject,'Value')
+    set(tool.handles.mask,'Visible','on')
+else
+    set(tool.handles.mask,'Visible','off')
+end
+
+end
+
 function changeColormap(hObject,eventdata,tool)
 n=get(hObject,'Value');
 maps=get(hObject,'String');
 colormap(maps{n})
-end
-
-function displayHelp(hObject,evnt,tool)
-
-message={'Welcome to imtool3D', ...
-    '',...
-    'Left Mouse Button: Window and Level', ...
-    'Right Mouse Button: Pan', ...
-    'Middle Mouse Button: Zoom', ...
-    'Scroll Wheel: Change Slice',...
-    '',...
-    'Written by Justin Solomon',...
-    'Send questions to justin.solomon@duke.edu'};
-
-msgbox(message)
 end
 
 function WindowLevel_callback(hobject,evnt,tool)
@@ -1012,49 +1024,49 @@ end
         
 function histogramButtonDownFunction(hObject,evnt,tool,line)
 
+WBMF_old = get(tool.handles.fig,'WindowButtonMotionFcn');
+WBUF_old = get(tool.handles.fig,'WindowButtonUpFcn');
+
 switch line
     case 1 %Lower limit of range
         fun=@(src,evnt) newLowerRangePosition(src,evnt,tool.handles.HistAxes,tool);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
+        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
         set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
     case 2 %Upper limt of range
         fun=@(src,evnt) newUpperRangePosition(src,evnt,tool.handles.HistAxes,tool);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
+        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
         set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
     case 3 %Middle line
         fun=@(src,evnt) newLevelRangePosition(src,evnt,tool.handles.HistAxes,tool);
-        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool);
+        fun2=@(src,evnt) buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old);
         set(tool.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
 end
 end
 
-function addROIhandles(tool,h)
-ROIhandles=tool.ROIhandles;
-ROIhandles{end+1}=h;
-tool.ROIhandles=ROIhandles;
-end
-
 function scrollWheel(scr,evnt,tool)
-%Check to see if the mouse is hovering over the axis
-units=get(tool.handles.fig,'Units');
-set(tool.handles.fig,'Units','Pixels')
-point=get(tool.handles.fig, 'CurrentPoint');
-set(tool.handles.fig,'Units',units)
+%Check to see if the mouse is over the axis
+% units=get(tool.handles.fig,'Units');
+% set(tool.handles.fig,'Units','Pixels')
+% point=get(tool.handles.fig, 'CurrentPoint');
+% set(tool.handles.fig,'Units',units)
+% 
+% units=get(tool.handles.Panels.Large,'Units');
+% set(tool.handles.Panels.Large,'Units','Pixels')
+% pos_p=get(tool.handles.Panels.Large,'Position');
+% set(tool.handles.Panels.Large,'Units',units)
+% 
+% units=get(tool.handles.Panels.Image,'Units');
+% set(tool.handles.Panels.Image,'Units','Pixels')
+% pos_a=get(tool.handles.Panels.Image,'Position');
+% set(tool.handles.Panels.Image,'Units',units)
+% 
+% xmin=pos_p(1)+pos_a(1); xmax=xmin+pos_a(3);
+% ymin=pos_p(2)+pos_a(2); ymax=ymin+pos_a(4);
 
-units=get(tool.handles.Panels.Large,'Units');
-set(tool.handles.Panels.Large,'Units','Pixels')
-pos_p=get(tool.handles.Panels.Large,'Position');
-set(tool.handles.Panels.Large,'Units',units)
 
-units=get(tool.handles.Panels.Image,'Units');
-set(tool.handles.Panels.Image,'Units','Pixels')
-pos_a=get(tool.handles.Panels.Image,'Position');
-set(tool.handles.Panels.Image,'Units',units)
 
-xmin=pos_p(1)+pos_a(1); xmax=xmin+pos_a(3);
-ymin=pos_p(2)+pos_a(2); ymax=ymin+pos_a(4);
-
-if point(1)>=xmin && point(1)<=xmax && point(2)>=ymin && point(2)<=ymax
+%if point(1)>=xmin && point(1)<=xmax && point(2)>=ymin && point(2)<=ymax
+if isMouseOverAxes(tool.handles.Axes)
     newSlice=get(tool.handles.Slider,'value')-evnt.VerticalScrollCount;
     if newSlice>=1 && newSlice <=size(tool.I,3)
         set(tool.handles.Slider,'value',newSlice);
@@ -1074,6 +1086,11 @@ function newLowerRangePosition(src,evnt,hObject,tool)
 cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
 range=get(tool.handles.Axes,'Clim');
 Xlims=get(hObject,'Xlim');
+r=tool.range;
+ord = round(log10(r));
+if ord>1
+    cp(1)=round(cp(1));
+end
 range(1)=cp(1);
 W=diff(range);
 L=mean(range);
@@ -1086,6 +1103,11 @@ function newUpperRangePosition(src,evnt,hObject,tool)
 cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
 range=get(tool.handles.Axes,'Clim');
 Xlims=get(hObject,'Xlim');
+r=tool.range;
+ord = round(log10(r));
+if ord>1
+    cp(1)=round(cp(1));
+end
 range(2)=cp(1);
 W=diff(range);
 L=mean(range);
@@ -1098,6 +1120,11 @@ function newLevelRangePosition(src,evnt,hObject,tool)
 cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
 range=get(tool.handles.Axes,'Clim');
 Xlims=get(hObject,'Xlim');
+r=tool.range;
+ord = round(log10(r));
+if ord>1
+    cp(1)=round(cp(1));
+end
 L=cp(1);
 W=diff(range);
 if L>=Xlims(1) && L<=Xlims(2)
@@ -1105,57 +1132,73 @@ if L>=Xlims(1) && L<=Xlims(2)
 end
 end
 
-function newROIposition(pos,hObject,tool)
-ROIhandles=tool.ROIhandles;
-for i=1:length(ROIhandles)
-    if isvalid(ROIhandles{i})
-        setColor(ROIhandles{i},'b');
-    end
-end
-setColor(hObject,'r');
-mask = createMask(hObject);
-im=get(tool.handles.I,'CData');
-m=mean(im(mask));
-noise=std(im(mask));
-set(tool.handles.ROIinfo,'String',['STD:' num2str(noise,'%+.4f') '   Mean:' num2str(m,'%+.4f')])
-tool.CurrentROI=hObject;
+function adjustContrastMouse(src,evnt,bp,hObject,tool,W,L)
+cp = get(0,'PointerLocation');
+SS=get( 0, 'Screensize' ); SS=SS(end-1:end); %Get the screen size
+d=round(cp-bp)./SS;
+r=tool.range;
+WS=tool.windowSpeed;
+W2=W+r*d(1)*WS; L=L-r*d(2)*WS;
+if W2>0
+    W=W2;
+else
+    W=.001*W;
 end
 
-function adjustContrastMouse(src,evnt,bp,hObject,tool,W,L)
-cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
-d=round(cp-bp);
-W2=W+d(1); L=L-d(2);
-if W2>=1
-    W=W2;
+ord = round(log10(r));
+if ord>1
+    W=ceil(W);
+    L=round(L);
 end
+
 setWL(tool,W,L)
 end
 
-function adjustZoomMouse(src,evnt,bp,hObject,tool)
-cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
-d=cp(2)-bp(2);
-zFactor=.025;
-if d>0
-    zoom(1+zFactor)
-elseif d<0
-    zoom(1-zFactor)
+function adjustZoomMouse(src,evnt,bp,hObject,tool,xlims,ylims,bpA)
+
+%get the zoom factor
+cp = get(0,'PointerLocation');
+d=cp(2)-bp(2);  %
+zfactor = 1; %zoom percentage per change in screen pixels
+resize = 100 + d*zfactor;   %zoom percentage
+
+%get the old center point
+cold = [xlims(1)+diff(xlims)/2 ylims(1)+diff(ylims)/2];
+
+%get the direction vector from old center to the clicked point
+dir = cold-bpA;
+pfactor = 100; %zoom percentage at which clicked point becomes the new center
+
+%rescale the dir vector according to ratio between resize and pfactor
+dir = (dir*((resize-100)/pfactor));
+
+%get the new center
+cx = cold(1) + dir(1);
+cy = cold(2) + dir(2);
+
+%get the new width
+newXwidth = diff(xlims)* (resize/100);
+newYwidth = diff(ylims)* (resize/100);
+
+%set the new axis limits
+xlims = [cx-newXwidth/2 cx+newXwidth/2];
+ylims = [cy-newYwidth/2 cy+newYwidth/2];
+if resize > 0
+    set(hObject,'Xlim',xlims,'Ylim',ylims)
 end
-fun=@(Newsrc,Newevnt) adjustZoomMouse(Newsrc,Newevnt,cp,tool.handles.Axes,tool);
-set(tool.handles.fig,'WindowButtonMotionFcn',fun)
-axis fill
 
 end
 
-function adjustPanMouse(src,evnt,bp,hObject,xlims,ylims)
-cp = get(hObject,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
-d=(bp-cp)/1.25;
-set(hObject,'Xlim',xlims+d(1),'Ylim',ylims+d(2))
+function adjustPanMouse(src,evnt,bp,hObject,xlims,ylims,scale)
+cp = get(0,'PointerLocation');
+d=scale*(bp-cp);
+set(hObject,'Xlim',xlims+d(1),'Ylim',ylims-d(2))
 end
 
-function buttonUpFunction(src,evnt,tool)
+function buttonUpFunction(src,evnt,tool,WBMF_old,WBUF_old)
 
-fun=@(src,evnt)getImageInfo(src,evnt,tool);
-set(src,'WindowButtonMotionFcn',fun);
+setptr(tool.handles.fig,'arrow');
+set(src,'WindowButtonMotionFcn',WBMF_old,'WindowButtonUpFcn',WBUF_old);
 
 end
 
@@ -1199,6 +1242,7 @@ axis(tool.handles.Axes,'fill');
 buff=(w-wbutt)/2;
 pos=get(tool.handles.Panels.ROItools,'Position');
 set(tool.handles.Tools.Help,'Position',[buff pos(4)-wbutt-buff wbutt wbutt]);
+set(tool.handles.Axes,'XLimMode','manual','YLimMode','manual');
 
 end
 
@@ -1297,7 +1341,30 @@ showSlice(tool)
 
 end
 
+function fig = getParentFigure(fig)
+% if the object is a figure or figure descendent, return the
+% figure. Otherwise return [].
+while ~isempty(fig) & ~strcmp('figure', get(fig,'type'))
+    fig = get(fig,'parent');
+end
+end
 
+function overAxes = isMouseOverAxes(ha)
+%This function checks if the mouse is currently hovering over the axis in
+%question. hf is the handle to the figure, ha is the handle to the axes.
+%This code allows the axes to be embedded in any size heirarchy of
+%uipanels.
+
+point = get(ha,'CurrentPoint');
+x = point(1,1); y = point(1,2);
+xlims = get(ha,'Xlim');
+ylims = get(ha,'Ylim');
+
+overAxes = x>=xlims(1) & x<=xlims(2) & y>=ylims(1) & y<=ylims(2);
+
+
+
+end
 
 
 
