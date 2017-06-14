@@ -249,7 +249,7 @@ switch computer
         N = 2;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-        N = 100;
+        N = 1000;
     otherwise
    error('asdf');     
 end
@@ -263,24 +263,24 @@ end
 % tic;analyzeStageIIDirect(benchStruct);
 % timings(end+1) = toc;
 
-timings = [];
-tic;benchStruct = genBenchMark('benchType',1,'numSamples',N,'saveFolder',saveFolder);
-timings(end+1) = toc;
-tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
-timings(end+1) = toc;
-tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissGauss);
-timings(end+1) = toc;
-tic;analyzeStageIIDirect(benchStruct);
-timings(end+1) = toc;
-% 
 % timings = [];
-% tic;benchStruct = genBenchMark('benchType',2,'numSamples',2,'As',[5 7],'Bs',[0 2],'dist2Spots',[0 10],'dist2SpotsAtA',[],'dist2SpotsAtB',[],'saveFolder',saveFolder);
+% tic;benchStruct = genBenchMark('benchType',1,'numSamples',N,'saveFolder',saveFolder);
 % timings(end+1) = toc;
 % tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 % timings(end+1) = toc;
-% tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+% tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissGauss);
 % timings(end+1) = toc;
 % tic;analyzeStageIIDirect(benchStruct);
 % timings(end+1) = toc;
+% 
+timings = [];
+tic;benchStruct = genBenchMark('benchType',2,'numSamples',N,'saveFolder',saveFolder);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+timings(end+1) = toc;
+tic;analyzeStageIIDirect(benchStruct);
+timings(end+1) = toc;
 
 

@@ -36,7 +36,7 @@ for ii = 1:numConds
         if currB > maxB;
             maxB = currB;
         end
-%         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
+        %         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
         
         MLEs         = stageIIconds{ii}.MLEsByDirect;
         
@@ -121,34 +121,34 @@ end
 if ismatrix(analysis) == 2
     numDs = 1;
 else
-   numDs = size(analysis,3); 
+    numDs = size(analysis,3);
 end
 for ii = 1:numTheta
     for currD = 1:numDs
-    close all;
-    currSTDMap = stdForEachTheta{ii}(:,:,currD);
-    if all(isnan(currSTDMap(:)))
-       continue; 
-    end
-    minMaxOfDomains = calcMinMaxFromMeshData(domains);
-    ADoms = minMaxOfDomains(1,:);
-    BDoms = minMaxOfDomains(2,:);
-    [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
-    AA = domains{1}(:,:,currD);
-    BB = domains{2}(:,:,currD);
-    AA(isnan(currSTDMap)) = [];
-    BB(isnan(currSTDMap)) = [];
-    currSTDMap(isnan(currSTDMap)) = [];
-    F = scatteredInterpolant(AA(:),BB(:),currSTDMap(:));
-    F.Method = 'natural';
-    [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
-    set(gca,'Ydir','reverse');
-    axis equal;
-    myTitle = ['std deviation theta ' num2str(ii) ' at d' num2str(currD)];
-    title(myTitle);
-    xlabel('A');ylabel('B');
-    box off;
-    print('-painters','-depsc', [saveFolder filesep myTitle]);
+        close all;
+        currSTDMap = stdForEachTheta{ii}(:,:,currD);
+        if all(isnan(currSTDMap(:)))
+            continue;
+        end
+        minMaxOfDomains = calcMinMaxFromMeshData(domains);
+        ADoms = minMaxOfDomains(1,:);
+        BDoms = minMaxOfDomains(2,:);
+        [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
+        AA = domains{1}(:,:,currD);
+        BB = domains{2}(:,:,currD);
+        AA(isnan(currSTDMap)) = [];
+        BB(isnan(currSTDMap)) = [];
+        currSTDMap(isnan(currSTDMap)) = [];
+        F = scatteredInterpolant(AA(:),BB(:),currSTDMap(:));
+        F.Method = 'natural';
+        [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
+        set(gca,'Ydir','reverse');
+        axis equal;
+        myTitle = ['std deviation theta ' num2str(ii) ' at d' num2str(currD)];
+        title(myTitle);
+        xlabel('A');ylabel('B');
+        box off;
+        print('-painters','-depsc', [saveFolder filesep myTitle]);
     end
 end
 close all;
@@ -183,7 +183,8 @@ switch numel(sizeConditions)
                     jjSpotLLR = currLLR(jj,:);
                     jjSpotLLR(imag(jjSpotLLR) > 0) = [];
                     hold on;hSub = histogram(jjSpotLLR);
-                    hSub.Normalization = 'cdf';
+                    hSub.Normalization = 'pdf';
+                    axis tight;
                 end
                 title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                 xlabel(num2str(numel(currLLR(jj,:))));
@@ -202,7 +203,7 @@ switch numel(sizeConditions)
             hBasket = createFullMaxFigure(myTitle);
             currSizeConditions = size(currAnalysis);
             for ii = 1:prod(currSizeConditions)
-%                 display(ii);
+                %                 display(ii);
                 if ~isempty(currAnalysis{ii}) && ~isempty(currAnalysis{ii}.LLPPBasket)
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     currLLR = currAnalysis{ii}.LLPPBasket;
@@ -212,7 +213,9 @@ switch numel(sizeConditions)
                         jjSpotLLR = currLLR(jj,:);
                         jjSpotLLR(imag(jjSpotLLR) > 0) = [];
                         hold on;hSub = histogram(jjSpotLLR);
-                        hSub.Normalization = 'cdf';
+                        hSub.Normalization = 'pdf';
+                        axis tight;
+                        
                     end
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currLLR(jj,:))));
@@ -267,14 +270,14 @@ switch numel(sizeConditions)
         end
         
         if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
-        for ii = 1:prod(currSizeConditions)
-            if ~isempty(analysis{ii})
-                subplot(currSizeConditions(2), currSizeConditions(1),ii);
-                axis([currMin currMax 0 peakMax]);
-                xDomain = linspace(currMin,currMax,100);
-                hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+            for ii = 1:prod(currSizeConditions)
+                if ~isempty(analysis{ii})
+                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                    axis([currMin currMax 0 peakMax]);
+                    xDomain = linspace(currMin,currMax,100);
+                    hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                end
             end
-        end
         end
         saveas(hBasket,[saveFolder filesep myTitle],'epsc');
         close all;
@@ -309,17 +312,17 @@ switch numel(sizeConditions)
                     end
                 end
             end
-                    if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
-
-            for ii = 1:prod(currSizeConditions)
-                if ~isempty(analysis{ii})
-                    subplot(currSizeConditions(2), currSizeConditions(1),ii);
-                    axis([currMin currMax 0 peakMax]);
-                    xDomain = linspace(currMin,currMax,100);
-                    hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+            if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
+                
+                for ii = 1:prod(currSizeConditions)
+                    if ~isempty(analysis{ii})
+                        subplot(currSizeConditions(2), currSizeConditions(1),ii);
+                        axis([currMin currMax 0 peakMax]);
+                        xDomain = linspace(currMin,currMax,100);
+                        hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                    end
                 end
             end
-                    end
             print('-painters','-depsc', [saveFolder filesep myTitle]);
             %             saveas(hBasket,[saveFolder filesep myTitle],'epsc');
             close all;
