@@ -20,9 +20,9 @@ params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 params.numSamples       = 10;
 params.As               = linspace(0,30,11);
 params.Bs               = linspace(0,24,5);
-params.dist2Spots       = linspace(0,10,3);
-params.dist2SpotsAtA    = [3,15,27];
-params.dist2SpotsAtB    = [0,6,24];
+params.dist2Spots       = linspace(0,10,6);
+params.dist2SpotsAtA    = [3,15,27,30];
+params.dist2SpotsAtB    = [0,6,24,0];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 params.NoiseFuncArgs{1} = params.sizeData;
