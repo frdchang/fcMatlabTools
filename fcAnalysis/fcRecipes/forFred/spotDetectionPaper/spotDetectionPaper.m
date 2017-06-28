@@ -1,8 +1,8 @@
 %% generate figure 2 - sketch of pipeline
 % parameters for 2 spots setup
-Kmatrix = [1 0.2; 0 1];
+Kmatrix = [1 0.3144; 0 1];
 binning = 3;
-params.sizeData         = [51 21 11];
+params.sizeData         = [29 29 11];
 params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
@@ -11,9 +11,9 @@ params.threshPSFArgs    = {[7,7,7]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 30;
+params.As               = 3;
 params.Bs               = 0;
-params.dist2Spots       = 29;
+params.dist2Spots       = 6;
 
 cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
 

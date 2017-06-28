@@ -5,7 +5,7 @@ function [benchStruct] = genBenchMark(varargin)
 
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
-params.sizeData         = [21 21 9];
+params.sizeData         = [29 29 11];%[21 21 9];
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
 params.psfFunc          = @genPSF;
@@ -20,7 +20,7 @@ params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 params.numSamples       = 10;
 params.As               = linspace(0,30,11);
 params.Bs               = linspace(0,24,5);
-params.dist2Spots       = linspace(0,10,6);
+params.dist2Spots       = linspace(0,6,7);
 params.dist2SpotsAtA    = [3,15,27,30];
 params.dist2SpotsAtB    = [0,6,24,0];
 %--------------------------------------------------------------------------
@@ -58,7 +58,7 @@ switch params.benchType
         psfObjs = psfObjs(1);
     case 3
         typeOfBenchMark = '2S2C';
-        Kmatrix = [1 0.2; 0 1];
+        Kmatrix = [1 0.3144; 0 1];
     otherwise
         error('benchType needs to be {1,2,3}');
 end

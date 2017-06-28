@@ -48,7 +48,8 @@ if numSpotsInTheta(trueTheta0) == 2
         amp2 = estimated.A1{2}(cellxyz2{:});
         bkgnd2 = estimated.B1{2}(cellxyz2{:});
         b02   = estimated.B0{2}(cellxyz2{:});
-        if amp1 > amp2
+%         if amp1 > amp2
+if rand <= 0.5
             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{b02}}});
         else
             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{b01}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
