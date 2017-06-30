@@ -132,12 +132,12 @@ switch computer
     otherwise
    error('asdf');     
 end
-benchStruct = genBenchMark('benchType',1,'numSamples',2000,'dist2Spots',0,'saveFolder',saveFolder);
+benchStruct = genBenchMark('benchType',1,'As',linspace(0,6,11),'Bs',linspace(0,4.8,5),'numSamples',1000,'dist2Spots',0,'saveFolder',saveFolder);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
 benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
-% benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
 % benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
@@ -148,7 +148,7 @@ analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
 analyzeStageI(benchStruct,@regularConv,'regularConv');
 % analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 % analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
@@ -169,7 +169,7 @@ analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
 analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
 % analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 % analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
