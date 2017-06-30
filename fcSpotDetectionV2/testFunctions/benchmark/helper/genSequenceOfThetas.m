@@ -34,13 +34,13 @@ if numSpotsInTheta(trueTheta0) == 2
         obj2   = trueTheta0{2}{2}{1};
         amp1 = estimated.A1{1}(cellxyz1{:});
         amp2 = estimated.A1{1}(cellxyz2{:});
-%         if amp1 > amp2
-            seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}});
-%         else
-%             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
-%         end
+        %         if amp1 > amp2
+        seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}});
+        %         else
+        %             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
+        %         end
         seqTheta0{3} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{obj2,[amp2 xyzcoor2+0.02]},{bkgnd1}}});
-       
+        
     else
         xyzcoor2 = trueTheta0{3}{1}{2}(2:end);
         cellxyz2 = num2cell(xyzcoor2);
@@ -48,16 +48,14 @@ if numSpotsInTheta(trueTheta0) == 2
         amp2 = estimated.A1{2}(cellxyz2{:});
         bkgnd2 = estimated.B1{2}(cellxyz2{:});
         b02   = estimated.B0{2}(cellxyz2{:});
-%         if amp1 > amp2
-if rand <= 0.5
+        %         if amp1 > amp2
+        if rand <= 0.5
             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{b02}}});
         else
             seqTheta0{2} = ensureBkndThetasPos({Kmatrix, {{b01}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
         end
         seqTheta0{3} = ensureBkndThetasPos({Kmatrix, {{obj1,[amp1 xyzcoor1]},{bkgnd1}}, {{obj2,[amp2 xyzcoor2]},{bkgnd2}}});
     end
-    
-    
     return;
 else
     error('num spots greater than 2, which i didnt code for');
