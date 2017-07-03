@@ -30,10 +30,10 @@ for ii = 1:numConds
         if currB < minB
             minB = currB;
         end
-        if currA > maxA;
+        if currA > maxA
             maxA = currA;
         end
-        if currB > maxB;
+        if currB > maxB
             maxB = currB;
         end
         %         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(ii) ' of ' num2str(numConds)]);
@@ -54,7 +54,19 @@ for ii = 1:numConds
         LLPGBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         for jj = 1:numSamples
             currMLEholder           = MLEs{jj}{1};
-            if ~all(abs([currMLEholder.logLikePP])>0) || numel([currMLEholder.logLikePG]) ~= (numSpotsInTheta(masterTheta)+1)
+            if ~all(abs([currMLEholder.logLikePP])>0)
+                continue;
+            end
+            
+            % number of stable localization is less than the number of
+            % spots
+            if numel([currMLEholder.logLikePP]) ~= (numSpotsInTheta(masterTheta)+1)
+                LLPPBasket(1:numel([currMLEholder.logLikePP]),jj) = [currMLEholder.logLikePP];
+                LLPGBasket(1:numel([currMLEholder.logLikePG]),jj) = [currMLEholder.logLikePG];
+                LLPPBasket(numel([currMLEholder.logLikePP])+1,jj) = currMLEholder(end).logLikePP;
+                LLPGBasket(numel([currMLEholder.logLikePG])+1,jj) = currMLEholder(end).logLikePG;
+                currMLE  = currMLEholder(end);
+                LLPPHolder(jj)       = currMLE.logLikePP;
                 continue;
             end
             idxOfMatch = cellfun(@(x) isSameThetaStructure(masterTheta,x),{currMLEholder.thetaMLEs});
@@ -64,6 +76,11 @@ for ii = 1:numConds
             end
             currMLE = currMLEholder(idxOfMatch);
             if ~isequal(currMLE.stateOfStep,'ok')
+                LLPPBasket(:,jj) = [currMLEholder.logLikePP];
+                LLPGBasket(:,jj) = [currMLEholder.logLikePG];
+                LLPPBasket(end,jj) = LLPPBasket(end-1,jj);
+                LLPGBasket(end,jj) = LLPGBasket(end-1,jj);
+                LLPPHolder(jj)       = currMLE.logLikePP;
                 continue;
             end
             LLPPBasket(:,jj) = [currMLEholder.logLikePP];
@@ -74,11 +91,11 @@ for ii = 1:numConds
             thetaHolder(:,jj)    = currMLE;
         end
         % remove empty thetas in thetaHolder
-        %         thetaHolder(:,~any(thetaHolder,1)) = [];
         thetaHolder = thetaHolder(:,LLPPHolder>0);
-        LLPPBasket = LLPPBasket(:,LLPPHolder>0);
-        LLPGBasket = LLPGBasket(:,LLPPHolder>0);
-        LLPPHolder = LLPPHolder(LLPPHolder>0);
+        thetaHolder(:,~any(thetaHolder,1)) = [];
+        LLPPBasket  = LLPPBasket(:,LLPPHolder>0);
+        LLPGBasket  = LLPGBasket(:,LLPPHolder>0);
+        LLPPHolder  = LLPPHolder(LLPPHolder>0);
         
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
@@ -215,7 +232,6 @@ switch numel(sizeConditions)
                         hold on;hSub = histogram(jjSpotLLR);
                         hSub.Normalization = 'pdf';
                         axis tight;
-                        
                     end
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currLLR(jj,:))));
@@ -230,6 +246,31 @@ switch numel(sizeConditions)
     otherwise
         error('sizeConditions not 2 or 3');
 end
+
+%% plot EER for different distances
+for ii = 1:size(analysis,1)
+    for jj = 1:size(analysis,2)
+        analysis_D = analysis(ii,jj,:);
+        if all(~cellfun(@isempty,analysis_D))
+            currEER = zeros(numel(analysis_D),1);
+            currD = zeros(numel(analysis_D),1);
+            for di = 1:numel(analysis_D)
+                currLLR = analysis_D{di}.LLPPBasket;
+                currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
+                ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
+                currEER(di) = ROC.EER;
+                currD(di) = analysis_D{di}.D;
+            end
+            close all;
+            myTitle = ['EERoverD' filesep 'EER-A_' num2str(analysis_D{di}.A) ' B_' num2str(analysis_D{di}.B)];
+            makeDIRforFilename([saveFolder filesep myTitle]);
+            plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
+            print('-painters','-depsc', [saveFolder filesep myTitle]);
+        end
+    end
+end
+close all;
+
 
 end
 
@@ -312,7 +353,7 @@ switch numel(sizeConditions)
                     end
                 end
             end
-            if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
+            if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf
                 
                 for ii = 1:prod(currSizeConditions)
                     if ~isempty(analysis{ii})

@@ -12,7 +12,7 @@ if lambda<0
     lambda = 0;
 end
 
-sigmaSteps = round(gaussDomSize*(sigma+lambda));
+sigmaSteps = round(gaussDomSize*(sigma));
 gaussDOM = -sigmaSteps:sigmaSteps;
 shiftDOM = data+gaussDOM;
 shiftDOM = round(shiftDOM);

@@ -132,12 +132,12 @@ switch computer
     otherwise
    error('asdf');     
 end
-benchStruct = genBenchMark('benchType',1,'numSamples',2000,'dist2Spots',0,'saveFolder',saveFolder);
+benchStruct = genBenchMark('benchType',1,'As',linspace(0,6,11),'Bs',linspace(0,4.8,5),'numSamples',1000,'dist2Spots',0,'saveFolder',saveFolder);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
 benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
-% benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
 % benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
@@ -148,7 +148,7 @@ analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
 analyzeStageI(benchStruct,@regularConv,'regularConv');
 % analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 % analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
 % analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
@@ -169,7 +169,7 @@ analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
 analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
 % analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
 % analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-% analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
 % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
@@ -249,22 +249,22 @@ switch computer
         N = 2;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-        N = 1000;
+        N = 100;
     otherwise
    error('asdf');     
 end
-% timings = [];
-% tic;benchStruct = genBenchMark('benchType',1,'numSamples',N,'saveFolder',saveFolder);
-% timings(end+1) = toc;
-% tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
-% timings(end+1) = toc;
-% tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-% timings(end+1) = toc;
-% tic;analyzeStageIIDirect(benchStruct);
-% timings(end+1) = toc;
+timings = [];
+tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+timings(end+1) = toc;
+tic;benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+timings(end+1) = toc;
+tic;analyzeStageIIDirect(benchStruct);
+timings(end+1) = toc;
 
 % timings = [];
-% tic;benchStruct = genBenchMark('benchType',1,'numSamples',N,'saveFolder',saveFolder);
+% tic;benchStruct = genBenchMark('benchType',2,'numSamples',N,'saveFolder',saveFolder);
 % timings(end+1) = toc;
 % tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 % timings(end+1) = toc;
