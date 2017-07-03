@@ -1,3 +1,70 @@
+%% gen example noisy psf
+% parameters for 2 spots setup
+binning = 3;
+params.sizeData         = [15 15 11];
+params.centerCoor       = round(params.sizeData/2);
+
+params.psfFunc          = @genPSF;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
+params.threshPSFArgs    = {[20,20,20]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.As               = 15;
+params.Bs               = 5;
+params.dist2Spots       = 29;
+
+cameraVar               = params.NoiseFunc(params.NoiseFuncArgs{:});
+centerCoor              = params.centerCoor ;
+psfs                    = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs                    = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs                 = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[binning,binning,binning]),psfs);
+psfs                    = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs                    = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+domains                 = genMeshFromData(zeros(params.sizeData));
+% 1 spot setup
+
+% plot signal and poisson signal
+spotCoors = {{[params.As centerCoor],0}};
+bigTheta    = genBigTheta(1,psfObjs,spotCoors);
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+signalAvg = bigLambdas{1};
+signalPoisson = poissrnd(signalAvg);
+signalAvg = xyMaxProjND(signalAvg);
+signalPoisson = xyMaxProjND(signalPoisson);
+% plot bkgnd and poisson bkgnd
+spotCoors = {{[0 centerCoor],params.Bs}};
+bigTheta    = genBigTheta(1,psfObjs,spotCoors);
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+bkgndAvg = bigLambdas{1};
+bkgndPoisson = poissrnd(bkgndAvg);
+bkgndAvg = xyMaxProjND(bkgndAvg);
+bkgndPoisson = xyMaxProjND(bkgndPoisson);
+
+
+% together
+spotCoors = {{[params.As centerCoor],params.Bs}};
+bigTheta    = genBigTheta(1,psfObjs,spotCoors);
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+theBigLambda = bigLambdas{1};
+[sampledData,poissonPart,cameraParams,camNoise] = genMicroscopeNoise(theBigLambda,'readNoiseData',cameraVar);
+poissonPart = xyMaxProjND(poissonPart);
+camNoise = xyMaxProjND(camNoise);
+[~,photonData] = returnElectrons(sampledData,cameraParams);
+photonData = xyMaxProjND(photonData);
+exportStack('~/Desktop/signalAvg',signalAvg);
+exportStack('~/Desktop/bkgndAvg',bkgndAvg);
+exportStack('~/Desktop/signalPoisson',signalPoisson);
+exportStack('~/Desktop/bkgndPoisson',bkgndPoisson);
+exportStack('~/Desktop/poissonPart',poissonPart);
+exportStack('~/Desktop/camNoise',camNoise);
+exportStack('~/Desktop/photonData',photonData);
+
+
+
+
+
 %% generate figure 2 - sketch of pipeline
 % parameters for 2 spots setup
 Kmatrix = [1 0.2; 0 1];
@@ -7,7 +74,7 @@ params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
-params.threshPSFArgs    = {[7,7,7]};
+params.threshPSFArgs    = {[20,20,20]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 

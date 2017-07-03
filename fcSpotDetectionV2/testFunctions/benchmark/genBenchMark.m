@@ -76,7 +76,7 @@ benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots
 totNum = numel(params.As)*numel(params.Bs)*numel(params.dist2Spots);
 display('genBenchMark() starting...');
 setupParForProgress(totNum)
-parfor zz = 1:totNum
+for zz = 1:totNum
     incrementParForProgress();
       [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
 %     for bi = 1:numel(params.Bs)
