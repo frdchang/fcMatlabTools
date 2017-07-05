@@ -6,6 +6,7 @@ function [correctedQPM] = genQPM(stack,varargin)
 
 %--parameters--------------------------------------------------------------
 params.ballSize      = 100;
+params.negateQPM     = false;
 params.nFocus        = [];
 % to scale the small phase numbers
 params.offset       = 10;
@@ -35,6 +36,11 @@ zSteps = zSteps * dz;
 qpm = RunGaussionProcess(double(stack),params.nFocus,zSteps',lambda,ps,Nsl,eps1,eps2,reflect);
 se = strel('ball',params.ballSize,params.ballSize);
 % padd array by replciate
+if params.negateQPM
+    qpm = -qpm;
+else
+    
+end
 correctedQPM = padarray(qpm,[params.ballSize params.ballSize],'replicate');
 correctedQPM = imtophat(params.multiplier*(correctedQPM+params.offset),se);
 correctedQPM = unpadarray(correctedQPM,size(qpm));
