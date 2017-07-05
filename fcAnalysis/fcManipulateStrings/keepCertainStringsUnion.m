@@ -19,7 +19,8 @@ else
     for i = 1:numel(keepFile)
         currKeeper = keepFile{i};
         dsChecktemp = regexp(fileList,currKeeper);
-        dsCheck = dsCheck + ~cellfun('isempty',dsChecktemp); 
+        dsChecktemp =  ~cellfun('isempty',dsChecktemp);
+        dsCheck = dsCheck + dsChecktemp(:);
     end
     fileList(dsCheck==0) = [];
 end
