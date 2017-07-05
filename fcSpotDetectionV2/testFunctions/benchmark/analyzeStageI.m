@@ -48,14 +48,27 @@ for ii = 1:prod(sizeAB)
     currA = conditions{ii}.A;
     currB = conditions{ii}.B;
     currD = conditions{ii}.D;
+    if isfield(conditions{ii},conditionFunc)
     currFuncConditions = conditions{ii}.(conditionFunc);
+    else
+        currFuncConditions = conditions{ii}.(field);
+    end
     %% extract the signal and bkgnd
     sig = zeros(numel(currFuncConditions),1);
     bk  = cell(numel(currFuncConditions),1);
     for jj = 1:numel(currFuncConditions)
-        currFuncOutput = load(currFuncConditions{jj});
-        currFuncOutput=  currFuncOutput.x;
+        if iscell(currFuncConditions{jj})
+            tempLoad = currFuncConditions{jj};
+            tempLoad = tempLoad{1};
+                    currFuncOutput = importStack(tempLoad);
+
+        else
+                    currFuncOutput = load(currFuncConditions{jj});
+                            currFuncOutput=  currFuncOutput.x;
         currFuncOutput = currFuncOutput.(field);
+
+        end
+
         % if is a cell that means its multi color, so just measure from
         % channel 1
         if iscell(currFuncOutput)
