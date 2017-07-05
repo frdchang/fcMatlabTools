@@ -1,3 +1,24 @@
+%% build modules
+
+% optimize psf
+
+
+expFiles = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSubtilius',...
+            '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
+        
+tifFiles = getAllFiles(expFiles,{'tif'});        
+spotFiles = keepCertainStringsIntersection(tifFiles,'WhiteTTL');
+brightFieldFiles =  keepCertainStringsIntersection(tifFiles,'BrightFieldTTL');
+
+% psfs and psfObjs
+sigmaSQ = [0.9,0.9,0.9];
+binning = 3;
+patchSize = [7 7 7];
+
+sigmas = sqrt(sigmaSQ);
+kernBinning = ndGauss((sigmas*binning).^2,patchSize*binning);
+kern = ndGauss(sigmaSQ,patchSize);
+
 %% redo spot detection 
 tic;
 processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',300},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
