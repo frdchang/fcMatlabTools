@@ -313,10 +313,14 @@ muB = 5;
 sigmaB = 1;
 muS = 8;
 sigmaS = 1;
-N = 10000;
+N = 100;
 myFunc = @(x) x.^5 + 10;
 bkgnd = normrnd(muB,sigmaB,N);
 signal = normrnd(muS,sigmaS,N);
+hb = histogram(bkgnd);
+hold on;hs = histogram(signal);
+reg = genROC('0 1 1 1',signal,bkgnd);
+
 reg = genROC('0 1 1 1',signal,bkgnd);
 powered = genROC('0 1 1 1 powered',myFunc(signal),myFunc(bkgnd));
 figure;plot(1-reg.withoutTargetCDF,1-reg.withTargetCDF);hold on;plot(1-powered.withoutTargetCDF,1-powered.withTargetCDF,'--');

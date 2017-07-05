@@ -1,4 +1,4 @@
-function [sampledData,poissonNoiseOnly,cameraParams] = genMicroscopeNoise(trueData,varargin)
+function [sampledData,poissonNoiseOnly,cameraParams,cameraNoiseOnly] = genMicroscopeNoise(trueData,varargin)
 %GENMICROSCOPENOISE will take trueData as the poisson level, and sample it
 %   in a poisson distribution, then add gaussian read noise to simulate a
 %   typical microscope with a scmos or ccd camera.
@@ -22,14 +22,17 @@ if iscell(trueData)
     outputs = cellfunNonUniformOutput(@(x) doDaSample(x,params),trueData);
     sampledData = cell(numel(outputs),1);
     poissonNoiseOnly = cell(numel(outputs),1);
+    cameraNoiseOnly = cell(numel(outputs),1);
     for ii = 1:numel(outputs)
         sampledData{ii} = outputs{ii}.sampledData;
         poissonNoiseOnly{ii} = outputs{ii}.poissonNoiseOnly;
+        cameraNoiseOnly{ii} = outputs{ii}.camNoise;
     end
 else
     myOutput = doDaSample(trueData,params);
     sampledData = myOutput.sampledData;
     poissonNoiseOnly = myOutput.poissonNoiseOnly;
+    cameraNoiseOnly = myOutput.camNoise;
 end
 cameraParams.cameraVarianceInADU = params.readNoiseData.*(params.gain.^2);
 cameraParams.gainElectronPerCount = 1/params.gain;
@@ -48,9 +51,11 @@ poissonOnlySample = doTheSample;
 readNoiseData = params.readNoiseData;
 readNoiseData(params.readNoiseData==inf) = 10000;
 if isscalar(params.readNoiseData)
-    doTheSample = doTheSample + normrnd(0,sqrt(readNoiseData),size(myData));
+    camNoise = normrnd(0,sqrt(readNoiseData),size(myData));
+    doTheSample = doTheSample + camNoise;
 else
-    doTheSample = doTheSample + normrnd(0,sqrt(readNoiseData));
+    camNoise = normrnd(0,sqrt(readNoiseData));
+    doTheSample = doTheSample + camNoise;
 end
 % fill in neighbor pixels using inf information
 doTheSample(params.readNoiseData==inf) = nan;
@@ -68,9 +73,11 @@ myCameraParams.offset        = params.offset;
 myCameraParams.QE            = params.QE;
 
 
+
 myOutput.sampledData = doTheSample;
 myOutput.poissonNoiseOnly = poissonOnlySample;
 myOutput.cameraParams = myCameraParams;
+myOutput.camNoise = camNoise;
 end
 
 

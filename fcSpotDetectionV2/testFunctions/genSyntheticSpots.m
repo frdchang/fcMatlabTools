@@ -6,9 +6,9 @@ function synSpotStruct = genSyntheticSpots(varargin)
 %                   -> genPSF
 
 %--data set parameters-----------------------------------------------------
-params.dataSetSize  = [19 19 11];
+params.dataSetSize  = [27 27 15];
 params.dz           = 0.25e-6;
-
+params.dataPercent  = 0.5;  % border percent
 params.z0           = -1e-6;
 % FOV in pixels
 params.ru           = 10;
@@ -17,7 +17,7 @@ params.pixelSize    = 6.5e-06;
 % magnficiation
 params.M            = 60;
 % use gibson lanni (realistic) or gaussian psf
-params.useRealistic = false;
+params.useRealistic = true;
 % if use gaussian psf these are the parameters
 params.sigmaxysq      = 0.9;
 params.sigmazsq       = 0.9;
@@ -54,7 +54,7 @@ specimenPixSize = params.pixelSize / params.M;
 switch params.useCase
     case 1
         % generate spotList of random spots uniformly in dataSetSize
-        sampleUniformDist = rand(3,params.numSpots);
+        sampleUniformDist = rand(3,params.numSpots)*params.dataPercent+params.dataPercent/2;
         % shift it so x and y samples centered at zero
         spotCoors = bsxfun(@minus,sampleUniformDist,[0.5;0.5;0]);
         % transform so x and y samples from -1 to 1
