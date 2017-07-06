@@ -6,6 +6,11 @@ params.doParallel     = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+if ischar(cameraVariances)
+    [datas,cameraVariances] = returnElectronsFromCalibrationFile(datas,cameraVariances);
+end
+
+
 if isstruct(candidates)
     
 else

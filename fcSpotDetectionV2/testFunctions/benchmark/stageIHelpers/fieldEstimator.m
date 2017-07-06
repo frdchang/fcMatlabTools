@@ -1,6 +1,9 @@
 function [ estimated ] = fieldEstimator(data,spotKern,cameraVariance,varargin)
 %FIELDESTIMATOR will use gradient fields and hessian fields
 % assums there is only 1 psf
+if ischar(cameraVariance)
+    [data,cameraVariance] = returnElectronsFromCalibrationFile(data,cameraVariance);
+end
 
 if iscell(data)
 data = data{1};
@@ -9,7 +12,7 @@ end
 
 estimated = findSpotsStage1V2(data,spotKern,cameraVariance,varargin{:});
 [gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(size(spotKern),spotKern);
-[ estGamma ] = gammaCorrection( data,spotKern,cameraVariance);
+% [ estGamma ] = gammaCorrection( data,spotKern,cameraVariance);
 
 gradOfData = calcFullGradientFilter(data,estimated,kerns.kern,kerns.kernDs,cameraVariance);
 [gradXYZDotProduct] = convFieldKernels(gradOfData(3:end),gradientFieldFilters(3:end));
@@ -24,10 +27,10 @@ gradDOTLLRatio = gradXYZDotProduct.*estimated.LLRatio;
 hessDOTLLRatio = hessXYZDotProduct.*estimated.LLRatio;
 
 gradHessDOTLLRatio = gradXYZDotProduct.*hessXYZDotProduct.*estimated.LLRatio;
-gradHesDOTGamma = gradXYZDotProduct.*hessXYZDotProduct.*estGamma.negLoggammaSig;
+% gradHesDOTGamma = gradXYZDotProduct.*hessXYZDotProduct.*estGamma.negLoggammaSig;
 
 estimated.gradDOTLLRatio = gradDOTLLRatio;
 estimated.hessDOTLLRatio = hessDOTLLRatio;
 estimated.gradHessDOTLLRatio = gradHessDOTLLRatio;
-estimated.gradHessDOTGamma = gradHesDOTGamma;
+% estimated.gradHessDOTGamma = gradHesDOTGamma;
 

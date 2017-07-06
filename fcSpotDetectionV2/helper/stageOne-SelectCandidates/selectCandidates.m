@@ -18,23 +18,24 @@ function candidates = selectCandidates(estimated,varargin)
 
 %--parameters--------------------------------------------------------------
 % you can just use simple 'threshold' or 'hdome'
-params.strategy             = 'threshold';         % {'hdome','threshold','otsu'}
+params.selectField          = 'LLRatio';       % selects which field to select on
+params.strategy             = 'threshold';     % {'hdome','threshold','otsu'}
 %==universal parameters====================================================
 params.Athreshold           = 0;               % select regions where A > Athreshold
 params.clearBorder          = true;            % clear border on xy perimeter
 params.minVol               = 1;               % min volume of feature
-params.imposeMinSize        = true;
-%==hdome specific parameters==========?====================================
+params.imposeMinSize        = true;            % 
+%==hdome specific parameters===============================================
 params.hdomeH               = 1e3;
-params.thresholdHDome       = 'otsu';  %{'otsu',thresholdValue}
+params.thresholdHDome       = 'otsu';          %{'otsu',thresholdValue}
 %==threshold specific parameters===========================================
-params.LLRatioThresh        = [];
+params.fieldThresh         = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 %% universal computation - preprocessing
 if iscell(estimated.A1)
-    smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern{1});
+    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern{1});
     Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
     Athresholded = ~multiCellContents(Athresholded);
     
@@ -45,7 +46,7 @@ if iscell(estimated.A1)
     end
     
 else
-    smoothLLRatio = estimated.convFunc(estimated.LLRatio,estimated.spotKern);
+    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern);
     Athresholded = estimated.A1 > params.Athreshold;
     sizeKern = size(estimated.spotKern);
 end
@@ -54,19 +55,19 @@ end
 %% user specified computation
 switch params.strategy
     case 'hdome'
-        selectedRegions =  hdome(smoothLLRatio,params.hdomeH);
+        selectedRegions =  hdome(smoothField,params.hdomeH);
         if strcmp(params.thresholdHDome,'otsu')
             params.thresholdHDome = multithresh(selectedRegions(:));
         end
         selectedRegions = selectedRegions > params.thresholdHDome;
     case 'threshold'
-        if isempty(params.LLRatioThresh)
-            [params.LLRatioThresh, ~, ~] = threshold(multithresh(smoothLLRatio(:)), max(smoothLLRatio(:)), maxintensityproj(smoothLLRatio,3));
+        if isempty(params.fieldThresh)
+            [params.fieldThresh, ~, ~] = threshold(multithresh(smoothField(:)), max(smoothField(:)), maxintensityproj(smoothField,3));
         end
-        selectedRegions = smoothLLRatio > params.LLRatioThresh;
+        selectedRegions = smoothField > params.fieldThresh;
     case 'otsu'
-        thresh = multithresh(smoothLLRatio(:),1);
-        selectedRegions = smoothLLRatio > thresh;
+        thresh = multithresh(smoothField(:),1);
+        selectedRegions = smoothField > thresh;
     otherwise
         error('unrecognized strategy');
 end
@@ -83,7 +84,7 @@ end
 
 if params.imposeMinSize
     L = L > 0;
-    [~,~,seeds] = breakApartMasks(smoothLLRatio,L);
+    [~,~,seeds] = breakApartMasks(smoothField,L);
     minBBoxMask = imdilate(seeds,strel(ones(sizeKern(:)')));
     % combine the min mask with the current bwmask
     L = L | minBBoxMask;

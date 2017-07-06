@@ -3,21 +3,35 @@
 % optimize psf
 
 
-expFiles = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSubtilius',...
+expFolder = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSubtilius',...
             '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
-        
-tifFiles = getAllFiles(expFiles,{'tif'});        
+
+expFolder = {'/Users/frederickchang/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
+tifFiles = getAllFiles(expFolder,{'tif'});        
 spotFiles = keepCertainStringsIntersection(tifFiles,'WhiteTTL');
 brightFieldFiles =  keepCertainStringsIntersection(tifFiles,'BrightFieldTTL');
 
 % psfs and psfObjs
 sigmaSQ = [0.9,0.9,0.9];
-binning = 3;
 patchSize = [7 7 7];
+psfObj = genGaussKernObj(sigmaSQ,patchSize);
 
-sigmas = sqrt(sigmaSQ);
-kernBinning = ndGauss((sigmas*binning).^2,patchSize*binning);
-kern = ndGauss(sigmaSQ,patchSize);
+% get camVar
+camVarFile = '/Users/frederickchang/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+
+qpmOutput     = procQPMs(expFolder,'BrightFieldTTL');
+stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile);
+selectCand    = procSelectCandidates(stageIOutput,'selectField','LLRatio','fieldThresh',1000);
+stageIIOutput = procStageII(stageIOutput,selectCand);
+
+
+
+estimated = findSpotsStage1V2(data,psfObj.returnShape,camVarFile);
+estimated = fieldEstimator(data,psfObj.returnShape,camVarFile);
+candidates = selectCandidates(estimated,'selectField','LLRatio','fieldThresh',1000);
+MLEs = findSpotsStage2V2(data,camVarFile,estimated,candidates,1,psfObjs);
+
+
 
 %% redo spot detection 
 tic;
