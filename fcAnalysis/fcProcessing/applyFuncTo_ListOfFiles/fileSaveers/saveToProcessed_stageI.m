@@ -3,7 +3,7 @@ function output = saveToProcessed_stageI(listOfFileInputPaths,funcOutput,myFunc,
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
 params.saveFieldsAsImages     = {'A1','LLRatio','gradHessDOTLLRatio','negLoggammaSig'};
-params.keepFieldsForStruct    = {'B1','B0''spotKern','convFunc'};
+params.rmFieldsForStruct    = {'A0'};
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -25,7 +25,7 @@ end
 % save the struct
 savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' returnFileName(saveProcessedFileAt)];
 makeDIRforFilename(savePath);
-estimated = rmfield(estimated,setdiff(listOfFields,params.keepFieldsForStruct));
+estimated = rmfield(estimated,intersect(listOfFields,params.rmFieldsForStruct));
 save(savePath,'estimated');
 output{end+1} = saveProcessedFileAt;
 end

@@ -4,7 +4,12 @@ function filename = exportStack(filename,stack)
 
 if isinteger(stack)
    filename = [filename '.tif'];
+   if size(stack,3) == 3
+       imwrite(stack,filename);
+   else
+       
    exportSingleTifStack(filename,stack); 
+   end
 else
     filename = [filename '.fits'];
    exportSingleFitsStack(filename,stack);
