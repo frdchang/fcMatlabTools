@@ -27,10 +27,14 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyF
 % spot_A1s        = convertListToListofArguments(spot_A1s);
 % spot_LLRatios   = convertListToListofArguments(spot_LLRatios);
 % spot_Thetas     = convertListToListofArguments(spot_Thetas);
-saveFolder = strcat(expFolder,filesep,'processingState');
-saveFolder = saveFolder{1};
-makeDIR(saveFolder);
-save(saveFolder,'stageIOutputs','-append');
+saveFile = strcat(expFolder,filesep,'processingState');
+saveFile = saveFile{1};
+
+if exist(saveFile)==0
+    save(saveFile,'stageIOutputs');
+else
+    save(saveFile,'stageIOutputs','-append');
+end
 
 end
 

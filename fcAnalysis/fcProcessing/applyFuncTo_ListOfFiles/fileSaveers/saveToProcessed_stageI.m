@@ -18,13 +18,15 @@ output = {};
 saveFields = intersect(listOfFields,params.saveFieldsAsImages);
 for ii = 1:numel(saveFields)
     data = getfield(estimated,saveFields{ii});
-    savePath = [saveProcessedFileAt filesep saveFields{ii} filesep returnFileName(saveProcessedFileAt) '_' saveFields{ii}];
+    savePath = [returnFilePath(saveProcessedFileAt) filesep saveFields{ii} filesep saveFields{ii} '_' returnFileName(saveProcessedFileAt)];
     output{end+1} = exportStack(savePath,data);
 end
 
 % save the struct
+savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' returnFileName(saveProcessedFileAt)];
+makeDIRforFilename(savePath);
 estimated = rmfield(estimated,setdiff(listOfFields,params.keepFieldsForStruct));
-save(saveProcessedFileAt,'estimated');
+save(savePath,'estimated');
 output{end+1} = saveProcessedFileAt;
 end
 

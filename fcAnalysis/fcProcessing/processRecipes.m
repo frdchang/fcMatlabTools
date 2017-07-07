@@ -7,9 +7,11 @@ expFolder = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSub
             '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
 
 expFolder = {'/Users/frederickchang/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
-tifFiles = getAllFiles(expFolder,{'tif'});        
-spotFiles = keepCertainStringsIntersection(tifFiles,'WhiteTTL');
-brightFieldFiles =  keepCertainStringsIntersection(tifFiles,'BrightFieldTTL');
+camVarFile = '/Users/frederickchang/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+
+expFolder = {'/Users/fchang/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
+camVarFile = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+
 
 % psfs and psfObjs
 sigmaSQ = [0.9,0.9,0.9];
@@ -17,10 +19,9 @@ patchSize = [7 7 7];
 psfObj = genGaussKernObj(sigmaSQ,patchSize);
 
 % get camVar
-camVarFile = '/Users/frederickchang/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 qpmOutput     = procQPMs(expFolder,'BrightFieldTTL');
-stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile,'doProcParallel',true);
+stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@fieldEstimator,'camVarFile',camVarFile,'doProcParallel',true);
 selectCand    = procSelectCandidates(stageIOutput,'selectField','LLRatio','fieldThresh',1000);
 stageIIOutput = procStageII(stageIOutput,selectCand);
 
