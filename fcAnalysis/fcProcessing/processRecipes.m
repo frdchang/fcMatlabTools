@@ -20,7 +20,7 @@ psfObj = genGaussKernObj(sigmaSQ,patchSize);
 camVarFile = '/Users/frederickchang/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 qpmOutput     = procQPMs(expFolder,'BrightFieldTTL');
-stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile);
+stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile,'doProcParallel',true);
 selectCand    = procSelectCandidates(stageIOutput,'selectField','LLRatio','fieldThresh',1000);
 stageIIOutput = procStageII(stageIOutput,selectCand);
 
