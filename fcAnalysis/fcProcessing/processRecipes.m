@@ -21,11 +21,11 @@ psfObj = genGaussKernObj(sigmaSQ,patchSize);
 % get camVar
 
 qpmOutput     = procQPMs(expFolder,'BrightFieldTTL');
-stageIOutput  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
-coloredProjs  = procProjectStageI(stageIOutput);
-selectThresh  = procSelectThreshold(stageIOutput,'selectField','LLRatio');
-selectCand    = procSelectCandidates(stageIOutput,'selectField','LLRatio','fieldThresh',1000);
-stageIIOutput = procStageII(stageIOutput,selectCand);
+stageIOutputs  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@fieldEstimator,'camVarFile',camVarFile,'doProcParallel',true);
+coloredProjs  = procProjectStageI(stageIOutputs);
+selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+selectCand    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04);
+stageIIOutput = procStageII(stageIOutputs,selectCand);
 
 
 

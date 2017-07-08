@@ -1,10 +1,10 @@
-function [thresholdSelected ] = procSelectThreshold(stageIOutput,varargin )
+function [thresholdSelected ] = procSelectThreshold(stageIOutputs,varargin )
 %PROCSELECTTHRESHOLD Summary of this function goes here
 %   Detailed explanation goes here
 
  
 %--parameters--------------------------------------------------------------
-params.outputSelector     = 1;  % 2 is LLRatio
+params.outputSelector     = 1;  % 1 is A1 2 is LLRatio
 params.divisor            = 1;  % divide the image into this num
 params.resizeToThis       = [600,1024];
 %--------------------------------------------------------------------------
@@ -36,9 +36,10 @@ for ii = 1:numel(imageFiles)
     minVal = min(projTimeLapseImg(:));
     maxVal = max(projTimeLapseImg(:));
     projTimeLapseImg = imresize(projTimeLapseImg,params.resizeToThis,'nearest');
-    mythresh = thresh_tool(norm0to1((projTimeLapseImg)));
-    mythresh = mythresh*(maxVal-minVal);
+    [mythresh, ~, ~] = threshold(multithresh(projTimeLapseImg(:)), max(projTimeLapseImg(:)), projTimeLapseImg);
 
+%     mythresh = thresh_tool((projTimeLapseImg));
+    mythresh = mythresh*(maxVal-minVal);
 end
 
 

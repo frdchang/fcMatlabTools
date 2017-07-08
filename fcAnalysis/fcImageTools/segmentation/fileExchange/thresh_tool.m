@@ -1,4 +1,4 @@
-function [level,bw] = thresh_tool(im,cmap,defaultLevel) %mainfunction
+function [level,bw] = thresh_tool(im1,im2,cmap,defaultLevel) %mainfunction
 %THRESH_TOOL  Interactively select intensity level for image thresholding.
 %   THRESH_TOOL launches a GUI (graphical user interface) for thresholding
 %   an intensity input image, IM. IM is displayed in the top left corner. A
@@ -48,12 +48,12 @@ error(nargoutchk(0,2,nargout))
 
 %validate defaultLevel within range
 if nargin>2 %uer specified DEFAULTLEVEL
-  dataType = class(im);
+  dataType = class(im1);
   switch dataType
     case 'uint8','uint16','int16'
       if defaultLevel<intmin(dataType) | defaultLevel>intmax(dataType)
         error(['Specified DEFAULTLEVEL outside class range for ' dataType])
-      elseif defaultLevel<min(im(:)) | defaultLevel>max(im(:))
+      elseif defaultLevel<min(im1(:)) | defaultLevel>max(im1(:))
         error('Specified DEFAULTLEVEL outside data range for IM')
       end
     case 'double','single'
@@ -66,12 +66,12 @@ end
 max_colors=1000;    %practical limit
 
 %calculate bins centers
-color_range = double(limits(im));
-if isa(im,'uint8') %special case [0 255]
+color_range = double(limits(im1));
+if isa(im1,'uint8') %special case [0 255]
   color_range = [0 255];
   num_colors = 256;
   di = 1;
-elseif isinteger(im)
+elseif isinteger(im1)
   %try direct indices first
   num_colors = diff(color_range)+1;
   if num_colors<max_colors %okay
@@ -82,7 +82,7 @@ elseif isinteger(im)
   end
 else %noninteger
   %try infering discrete resolution first (intensities often quantized)
-  di = min(diff(sort(unique(im(:)))));
+  di = min(diff(sort(unique(im1(:)))));
   num_colors = round(diff(color_range)/di)+1;
   if num_colors>max_colors %too many levels
     num_colors = max_colors;                %practical limit
@@ -102,15 +102,15 @@ elseif nargin>1 && isnumeric(cmap) && length(size(cmap))==2 && size(cmap,2)==3
 else
   full_map = parula(num_colors);
 end
-setappdata(h_fig,'im',im)
+setappdata(h_fig,'im',im1)
 setappdata(h_fig,'FmtSpec',FmtSpec)
 
 %top left - input image
-h_ax1 = axes('unit','norm','pos',[0.05 0.35 0.4 0.60]);
-rgb = im2rgb(im,full_map);
-  function rgb = im2rgb(im,full_map); %nested
+h_ax1 = axes('unit','norm','pos',[0.00 0.33 0.25 0.70]);
+rgb = im2rgb(im1,full_map);
+  function rgb = im2rgb(im,full_map) %nested
     %coerce intensities into gray range [0,1]
-    gray = imadjust(im,[],[0 1]);
+    gray = norm0to1(im);
     %generate indexed image
     num_colors = size(full_map,1);
     ind = gray2ind(gray,num_colors);
@@ -118,18 +118,23 @@ rgb = im2rgb(im,full_map);
     rgb = ind2rgb(ind,full_map);
   end %im2rgb
 
-image(rgb), axis image
+image(rgb), 
 %subimage(im,full_map)
-axis off, title('Input Image')
+axis off, title('reference image')
 
-%top right - segmented (eventually)
-h_ax2 = axes('unit','norm','pos',[0.55 0.35 0.4 0.60]);
+%middle - segmented (eventually)
+h_ax2 = axes('unit','norm','pos',[0.33 0.33 0.25 0.70]);
+axis off
+image(im2rgb(im2,full_map));
+
+%top right
+h_ax2 = axes('unit','norm','pos',[0.66 0.33 0.25 0.70]);
 axis off
 setappdata(h_fig,'h_ax2',h_ax2)
 
 %next to bottom - intensity distribution
 h_hist = axes('unit','norm','pos',[0.05 0.1 0.9 0.2]);
-n = hist(double(im(:)),bin_ctrs);
+n = hist(double(im1(:)),bin_ctrs);
 bar(bin_ctrs,n)
 axis([color_range limits(n(2:end-1))]) %ignore saturated end scaling
 set(h_hist,'xtick',[],'ytick',[])
@@ -158,7 +163,7 @@ if nargin>2 %user specified default level
 else %graythresh default
   lo = double(color_range(1));
   hi = double(color_range(2));
-  norm_im = (double(im)-lo)/(hi-lo);
+  norm_im = (double(im1)-lo)/(hi-lo);
   norm_level = graythresh(norm_im); %GRAYTHRESH assumes DOUBLE range [0,1]
   my_level = norm_level*(hi-lo)+lo;
 end
@@ -188,7 +193,7 @@ movex_text(h_text,my_level)
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 %segmented image
-bw = im>my_level;
+bw = im1>my_level;
 axes(h_ax2)
 hold on
 subimage(bw), axis off, axis ij
