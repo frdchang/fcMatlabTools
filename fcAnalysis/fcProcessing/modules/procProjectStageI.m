@@ -4,6 +4,7 @@ function [projFuncOutput] = procProjectStageI(stageIOutput,varargin )
 %--parameters--------------------------------------------------------------
 params.projFunc     = @maxColoredProj;
 params.projFuncArg  = {3};
+params.doProcParallel = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -12,7 +13,7 @@ allFiles = flattenCellArray(stageIOutput.outputFiles);
 imageFiles = keepCertainStringsUnion(allFiles,{'tif','fits'});
 imageFiles = convertListToListofArguments(imageFiles);
 
-projFuncOutput    = applyFuncTo_listOfListOfArguments(imageFiles,@openImage_applyFuncTo,{},params.projFunc,{params.projFuncArg{:}},@saveToProcessed_images,{},'doParallel',false);
+projFuncOutput    = applyFuncTo_listOfListOfArguments(imageFiles,@openImage_applyFuncTo,{},params.projFunc,{params.projFuncArg{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
 
 end
 

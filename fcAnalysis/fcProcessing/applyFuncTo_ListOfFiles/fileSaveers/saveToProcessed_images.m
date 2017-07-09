@@ -32,6 +32,7 @@ for ii = 1:numel(funcOutput)
     else
         outputFileName = [saveProcessedFileAt '_' appendString{ii}];
     end
+    makeDIRforFilename(outputFileName);
     outputFileName = exportStack(outputFileName,currImage);
 end
 
