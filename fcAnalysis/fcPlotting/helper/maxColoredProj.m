@@ -1,6 +1,6 @@
 function [ coloredProj ] = maxColoredProj(data,dim)
 %MAXCOLOREDPROJ creates and rgb colormapped in the dimension specified
-myCmapFunc = @parula;
+myCmapFunc = @hsv;
 
 data = norm0to1(data);
 [maxproj,idx] = max(data,[],dim);
