@@ -25,6 +25,7 @@ params.Athreshold           = 0;               % select regions where A > Athres
 params.clearBorder          = true;            % clear border on xy perimeter
 params.minVol               = 1;               % min volume of feature
 params.imposeMinSize        = true;            % 
+params.useMask              = [];              % use permissive mask
 %==hdome specific parameters===============================================
 params.hdomeH               = 1e3;
 params.thresholdHDome       = 'otsu';          %{'otsu',thresholdValue}
@@ -74,6 +75,13 @@ end
 
 %% universal computations - postprocessing
 L = Athresholded.*selectedRegions;
+
+% use perssive mask if provided
+
+if ~isempty(params.useMask)
+    L = L.* params.useMask;
+    
+end
 
 % filter stats that have low volume
 L = bwareaopen(L,params.minVol);

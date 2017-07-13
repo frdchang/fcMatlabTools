@@ -27,6 +27,6 @@ savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' ret
 makeDIRforFilename(savePath);
 estimated = rmfield(estimated,intersect(listOfFields,params.rmFieldsForStruct));
 save(savePath,'estimated');
-output{end+1} = saveProcessedFileAt;
+output{end+1} = [savePath '.mat'];
 end
 

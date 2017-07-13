@@ -27,8 +27,8 @@ coloredProjs  = procProjectStageI(stageIOutputs);
 maxProjs  = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 
 selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
-selectCand    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04);
-stageIIOutput = procStageII(stageIOutputs,selectCand);
+selectCands    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+stageIIOutputs = procStageII(stageIOutputs,selectCand);
 
 
 
