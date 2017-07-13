@@ -7,11 +7,11 @@ expFolder = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSub
             '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
-expFolder = {'/Users/frederickchang/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
-camVarFile = '/Users/frederickchang/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
+camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
-expFolder = {'/Users/fchang/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
-camVarFile = '/Users/fchang/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
+camVarFile = '~/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 
 % psfs and psfObjs
@@ -27,7 +27,7 @@ coloredProjs  = procProjectStageI(stageIOutputs);
 maxProjs  = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 
 selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
-selectCands    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+selectCands    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',true);
 stageIIOutputs = procStageII(stageIOutputs,selectCand);
 
 
