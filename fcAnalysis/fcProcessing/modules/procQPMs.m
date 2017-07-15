@@ -21,6 +21,18 @@ qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 qpmOutputs.qpmImages = qpmImages;
 
-save([expFolder filesep 'processingState'],'-append');
+qpmOutputs.expFolder = expFolder;
+
+
+saveFile = strcat(expFolder,filesep,'processingState');
+saveFile = saveFile{1};
+saveFile = [saveFile '.mat'];
+
+if exist(saveFile,'file')==0
+    save(saveFile,'selectCands');
+else
+    save(saveFile,'selectCands','-append');
+end
+
 end
 

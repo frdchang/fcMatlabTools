@@ -10,7 +10,23 @@ params = updateParams(params,varargin);
 stageIStructs   = grabFromListOfCells(stageIOutputs.outputFiles,{['@(x) x{end}']});
 stageIStructs   = convertListToListofArguments(stageIStructs);
 
-selectCands     = applyFuncTo_listOfListOfArguments(stageIStructs,@openData_load,{},@selectCandidates,{varargin{:}},@saveToProcessed_direct,{},'doParallel',params.doProcParallel);
+selectCands     = applyFuncTo_listOfListOfArguments(stageIStructs,@openData_load,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},'doParallel',params.doProcParallel);
+
+
+expFolder = stageIOutputs.expFolder;
+
+
+
+saveFile = strcat(expFolder,filesep,'processingState');
+saveFile = saveFile{1};
+saveFile = [saveFile '.mat'];
+
+if exist(saveFile,'file')==0
+    save(saveFile,'selectCands');
+else
+    save(saveFile,'selectCands','-append');
+end
+
 
 end
 

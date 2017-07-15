@@ -10,8 +10,8 @@ camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-C
 expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
 camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
-expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
-camVarFile = '~/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+%expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
+%camVarFile = '~/Documents/MATLAB/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 
 % psfs and psfObjs
@@ -21,14 +21,14 @@ psfObj = genGaussKernObj(sigmaSQ,patchSize);
 
 % get camVar
 
-qpmOutput     = procQPMs(expFolder,'BrightFieldTTL','negateQPM',true);
+qpmOutput      = procQPMs(expFolder,'BrightFieldTTL','negateQPM',true);
 stageIOutputs  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
-coloredProjs  = procProjectStageI(stageIOutputs);
-maxProjs  = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
+coloredProjs   = procProjectStageI(stageIOutputs);
+maxProjs       = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 
-selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+% selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 selectCands    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',true);
-stageIIOutputs = procStageII(stageIOutputs,selectCand);
+stageIIOutputs = procStageII(stageIOutputs,selectCands);
 
 
 

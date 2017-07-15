@@ -6,6 +6,7 @@ numArguments = numel(varargin);
 numElements = numel(varargin{1});
 glued = cell(numElements,1);
 
+% if 
 for ii = 1:numElements
     glued{ii} = cellfunNonUniformOutput(@(x) x{ii}{:},varargin);
 end

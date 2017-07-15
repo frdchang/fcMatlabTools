@@ -27,10 +27,14 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyF
 % spot_A1s        = convertListToListofArguments(spot_A1s);
 % spot_LLRatios   = convertListToListofArguments(spot_LLRatios);
 % spot_Thetas     = convertListToListofArguments(spot_Thetas);
+
+stageIOutputs.expFolder = expFolder;
+stageIOutputs.camVarFile = params.camVarFile;
 saveFile = strcat(expFolder,filesep,'processingState');
 saveFile = saveFile{1};
+saveFile = [saveFile '.mat'];
 
-if exist(saveFile)==0
+if exist(saveFile,'file')==0
     save(saveFile,'stageIOutputs');
 else
     save(saveFile,'stageIOutputs','-append');
