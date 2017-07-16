@@ -18,19 +18,18 @@ camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024
 sigmaSQ = [0.9,0.9,0.9];
 patchSize = [7 7 7];
 psfObj = genGaussKernObj(sigmaSQ,patchSize);
+Kmatrix = 1;
 
 % get camVar
 
 qpmOutput      = procQPMs(expFolder,'BrightFieldTTL','negateQPM',true);
-stageIOutputs  = procStageI(expFolder,'WhiteTTL',psfObj.returnShape,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs  = procStageI(expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 coloredProjs   = procProjectStageI(stageIOutputs);
 maxProjs       = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 
 % selectThresh  = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 selectCands    = procSelectCandidates(stageIOutputs,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',true);
 stageIIOutputs = procStageII(stageIOutputs,selectCands);
-
-
 
 estimated = findSpotsStage1V2(data,psfObj.returnShape,camVarFile);
 estimated = fieldEstimator(data,psfObj.returnShape,camVarFile);

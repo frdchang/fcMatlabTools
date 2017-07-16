@@ -1,12 +1,20 @@
 function [ stageIIinputs ] = openData_stageII(varargin )
 %OPENDATA_STAGEII Summary of this function goes here
 %   Detailed explanation goes here
+datas = importStack(varargin{1});
 
-firstArg = load(varargin{1});
-firstArg = firstArg.estimated;
-secondArg = load(varargin{2});
-secondArg = secondArg.funcOutput;
-stageIIinputs{1} = firstArg;
-stageIIinputs{2} = secondArg;
+[electronDatas,cameraVarianceInADU] = returnElectronsFromCalibrationFile(datas,varargin{2});
+
+estimated = load(varargin{3});
+estimated = estimated.estimated;
+
+candidates = load(varargin{4});
+candidates = candidates.funcOutput;
+
+Kmatrix = varargin{5};
+
+psfObjs = varargin{6};
+
+stageIIinputs = {datas,estimated,candidates,Kmatrix,psfObjs};
 end
 

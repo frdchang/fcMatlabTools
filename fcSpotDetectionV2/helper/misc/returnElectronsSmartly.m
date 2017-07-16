@@ -2,7 +2,7 @@ function [electrons,photons,readNoiseInElectrons] = returnElectronsSmartly(data,
 %RETURNELECTRONSSMARTLY Summary of this function goes here
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
-params.calibrationFiles     = {'/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat','/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat'};
+params.calibrationFiles     = {'~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat','/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat'};
 params.sizeOfCalibrationFiles = {[1024,1024],[2048,2048]};
 params.namesOfCalibration = {'ID001486-CoolerAIR-ROI1024x1024-SlowScan','ID001486-CoolerAIR-ROI2048x2048-SlowScan'};
 %--------------------------------------------------------------------------

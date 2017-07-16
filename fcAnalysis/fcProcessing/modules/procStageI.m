@@ -1,4 +1,4 @@
-function [ stageIOutputs ] = procStageI(expFolder,spotRegexp,psfKern,varargin)
+function [ stageIOutputs ] = procStageI(expFolder,spotRegexp,psfObj,varargin)
 %PROCSTAGEI Summary of this function goes here
 %   Detailed explanation goes here
 % expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile
@@ -16,7 +16,7 @@ spotFiles      = keepCertainStringsIntersection(spotFiles,spotRegexp);
 spotFiles      = convertListToListofArguments(spotFiles);
 
 
-stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},params.stageIFunc,{psfKern,params.camVarFile,varargin{:}},@saveToProcessed_stageI,{},'doParallel',params.doProcParallel );
+stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},params.stageIFunc,{psfObj.returnShape,params.camVarFile,varargin{:}},@saveToProcessed_stageI,{},'doParallel',params.doProcParallel );
 
 % spot_Thetas     = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{1}'});
 % spot_A1s        = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{2}'});
@@ -29,6 +29,7 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyF
 % spot_Thetas     = convertListToListofArguments(spot_Thetas);
 
 stageIOutputs.expFolder = expFolder;
+stageIOutputs.psfObj    = psfObj;
 stageIOutputs.camVarFile = params.camVarFile;
 saveFile = strcat(expFolder,filesep,'processingState');
 saveFile = saveFile{1};

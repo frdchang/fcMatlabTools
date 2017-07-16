@@ -3,10 +3,17 @@ function glued = glueCellArguments(varargin)
 
 numArguments = numel(varargin);
 
-numElements = numel(varargin{1});
+
+
+% extrude the elements to longest 
+numElements = max(cellfun(@numel,varargin));
 glued = cell(numElements,1);
 
-% if 
+for ii = 1:numArguments
+   varargin{ii}(end:numElements) = varargin{ii}(end); 
+end
+
+
 for ii = 1:numElements
     glued{ii} = cellfunNonUniformOutput(@(x) x{ii}{:},varargin);
 end
