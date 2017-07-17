@@ -1,4 +1,4 @@
-function consensusString = calcConsensusString(listOfStrings)
+function [consensusString,idxmatch] = calcConsensusString(listOfStrings)
 %CALCCONSENSUSSTRING will go through the list of strings and return the
 %consensus string.  unique characters will be displayed in brackets.  if
 %the strings have different length, this function will do the consensus up
@@ -11,6 +11,7 @@ end
 
 numElements = min(cellfun(@(x) numel(x),listOfStrings));
 consensusString = '';
+idxmatch = zeros(numElements,1);
 for ii = 1:numElements
     consensChar = unique(cellfun(@(x) x(ii), listOfStrings));
     if numel(consensChar) > 1
@@ -27,6 +28,7 @@ for ii = 1:numElements
 %         consensusString = [ consensusString 'x'];
     else
         consensusString = [ consensusString consensChar];
+        idxmatch(ii) = 1;
     end
 end
 

@@ -21,20 +21,21 @@ if isempty(varargin)
 else
    appendString = varargin{1}; 
 end
+
 outputFileName = cell(numel(funcOutput),1);
-
-
+variableNames = arrayfun(@(x) [func2str(myFunc) num2str(x)], 1:numel(myFunc),'UniformOutput',false);
+fileOutputs = cell(1,numel(myFunc));
 for ii = 1:numel(funcOutput)
     currImage = funcOutput{ii};
     if isempty(appendString{ii})
         outputFileName = saveProcessedFileAt;
-        
     else
         outputFileName = [saveProcessedFileAt '_' appendString{ii}];
     end
     makeDIRforFilename(outputFileName);
-    outputFileName = exportStack(outputFileName,currImage);
+    fileOutputs{ii} = exportStack(outputFileName,currImage);
 end
+outputFileName = table(fileOutputs,'VariableNames',variableNames);
 
 
 

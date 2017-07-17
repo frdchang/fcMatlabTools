@@ -17,7 +17,11 @@ allThePaths = cellfunNonUniformOutput(@(x) calcConsensusString(returnFilePath(x)
 allTheFileNames = cellfunNonUniformOutput(@(x) calcConsensusString(returnFileName(x)),listOfFileInputPaths);
 allTheFileNamesDroppedVowels = dropVowels(allTheFileNames);
 savePath = createProcessedDir(allThePaths{1});
-fileInputs = strjoin(allTheFileNamesDroppedVowels,',');
+[cons,idxm] = calcConsensusString(allTheFileNamesDroppedVowels);
+
+noncons = cellfunNonUniformOutput(@(x) x(~idxm), allTheFileNamesDroppedVowels);
+inputFiles = {cons,noncons{:}};
+fileInputs = strjoin(inputFiles,',');
 
 functionName    =  char(myFunc);
 functionNameDroppedVowels = dropVowels(functionName);

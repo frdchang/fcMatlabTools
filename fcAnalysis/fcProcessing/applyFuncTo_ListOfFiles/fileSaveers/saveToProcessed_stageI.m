@@ -30,11 +30,15 @@ for ii = 1:numel(saveFields)
     end
 end
 
+saveFields{end+1} = 'mat';
 % save the struct
 savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' returnFileName(saveProcessedFileAt)];
 makeDIRforFilename(savePath);
 estimated = rmfield(estimated,intersect(listOfFields,params.rmFieldsForStruct));
 save(savePath,'estimated');
 output{end+1} = [savePath '.mat'];
+listOutput = convertListToListofArguments(output);
+output = table(listOutput{:},'VariableNames',saveFields);
+
 end
 

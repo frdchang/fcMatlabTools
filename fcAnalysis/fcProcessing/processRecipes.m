@@ -1,5 +1,5 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
-expFolder = '/Users/frederickchang/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
+expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
@@ -9,7 +9,7 @@ psfObjs = {psfObj1,psfObj2};
 Kmatrix = [1 0.31; 0 1];
 
 qpmOutput       = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
-stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',false);
+stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
 
 
@@ -20,6 +20,8 @@ stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'
 
 expFolder = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSubtilius',...
             '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
+        
+        expFolder = '/home/fchang/Dropbox/Public/testingmatlab/highLabel-Subtilius';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
@@ -32,13 +34,13 @@ camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024
 % psfs and psfObjs
 sigmaSQ = [0.9,0.9,0.9];
 patchSize = [7 7 7];
-psfObj = genGaussKernObj(sigmaSQ,patchSize);
+psfObjs = {genGaussKernObj(sigmaSQ,patchSize)};
 Kmatrix = 1;
 
 % get camVar
 
-qpmOutput      = procQPMs(expFolder,'BrightFieldTTL','negateQPM',true);
-stageIOutputs  = procStageI(expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+qpmOutput       = procQPMs(expFolder,'BrightFieldTTL','negateQPM',true,'doProcParallel',true);
+stageIOutputs   = procStageI(expFolder,{'WhiteTTL'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',false);
 coloredProjs   = procProjectStageI(stageIOutputs);
 maxProjs       = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 

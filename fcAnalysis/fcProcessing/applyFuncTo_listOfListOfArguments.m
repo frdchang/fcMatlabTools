@@ -59,8 +59,9 @@ else
         outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
 end
+outputFiles = vertcat(outputFiles{:});
 
-inputsOutputs.inputFiles    = listOflistOfArguments;
+inputsOutputs.inputFiles    = table(listOflistOfArguments,'VariableNames',{inputname(1)});
 inputsOutputs.outputFiles   = outputFiles;
 inputsOutputs.myFuncParams  = myFuncParams;
 inputsOutputs.myFunc        = myFunc;

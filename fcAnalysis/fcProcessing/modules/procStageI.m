@@ -14,14 +14,14 @@ params = updateParams(params,varargin);
 
 spotFiles      = getAllFiles(expFolder,'tif');
 spotFiles      = cellfunNonUniformOutput(@(x) keepCertainStringsIntersection(spotFiles,x),spotRegexp);
-pairedColoredFiles = cell(numel(spotFiles{1}),1);
+spotFileInputs = cell(numel(spotFiles{1}),1);
 for ii = 1:numel(spotFiles{1})
-    pairedColoredFiles{ii} = cellfun(@(x) x(ii),spotFiles);
+    spotFileInputs{ii} = cellfun(@(x) x(ii),spotFiles);
 end
 % spotFiles      = convertListToListofArguments(spotFiles);
 
 
-stageIOutputs    = applyFuncTo_listOfListOfArguments(pairedColoredFiles,@openImage_applyFuncTo,{},params.stageIFunc,{cellfunNonUniformOutput(@(x) x.returnShape,psfObj),params.camVarFile,'kMatrix',params.Kmatrix,varargin{:}},@saveToProcessed_stageI,{},'doParallel',params.doProcParallel );
+stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_stageI,{},params.stageIFunc,{cellfunNonUniformOutput(@(x) x.returnShape,psfObj),params.camVarFile,'kMatrix',params.Kmatrix,varargin{:}},@saveToProcessed_stageI,{},'doParallel',params.doProcParallel );
 
 % spot_Thetas     = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{1}'});
 % spot_A1s        = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{2}'});
@@ -36,14 +36,6 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(pairedColoredFiles,@openIma
 stageIOutputs.expFolder = expFolder;
 stageIOutputs.psfObj    = psfObj;
 stageIOutputs.camVarFile = params.camVarFile;
-saveFile = strcat(expFolder,filesep,'processingState');
-saveFile = [saveFile '.mat'];
 
-if exist(saveFile,'file')==0
-    save(saveFile,'stageIOutputs');
-else
-    save(saveFile,'stageIOutputs','-append');
-end
-
-end
+procSaver(expFolder,stageIOutputs);
 
