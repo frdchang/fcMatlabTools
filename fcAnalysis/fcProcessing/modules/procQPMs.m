@@ -17,21 +17,21 @@ phaseFiles      = convertListToListofArguments(phaseFiles);
 
 qpmOutputs      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{varargin{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
 
-qpmImages       = groupByTimeLapses(processQPM.outputFiles);
-qpmImages       = convertListToListofArguments(qpmImages);
-qpmOutputs.qpmImages = qpmImages;
+qpmImagesbyTime       = groupByTimeLapses(qpmOutputs.outputFiles);
+qpmImagesbyTime       = convertListToListofArguments(qpmImagesbyTime);
 
+qpmOutputs.qpmImagesbyTime = qpmImagesbyTime;
 qpmOutputs.expFolder = expFolder;
+qpmOutputs.phaseRegexp = phaseRegexp;
 
 
 saveFile = strcat(expFolder,filesep,'processingState');
-saveFile = saveFile{1};
 saveFile = [saveFile '.mat'];
 
 if exist(saveFile,'file')==0
-    save(saveFile,'selectCands');
+    save(saveFile,'qpmOutputs');
 else
-    save(saveFile,'selectCands','-append');
+    save(saveFile,'qpmOutputs','-append');
 end
 
 end

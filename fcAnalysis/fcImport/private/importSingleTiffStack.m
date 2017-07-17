@@ -23,7 +23,7 @@ if isfield(InfoImage(1),'ImageDescription');
     end
 end
 
-FinalImage=zeros(nImage,mImage,NumberImages,'uint16');
+FinalImage=zeros(nImage,mImage,NumberImages);
 for i=1:NumberImages
     FinalImage(:,:,i)=imread(FileTif,'Index',i,'Info',InfoImage);
 end

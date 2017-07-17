@@ -19,7 +19,15 @@ saveFields = intersect(listOfFields,params.saveFieldsAsImages);
 for ii = 1:numel(saveFields)
     data = getfield(estimated,saveFields{ii});
     savePath = [returnFilePath(saveProcessedFileAt) filesep saveFields{ii} filesep saveFields{ii} '_' returnFileName(saveProcessedFileAt)];
-    output{end+1} = exportStack(savePath,data);
+    if iscell(data)
+        localOut = cell(numel(data),1);
+        for jj = 1:numel(data)
+            localOut{jj} = exportStack([savePath '_ch' num2str(jj) ],data{jj});
+        end
+        output{end+1} = localOut;
+    else
+        output{end+1} = exportStack(savePath,data);
+    end
 end
 
 % save the struct

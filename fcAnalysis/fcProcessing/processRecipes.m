@@ -1,3 +1,18 @@
+%% build modules for 2 spot case and see if it generalizes to 1 spot case
+expFolder = '/Users/frederickchang/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
+camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+
+psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
+psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
+
+psfObjs = {psfObj1,psfObj2};
+Kmatrix = [1 0.31; 0 1];
+
+qpmOutput       = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
+stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',false);
+
+
+
 %% build modules
 
 % optimize psf

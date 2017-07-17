@@ -13,7 +13,11 @@ function [dataInElectrons,cameraVarianceInADU] = returnElectronsFromCalibrationF
 %     prevPathToCalibration = pathToCalibration;
 % end
 
-cameraVarianceInADU = repmat(calibration.cameraVarianceInADU,[1 1 size(data,3)]);
+if iscell(data)
+    cameraVarianceInADU = repmat(calibration.cameraVarianceInADU,[1 1 size(data{1},3)]);
+else
+    cameraVarianceInADU = repmat(calibration.cameraVarianceInADU,[1 1 size(data,3)]);
+end
 dataInElectrons = returnElectrons(data,calibration);
 
 
