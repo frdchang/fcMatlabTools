@@ -27,6 +27,7 @@ numApplications = numel(listOflistOfArguments);
 
 if numApplications == 0
     warning('no files to apply func to!');
+    inputsOutputs = [];
     return;
 end
 

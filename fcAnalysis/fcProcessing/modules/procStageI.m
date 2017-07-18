@@ -33,9 +33,9 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_s
 % spot_LLRatios   = convertListToListofArguments(spot_LLRatios);
 % spot_Thetas     = convertListToListofArguments(spot_Thetas);
 
-stageIOutputs.expFolder = expFolder;
-stageIOutputs.psfObj    = psfObj;
+stageIOutputs.expFolder  = expFolder;
+stageIOutputs.psfObj     = psfObj;
 stageIOutputs.camVarFile = params.camVarFile;
-
+stageIOutputs.Kmatrix    = params.Kmatrix;
 procSaver(expFolder,stageIOutputs);
 

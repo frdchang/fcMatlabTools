@@ -1,6 +1,6 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
-camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
@@ -8,10 +8,17 @@ psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 psfObjs = {psfObj1,psfObj2};
 Kmatrix = [1 0.31; 0 1];
 
-qpmOutput       = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
+qpmOutputs      = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
 stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
+coloredProjs   = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj);
+maxProjs       = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
 
+cellMasks      = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
+
+selectCands    = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+
+stageIIOutputs = procStageII(stageIOutputs,selectCands,'doProcParallel',false);
 
 %% build modules
 
@@ -21,8 +28,8 @@ stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'
 expFolder = {'/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-highlabel-HaloSubtilius',...
             '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius'};
         
-        expFolder = '/home/fchang/Dropbox/Public/testingmatlab/highLabel-Subtilius';
-camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+expFolder = '~/Dropbox/Public/testingmatlab/highLabel-Subtilius';
+camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 
 expFolder = {'~/Dropbox/Public/testingmatlab/highLabel-Subtilius/doTimeLapse_1'};
 camVarFile = '~/Documents/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';

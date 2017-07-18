@@ -3,12 +3,12 @@ function [ output ] = saveToProcessed_selectCandidates( listOfFileInputPaths,fun
 %   Detailed explanation goes here
 
 saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash);
-
+output{2} = {};
 funcOutput = funcOutput{1};
 makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'funcOutput');
 
-output = [saveProcessedFileAt '.mat'];
+output{1} = [saveProcessedFileAt '.mat'];
 
 % save thresholded images 
 
@@ -17,5 +17,11 @@ L = maxintensityproj(funcOutput.L,3);
 L = label2rgb(L,'jet','k','shuffle');
 makeDIRforFilename(saveImages);
 imwrite(L,saveImages);
+
+output{2} = saveImages;
+
+VariableNames = {'mat','rgbL'};
+output = convertListToListofArguments(output);
+output = table(output{:},'VariableNames',VariableNames);
 end
 

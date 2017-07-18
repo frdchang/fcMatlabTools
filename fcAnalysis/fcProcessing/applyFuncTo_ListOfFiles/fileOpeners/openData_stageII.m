@@ -15,6 +15,6 @@ Kmatrix = varargin{5};
 
 psfObjs = varargin{6};
 
-stageIIinputs = {datas,estimated,candidates,Kmatrix,psfObjs};
+stageIIinputs = {electronDatas',cameraVarianceInADU,estimated,candidates,Kmatrix,psfObjs};
 end
 

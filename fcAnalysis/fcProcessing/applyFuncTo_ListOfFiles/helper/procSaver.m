@@ -1,7 +1,14 @@
-function [] = procSaver(expFolder,outputVariable)
+function [] = procSaver(expFolder,outputVariable,varargin)
 %PROCSAVER will save the variable at path
 
-newName = inputname(2);
+
+if ~isempty(varargin)
+    newName = varargin{1};
+else
+    newName = inputname(2);
+end
+
+
 saveFile = strcat(expFolder,filesep,'processingState');
 saveFile = [saveFile '.mat'];
 

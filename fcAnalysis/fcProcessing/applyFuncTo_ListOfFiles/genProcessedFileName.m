@@ -21,10 +21,12 @@ savePath = createProcessedDir(allThePaths{1});
 
 noncons = cellfunNonUniformOutput(@(x) x(~idxm), allTheFileNamesDroppedVowels);
 inputFiles = {cons,noncons{:}};
+inputFiles = deleteEmptyCells(inputFiles);
+inputFiles = pruneUselessCharAtEdges(inputFiles);
+inputFiles = deleteEmptyCells(inputFiles);
 fileInputs = strjoin(inputFiles,',');
 
 functionName    =  char(myFunc);
-functionNameDroppedVowels = dropVowels(functionName);
 if isempty(params.paramHash)
     saveFolder = [filesep '[' functionName ']' filesep];
 else
@@ -36,6 +38,7 @@ if isempty(params.appendFolder)
 else
     newFileName     = [params.appendFolder filesep params.appendFolder '(' fileInputs ')'];
 end
+newFileName = dropVowels(newFileName);
 % history of applied functions are in the bracketed portions of filepath
 grabHistory     = regexp(savePath,'\[(.*?)\]','match');
 grabRest        = regexp(savePath,'\[(.*?)\]','split');

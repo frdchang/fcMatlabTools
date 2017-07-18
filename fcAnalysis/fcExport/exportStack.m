@@ -3,7 +3,9 @@ function filename = exportStack(filename,stack)
 %   Detailed explanation goes here
 
 % tiffwriteimj(stack,[filename '.tif']);
-
+if isequal(unique(stack),[0 ;1])
+stack = uint8(stack);
+end
 if isinteger(stack)
    filename = [filename '.tif'];
    if size(stack,3) == 3

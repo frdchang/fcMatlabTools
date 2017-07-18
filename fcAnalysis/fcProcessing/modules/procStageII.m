@@ -4,11 +4,13 @@ function [ stageIIOutputs ] = procStageII(stageIOutputs,selectCands,varargin )
 
 %--parameters--------------------------------------------------------------
 params.doProcParallel     = false;
-params.Kmatrix            = 1;
+params.doParallel         = false;
+params.doPlotEveryN       = inf;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-dataFiles            = stageIOutputs.inputFiles;
+dataFiles            = stageIOutputs.inputFiles.spotFileInputs;
+dataFiles            = convertListToListofArguments(dataFiles);
 
 camVarFile           = stageIOutputs.camVarFile;
 camVarFile           = convertListToListofArguments({camVarFile});
@@ -16,16 +18,18 @@ camVarFile           = convertListToListofArguments({camVarFile});
 psfObj               = stageIOutputs.psfObj;
 psfObj               = convertListToListofArguments({psfObj});
 
-stageIStructsFiles   = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{end}'});
+stageIStructsFiles   = stageIOutputs.outputFiles.mat;
 stageIStructsFiles   = convertListToListofArguments(stageIStructsFiles);
 
-selectCandsFiles     = selectCands.outputFiles;
+selectCandsFiles     = selectCands.outputFiles.mat;
 selectCandsFiles     = convertListToListofArguments(selectCandsFiles);
 
-stageIIArgFiles      = glueCellArguments(dataFiles,camVarFile,stageIStructsFiles,selectCandsFiles,convertListToListofArguments({params.Kmatrix}),psfObj);
+stageIIArgFiles      = glueCellArguments(dataFiles,camVarFile,stageIStructsFiles,selectCandsFiles,convertListToListofArguments({stageIOutputs.Kmatrix}),psfObj);
 
-stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{varargin{:}},@saveToProcessed_findSpotsStage2V2,{},'doParallel',params.doProcParallel);
+stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{params},@saveToProcessed_findSpotsStage2V2,{},'doParallel',params.doProcParallel);
 
+expFolder = stageIOutputs.expFolder;
+procSaver(expFolder,stageIIOutputs);
 
 
 end

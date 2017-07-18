@@ -32,4 +32,11 @@ for ii = 1:numElements
     end
 end
 
+if idxmatch(1) == 0
+   consensusString = '';
+   idxmatch = zeros(numElements,1);
+end
+end
+
+
 

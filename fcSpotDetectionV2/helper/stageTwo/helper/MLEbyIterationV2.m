@@ -164,13 +164,15 @@ for ii = 1:numStrategies
                 break;
             end
         end
-        currError = sumCellContents(cellfunNonUniformOutput(@(x,y) (x-y).^2,bigLambdas,carveddatas));
-        currError = sum(currError(:));
-%         display(flattenTheta0s(theta0s));
-%         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
-%         
+       
+
         if mod(jj,params.doPlotEveryN) == 1
-                LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
+%              currError = sumCellContents(cellfunNonUniformOutput(@(x,y) (x-y).^2,bigLambdas(:),carveddatas(:)));
+%         currError = sum(currError(:));
+%         %         display(flattenTheta0s(theta0s));
+% %         display(['error:' num2str(currError) 'strat:' num2str(ii)]);
+% %         
+                LLPP = logLike_PoissPoiss(carveddatas(:),bigLambdas(:),carvedsigmasqs(:));
 
             plotMLESearchV2(carvedMask,A1s,datas,theta0s,domains,totalIter,LLPP);
         end
@@ -195,8 +197,8 @@ if any(flattenTheta0s(theta0s) <0)
     return;
 end
 if isequal(stateOfStep,'ok')
-    LLPP = logLike_PoissPoiss(carveddatas,bigLambdas,carvedsigmasqs);
-    LLPG = logLike_PoissGauss(carveddatas,bigLambdas,carvedsigmasqs);
+    LLPP = logLike_PoissPoiss(carveddatas(:),bigLambdas(:),carvedsigmasqs(:));
+    LLPG = logLike_PoissGauss(carveddatas(:),bigLambdas(:),carvedsigmasqs(:));
     state.thetaMLEs = theta0s;
     state.logLikePP = LLPP;
     state.logLikePG = LLPG;

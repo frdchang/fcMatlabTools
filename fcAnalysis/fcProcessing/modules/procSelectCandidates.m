@@ -4,29 +4,25 @@ function [ selectCands ] = procSelectCandidates(stageIOutputs,varargin )
 
 %--parameters--------------------------------------------------------------
 params.doProcParallel     = true;
+params.cellMasks          = [];
+params.cellMaskVariable   = 'doOtsuThresh1';
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-stageIStructs   = grabFromListOfCells(stageIOutputs.outputFiles,{['@(x) x{end}']});
+stageIStructs   = stageIOutputs.outputFiles.mat;
 stageIStructs   = convertListToListofArguments(stageIStructs);
 
-selectCands     = applyFuncTo_listOfListOfArguments(stageIStructs,@openData_load,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},'doParallel',params.doProcParallel);
-
-
-expFolder = stageIOutputs.expFolder;
-
-
-
-saveFile = strcat(expFolder,filesep,'processingState');
-saveFile = saveFile{1};
-saveFile = [saveFile '.mat'];
-
-if exist(saveFile,'file')==0
-    save(saveFile,'selectCands');
-else
-    save(saveFile,'selectCands','-append');
+% if there is a cell mask, punt it in
+if ~isempty(params.cellMasks)
+   cellMaskFiles = params.cellMasks.outputFiles.(params.cellMaskVariable);
+   cellMaskFiles = convertListToListofArguments(cellMaskFiles);
+   stageIStructs = glueCellArguments(stageIStructs,cellMaskFiles);
 end
 
+selectCands     = applyFuncTo_listOfListOfArguments(stageIStructs,@openData_selectCandidates,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},'doParallel',params.doProcParallel);
+
+expFolder = stageIOutputs.expFolder;
+procSaver(expFolder,selectCands);
 
 end
 

@@ -79,8 +79,7 @@ L = Athresholded.*selectedRegions;
 % use perssive mask if provided
 
 if ~isempty(params.useMask)
-    L = L.* params.useMask;
-    
+    L = maskData(L,params.useMask);   
 end
 
 % filter stats that have low volume

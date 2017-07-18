@@ -24,18 +24,22 @@ end
 
 outputFileName = cell(numel(funcOutput),1);
 variableNames = arrayfun(@(x) [func2str(myFunc) num2str(x)], 1:numel(myFunc),'UniformOutput',false);
-fileOutputs = cell(1,numel(myFunc));
+fileOutputs = {};
 for ii = 1:numel(funcOutput)
     currImage = funcOutput{ii};
+    if isscalar(currImage)
+       continue; 
+    end
     if isempty(appendString{ii})
         outputFileName = saveProcessedFileAt;
     else
         outputFileName = [saveProcessedFileAt '_' appendString{ii}];
     end
     makeDIRforFilename(outputFileName);
-    fileOutputs{ii} = exportStack(outputFileName,currImage);
+    fileOutputs{end+1} = exportStack(outputFileName,currImage);
 end
-outputFileName = table(fileOutputs,'VariableNames',variableNames);
+fileOutputs = convertListToListofArguments(fileOutputs);
+outputFileName = table(fileOutputs{:},'VariableNames',variableNames);
 
 
 
