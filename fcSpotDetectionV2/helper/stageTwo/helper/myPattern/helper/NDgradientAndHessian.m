@@ -5,7 +5,16 @@ function [gradData,hessData] = NDgradientAndHessian(data,domains)
 numDims = ndims(data);
 gradData = cell(numDims,1);
 
-spacingBasket = cellfunNonUniformOutput(@(x) -x,calcSpacing(domains));
+
+%spacingBasket = cellfunNonUniformOutput(@(x) -x,calcSpacing(domains));
+
+spacingBasket = calcSpacing(domains);
+for ii = 1:numel(spacingBasket)
+   spacingBasket{ii} = -spacingBasket{ii}; 
+end
+for ii = 1:numel(domains)
+   spacingBasket{ii} = -spacingBasket{ii}; 
+end
 
 [gradData{:}] = gradient(data,spacingBasket{:});
 gradData = flipXYCoors(gradData);

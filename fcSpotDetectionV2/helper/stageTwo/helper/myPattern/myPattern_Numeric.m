@@ -72,10 +72,7 @@ classdef myPattern_Numeric < myPattern_Interface
             % it knows the bin mode, so the domain you give it doesn't have
             % to take into account the downSample.  so give it regular domain,
             % and this functino will expand the domain
-            %--parameters--------------------------------------------------------------
-            params.default     = [];
-            %--------------------------------------------------------------------------
-            params = updateParams(params,varargin);
+           
             % calc how the shape will be moved
             deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
             % do domain expansino according to bin
