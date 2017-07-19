@@ -18,7 +18,7 @@ cellMasks      = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phase
 
 selectCands    = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
 
-stageIIOutputs = procStageII(stageIOutputs,selectCands,'doProcParallel',false);
+stageIIOutputs = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
 %% build modules
 

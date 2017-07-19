@@ -32,21 +32,45 @@ ids(~isNaturalNum(ids)) = [];
 % else
 %     sizeKern = size(estimated.spotKern);
 % end
-
-
 sizeKern = [0,0,0];
 MLEs = cell(numel(ids),1);
-for ii = 1:numel(ids)
-    currMask = candidates.L == ids(ii);
-    carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
-    carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern,'spotKern','convFunc');
-    carvedCamVar            = carveOutWithMask(cameraVariances,currMask,sizeKern);
-    carvedMask              = carveOutWithMask(currMask,currMask,sizeKern);
-    carvedRectSubArrayIdx   = candidates.stats(ii).SubarrayIdx;
-%     currPixelIdxlist        = candidates.stats(ii).PixelIdxList;
-    carvedEstimates.spotKern = estimated.spotKern;
-%     linearDatas             = cellfunNonUniformOutput(@(x) x(candidates.stats(ii).PixelIdxList),datas);
-%     linearDomains           = num2cell(candidates.stats(ii).PixelList,1)';
-    MLEs{ii}                = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,objKerns,params);
+if params.doParallel
+    initMatlabParallel();
+    % pre carve it out
+    carvedDatas     = cell(numel(ids),1);
+    carvedEstimates = cell(numel(ids),1);
+    carvedCamVar    = cell(numel(ids),1);
+    carvedMask      = cell(numel(ids),1);
+    carvedRectSubArrayIdx = cell(numel(ids),1);
+    for ii = 1:numel(ids)
+        currMask = candidates.L == ids(ii);
+        carvedDatas{ii}             = carveOutWithMask(datas,currMask,sizeKern);
+        carvedEstimates{ii}         = carveOutWithMask(estimated,currMask,sizeKern,'spotKern','convFunc');
+        carvedCamVar{ii}            = carveOutWithMask(cameraVariances,currMask,sizeKern);
+        carvedMask{ii}              = carveOutWithMask(currMask,currMask,sizeKern);
+        carvedRectSubArrayIdx{ii}   = candidates.stats(ii).SubarrayIdx;
+        carvedEstimates{ii} .spotKern = estimated.spotKern;
+    end
+    clear('datas','cameraVariances','estimated','candidates');
+    setupParForProgress(numel(ids));
+    parfor ii = 1:numel(ids)
+        incrementParForProgress();
+        MLEs{ii} = doMultiEmitterFitting(carvedMask{ii},carvedRectSubArrayIdx{ii},carvedDatas{ii},carvedEstimates{ii},carvedCamVar{ii},Kmatrix,objKerns,params);
+    end
+else
+    for ii = 1:numel(ids)
+        currMask = candidates.L == ids(ii);
+        carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
+        carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern,'spotKern','convFunc');
+        carvedCamVar            = carveOutWithMask(cameraVariances,currMask,sizeKern);
+        carvedMask              = carveOutWithMask(currMask,currMask,sizeKern);
+        carvedRectSubArrayIdx   = candidates.stats(ii).SubarrayIdx;
+        %     currPixelIdxlist        = candidates.stats(ii).PixelIdxList;
+        carvedEstimates.spotKern = estimated.spotKern;
+        %     linearDatas             = cellfunNonUniformOutput(@(x) x(candidates.stats(ii).PixelIdxList),datas);
+        %     linearDomains           = num2cell(candidates.stats(ii).PixelList,1)';
+        MLEs{ii}                = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,objKerns,params);
+    end
 end
+
 
