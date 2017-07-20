@@ -85,12 +85,13 @@ classdef myPattern_Numeric < myPattern_Interface
             %
             %             [domains{:}] = ndgrid(domains{:});
             %
+            shiftdomains = cell(size(obj.domainsOG));
             for ii = 1:numel(domains)
                 shiftdomains{ii} = domains{ii} - deltaPosition(ii);
             end
             obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},obj.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
-            obj.newDomains = domains;
+            obj.newDomains = domains(:);
             heartFunc = obj.heartFunc;
             lambdas = heartFunc;
             %             lambdas = NDbinData(obj.heartFunc,obj.downSample);
