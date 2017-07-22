@@ -14,9 +14,9 @@ xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doPr
 
 stageIOutputs       = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
-maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj);
+maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 
-xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
+xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
 
@@ -24,9 +24,10 @@ selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','gen
 
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
-Trans_stageIOutputs   = procXYTranslate(xyAlignments,stageIOutputs);
-Trans_maxColoredProjs = procXYTranslate(xyAlignments,maxColoredProjs);
-Trans_xyMaxProjNDs    = procXYTranslate(xyAlignments,xyMaxProjNDs);
+T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
+% there is a collision here. 
+T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs);
+T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
 
 Trans_stageIIOutputs  = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 

@@ -1,3 +1,4 @@
+
 function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,saveFuncParams,varargin)
 %APPLYFUNCTO_LISTOFFILES will apply a function to a list of files
 %

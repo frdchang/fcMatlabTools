@@ -8,7 +8,7 @@ function cellarray = flattenCellArray(cellarray)
 %    cellarray = {cellarray}; 
 % end
 while iscell(cellarray)
-    if size(cellarray,1) == 1 && ~iscell(cellarray{1})
+    if (size(cellarray,1) == 1 || size(cellarray,2)==1) && ~any(cellfun(@iscell,cellarray))
        % flattened if the first dimension is 1
        break; 
     end

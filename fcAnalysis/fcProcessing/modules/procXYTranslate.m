@@ -7,31 +7,43 @@ params.doProcParallel   = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+% get alignment datas
 procOutputOGName = inputname(2);
 xyAlignDatas = xyAlignment.outputFiles.xyAlignment;
 xyAlignDatas = convertListToListofArguments(xyAlignDatas);
 
 % for every field that is a tif or fits do xy translation from seq
+Trans_procOutput.inputFiles = table;
+Trans_procOutput.outputFiles = table;
 tableNames = procOutput.outputFiles.Properties.VariableNames;
-outputBasket = cell(numel(tableNames),1);
 for ii = 1:numel(tableNames)
-   currEntry = procOutput.outputFiles.(tableNames{ii}); 
-   if iscell(currEntry{1})
-       numChans = numel(currEntry{1});
-       for jj = 1:numChans
-           currChan = grabFromListOfCells(currEntry,{['@(x) x{' num2str(jj) '}']});
-           currChan = groupByTimeLapses(currChan);
-           currChan = convertListToListofArguments(currChan);
-           test = applyFuncTo_listOfListOfArguments(glueCellArguments(currChan,xyAlignDatas),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',params.doProcParallel);
-
-       end
-   else
-       
-   end
+    currEntry = procOutput.outputFiles.(tableNames{ii});
+    if ~isIMGFile(currEntry)
+       continue; 
+    end
+    if iscell(currEntry{1})
+        cellOutput = {};
+        numChans = numel(currEntry{1});
+        for jj = 1:numChans
+            currChan = grabFromListOfCells(currEntry,{['@(x) x{' num2str(jj) '}']});
+            currChan = groupByTimeLapses(currChan);
+            currChan = convertListToListofArguments(currChan);
+            imgAndTransData = glueCellArguments(currChan,xyAlignDatas);
+            cellOutput{end+1} = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},'doParallel',params.doProcParallel);
+        end
+        Trans_procOutput.inputFiles = horzcat(Trans_procOutput.inputFiles,table(currEntry,'VariableNames',tableNames(ii)));
+        Trans_procOutput.outputFiles = horzcat(Trans_procOutput.outputFiles,table({cellOutput},'VariableNames',tableNames(ii)));
+    else
+        currEntrybyTime = groupByTimeLapses(currEntry);
+        currEntryList = convertListToListofArguments(currEntrybyTime);
+        imgAndTransData = glueCellArguments(currEntryList,xyAlignDatas);
+        currOutput = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},'doParallel',params.doProcParallel);
+        Trans_procOutput.inputFiles = horzcat(Trans_procOutput.inputFiles, table(currEntry,'VariableNames',tableNames(ii)));
+        Trans_procOutput.outputFiles = horzcat(Trans_procOutput.outputFiles, table({{currOutput}},'VariableNames',tableNames(ii)));
+    end
 end
 
-Trans_procOutput = applyFuncTo_listOfListOfArguments(glueCellArguments(qpmImages,alignXYs),@openData_passThru,{},@translateSeq,{},@ saveToProcessed_passThru,{},'doParallel',params.doProcParallel);
-TransName = ['Trans_' procOutputOGName];
+TransName = ['T_' procOutputOGName];
 Trans_procOutput = procSaver(procOutput,Trans_procOutput,TransName);
 end
 

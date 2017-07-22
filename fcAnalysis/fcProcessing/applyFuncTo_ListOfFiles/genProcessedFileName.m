@@ -24,6 +24,9 @@ inputFiles = {cons,noncons{:}};
 inputFiles = deleteEmptyCells(inputFiles);
 inputFiles = pruneUselessCharAtEdges(inputFiles);
 inputFiles = deleteEmptyCells(inputFiles);
+inputFiles = regexprep(inputFiles,'_w','');
+inputFiles = regexprep(inputFiles,'_','');
+inputFiles = regexprep(inputFiles,'TTL','');
 fileInputs = strjoin(inputFiles,',');
 
 functionName    =  char(myFunc);
