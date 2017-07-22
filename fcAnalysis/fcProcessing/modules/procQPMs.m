@@ -13,8 +13,7 @@ phaseFiles      = convertListToListofArguments(phaseFiles);
 qpmOutputs      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{varargin{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
 
 % append additional info
-qpmOutputs.expFolder   = expFolder;
 qpmOutputs.phaseRegexp = phaseRegexp;
 
-procSaver(expFolder,qpmOutputs);
+qpmOutputs = procSaver(expFolder,qpmOutputs);
 

@@ -1,4 +1,4 @@
-function groupedTimeLapses = groupByTimeLapses(fileList)
+function [groupedTimeLapses,idxs] = groupByTimeLapses(fileList)
 %GROUPBYTIMELAPSES will take the file list and group by timelapse defined
 %by '_t[0-9]+'.  the subgroups will have disagreement characters that will
 %be ordered by numerical then lexographical.

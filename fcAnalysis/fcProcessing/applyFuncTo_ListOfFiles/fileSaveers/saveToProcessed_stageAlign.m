@@ -6,4 +6,6 @@ saveProcessedFileAt = genProcessedFileName(filePathOfInput,myFunc,'paramHash',fu
 xyAlignment = funcOutput{1};
 makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'xyAlignment');
-output = [saveProcessedFileAt '.mat'];
+
+outputFilePath = [saveProcessedFileAt '.mat'];
+output = table({outputFilePath},{xyAlignment},'VariableNames',{'mat','xyAlignment'});

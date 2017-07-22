@@ -21,8 +21,8 @@ end
 
 selectCands     = applyFuncTo_listOfListOfArguments(stageIStructs,@openData_selectCandidates,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},'doParallel',params.doProcParallel);
 
-expFolder = stageIOutputs.expFolder;
-procSaver(expFolder,selectCands);
+
+selectCands = procSaver(stageIOutputs,selectCands);
 
 end
 

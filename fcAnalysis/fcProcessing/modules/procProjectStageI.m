@@ -15,6 +15,6 @@ imageFiles = convertListToListofArguments(imageFiles);
 
 projFuncOutput    = applyFuncTo_listOfListOfArguments(imageFiles,@openImage_applyFuncTo,{},params.projFunc,{params.projFuncArg{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
 
-procSaver(stageIOutput.expFolder,projFuncOutput,[func2str(params.projFunc) 's']);
+projFuncOutput = procSaver(stageIOutput,projFuncOutput,[func2str(params.projFunc) 's']);
 end
 

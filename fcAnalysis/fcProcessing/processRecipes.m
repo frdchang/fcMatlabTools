@@ -8,17 +8,30 @@ psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 psfObjs = {psfObj1,psfObj2};
 Kmatrix = [1 0.31; 0 1];
 
-qpmOutputs      = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
-stageIOutputs   = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+qpmOutputs          = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
 
-coloredProjs   = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj);
-maxProjs       = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
+xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-cellMasks      = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
+stageIOutputs       = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
-selectCands    = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj);
 
-stageIIOutputs = procStageII(stageIOutputs,selectCands,'doParallel',true);
+xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND);
+
+cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
+
+selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
+
+Trans_stageIOutputs   = procXYTranslate(xyAlignments,stageIOutputs);
+Trans_maxColoredProjs = procXYTranslate(xyAlignments,maxColoredProjs);
+Trans_xyMaxProjNDs    = procXYTranslate(xyAlignments,xyMaxProjNDs);
+
+Trans_stageIIOutputs  = procXYTranslateSpots(xyAlignments,stageIIOutputs);
+
+
+
 
 %% build modules
 

@@ -8,6 +8,9 @@ params.saveToLocation = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+if ~iscell(fileList)
+   error('fileList input needs to be a cell array of file paths'); 
+end
 
 xyAlignments = zeros(numel(fileList),2);
 
