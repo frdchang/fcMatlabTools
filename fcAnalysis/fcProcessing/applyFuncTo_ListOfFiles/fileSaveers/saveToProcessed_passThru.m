@@ -3,5 +3,6 @@ function output = saveToProcessed_passThru(filePathOfInput,funcOutput,myFunc,fun
 %   Detailed explanation goes here
 
 output = funcOutput{:};
+output = table({output},'VariableNames',{'passThru'});
 end
 
