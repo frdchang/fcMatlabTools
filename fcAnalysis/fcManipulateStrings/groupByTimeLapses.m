@@ -9,5 +9,15 @@ timeLapseNames = cellfunNonUniformOutput(@(x) x.nonVaryingPart,groups);
 
 [~,indices] = sort_nat(timeLapseNames,'ascend');
 groupedTimeLapses = cellfunNonUniformOutput(@(x) x.subMatch,groups(indices));
+
+if nargout == 2
+    idxs = cell(size(groupedTimeLapses));
+    for ii = 1:numel(idxs)
+       currTimeL = groupedTimeLapses{ii};
+       currIdxs = cellfunNonUniformOutput(@(x) find(contains(fileList,x)),currTimeL);
+       currIdxs = removeEmptyCells(currIdxs);
+       idxs{ii} = currIdxs;
+    end
+end
 end
 

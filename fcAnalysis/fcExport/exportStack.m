@@ -6,6 +6,7 @@ function filename = exportStack(filename,stack)
 if isequal(unique(stack),[0 ;1])
 stack = uint8(stack);
 end
+makeDIRforFilename(filename);
 if isinteger(stack)
    filename = [filename '.tif'];
    if size(stack,3) == 3

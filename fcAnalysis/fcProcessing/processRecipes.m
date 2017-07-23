@@ -1,6 +1,7 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
-expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
-camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+% expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
+tic;camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+expFolder = '/Users/frederickchang/Desktop/fcDataStorage/20160201-test-adf';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
@@ -25,13 +26,12 @@ selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','gen
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
 T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
-% there is a collision here. 
 T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs);
 T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
 
-Trans_stageIIOutputs  = procXYTranslateSpots(xyAlignments,stageIIOutputs);
+T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 
-
+toc
 
 
 %% build modules

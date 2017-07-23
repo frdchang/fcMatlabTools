@@ -36,11 +36,11 @@ switch ext
         end
 end
 
-if iscell(stack)
-    cellfunNonUniformOutput(@(x) double(x),stack);
-else
-   stack = double(stack); 
-end
+% if iscell(stack)
+%     cellfunNonUniformOutput(@(x) double(x),stack);
+% else
+%    stack = double(stack); 
+% end
 
 
 end

@@ -23,13 +23,13 @@ end
 projFuncOutput.inputFiles = stageIOutput.outputFiles;
 projFuncOutput.outputFiles = table;
 tableNames = stageIOutput.outputFiles.Properties.VariableNames;
-setupParForProgress(numel(tableNames));
 for ii = 1:numel(tableNames)
     currEntry = stageIOutput.outputFiles.(tableNames{ii});
     if ~isIMGFile(currEntry)
         continue;
     end
     currTable = table;
+    setupParForProgress(numel(currEntry));
     for jj = 1:numel(currEntry)
         currElement = currEntry{jj};
         if iscell(currElement)
@@ -49,9 +49,9 @@ for ii = 1:numel(tableNames)
             saveFile = exportStack(saveProcFile,outData);
         end
         currTable = vertcat(currTable,table({saveFile},'VariableNames',tableNames(ii)));
+        incrementParForProgress();
     end
     projFuncOutput.outputFiles = horzcat(projFuncOutput.outputFiles,currTable);
-    incrementParForProgress();
 end
 
 

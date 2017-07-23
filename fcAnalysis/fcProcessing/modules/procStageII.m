@@ -28,7 +28,7 @@ stageIIArgFiles      = glueCellArguments(dataFiles,camVarFile,stageIStructsFiles
 
 stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{params},@saveToProcessed_findSpotsStage2V2,{},'doParallel',params.doProcParallel);
 
-stageIIOutputs = procSaver(stageIOutputs,stageIIOutputs);
+stageIIOutputs       = procSaver(stageIOutputs,stageIIOutputs);
 
 
 end
