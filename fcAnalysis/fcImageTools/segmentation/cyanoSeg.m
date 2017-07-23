@@ -17,7 +17,7 @@ if isempty(params.edgeProfileZ)
     [x,y] = getline_zoom(maxintensityproj(brightZstack,3));
     % average all the points to get one edgeProfile
     edgeProfileZ = zeros(numel(x),size(brightZstack,3));
-    for i = 1:numel(x);
+    for i = 1:numel(x)
         currProfile = brightZstack(round(y(i)),round(x(i)),:);
         edgeProfileZ(i,:) = currProfile(:);
     end
