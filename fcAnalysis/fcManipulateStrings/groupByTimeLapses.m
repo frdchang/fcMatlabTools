@@ -16,7 +16,7 @@ if nargout == 2
        currTimeL = groupedTimeLapses{ii};
        currIdxs = cellfunNonUniformOutput(@(x) find(contains(fileList,x)),currTimeL);
        currIdxs = removeEmptyCells(currIdxs);
-       idxs{ii} = currIdxs;
+       idxs{ii} = cell2mat(currIdxs);
     end
 end
 end
