@@ -87,7 +87,7 @@ if ~isempty(p1)
     end
 end
 
-f0=createMaxFigure();
+f0=figure();
 if isempty(p4)
     %create a figure handle
     imagesc(Im1)

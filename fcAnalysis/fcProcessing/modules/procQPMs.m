@@ -1,4 +1,4 @@
-function [ qpmOutputs ] = procQPMs(expFolder,phaseRegexp,varargin)
+function [ qpmOutputs ] = procQPMs(phaseOutputs,varargin)
 %PROCQPMS 
 
 %--parameters--------------------------------------------------------------
@@ -6,14 +6,9 @@ params.doProcParallel     = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-phaseFiles      = getAllFiles(expFolder,'tif');
-phaseFiles      = keepCertainStringsIntersection(phaseFiles,phaseRegexp);
-phaseFiles      = convertListToListofArguments(phaseFiles);
+phaseFiles = phaseOutputs.outputFiles.files;
+phaseFiles = convertListToListofArguments(phaseFiles);
+qpmOutputs = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{varargin{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
 
-qpmOutputs      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{varargin{:}},@saveToProcessed_images,{},'doParallel',params.doProcParallel);
-
-% append additional info
-qpmOutputs.phaseRegexp = phaseRegexp;
-
-qpmOutputs = procSaver(expFolder,qpmOutputs);
+qpmOutputs = procSaver(phaseOutputs,qpmOutputs);
 

@@ -1,4 +1,4 @@
-function [L,stats,CC ] = segBrightZStack(brightZstack,varargin )
+function [L,stats,CC ] = segBrightZStack(brightZstack,qpm,varargin)
 %SEGBRIGHTZSTACK Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,37 +6,37 @@ function [L,stats,CC ] = segBrightZStack(brightZstack,varargin )
 params.edgeProfileZ     = [];
 params.minArea          = 200;
 params.clearBorder      = true;
+params.breakApart       = true; 
+     params.ballR       = 5;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 if isempty(params.edgeProfileZ)
-    [x,y] = getline_zoom(maxintensityproj(brightZstack,3));
-    % average all the points to get one edgeProfile
-    edgeProfileZ = zeros(numel(x),size(brightZstack,3));
-    for i = 1:numel(x)
-        currProfile = brightZstack(round(y(i)),round(x(i)),:);
-        edgeProfileZ(i,:) = currProfile(:);
-    end
-    params.edgeProfileZ = mean(edgeProfileZ);
-    display(['''edgeProfileZ'', ' mat2str(params.edgeProfileZ)]);
+    params.edgeProfileZ = getEdgeProfileZ( brightZstack );
+    plot(params.edgeProfileZ);drawnow;
 end
 
-qpm = genQPM(brightZstack,params);
-
 foregroundMask = genMaskWOtsu(qpm);
-foregroundMask = bwareaopen(foregroundMask,200);
-
+foregroundMask = bwareaopen(foregroundMask,params.minArea);
 
 edgeMask       = genEdgeMapFromZ(brightZstack,params.edgeProfileZ);
 
 cells          = -edgeMask;
 cells          = genMaskWOtsu(cells);
+
 if params.clearBorder
-   cells       = clearXYBorder(cells); 
+    cells       = clearXYBorder(cells);
 end
 
 cells          = imreconstruct(foregroundMask,cells,4);
 cells          = imfill(cells,'holes');
+
+if params.breakApart
+   seeds = imerode(cells,strel('disk',params.ballR,4));
+   seeds = bwareaopen(seeds,params.minArea);
+   segmented = doWaterShedSeg(qpm,seeds,cells);
+   cells = segmented.L;
+end
 
 CC      = bwconncomp(cells,4);
 stats   = regionprops(CC);

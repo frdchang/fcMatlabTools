@@ -1,4 +1,4 @@
-function [ stageIOutputs ] = procStageI(expFolder,spotRegexp,psfObj,varargin)
+function [ stageIOutputs ] = procStageI(spotOutputs,psfObj,varargin)
 %PROCSTAGEI Summary of this function goes here
 %   Detailed explanation goes here
 % expFolder,'WhiteTTL',psfObj,'stageIFunc',@findSpotsStage1V2,'calibrationFile',camVarFile
@@ -12,12 +12,7 @@ params.Kmatrix              = 1;
 params = updateParams(params,varargin);
 
 
-spotFiles      = getAllFiles(expFolder,'tif');
-spotFiles      = cellfunNonUniformOutput(@(x) keepCertainStringsIntersection(spotFiles,x),spotRegexp);
-spotFileInputs = cell(numel(spotFiles{1}),1);
-for ii = 1:numel(spotFiles{1})
-    spotFileInputs{ii} = cellfun(@(x) x(ii),spotFiles);
-end
+spotFileInputs = spotOutputs.outputFiles.files;
 % spotFiles      = convertListToListofArguments(spotFiles);
 
 
@@ -36,5 +31,5 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_s
 stageIOutputs.psfObj     = psfObj;
 stageIOutputs.camVarFile = params.camVarFile;
 stageIOutputs.Kmatrix    = params.Kmatrix;
-stageIOutputs = procSaver(expFolder,stageIOutputs);
+stageIOutputs = procSaver(spotOutputs,stageIOutputs);
 

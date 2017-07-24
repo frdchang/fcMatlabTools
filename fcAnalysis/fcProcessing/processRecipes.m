@@ -9,11 +9,14 @@ psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 psfObjs = {psfObj1,psfObj2};
 Kmatrix = [1 0.31; 0 1];
 
-qpmOutputs          = procQPMs(expFolder,'BrightFieldTTL','negateQPM',false,'doProcParallel',true);
+phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs');
+spotOutputs         = procGetImages(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},'spotOutputs');
+
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
 maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 
@@ -28,8 +31,15 @@ stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
 T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs);
 T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
+T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
+T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
+T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
+
+T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
+
+T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 
 toc
 
@@ -78,7 +88,7 @@ MLEs = findSpotsStage2V2(data,camVarFile,estimated,candidates,1,psfObjs);
 
 %% redo spot detection 
 tic;
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',300},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+processSpots    = applyFuncTo_listOfListOfArguments(spotOutputs,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',300},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});
@@ -140,8 +150,8 @@ phaseRegexp     = 'FITC\(BrightFieldTTL\)';
 spotRegexp      = {'FITC\(WhiteTTL\)','cy5\(WhiteTTL\)'};
 expFolder       = '/mnt/btrfs/fcDataStorage/fcCheckout/andrian/20151023/cyano';
 %expFolder      = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20160915-mitosis-BWY804_4-4/doTimeLapse_1';
-phaseFiles      = getAllFiles(expFolder,phaseRegexp);
-spotFiles       = getAllFiles(expFolder,spotRegexp);
+phaseOutputs      = getAllFiles(expFolder,phaseRegexp);
+spotOutputs       = getAllFiles(expFolder,spotRegexp);
 myLLRatio       = 800;%300;
 calibrationFileList = {'~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat',...
                        '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat',...
@@ -149,15 +159,15 @@ calibrationFileList = {'~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-Co
 calibrationFile = calibrationFileList{3};
 
 % convert list of files to listOfListOfArguments
-phaseFiles      = convertListToListofArguments(phaseFiles);
-spotFiles       = convertListToListofArguments(spotFiles);
+phaseOutputs      = convertListToListofArguments(phaseOutputs);
+spotOutputs       = convertListToListofArguments(spotOutputs);
 
-processQPM      = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},@genQPM,{},@saveToProcessed_images,{},'doParallel',true);
+processQPM      = applyFuncTo_listOfListOfArguments(phaseOutputs,@openImage_applyFuncTo,{},@genQPM,{},@saveToProcessed_images,{},'doParallel',true);
 qpmImages       = groupByTimeLapses(processQPM.outputFiles);
 qpmImages       = convertListToListofArguments(qpmImages);
 save([expFolder filesep 'processingState']);
 
-processSpots    = applyFuncTo_listOfListOfArguments(spotFiles,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',myLLRatio,'pathToCalibration',calibrationFile},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
+processSpots    = applyFuncTo_listOfListOfArguments(spotOutputs,@openImage_applyFuncTo,{},@fcSpotDetection,{'LLRatioThresh',myLLRatio,'pathToCalibration',calibrationFile},@saveToProcessed_fcSpotDetection,{},'doParallel',false);
 spot_Thetas     = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{1}'});
 spot_A1s        = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{2}'});
 spot_LLRatios   = grabFromListOfCells(processSpots.outputFiles,{'@(x) x{3}'});

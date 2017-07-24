@@ -1,4 +1,4 @@
-function yeastSegmented = yeastSeg(timeLapseFiles,filePathToROIzip,varargin)
+function yeastSegmented = yeastSeg(timeLapseFiles,L,varargin)
 %YEASTSEG will segment timelapse of yeast given that the last timepoint is
 %segmented
 %--parameters--------------------------------------------------------------
@@ -6,13 +6,6 @@ params.saveToLocation = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-% find size of file
-sizeData = importStack(timeLapseFiles{1});
-sizeOfData = size(sizeData);
-if exist(filePathToROIzip) == 0
-   error('you need to provide segmentation of last timepoint in a ROIzip'); 
-end
-L = genLfromROIzip(filePathToROIzip,sizeOfData);
 yeastSegmented = trackingYeast(timeLapseFiles,L,params);
 % save segmented files
 if ~isempty(params.saveToLocation)

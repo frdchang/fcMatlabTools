@@ -1,5 +1,5 @@
 %main program for segmentation and tracking
-function output = CT_track_modByFred(params,trackingSeedData,doParallel)
+function output = CT_track_modByFred(params,trackingSeedData,doParallel,doPlot)
 
 LcellsO         = trackingSeedData.L;
 orderedFileList = trackingSeedData.orderedFileList;
@@ -47,7 +47,9 @@ cell_exists_basket = cell(no_obj,1);
 cell_area_basket = zeros(no_obj,numbM);
 I=importStack(orderedFileList{end});
 close all;
-hImage = imshow(plotLabels(I,Lcells,'showTextLabels',true,'showPlot',false));
+if doPlot
+    hImage = imshow(plotLabels(I,Lcells,'showTextLabels',true,'showPlot',false));
+end
 drawnow;
 if doParallel
     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
@@ -75,11 +77,13 @@ if doParallel
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
-        rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
-        set(hImage,'CData',rgbLabels);
-        title(['timepoint' num2str(c_time) ' ']);
-        fprintf('\n');
-        drawnow;
+        if doPlot
+            rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
+            set(hImage,'CData',rgbLabels);
+            title(['timepoint' num2str(c_time) ' ']);
+            fprintf('\n');
+            drawnow;
+        end
     end %end time point loop
 else
     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
@@ -105,8 +109,10 @@ else
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
-        rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
-        set(hImage,'CData',rgbLabels);
+        if doPlot
+            rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
+            set(hImage,'CData',rgbLabels);
+        end
     end %end time point loop
 end
 
