@@ -12,8 +12,9 @@ Kmatrix = [1 0.31; 0 1];
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs');
 spotOutputs         = procGetImages(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},'spotOutputs');
 
-qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
+T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
@@ -37,9 +38,15 @@ T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 
-T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
-
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
+
+eC_T_stageIOutputs    = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
+eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
+ec_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
+
+ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
+
+
 
 toc
 
