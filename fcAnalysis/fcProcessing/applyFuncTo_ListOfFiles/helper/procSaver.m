@@ -14,9 +14,9 @@ outputVariable.expFolder = expFolder;
 
 saveFile = strcat(expFolder,filesep,'processingState');
 saveFile = [saveFile '.mat'];
-
+saveFile = createProcessedDir(saveFile);
+makeDIRforFilename(saveFile);
 S.(newName) = outputVariable;
-
 if exist(saveFile,'file')==0
     save(saveFile, '-struct', 'S');
 else

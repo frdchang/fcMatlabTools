@@ -1,7 +1,8 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 % expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 tic;camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
-expFolder = '/Users/frederickchang/Desktop/fcDataStorage/20160201-test-adf';
+% expFolder = '/Users/frederickchang/Desktop/fcDataStorage/20160201-test-adf';
+expFolder = '/home/fchang/Desktop/fcDataStorage/20160201-test-adf';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
@@ -12,10 +13,12 @@ Kmatrix = [1 0.31; 0 1];
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs');
 spotOutputs         = procGetImages(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},'spotOutputs');
 
-T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
-
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
+T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
+
+edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
+
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 
@@ -33,20 +36,17 @@ T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
 T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs);
 T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
 T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
-T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 
-T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
+T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,edgeProfileZs,'doParallel',true,'doPlot',false);
 
 eC_T_stageIOutputs    = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
 eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
 ec_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
-
-
 
 toc
 

@@ -1,4 +1,4 @@
-function saveSpotsFilePaths  = extractSpots(listOfSpotMLEs,segMatFile,varargin)
+function spotInACell  = extractSpots(listOfSpotMLEs,segMatFile,varargin)
 %EXTRACTSPOTS will extract spots for each cell given a matfile
 %--parameters--------------------------------------------------------------
 params.LLRatioThreshold     = 0;
@@ -15,13 +15,13 @@ numTimePoints = size(segmentation.all_obj.cells,3);
 %% find the largest bounding box that enapsulates the cell over the timelapse
 maxBBoxForEachCell = findMaxBBoxForSeq(segmentation.all_obj.cells,segmentation.all_obj.cell_area);
 %% extract spots using that bounding box found above and save
-saveSpotsFilePaths = cell(numTimePoints,numCells);
+spotInACell = cell(numTimePoints,numCells);
 
 for ii = 1:numTimePoints
-    display(['extractSpots(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfSpotMLEs{ii}]);
-    currSpotMLE = loadAndTakeFirstField(listOfSpotMLEs{ii});
+    display(['extractSpots(): ' num2str(ii) ' of ' num2str(numTimePoints) ' timepoints']);
+    currSpotMLEs = listOfSpotMLEs{ii};
     currSeg   = segmentation.all_obj.cells(:,:,ii);
-    spotParamsInL = returnSpotParamsInL(currSpotMLE,currSeg);
+    spotParamsInL = returnSpotParamsInL(currSpotMLEs,currSeg);
     
     [~,allTheBBox] = extractCellForATimePoint(currSeg,currSeg,maxBBoxForEachCell,params.borderVector,0);
     
@@ -30,13 +30,6 @@ for ii = 1:numTimePoints
     end
     
     for jj = 1:numCells
-%         if ~isempty(spotParamsInL{jj})
-            saveProcessedFileAt = genProcessedFileName(listOfSpotMLEs{ii},'extractCell');
-            saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-            saveSpotsFilePaths{ii,jj} = [saveProcessedFileAtWithCellFolder '.mat'];
-            spotInCell = BBoxCorrectSpotParams(spotParamsInL{jj},allTheBBox{jj});
-            makeDIRforFilename(saveProcessedFileAtWithCellFolder);
-            save(saveProcessedFileAtWithCellFolder,'spotInCell');
-%         end
+        spotInACell{ii,jj} = BBoxCorrectSpotParams(spotParamsInL{jj},allTheBBox{jj});
     end
 end

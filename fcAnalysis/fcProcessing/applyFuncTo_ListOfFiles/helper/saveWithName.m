@@ -1,5 +1,6 @@
-function [  ] = saveWithName(variable,path,varargin)
+function [  ] = saveWithName(variable,path,name)
 %PROCSAVER will save the variable at path
-newName = inputname(1);
-S.(newName) = variable;
-save(path, '-struct', 'S',varargin{:});
+
+makeDIRforFilename(path);
+S.(name) = variable;
+save(path, '-struct', 'S');
