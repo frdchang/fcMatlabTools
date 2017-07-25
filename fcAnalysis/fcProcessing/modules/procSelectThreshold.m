@@ -4,14 +4,14 @@ function [thresholdSelected ] = procSelectThreshold(stageIOutputs,varargin )
 
  
 %--parameters--------------------------------------------------------------
-params.outputSelector     = 1;  % 1 is A1 2 is LLRatio
+params.outputSelector     = 'LLRatio'; 
 params.divisor            = 1;  % divide the image into this num
 params.resizeToThis       = [600,1024];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 % structs are stored at end
-imageFiles = grabFromListOfCells(stageIOutputs.outputFiles,{['@(x) x{' num2str(params.outputSelector) '}']});
+imageFiles = stageIOutputs.outputFiles.(params.outputSelector);
 imageFiles = groupByTimeLapses(imageFiles);
 
 % for each timelapse define threshold
@@ -39,7 +39,8 @@ for ii = 1:numel(imageFiles)
     [mythresh, ~, ~] = threshold(multithresh(projTimeLapseImg(:)), max(projTimeLapseImg(:)), projTimeLapseImg);
 
 %     mythresh = thresh_tool((projTimeLapseImg));
-    mythresh = mythresh*(maxVal-minVal);
+%     mythresh = mythresh*(maxVal-minVal);
+    thresholdSelected{ii} = mythresh;
 end
 
 

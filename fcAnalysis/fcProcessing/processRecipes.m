@@ -21,6 +21,7 @@ edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
 
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+selectThresh        = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 
 maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 
@@ -28,7 +29,7 @@ xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'p
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
 
-selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',6.5879e+04,'doProcParallel',false);
+selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',1.1214e+03,'doProcParallel',false);
 
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
