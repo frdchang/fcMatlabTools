@@ -29,53 +29,55 @@ numCells = max(segmentation.all_obj.cells(:));
 numTimePoints = size(segmentation.all_obj.cells,3);
 saveCellFilePaths = cell(numTimePoints,numCells);
 
-if doParallel 
+if doParallel
     parfor ii = 1:numTimePoints
-    display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
-    currStack = importStack(listOfFiles{ii});
-    currSeg   = segmentation.all_obj.cells(:,:,ii);
-    % if it is a qpm file extract cell using qpm highlighting
-    if contains(returnFileName(listOfFiles{ii}),'genQPM') || contains(returnFileName(listOfFiles{ii}),'gnQPM')
-        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,2);
-    else
-        % otherwise mask data by -inf
-        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,1);
-    end
-    
-    for jj = 1:numCells
-        if ~isempty(allTheCells{jj})
-            saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
-            saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-            saveCellFilePaths{ii,jj} = exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
+        display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
+        currStack = importStack(listOfFiles{ii});
+        currSeg   = segmentation.all_obj.cells(:,:,ii);
+        % if it is a qpm file extract cell using qpm highlighting
+        if contains(returnFileName(listOfFiles{ii}),'genQPM') || contains(returnFileName(listOfFiles{ii}),'gnQPM')
+            allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,2);
         else
-            saveCellFilePaths{ii,jj} = {};
+            % otherwise mask data by -inf
+            allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,1);
+        end
+        
+        for jj = 1:numCells
+            if ~isempty(allTheCells{jj})
+                saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
+                saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
+                saveCellFilePaths{ii,jj} = exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
+            else
+                saveCellFilePaths{ii,jj} = {};
+            end
         end
     end
-end
 else
     for ii = 1:numTimePoints
-    display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
-    currStack = importStack(listOfFiles{ii});
-    currSeg   = segmentation.all_obj.cells(:,:,ii);
-    % if it is a qpm file extract cell using qpm highlighting
-    if contains(returnFileName(listOfFiles{ii}),'genQPM') || contains(returnFileName(listOfFiles{ii}),'gnQPM')
-        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,2);
-    else
-        % otherwise mask data by -inf
-        allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,1);
-    end
-    
-    for jj = 1:numCells
-        if ~isempty(allTheCells{jj})
-            saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
-            saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
-            saveCellFilePaths{ii,jj} = exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
+        display(['extractCells(): ' num2str(ii) ' of ' num2str(numTimePoints) '  ' listOfFiles{ii}]);
+        currStack = importStack(listOfFiles{ii});
+        currSeg   = segmentation.all_obj.cells(:,:,ii);
+        % if it is a qpm file extract cell using qpm highlighting
+        if contains(returnFileName(listOfFiles{ii}),'genQPM') || contains(returnFileName(listOfFiles{ii}),'gnQPM')
+            allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,2);
         else
-            saveCellFilePaths{ii,jj} = {};
+            % otherwise mask data by -inf
+            allTheCells = extractCellForATimePoint(currStack,currSeg,maxBBoxForEachCell,borderVector,1);
+        end
+        
+        for jj = 1:numCells
+            if ~isempty(allTheCells{jj})
+                saveProcessedFileAt = genProcessedFileName(listOfFiles{ii},'extractCell');
+                saveProcessedFileAtWithCellFolder = appendCellFolder(saveProcessedFileAt,jj);
+                saveCellFilePaths{ii,jj} = exportStack(saveProcessedFileAtWithCellFolder,allTheCells{jj});
+            else
+                saveCellFilePaths{ii,jj} = {};
+            end
         end
     end
 end
-end
+
+saveCellFilePaths = cellBasedOrdering(saveCellFilePaths);
 
 
 end

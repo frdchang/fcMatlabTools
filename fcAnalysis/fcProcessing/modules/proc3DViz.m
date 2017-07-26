@@ -15,13 +15,16 @@ qpms        = eC_T_qpmOutputs.outputFiles.genQPM1;
 
 
 
-A1s         = convertListToListofArguments(A1s);
-LLRatios    = convertListToListofArguments(LLRatios);
-MLEs        = convertListToListofArguments(MLEs);
-qpms        = convertListToListofArguments(qpms);
+A1s         = cellfunNonUniformOutput(@convertTimeLapseOfCellsToCells,A1s);
+A1s         = cellfunNonUniformOutput(@localGlue,A1s{:})
+LLRatios    = convertTimeLapseOfCellsToCells(LLRatios);
+MLEs        = convertTimeLapseOfCellsToCells(MLEs);
+qpms        = convertTimeLapseOfCellsToCells(qpms);
 
-stageIstageIIQPMs = convert2CellBasedOrdering(A1s,MLEs,qpms,LLRatios);
-
+A1s = convertListToListofArguments(A1s);
+LLRatios = convertListToListofArguments(LLRatios);
+MLEs = convertListToListofArguments(MLEs);
+qpms = convertListToListofArguments(qpms);
 
 
 stageIstageIIQPMs = glueCellArguments(A1s,MLEs,qpms,LLRatios);
@@ -30,3 +33,10 @@ ec_T_3Dviz   = applyFuncTo_listOfListOfArguments(stageIstageIIQPMs,@openData_pas
 
 end
 
+function converted = convertTimeLapseOfCellsToCells(myList)
+converted = cat(1,myList{:});
+end
+
+function output = localGlue(varargin)
+output = cat(2,varargin{:});
+end

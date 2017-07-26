@@ -33,3 +33,5 @@ for ii = 1:numTimePoints
         spotInACell{ii,jj} = BBoxCorrectSpotParams(spotParamsInL{jj},allTheBBox{jj});
     end
 end
+
+spotInACell = cellBasedOrdering(spotInACell);
