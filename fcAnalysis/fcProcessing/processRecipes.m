@@ -49,6 +49,8 @@ ec_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
+ec_T_3Dviz            = proc3DViz(eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs);
+ec_T_3DvizThreshed    = procSetLLRatioThresh(ec_T_3Dviz);
 toc
 
 

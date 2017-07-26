@@ -4,7 +4,8 @@ function cellBasedOrdering = convert2CellBasedOrdering(varargin)
 
 
 
-arguments = cellfunNonUniformOutput(@(x) x.outputFiles,varargin);
+cellArguments = cellfunNonUniformOutput(@(x) x{1}{1},varargin);
+
 numTimeLapses = numel(arguments{1});
 cellBasedOrdering = {};
 for ii = 1:numTimeLapses
