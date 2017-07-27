@@ -5,7 +5,7 @@ function [correctedQPM] = genQPM(stack,varargin)
 
 
 %--parameters--------------------------------------------------------------
-params.ballSize      = 30;
+params.ballSize      = 100;
 params.negateQPM     = false;
 params.nFocus        = [];
 % to scale the small phase numbers

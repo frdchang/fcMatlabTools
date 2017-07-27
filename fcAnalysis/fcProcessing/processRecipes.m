@@ -3,15 +3,20 @@
 tic;camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 % expFolder = '/Users/frederickchang/Desktop/fcDataStorage/20160201-test-adf';
 expFolder = '/home/fchang/Desktop/fcDataStorage/20160201-test-adf';
-
+expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 
-psfObjs = {psfObj1,psfObj2};
-Kmatrix = [1 0.31; 0 1];
+% psfObjs = {psfObj1,psfObj2};
+% Kmatrix = [1 0.31; 0 1];
+% channels = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
+
+psfObjs = {psfObj1};
+Kmatrix = 1;
+channels = {'FITC\(WhiteTTL\)'};
 
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs');
-spotOutputs         = procGetImages(expFolder,{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'},'spotOutputs');
+spotOutputs         = procGetImages(expFolder,channels,'spotOutputs');
 
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
