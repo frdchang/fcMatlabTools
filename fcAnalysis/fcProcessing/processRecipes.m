@@ -1,51 +1,46 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 % expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 tic;camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
-% expFolder = '/Users/frederickchang/Desktop/fcDataStorage/20160201-test-adf';
-expFolder = '/home/fchang/Desktop/fcDataStorage/20160201-test-adf';
-expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
+expFolder = '~/Desktop/fcDataStorage/20160201-test-adf';
+% expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 
-% psfObjs = {psfObj1,psfObj2};
-% Kmatrix = [1 0.31; 0 1];
-% channels = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
+psfObjs = {psfObj1,psfObj2};
+Kmatrix = [1 0.31; 0 1];
+channels = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
 
-psfObjs = {psfObj1};
-Kmatrix = 1;
-channels = {'FITC\(WhiteTTL\)'};
+% psfObjs = {psfObj1};
+% Kmatrix = 1;
+% channels = {'FITC\(WhiteTTL\)'};
 
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs');
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs');
 
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
-T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
-
-edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
-
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
-selectThresh        = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
-
 maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
-
 xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
-cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
-
-selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',1.1214e+03,'doProcParallel',false);
-
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
 T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
 T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs);
 T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
 T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
+T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
+
+
+edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
+selectThresh        = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+
+cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
+selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',selectThresh{1},'doProcParallel',false);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
-
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,edgeProfileZs,'doParallel',true,'doPlot',false);
 
 eC_T_stageIOutputs    = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);

@@ -13,19 +13,15 @@ LLRatios    = eC_T_stageIOutputs.outputFiles.LLRatio;
 MLEs        = ec_T_stageIIOutputs.outputFiles.extractSpots;
 qpms        = eC_T_qpmOutputs.outputFiles.genQPM1;
 
-
-
-A1s         = cellfunNonUniformOutput(@localGlue,A1s{:});
-A1s         = cellfunNonUniformOutput(@reorder,A1s);
-A1s         = cellfunNonUniformOutput(@glueCells,A1s{:});
+A1s = convertA1sToGlued(A1s);
 
 LLRatios    = convertTimeLapseOfCellsToCells(LLRatios);
 MLEs        = convertTimeLapseOfCellsToCells(MLEs);
 qpms        = convertTimeLapseOfCellsToCells(qpms);
 
-LLRatios    = reorder(LLRatios);
-MLEs        = reorder(MLEs);
-qpms        = reorder(qpms);
+% LLRatios    = reorder(LLRatios);
+% MLEs        = reorder(MLEs);
+% qpms        = reorder(qpms);
 
 stageIstageIIQPMs = glueCells(A1s,MLEs,qpms,LLRatios);
 
@@ -33,14 +29,23 @@ ec_T_3Dviz   = applyFuncTo_listOfListOfArguments(stageIstageIIQPMs,@openData_pas
 
 end
 
+function glued = convertA1sToGlued(A1s)
+A1s         = cellfunNonUniformOutput(@localGlue,A1s{:});
+glued = glueChans(A1s);
+end
+
+function glued = glueChans(A1s)
+glued = cellfunNonUniformOutput(@(x,y) glueCells(x,y),A1s{:});
+end
+
 function converted = reorder(converted)
-converted = mat2cell(converted',ones(size(converted,2),1));
+converted = mat2cell(converted,ones(size(converted,2),1));
 end
 
 function converted = convertTimeLapseOfCellsToCells(myList)
-converted = cat(2,myList{:});
+converted = cat(1,myList{:});
 end
 
 function output = localGlue(varargin)
-output = cat(2,varargin{:});
+output = cat(1,varargin{:});
 end
