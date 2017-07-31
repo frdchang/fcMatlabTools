@@ -39,10 +39,5 @@ function [proj] = maxintensityproj(I, ndir)
 % of the authors and should not be interpreted as representing official policies, 
 % either expressed or implied, of Praveen Pankajakshan.
 %
-if size(I, 3)<2
-%     error(['Input image is not a volume. Works only on images where ', ...
-%         'the third dimension size is greater than one.']);
-proj = I;
-else
-proj(:, :) = max(I, [], ndir);
-end
+
+proj= max(I, [], ndir);
