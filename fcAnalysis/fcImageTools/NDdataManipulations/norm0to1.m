@@ -30,6 +30,16 @@ permissive = ndstack > -inf & ndstack < inf;
 if isequal(ndstack,zeros(size(ndstack)))
    return;
 end
+
+if sum(permissive(:)) == 0
+    tempVal = unique(ndstack(:));
+    if tempVal == -inf
+        ndstack = 0;
+    else
+        ndstack = 1;
+    end
+    return;
+end
 ndstack = double(ndstack);
 if ~isempty(params.userMax)
     maxValue = params.userMax;

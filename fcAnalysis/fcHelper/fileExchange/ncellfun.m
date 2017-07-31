@@ -20,7 +20,7 @@
 function out=ncellfun(fun, cell,n)
 if nargin<3
     temp=cell; n=0; 
-    while iscell(temp{1})
+    while iscell(temp)
         n=n+1; 
         temp=temp{1};
     end    
@@ -37,3 +37,4 @@ end
 str=[str ', cell, ''un'',0);'];
 out=eval(str);
 end 
+

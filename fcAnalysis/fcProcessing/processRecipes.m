@@ -7,6 +7,7 @@ expFolder = '/Users/fchang/Desktop/fcDataStorage/20150adsf';
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 
+specimenUnits = [0.1083,0.1083,0.45700];
 % psfObjs = {psfObj1,psfObj2};
 % Kmatrix = [1 0.31; 0 1];
 % channels = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
@@ -46,11 +47,11 @@ T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,edgeProfileZs,'do
 
 eC_T_stageIOutputs    = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
 eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
-ec_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
+eC_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
-ec_T_3Dviz            = proc3DViz(eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs);
+ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnits);
 ec_T_3DvizThreshed    = procSetLLRatioThresh(ec_T_3Dviz);
 toc
 

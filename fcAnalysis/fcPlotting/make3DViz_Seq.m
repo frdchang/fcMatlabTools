@@ -1,13 +1,12 @@
-function saveFiles = make3DViz_Seq(fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
+function saveFiles = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
 %MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
 % phasePath can be empty if not needed
 %--parameters--------------------------------------------------------------
-params.LLRatioThresh    = 0;
-params.zMulti           = 3; % make sure this is integers
+params.upRez            = 3;
+params.units            = [0.1083,0.1083,0.45700];
 params.bkgndGrey        = 0.2;
 params.spacerHeight     = 5;
 params.pixelHeight      = 2;
-params.units            = [0.1083,0.1083,0.300];
 params.pairingHeight    = 5;
 params.upRezHeight      = 20;
 params.markerSize       = 0;
@@ -20,42 +19,28 @@ if isempty(validTimepoints)
     saveFiles = [];
     return;
 else
-    fluorPaths = fluorPaths(validTimepoints);
-    spotParamPaths= spotParamPaths(validTimepoints);
-    phasePaths = phasePaths(validTimepoints);
-    LLRatioPaths = LLRatioPaths(validTimepoints);
-    phasePaths = convertListToListofArguments(phasePaths);
+    rawFluorPaths   = rawFluorPaths(validTimepoints);
+    fluorPaths      = fluorPaths(validTimepoints);
+    spotParamPaths  = spotParamPaths(validTimepoints);
+    phasePaths      = phasePaths(validTimepoints);
+    LLRatioPaths    = LLRatioPaths(validTimepoints);
+    
+    phasePaths      = convertListToListofArguments(phasePaths);
+    LLRatioPaths    = convertListToListofArguments(LLRatioPaths);
 end
 display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
 numSeq = numel(fluorPaths);
-fluorExtremas = getMaxMinOfSeq(fluorPaths);
-phaseExtremas = getMaxMinOfSeq(phasePaths);
-% get size of dataset
-currFluor = importStack(getFirstNonEmptyCellContent(fluorPaths));
-sizeDatas  = size(currFluor{1});
 
-kymoInX = zeros(sizeDatas(2),numSeq,3,'uint8');
-kymoInY = zeros(sizeDatas(1),numSeq,3,'uint8');
-kymoInZ = zeros(sizeDatas(3)*params.zMulti,numSeq,3,'uint8');
+% generate kymos
+phaseKymos = buildKymo(phasePaths,params.upRez,params.units);
+fluorKymos = buildKymo(fluorPaths,params.upRez,params.units);
+LLRatKymos = buildKymo(LLRatioPaths,params.upRez,params.units);
+rawKymos   = buildKymo(rawFluorPaths,params.upRez,params.units);
+% generate spotkymos
+[spotKymos,spotKymoDatas] = buildKymoSpots(fluorPaths,spotParamsPaths);
 
-kymoInXsansSpots = kymoInX;
-kymoInYsansSpots = kymoInY;
-kymoInZsansSpots = kymoInZ;
+% generate views
 
-LLkymoInX = kymoInX;
-LLkymoInY = kymoInY;
-LLkymoInZ = kymoInZ;
-
-phaseKymoInX = zeros(sizeDatas(2),numSeq,3,'uint8');
-convert2uint8 = @(x) uint8(255*x);
-
-saveFiles.Views = {};
-saveFiles.ViewsSansSpots = {};
-saveFiles.LLViews = {};
-
-spotParamBasket = cell(numSeq,1);
-phaseBasket = zeros(sizeDatas(1),sizeDatas(2),ceil(numSeq/sizeDatas(2)));
-index = 1;
 for ii = 1:numSeq
     currFluor = importStack(fluorPaths{ii});
     currPhase = importStack(phasePaths{ii});

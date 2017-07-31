@@ -1,7 +1,14 @@
-function [ kymoXYZ ] = buildKymo(listOfFiles)
+function [ kymoXYZ ] = buildKymo(listOfFiles,upRez,myUnits)
 %BUILDKYMO Summary of this function goes here
 %   Detailed explanation goes here
 
+myUnits = myUnits / myUnits(1);
+upRez   = upRez*myUnits;
+
+if isempty(listOfFiles)
+   kymoXYZ = [];
+   return;
+end
 numSeq = numel(listOfFiles);
 
 firstFile = getFirstNonEmptyCellContent(listOfFiles);
@@ -11,6 +18,8 @@ sizeDatas  = size(currFluor{1});
 kymoXYZ = cell(numel(listOfFiles{1}),1);
 kymos = arrayfun(@(x) zeros(x,numSeq),sizeDatas,'UniformOutput',false);
 [kymoXYZ{:}] = deal(kymos);
+
+
 
 for ii = 1:numSeq
     currFluor = importStack(listOfFiles{ii});
@@ -25,3 +34,7 @@ for ii = 1:numSeq
         end
     end
 end
+
+kymoXYZ = ncellfun(@norm2UINT255,kymoXYZ);
+end
+
