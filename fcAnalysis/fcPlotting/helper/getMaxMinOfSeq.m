@@ -7,9 +7,9 @@ itsMin = inf;
 
 for ii = 1:numel(listOfFiles)
    currStack = importStack(listOfFiles{ii});
-   subSet = currStack(currStack > -inf & currStack < inf);
-   itsMax = max(itsMax,max(subSet));
-   itsMin = min(itsMin,min(subSet));
+   subSet = cellfunNonUniformOutput(@(currStack) currStack(currStack > -inf & currStack < inf),currStack);
+   itsMax = max(itsMax,max(cellfun(@max,subSet)));
+   itsMin = min(itsMin,min(cellfun(@min,subSet)));
 end
 
 itsExtremas.max = itsMax;

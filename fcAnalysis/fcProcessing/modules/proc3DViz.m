@@ -35,7 +35,7 @@ glued = glueChans(A1s);
 end
 
 function glued = glueChans(A1s)
-glued = cellfunNonUniformOutput(@(x,y) glueCells(x,y),A1s{:});
+glued = cellfunNonUniformOutput(@glueCells,A1s{:});
 end
 
 function converted = reorder(converted)

@@ -24,14 +24,15 @@ else
     spotParamPaths= spotParamPaths(validTimepoints);
     phasePaths = phasePaths(validTimepoints);
     LLRatioPaths = LLRatioPaths(validTimepoints);
+    phasePaths = convertListToListofArguments(phasePaths);
 end
-display(['make3Dviz_Seq(): for ' calcConsensusString(fluorPaths)]);
+display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
 numSeq = numel(fluorPaths);
 fluorExtremas = getMaxMinOfSeq(fluorPaths);
 phaseExtremas = getMaxMinOfSeq(phasePaths);
 % get size of dataset
 currFluor = importStack(getFirstNonEmptyCellContent(fluorPaths));
-sizeDatas  = size(currFluor);
+sizeDatas  = size(currFluor{1});
 
 kymoInX = zeros(sizeDatas(2),numSeq,3,'uint8');
 kymoInY = zeros(sizeDatas(1),numSeq,3,'uint8');
