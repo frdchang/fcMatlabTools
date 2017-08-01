@@ -13,7 +13,7 @@ params = updateParams(params,varargin);
 % structs are stored at end
 imageFiles = stageIOutputs.outputFiles.(params.outputSelector);
 imageFiles = groupByTimeLapses(imageFiles);
-
+projTimeLapseBasket = cell(numel(imageFiles),1);
 % for each timelapse define threshold
 for ii = 1:numel(imageFiles)
     currTimeLapse = imageFiles{ii};
@@ -33,14 +33,13 @@ for ii = 1:numel(imageFiles)
         projTimeLapseImg{jj} = cell2mat(currImg);
     end
     projTimeLapseImg = cell2mat(projTimeLapseImg)';
-    minVal = min(projTimeLapseImg(:));
-    maxVal = max(projTimeLapseImg(:));
-    projTimeLapseImg = imresize(projTimeLapseImg,params.resizeToThis,'nearest');
-    [mythresh, ~, ~] = threshold(multithresh(projTimeLapseImg(:)), max(projTimeLapseImg(:)), projTimeLapseImg);
+    projTimeLapseBasket{ii} = imresize(projTimeLapseImg,params.resizeToThis,'nearest');
+end
 
-%     mythresh = thresh_tool((projTimeLapseImg));
-%     mythresh = mythresh*(maxVal-minVal);
-    thresholdSelected{ii} = mythresh;
+thresholdSelected = cell(numel(imageFiles),1);
+for ii = 1:numel(projTimeLapseBasket)
+    [mythresh, ~, ~] = threshold(multithresh(projTimeLapseBasket{ii}(:)), max(projTimeLapseBasket{ii}(:)), projTimeLapseBasket{ii});
+    thresholdSelected{ii} = mythresh; 
 end
 
 
