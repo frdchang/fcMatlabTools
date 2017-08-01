@@ -40,4 +40,4 @@ function [proj] = maxintensityproj(I, ndir)
 % either expressed or implied, of Praveen Pankajakshan.
 %
 
-proj= max(I, [], ndir);
+proj(:,:)= max(I, [], ndir);

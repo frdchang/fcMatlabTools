@@ -2,7 +2,7 @@ function saveFiles = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phase
 %MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
 % phasePath can be empty if not needed
 %--parameters--------------------------------------------------------------
-params.upRez            = 3;
+params.upRez            = 1;
 params.units            = [0.1083,0.1083,0.45700];
 params.bkgndGrey        = 0.2;
 params.spacerHeight     = 5;
@@ -13,6 +13,10 @@ params.markerSize       = 0;
 params.pairingHeight    = 20;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
+
+myUnits = params.units / params.units(1);
+upRezFactor   = round(params.upRez*myUnits);
+
 
 validTimepoints = find(~cellfun(@isempty,fluorPaths));
 if isempty(validTimepoints)
@@ -29,15 +33,19 @@ else
     LLRatioPaths    = convertListToListofArguments(LLRatioPaths);
 end
 display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
+
 numSeq = numel(fluorPaths);
+firstFile = getFirstNonEmptyCellContent(fluorPaths);
+currFluor = importStack(firstFile);
+sizeDatas  = size(currFluor{1});
 
 % generate kymos
-phaseKymos = buildKymo(phasePaths,params.upRez,params.units);
-fluorKymos = buildKymo(fluorPaths,params.upRez,params.units);
-LLRatKymos = buildKymo(LLRatioPaths,params.upRez,params.units);
-rawKymos   = buildKymo(rawFluorPaths,params.upRez,params.units);
+phaseKymos = buildKymo(phasePaths,upRezFactor);
+fluorKymos = buildKymo(fluorPaths,upRezFactor);
+LLRatKymos = buildKymo(LLRatioPaths,upRezFactor);
+rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
 % generate spotkymos
-[spotKymos,spotKymoDatas] = buildKymoSpots(fluorPaths,spotParamsPaths);
+[spotKymos] = buildKymoSpots(fluorPaths,spotParamPaths,sizeDatas,upRezFactor);
 
 % generate views
 
