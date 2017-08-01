@@ -1,4 +1,4 @@
-function [thresholdSelected ] = procSelectThreshold(stageIOutputs,varargin )
+function [thresholdOutputs] = procSelectThreshold(stageIOutputs,varargin )
 %PROCSELECTTHRESHOLD Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,7 +12,7 @@ params = updateParams(params,varargin);
 
 % structs are stored at end
 imageFiles = stageIOutputs.outputFiles.(params.outputSelector);
-imageFiles = groupByTimeLapses(imageFiles);
+[imageFiles,idxs] = groupByTimeLapses(imageFiles);
 projTimeLapseBasket = cell(numel(imageFiles),1);
 % for each timelapse define threshold
 for ii = 1:numel(imageFiles)
@@ -40,6 +40,18 @@ thresholdSelected = cell(numel(imageFiles),1);
 for ii = 1:numel(projTimeLapseBasket)
     [mythresh, ~, ~] = threshold(multithresh(projTimeLapseBasket{ii}(:)), max(projTimeLapseBasket{ii}(:)), projTimeLapseBasket{ii});
     thresholdSelected{ii} = mythresh; 
+end
+outputFilesFlattened = zeros(numel(stageIOutputs.outputFiles.(params.outputSelector)),1);
+cellfun(@helper,idxs,thresholdSelected);
+thresholdOutputs.inputFiles  = imageFiles;
+thresholdOutputs.outputFiles = table(thresholdSelected,'VariableNames',{'thresholds'});
+thresholdOutputs.outputFilesFlattened = outputFilesFlattened;
+thresholdOutputs = procSaver(stageIOutputs,thresholdOutputs);
+
+function [] = helper(idxs,thresholdSelected)
+outputFilesFlattened(idxs) = thresholdSelected;
+end
+
 end
 
 

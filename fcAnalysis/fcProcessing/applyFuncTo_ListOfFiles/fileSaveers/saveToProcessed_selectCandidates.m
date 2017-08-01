@@ -2,7 +2,7 @@ function [ output ] = saveToProcessed_selectCandidates( listOfFileInputPaths,fun
 %SAVETOPROCESSED_SELECTCANDIDATES Summary of this function goes here
 %   Detailed explanation goes here
 
-saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths,myFunc,'paramHash',funcParamHash);
+saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths{1},myFunc,'paramHash',funcParamHash);
 output{2} = {};
 funcOutput = funcOutput{1};
 makeDIRforFilename(saveProcessedFileAt);
