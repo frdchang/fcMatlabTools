@@ -34,12 +34,11 @@ T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
 
-
 edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
-selectThresh        = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
-selectCands         = procSelectCandidates(stageIOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','fieldThresh',selectThresh{1},'doProcParallel',false);
+selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',false);
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
