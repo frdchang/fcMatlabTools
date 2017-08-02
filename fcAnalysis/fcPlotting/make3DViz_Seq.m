@@ -45,9 +45,11 @@ fluorKymos = buildKymo(fluorPaths,upRezFactor);
 LLRatKymos = buildKymo(LLRatioPaths,upRezFactor);
 rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
 % generate spotkymos
-[spotKymos] = buildKymoSpots(fluorPaths,spotParamPaths,sizeDatas,upRezFactor);
+[spotKymos] = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor);
 
 % generate views
+phaseKymos = buildViews(phasePaths,upRezFactor);
+
 
 for ii = 1:numSeq
     currFluor = importStack(fluorPaths{ii});

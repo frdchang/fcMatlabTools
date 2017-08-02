@@ -1,11 +1,13 @@
-function [ cellofSpotCoors ] = getSpotCoorsFromTheta( theta0 )
+function [ cellofSpotCoors,cellofSpotCoorsNonFlattened,idxSpots] = getSpotCoorsFromTheta( theta0 )
 %GETSPOTCOORSFROMTHETA return the spot coors of theta0 and returns a cell
 %array of them
 
 theta0 = theta0(2:end);
 
-cellofSpotCoors = cellfunNonUniformOutput(@getCoors,theta0);
-cellofSpotCoors = flattenCellArray(cellofSpotCoors);
+cellofSpotCoorsNonFlattened = cellfunNonUniformOutput(@getCoors,theta0);
+idxSpots = ~cellfun(@isempty,cellofSpotCoorsNonFlattened);
+
+cellofSpotCoors = flattenCellArray(cellofSpotCoorsNonFlattened);
 
 end
 
