@@ -54,7 +54,7 @@ for ii = 1:numel(permissiveOnes)
    end
 end
 if isempty(idx)
-    spotSelect = [];
+    spotSelected = [];
 else
     spotSelected = spotStruct(idx);
 

@@ -51,74 +51,15 @@ rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
 phaseViews = buildView(phasePaths,upRezFactor);
 fluorViews = buildView(fluorPaths,upRezFactor);
 
+% generate spotviews
+spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor);
 
 
 
-for ii = 1:numSeq
-    currFluor = importStack(fluorPaths{ii});
-    currPhase = importStack(phasePaths{ii});
-    currLLRatio = importStack(LLRatioPaths{ii});
-    % normalize by sequence extremas
-    currFluor = norm0to1(currFluor,'userMin',fluorExtremas.min,'userMax',fluorExtremas.max);
-    currPhase = norm0to1(currPhase,'userMin',phaseExtremas.min,'userMax',phaseExtremas.max);
-    % normalize LLRatio per time point
-    currLLRatio = norm0to1(currLLRatio);
-    % load spots
-    currSpotParams = loadAndTakeFirstField(spotParamPaths{ii});
-    % threshold spots by parameters defined
-    currSpotParams = threshLLRatio(currSpotParams,params.LLRatioThresh);
-    
-    if ~isempty(currFluor)
-        % make3D viz with spots
-        [views,theViews] = return3Views(currFluor,'phaseAppend',currPhase,'spotParams',currSpotParams,params);
-        views = convert2uint8(views);
-        theViews = structFieldFun(theViews,convert2uint8,{'view','phase'});
-        
-        [LLviews,LLtheViews] = return3Views(currLLRatio,'phaseAppend',currPhase,'spotParams',currSpotParams,params);
-        LLviews = convert2uint8(LLviews);
-        LLtheViews = structFieldFun(LLtheViews,convert2uint8,{'view','phase'});
-        
-        % make3D viz without spots
-        [viewsSansSpots,theViewsSanSpots] = return3Views(currFluor,'phaseAppend',currPhase,params);
-        viewsSansSpots = convert2uint8(viewsSansSpots);
-        theViewsSanSpots = structFieldFun(theViewsSanSpots,convert2uint8,{'view','phase'});
-        % save the 3d views
-        saveFiles.Views{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','views');
-        makeDIRforFilename(saveFiles.Views{ii});
-        imwrite(views,[returnFilePath(saveFiles.Views{ii}) filesep 'index' sprintf('%04d',ii) '.tif'],'tif');
-        saveFiles.ViewsSansSpots{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','viewsSansSpots');
-        makeDIRforFilename(saveFiles.ViewsSansSpots{ii});
-        imwrite(viewsSansSpots,[returnFilePath(saveFiles.ViewsSansSpots{ii}) filesep 'cell' sprintf('%04d',ii) '.tif'],'tif');
-        
-        saveFiles.LLViews{ii} = genProcessedFileName({fluorPaths{ii}},'make3DViz_Seq','deleteHistory',true,'appendFolder','viewsLLRatio');
-        makeDIRforFilename(saveFiles.LLViews{ii});
-        imwrite(LLviews,[returnFilePath(saveFiles.LLViews{ii}) filesep 'index' sprintf('%04d',ii) '.tif'],'tif');
-        
-        % populate kymos
-        kymoInX(:,ii,:) = maxintensityproj4RGB(theViews.view1,1);
-        kymoInY(:,ii,:) = maxintensityproj4RGB(theViews.view1,2);
-        kymoInZ(:,ii,:) = maxintensityproj4RGB(theViews.view2,1);
-        
-        kymoInXsansSpots(:,ii,:) = maxintensityproj(theViewsSanSpots.view1,1);
-        kymoInYsansSpots(:,ii,:) = maxintensityproj(theViewsSanSpots.view1,2);
-        kymoInZsansSpots(:,ii,:) = maxintensityproj(theViewsSanSpots.view2,1);
-        
-        phaseKymoInX(:,ii,:) = maxintensityproj(theViews.phase,1);
-        
-        LLkymoInX(:,ii,:) = maxintensityproj4RGB(LLtheViews.view1,1);
-        LLkymoInY(:,ii,:) = maxintensityproj4RGB(LLtheViews.view1,2);
-        LLkymoInZ(:,ii,:) = maxintensityproj4RGB(LLtheViews.view2,1);
-        
-        % save the spotParams
-        spotParamBasket{ii} = currSpotParams;
-    end
-    if ~isempty(currPhase)
-        if mod(ii,sizeDatas(2))==1
-            phaseBasket(:,:,index) =  xyMaxProjND(currPhase);
-            index = index+1;
-        end
-    end
-end
+
+
+
+
 % phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);
 % phaseMontage = phaseMontage.CData;
 phaseMontage = makeLinearMontage(phaseBasket);

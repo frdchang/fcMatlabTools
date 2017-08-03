@@ -7,7 +7,7 @@ expFolder = '/Users/fchang/Desktop/fcDataStorage/20150adsf';
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 
-specimenUnitsInMicrons = [0.1083,0.1083,0.45700];
+specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 % psfObjs = {psfObj1,psfObj2};
 % Kmatrix = [1 0.31; 0 1];
 % channels = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
@@ -34,8 +34,10 @@ T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
 
+%-----USER-----------------------------------------------------------------
 edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
 thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+%--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',false);
@@ -49,6 +51,10 @@ eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',t
 eC_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
+
+%-----USER-----------------------------------------------------------------
+spotThresholds        = procSpotThresholds(ec_T_stageIIOutputs);
+%--------------------------------------------------------------------------
 
 ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons);
 ec_T_3DvizThreshed    = procSetLLRatioThresh(ec_T_3Dviz);
