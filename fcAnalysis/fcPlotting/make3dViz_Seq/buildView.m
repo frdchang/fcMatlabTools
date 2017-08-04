@@ -24,9 +24,9 @@ for ii = 1:numel(idx)
         for jj = 1:numel(currFluor)
             currStack = currFluor{jj};
             [~,theViews] = return3Views(currStack);
-             views{jj}{1,ii} = theViews.view1;
-             views{jj}{2,ii} = theViews.view2;
-             views{jj}{3,ii} = theViews.view3;
+             views{jj}{1,ii} = theViews.view1(:,:,1);
+             views{jj}{2,ii} = theViews.view2(:,:,1);
+             views{jj}{3,ii} = theViews.view3(:,:,1);
         end
     end
 end

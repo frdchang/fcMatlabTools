@@ -20,6 +20,7 @@ spotKymos = ncellfun(@(x) zeros(size(x)),fluorKymos);
 for ii = 1:numSeq
     if ~isempty(spotParamsPaths{ii})
         % for each spot
+        numSpots = 0;
         for jj = 1:numel(spotParamsPaths{ii})
             currSpot = spotParamsPaths{ii}{jj};
             selectedSpot = spotSelectorByThresh(currSpot,varargin{:});
@@ -27,7 +28,7 @@ for ii = 1:numSeq
             selectedMLESingleSpot = selectedSpot.thetaMLEs;
             
             [~,singleSpotTheta,~] =  getSpotCoorsFromTheta(selectedMLESingleSpot);
-            
+            numSpots = numSpots + sum(~cellfun(@isempty,singleSpotTheta));
             currStacks   = cellfunNonUniformOutput(@(x) genSpotIMG(x,sizeDatas,upRezFactor),singleSpotTheta);
             for kk = 1:numel(currStacks)
                 currStackXY = max(currStacks{kk},[],3);
@@ -37,6 +38,10 @@ for ii = 1:numSeq
                 spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)+currStackZ(:);
             end
         end
+        % index the color by numspots
+        spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
+        spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
+        spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;   
     end
 end
 
