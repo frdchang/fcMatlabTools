@@ -5,5 +5,6 @@ function [] = mytool( data )
 data = xyMaxProjND(data);
 
 imtool(data,'InitialMagnification','adaptive','DisplayRange',[min(data(:)) max(data(:))]);
+
 end
 

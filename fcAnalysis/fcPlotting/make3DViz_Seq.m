@@ -54,8 +54,10 @@ fluorViews = buildView(fluorPaths,upRezFactor);
 % generate spotviews
 spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor);
 
+% genmontage
 
-
+% do overlay num spots conflict with spectral rgb
+test = cellfunNonUniformOutput(@(fluorViews,spotViews) cellfunNonUniformOutput(@myOverlay,fluorViews,spotViews),fluorViews,spotViews);
 
 
 
