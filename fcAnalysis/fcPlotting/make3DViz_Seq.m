@@ -57,9 +57,24 @@ spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor);
 % genmontage
 
 % do overlay num spots conflict with spectral rgb
-test = cellfunNonUniformOutput(@(fluorViews,spotViews) cellfunNonUniformOutput(@myOverlay,fluorViews,spotViews),fluorViews,spotViews);
+fluorViewsWithSpots = myOverlay(fluorViews,spotViews);
+fluorKymosWithSpots = myOverlay(fluorKymos,spotKymos);
 
+phaseImgs = phaseViews{1}{1};
+rawKymos   = flattenCellArray(rawKymos);
+fluorViewsWithSpots = flattenCellArray(fluorViewsWithSpots);
 
+fluorViews = flattenCellArray(fluorViews);
+fluorKymosWithSpots = flattenCellArray(fluorKymosWithSpots);
+
+fluorKymos = flattenCellArray(fluorKymos);
+
+LLRatKymos = flattenCellArray(LLRatKymos);
+
+assembled = {phaseImgs,fluorViewsWithSpots{:},rawKymos{:},fluorKymos{:},fluorKymosWithSpots{:},LLRatKymos{:}};
+%% remove the second views in build view
+
+fullmontaged = genMontage(assembled);
 
 
 % phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);

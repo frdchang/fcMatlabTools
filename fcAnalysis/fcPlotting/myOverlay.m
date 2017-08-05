@@ -1,6 +1,5 @@
-function [ rgb ] = myOverlay(A,BW,varargin)
-%MYOVERLAY this is like imoverlay but colors according to the index of the
-%BW mask index by 'lines' colormap.  so 1 = green, 2 = blue etc...
+function [ rgb ] = myOverlay(fluorViews,spotViews,varargin)
+%MYOVERLAY 
 %--parameters--------------------------------------------------------------
 params.nDistguishedColors     = 4;
 %--------------------------------------------------------------------------
@@ -9,19 +8,34 @@ params = updateParams(params,varargin);
 
 myCmap = distinguishable_colors(params.nDistguishedColors,[0 0 0]);
 myCmap(3:-1:2,:) = myCmap(2:3,:);
-% myCmap = linspecer(params.nDistguishedColors);
-uniqueNums = unique(BW);
-uniqueNums = uniqueNums( uniqueNums>0);
-if isempty(uniqueNums)
-    rgb = A;
+
+if iscell(fluorViews)
+    rgb = cell(size(fluorViews));
+   for ii = 1:numel(fluorViews)
+       rgb{ii} = cellfunNonUniformOutput(@(fluorViews,spotViews) imoverlay(fluorViews,spotViews,myCmap(ii,:)),fluorViews{ii},spotViews{ii});
+   end
 else
-    uniqueNums = uniqueNums(1);
-    if uniqueNums > params.nDistguishedColors
-       uniqueNums =  params.nDistguishedColors;
-    end
-    rgb = imoverlay(A,BW,myCmap(uniqueNums,:));
+    rgb = imoverlay(fluorViews,spotViews,myCmap(1,:));
 end
+% myCmap = linspecer(params.nDistguishedColors);
 
 
-end
+
+
+
+
+% uniqueNums = unique(BW);
+% uniqueNums = uniqueNums( uniqueNums>0);
+% if isempty(uniqueNums)
+%     rgb = A;
+% else
+%     uniqueNums = uniqueNums(1);
+%     if uniqueNums > params.nDistguishedColors
+%        uniqueNums =  params.nDistguishedColors;
+%     end
+%     rgb = imoverlay(A,BW,myCmap(uniqueNums,:));
+% end
+% 
+% 
+% end
 
