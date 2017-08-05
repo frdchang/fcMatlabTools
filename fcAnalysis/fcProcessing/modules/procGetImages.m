@@ -1,4 +1,4 @@
-function [ fileOutputs ] = procGetImages( expFolder,regexpMatch,saveName)
+function [ fileOutputs ] = procGetImages( expFolder,regexpMatch,saveName,specimenUnits)
 %PROCGETIMAGES Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -16,10 +16,11 @@ else
 end
 
 fileOutputs.outputFiles = table(files,'VariableNames',{'files'});
-fileOutputs.expFolder   = expFolder;
 fileOutputs.regexpMatch = regexpMatch;
 
-fileOutputs = procSaver(expFolder,fileOutputs,saveName);
+output.expFolder = expFolder;
+output.units     = specimenUnits;
+fileOutputs = procSaver(output,fileOutputs,saveName);
 
 end
 

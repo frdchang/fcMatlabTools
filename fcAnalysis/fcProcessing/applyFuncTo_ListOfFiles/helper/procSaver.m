@@ -2,8 +2,14 @@ function outputVariable = procSaver(expFolder,outputVariable,varargin)
 %PROCSAVER will save the variable at path
 
 if isstruct(expFolder)
-   expFolder = expFolder.expFolder; 
+    if isfield(expFolder,'units')
+    units     = expFolder.units;
+    else
+        units = [];
+    end
+    expFolder = expFolder.expFolder;
 end
+
 if ~isempty(varargin)
     newName = varargin{1};
 else
@@ -11,7 +17,7 @@ else
 end
 
 outputVariable.expFolder = expFolder;
-
+outputVariable.units     = units;
 saveFile = strcat(expFolder,filesep,'processingState');
 saveFile = [saveFile '.mat'];
 saveFile = createProcessedDir(saveFile);

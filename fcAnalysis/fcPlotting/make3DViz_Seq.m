@@ -1,4 +1,4 @@
-function saveFiles = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
+function fullMontage = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
 %MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
 % phasePath can be empty if not needed
 %--parameters--------------------------------------------------------------
@@ -20,7 +20,7 @@ upRezFactor   = round(params.upRez*myUnits);
 
 validTimepoints = find(~cellfun(@isempty,fluorPaths));
 if isempty(validTimepoints)
-    saveFiles = [];
+    fullMontage = [];
     return;
 else
     rawFluorPaths   = rawFluorPaths(validTimepoints);
@@ -45,65 +45,37 @@ fluorKymos = buildKymo(fluorPaths,upRezFactor);
 LLRatKymos = buildKymo(LLRatioPaths,upRezFactor);
 rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
 % generate spotkymos
-spotKymos  = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor);
+spotKymos  = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor,varargin{:});
 
 % generate views
 phaseViews = buildView(phasePaths,upRezFactor);
 fluorViews = buildView(fluorPaths,upRezFactor);
 
 % generate spotviews
-spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor);
-
-% genmontage
+spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor,varargin{:});
 
 % do overlay num spots conflict with spectral rgb
 fluorViewsWithSpots = myOverlay(fluorViews,spotViews);
 fluorKymosWithSpots = myOverlay(fluorKymos,spotKymos);
 
-phaseImgs = phaseViews{1}{1};
-rawKymos   = flattenCellArray(rawKymos);
-fluorViewsWithSpots = flattenCellArray(fluorViewsWithSpots);
+% remove the second views in build view and remove 2nd and 3rd dim from
+% phase
+fluorViews = cellfunNonUniformOutput(@removeSecondElement,fluorViews);
+phaseViews = phaseViews{1}{1};
+phaseKymos = phaseKymos{1}{1};
+% if this is multi color dataset, generate a multi color kymograph
+if numel(fluorViews) > 1
+    coloredFluorViews = genRGBFromCell(fluorViews);
+    coloredFluorKymos = genRGBFromCell(fluorKymos);
+    assembled = {phaseViews,phaseKymos,coloredFluorViews,coloredFluorKymos,fluorKymosWithSpots};
+else
+    assembled = {phaseViews,phaseKymos,fluorfluorViewsWithSpots,fluorKymosWithSpots};
+end
 
-fluorViews = flattenCellArray(fluorViews);
-fluorKymosWithSpots = flattenCellArray(fluorKymosWithSpots);
+fullMontage = genMontage(assembled);
+end
 
-fluorKymos = flattenCellArray(fluorKymos);
-
-LLRatKymos = flattenCellArray(LLRatKymos);
-
-assembled = {phaseImgs,fluorViewsWithSpots{:},rawKymos{:},fluorKymos{:},fluorKymosWithSpots{:},LLRatKymos{:}};
-%% remove the second views in build view
-
-fullmontaged = genMontage(assembled);
-
-
-% phaseMontage = plotMontage(phaseBasket,'Size',[1 NaN]);
-% phaseMontage = phaseMontage.CData;
-phaseMontage = makeLinearMontage(phaseBasket);
-phaseMontage = bw2rgb(uint8(255*phaseMontage));
-phaseMontage = phaseMontage(:,1:numSeq,:);
-close all;
-% generate kymos
-spacer = params.bkgndGrey*ones(params.spacerHeight,numSeq,3);
-% generate amplitude and distance plots
-distPlotBMP = bw2rgb(bitmapPlotSeq(spotParamBasket,@returnPairWiseDistsOfSpotParams,params));
-ampPlotBMP = bw2rgb(bitmapPlotSeq(spotParamBasket,@returnAmplitudes,params,'pixelHeight',[]));
-pairingPlotBMP = genPairingPlotBMP(spotParamBasket,'height',params.pairingHeight);
-
-accessoryPlots = uint8(255*(cat(1,pairingPlotBMP,spacer,ampPlotBMP,spacer,distPlotBMP)));
-
-kymoInXYZ = cat(1,kymoInX,spacer,kymoInY,spacer,kymoInZ,spacer,accessoryPlots);
-kymoInXYZsansSpots =  cat(1,kymoInXsansSpots,spacer,kymoInYsansSpots,spacer,kymoInZsansSpots);
-LLkymoInXYZ = cat(1,LLkymoInX,spacer,LLkymoInY,spacer,LLkymoInZ,spacer);
-% generate top phase plot
-% phasePlotOnTop = genPhasePlotOnTop(phasePaths,numSeq);
-%
-% saveFiles.kymoSansSpots = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymoSansSpots');
-% makeDIRforFilename(saveFiles.kymoSansSpots);
-% imwrite(kymoInXYZsansSpots,[saveFiles.kymoSansSpots '.tif'],'tif');
-saveFiles.kymo = genProcessedFileName({fluorPaths},'make3DViz_Seq','deleteHistory',true,'appendFolder','kymo');
-makeDIRforFilename(saveFiles.kymo);
-kymoInXYZ = cat(1,phaseMontage,spacer,kymoInXYZsansSpots,spacer,LLkymoInXYZ,spacer,kymoInXYZ);
-imwrite(kymoInXYZ,[saveFiles.kymo '.tif'],'tif');
+function x = removeSecondElement(x)
+x(2) = [];
 end
 

@@ -40,6 +40,7 @@ spotStruct(~okstates) = [];
 LLs = [spotStruct.(params.field)];
 
 % curate spotthresh
+params.spotthresh = [0 ;params.spotthresh(:)];
 params.spotthresh(~okstates(1:min(numel(params.spotthresh),numel(okstates)))) = [];
 % 
 LLRatios = LLs - LLs(1);

@@ -24,8 +24,11 @@ dataIndex = 1;
 for ii = 1:totalMontages
     if isodd(ii)
         currData = cellOfData{dataIndex};
+        if isempty(currData)
+           continue; 
+        end
         currSize = size(currData);
-        temp(:,:,:) = params.borderColor;
+        temp = params.borderColor*ones(currSize(1),ySize,3);
         if numel(currSize) == 2
             temp(1:currSize(1),1:currSize(2),:) = repmat(currData,1,1,3);
         else
