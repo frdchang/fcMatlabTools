@@ -2,11 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: main.c
  *
- * main.c
- *
- * Code generation for function 'main'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 /*************************************************************************/
@@ -33,7 +32,7 @@
 /* otherwise use them as required by your application.                   */
 /*                                                                       */
 /*************************************************************************/
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "main.h"
@@ -49,6 +48,11 @@ static emxArray_real_T *c_argInit_UnboundedxUnbounded_r(void);
 static void main_link_trajectories3D(void);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : void
+ * Return Type  : cell_wrap_0
+ */
 static cell_wrap_0 argInit_cell_wrap_0(void)
 {
   cell_wrap_0 result;
@@ -59,11 +63,19 @@ static cell_wrap_0 argInit_cell_wrap_0(void)
   return result;
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : double
+ */
 static double argInit_real_T(void)
 {
   return 0.0;
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : emxArray_cell_wrap_0 *
+ */
 static emxArray_cell_wrap_0 *c_argInit_UnboundedxUnbounded_c(void)
 {
   emxArray_cell_wrap_0 *result;
@@ -88,6 +100,10 @@ static emxArray_cell_wrap_0 *c_argInit_UnboundedxUnbounded_c(void)
   return result;
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : emxArray_real_T *
+ */
 static emxArray_real_T *c_argInit_UnboundedxUnbounded_r(void)
 {
   emxArray_real_T *result;
@@ -112,6 +128,10 @@ static emxArray_real_T *c_argInit_UnboundedxUnbounded_r(void)
   return result;
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 static void main_link_trajectories3D(void)
 {
   emxArray_cell_wrap_0 *peaks;
@@ -125,6 +145,11 @@ static void main_link_trajectories3D(void)
   emxDestroyArray_cell_wrap_0(peaks);
 }
 
+/*
+ * Arguments    : int argc
+ *                const char * const argv[]
+ * Return Type  : int
+ */
 int main(int argc, const char * const argv[])
 {
   (void)argc;
@@ -144,4 +169,8 @@ int main(int argc, const char * const argv[])
   return 0;
 }
 
-/* End of code generation (main.c) */
+/*
+ * File trailer for main.c
+ *
+ * [EOF]
+ */

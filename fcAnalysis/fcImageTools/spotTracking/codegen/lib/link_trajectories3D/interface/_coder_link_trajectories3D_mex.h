@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_link_trajectories3D_mex.h
  *
- * _coder_link_trajectories3D_mex.h
- *
- * Code generation for function '_coder_link_trajectories3D_mex'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef _CODER_LINK_TRAJECTORIES3D_MEX_H
 #define _CODER_LINK_TRAJECTORIES3D_MEX_H
 
-/* Include files */
+/* Include Files */
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,4 +27,8 @@ extern emlrtCTX mexFunctionCreateRootTLS(void);
 
 #endif
 
-/* End of code generation (_coder_link_trajectories3D_mex.h) */
+/*
+ * File trailer for _coder_link_trajectories3D_mex.h
+ *
+ * [EOF]
+ */

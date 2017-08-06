@@ -2,20 +2,25 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: find.c
  *
- * find.c
- *
- * Code generation for function 'find'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "find.h"
 #include "link_trajectories3D_emxutil.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emxArray_boolean_T *x
+ *                emxArray_int32_T *i
+ * Return Type  : void
+ */
 void b_eml_find(const emxArray_boolean_T *x, emxArray_int32_T *i)
 {
   int nx;
@@ -61,6 +66,11 @@ void b_eml_find(const emxArray_boolean_T *x, emxArray_int32_T *i)
   }
 }
 
+/*
+ * Arguments    : const emxArray_boolean_T *x
+ *                emxArray_int32_T *i
+ * Return Type  : void
+ */
 void eml_find(const emxArray_boolean_T *x, emxArray_int32_T *i)
 {
   int nx;
@@ -108,4 +118,8 @@ void eml_find(const emxArray_boolean_T *x, emxArray_int32_T *i)
   }
 }
 
-/* End of code generation (find.c) */
+/*
+ * File trailer for find.c
+ *
+ * [EOF]
+ */

@@ -2,20 +2,25 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: sum.c
  *
- * sum.c
- *
- * Code generation for function 'sum'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "sum.h"
 #include "link_trajectories3D_emxutil.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emxArray_real_T *x
+ *                emxArray_real_T *y
+ * Return Type  : void
+ */
 void b_sum(const emxArray_real_T *x, emxArray_real_T *y)
 {
   int vlen;
@@ -49,6 +54,10 @@ void b_sum(const emxArray_real_T *x, emxArray_real_T *y)
   }
 }
 
+/*
+ * Arguments    : const emxArray_real_T *x
+ * Return Type  : double
+ */
 double sum(const emxArray_real_T *x)
 {
   double y;
@@ -61,4 +70,8 @@ double sum(const emxArray_real_T *x)
   return y;
 }
 
-/* End of code generation (sum.c) */
+/*
+ * File trailer for sum.c
+ *
+ * [EOF]
+ */

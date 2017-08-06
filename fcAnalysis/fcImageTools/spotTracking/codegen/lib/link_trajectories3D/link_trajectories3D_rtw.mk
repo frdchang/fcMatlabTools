@@ -2,7 +2,7 @@
 ## Makefile generated for MATLAB file/project 'link_trajectories3D'. 
 ## 
 ## Makefile     : link_trajectories3D_rtw.mk
-## Generated on : Sat Aug 05 22:16:23 2017
+## Generated on : Sun Aug 06 13:45:55 2017
 ## MATLAB Coder version: 3.3 (R2017a)
 ## 
 ## Build Info:
@@ -23,23 +23,23 @@
 
 PRODUCT_NAME              = link_trajectories3D
 MAKEFILE                  = link_trajectories3D_rtw.mk
-COMPUTER                  = MACI64
-MATLAB_ROOT               = /Applications/MATLAB_R2017a.app
-MATLAB_BIN                = /Applications/MATLAB_R2017a.app/bin
-MATLAB_ARCH_BIN           = /Applications/MATLAB_R2017a.app/bin/maci64
+COMPUTER                  = GLNXA64
+MATLAB_ROOT               = /usr/local/MATLAB/R2017a
+MATLAB_BIN                = /usr/local/MATLAB/R2017a/bin
+MATLAB_ARCH_BIN           = /usr/local/MATLAB/R2017a/bin/glnxa64
 MASTER_ANCHOR_DIR         = 
-START_DIR                 = /Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking
-ARCH                      = maci64
+START_DIR                 = /home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking
+ARCH                      = glnxa64
 RELATIVE_PATH_TO_ANCHOR   = .
-C_STANDARD_OPTS           = -fno-common -fexceptions
-CPP_STANDARD_OPTS         = -fno-common -fexceptions
+C_STANDARD_OPTS           = -ansi -pedantic -Wno-long-long -fwrapv
+CPP_STANDARD_OPTS         = -std=c++98 -pedantic -Wno-long-long -fwrapv
 
 ###########################################################################
 ## TOOLCHAIN SPECIFICATIONS
 ###########################################################################
 
-# Toolchain Name:          Clang v3.1 | gmake (64-bit Mac)
-# Supported Version(s):    3.1
+# Toolchain Name:          GNU gcc/g++ v4.4.x | gmake (64-bit Linux)
+# Supported Version(s):    4.4.x
 # ToolchainInfo Version:   R2017a
 # Specification Revision:  1.0
 # 
@@ -54,11 +54,10 @@ CPP_STANDARD_OPTS         = -fno-common -fexceptions
 # MACROS
 #-----------
 
-ARCHS             = x86_64
-XCODE_SDK_VER     = $(shell perl $(MATLAB_ROOT)/rtw/c/tools/macsdkver.pl)
-XCODE_SDK         = MacOSX$(XCODE_SDK_VER).sdk
-XCODE_DEVEL_DIR   = $(shell xcode-select -print-path)
-XCODE_SDK_ROOT    = $(XCODE_DEVEL_DIR)/Platforms/MacOSX.platform/Developer/SDKs/$(XCODE_SDK)
+WARN_FLAGS         = -Wall -W -Wwrite-strings -Winline -Wstrict-prototypes -Wnested-externs -Wpointer-arith -Wcast-align
+WARN_FLAGS_MAX     = $(WARN_FLAGS) -Wcast-qual -Wshadow
+CPP_WARN_FLAGS     = -Wall -W -Wwrite-strings -Winline -Wpointer-arith -Wcast-align
+CPP_WARN_FLAGS_MAX = $(CPP_WARN_FLAGS) -Wcast-qual -Wshadow
 
 TOOLCHAIN_SRCS = 
 TOOLCHAIN_INCS = 
@@ -68,20 +67,20 @@ TOOLCHAIN_LIBS =
 # BUILD TOOL COMMANDS
 #------------------------
 
-# C Compiler: Clang C Compiler
-CC = xcrun clang
+# C Compiler: GNU C Compiler
+CC = gcc
 
-# Linker: Clang Linker
-LD = xcrun clang
+# Linker: GNU Linker
+LD = gcc
 
-# C++ Compiler: Clang C++ Compiler
-CPP = xcrun clang++
+# C++ Compiler: GNU C++ Compiler
+CPP = g++
 
-# C++ Linker: Clang C++ Linker
-CPP_LD = xcrun clang++
+# C++ Linker: GNU C++ Linker
+CPP_LD = g++
 
-# Archiver: Clang Archiver
-AR = xcrun ar
+# Archiver: GNU Archiver
+AR = ar
 
 # MEX Tool: MEX Tool
 MEX_PATH = $(MATLAB_BIN)
@@ -94,7 +93,7 @@ DOWNLOAD =
 EXECUTE = $(PRODUCT)
 
 # Builder: GMAKE Utility
-MAKE_PATH = %MATLAB%/bin/maci64
+MAKE_PATH = %MATLAB%/bin/glnxa64
 MAKE = "$(MAKE_PATH)/gmake"
 
 
@@ -123,29 +122,33 @@ RUN                 =
 #--------------------------------------
 
 ARFLAGS              = ruvs
-CFLAGS               = -c -isysroot $(XCODE_SDK_ROOT) -arch $(ARCHS) $(C_STANDARD_OPTS) \
-                       -O3
-CPPFLAGS             = -c -isysroot $(XCODE_SDK_ROOT) -arch $(ARCHS) $(CPP_STANDARD_OPTS) \
-                       -O3
-CPP_LDFLAGS          = -arch $(ARCHS) -isysroot $(XCODE_SDK_ROOT) -Wl,-rpath,$(MATLAB_ARCH_BIN) -Wl,-rpath,@executable_path -Wl,-rpath,@executable_path/$(RELATIVE_PATH_TO_ANCHOR) -L"$(MATLAB_ARCH_BIN)"
-CPP_SHAREDLIB_LDFLAGS  = -dynamiclib -install_name @rpath/$(notdir $(PRODUCT)) -isysroot $(XCODE_SDK_ROOT) -L"$(MATLAB_ARCH_BIN)" \
-                         -Wl,$(LD_NAMESPACE) $(LD_UNDEFS)
+CFLAGS               = -c $(C_STANDARD_OPTS) -fPIC \
+                       -O3 -fno-loop-optimize -fno-aggressive-loop-optimizations
+CPPFLAGS             = -c $(CPP_STANDARD_OPTS) -fPIC \
+                       -O3 -fno-loop-optimize -fno-aggressive-loop-optimizations
+CPP_LDFLAGS          = -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)"
+CPP_SHAREDLIB_LDFLAGS  = -shared -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)" -Wl,--no-undefined
 DOWNLOAD_FLAGS       =
 EXECUTE_FLAGS        =
-LDFLAGS              = -arch $(ARCHS) -isysroot $(XCODE_SDK_ROOT) -Wl,-rpath,$(MATLAB_ARCH_BIN) -Wl,-rpath,@executable_path -Wl,-rpath,@executable_path/$(RELATIVE_PATH_TO_ANCHOR) -L"$(MATLAB_ARCH_BIN)"
-MEX_CPPFLAGS         =
-MEX_CPPLDFLAGS       =
+LDFLAGS              = -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)"
+MEX_CPPFLAGS         = -MATLAB_ARCH=$(ARCH) $(INCLUDES) \
+                         \
+                       COPTIMFLAGS="$(C_STANDARD_OPTS)  \
+                       -O3 -fno-loop-optimize -fno-aggressive-loop-optimizations \
+                        $(DEFINES)" \
+                         \
+                       -silent
+MEX_CPPLDFLAGS       = LDFLAGS=='$$LDFLAGS'
 MEX_CFLAGS           = -MATLAB_ARCH=$(ARCH) $(INCLUDES) \
                          \
                        COPTIMFLAGS="$(C_STANDARD_OPTS)  \
-                       -O3 \
+                       -O3 -fno-loop-optimize -fno-aggressive-loop-optimizations \
                         $(DEFINES)" \
                          \
                        -silent
 MEX_LDFLAGS          = LDFLAGS=='$$LDFLAGS'
 MAKE_FLAGS           = -f $(MAKEFILE)
-SHAREDLIB_LDFLAGS    = -dynamiclib -install_name @rpath/$(notdir $(PRODUCT)) -isysroot $(XCODE_SDK_ROOT) -L"$(MATLAB_ARCH_BIN)" \
-                       -Wl,$(LD_NAMESPACE) $(LD_UNDEFS)
+SHAREDLIB_LDFLAGS    = -shared -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)" -Wl,--no-undefined
 
 #--------------------
 # File extensions
@@ -155,14 +158,14 @@ H_EXT               = .h
 OBJ_EXT             = .o
 C_EXT               = .c
 EXE_EXT             =
-SHAREDLIB_EXT       = .dylib
+SHAREDLIB_EXT       = .so
 HPP_EXT             = .hpp
 OBJ_EXT             = .o
 CPP_EXT             = .cpp
 EXE_EXT             =
-SHAREDLIB_EXT       = .dylib
+SHAREDLIB_EXT       = .so
 STATICLIB_EXT       = .a
-MEX_EXT             = .mexmaci64
+MEX_EXT             = .mexa64
 MAKE_EXT            = .mk
 
 

@@ -2,11 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: rtwtypes.h
  *
- * rtwtypes.h
- *
- * Code generation for function 'link_trajectories3D'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef RTWTYPES_H
@@ -158,4 +157,8 @@ typedef struct {
 #endif
 #endif
 
-/* End of code generation (rtwtypes.h) */
+/*
+ * File trailer for rtwtypes.h
+ *
+ * [EOF]
+ */

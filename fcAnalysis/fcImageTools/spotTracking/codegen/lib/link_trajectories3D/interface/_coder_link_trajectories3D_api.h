@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_link_trajectories3D_api.h
  *
- * _coder_link_trajectories3D_api.h
- *
- * Code generation for function '_coder_link_trajectories3D_api'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef _CODER_LINK_TRAJECTORIES3D_API_H
 #define _CODER_LINK_TRAJECTORIES3D_API_H
 
-/* Include files */
+/* Include Files */
 #include "tmwtypes.h"
 #include "mex.h"
 #include "emlrt.h"
@@ -87,4 +86,8 @@ extern void link_trajectories3D_xil_terminate(void);
 
 #endif
 
-/* End of code generation (_coder_link_trajectories3D_api.h) */
+/*
+ * File trailer for _coder_link_trajectories3D_api.h
+ *
+ * [EOF]
+ */

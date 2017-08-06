@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: sort1.c
  *
- * sort1.c
- *
- * Code generation for function 'sort1'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "sort1.h"
@@ -17,6 +16,12 @@
 #include "sortIdx.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : emxArray_real_T *x
+ *                emxArray_int32_T *idx
+ * Return Type  : void
+ */
 void sort(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   emxArray_real_T *vwork;
@@ -49,4 +54,8 @@ void sort(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_real_T(&vwork);
 }
 
-/* End of code generation (sort1.c) */
+/*
+ * File trailer for sort1.c
+ *
+ * [EOF]
+ */

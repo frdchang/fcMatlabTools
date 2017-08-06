@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: link_trajectories3D.c
  *
- * link_trajectories3D.c
- *
- * Code generation for function 'link_trajectories3D'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "ifWhileCond.h"
@@ -25,6 +24,12 @@
 static int div_s32(int numerator, int denominator);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : int numerator
+ *                int denominator
+ * Return Type  : int
+ */
 static int div_s32(int numerator, int denominator)
 {
   int quotient;
@@ -62,6 +67,11 @@ static int div_s32(int numerator, int denominator)
   return quotient;
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 *peaks
+ *                double L
+ * Return Type  : void
+ */
 void link_trajectories3D(emxArray_cell_wrap_0 *peaks, double L)
 {
   int n;
@@ -1281,4 +1291,8 @@ void link_trajectories3D(emxArray_cell_wrap_0 *peaks, double L)
   }
 }
 
-/* End of code generation (link_trajectories3D.c) */
+/*
+ * File trailer for link_trajectories3D.c
+ *
+ * [EOF]
+ */

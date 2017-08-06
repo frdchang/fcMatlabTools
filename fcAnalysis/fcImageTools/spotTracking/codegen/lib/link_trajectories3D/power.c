@@ -2,20 +2,25 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: power.c
  *
- * power.c
- *
- * Code generation for function 'power'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "power.h"
 #include "link_trajectories3D_emxutil.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emxArray_real_T *a
+ *                emxArray_real_T *y
+ * Return Type  : void
+ */
 void power(const emxArray_real_T *a, emxArray_real_T *y)
 {
   int n;
@@ -35,4 +40,8 @@ void power(const emxArray_real_T *a, emxArray_real_T *y)
   }
 }
 
-/* End of code generation (power.c) */
+/*
+ * File trailer for power.c
+ *
+ * [EOF]
+ */

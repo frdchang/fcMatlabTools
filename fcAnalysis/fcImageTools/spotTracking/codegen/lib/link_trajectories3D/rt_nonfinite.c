@@ -2,11 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: rt_nonfinite.c
  *
- * rt_nonfinite.c
- *
- * Code generation for function 'link_trajectories3D'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 /*
@@ -97,4 +96,8 @@ boolean_T rtIsNaNF(real32_T value)
 
 }
 
-/* End of code generation (rt_nonfinite.c) */
+/*
+ * File trailer for rt_nonfinite.c
+ *
+ * [EOF]
+ */

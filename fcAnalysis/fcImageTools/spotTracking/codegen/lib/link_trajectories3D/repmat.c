@@ -2,20 +2,26 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: repmat.c
  *
- * repmat.c
- *
- * Code generation for function 'repmat'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "repmat.h"
 #include "link_trajectories3D_emxutil.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emxArray_real_T *a
+ *                double varargin_2
+ *                emxArray_real_T *b
+ * Return Type  : void
+ */
 void b_repmat(const emxArray_real_T *a, double varargin_2, emxArray_real_T *b)
 {
   int outsize_idx_0;
@@ -49,6 +55,12 @@ void b_repmat(const emxArray_real_T *a, double varargin_2, emxArray_real_T *b)
   }
 }
 
+/*
+ * Arguments    : const emxArray_real_T *a
+ *                double varargin_1
+ *                emxArray_real_T *b
+ * Return Type  : void
+ */
 void repmat(const emxArray_real_T *a, double varargin_1, emxArray_real_T *b)
 {
   int outsize_idx_1;
@@ -81,4 +93,8 @@ void repmat(const emxArray_real_T *a, double varargin_1, emxArray_real_T *b)
   }
 }
 
-/* End of code generation (repmat.c) */
+/*
+ * File trailer for repmat.c
+ *
+ * [EOF]
+ */

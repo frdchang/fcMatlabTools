@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: link_trajectories3D_emxutil.c
  *
- * link_trajectories3D_emxutil.c
- *
- * Code generation for function 'link_trajectories3D_emxutil'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "link_trajectories3D_emxutil.h"
@@ -18,11 +17,22 @@
 static void emxFreeStruct_cell_wrap_0(cell_wrap_0 *pStruct);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : cell_wrap_0 *pStruct
+ * Return Type  : void
+ */
 static void emxFreeStruct_cell_wrap_0(cell_wrap_0 *pStruct)
 {
   emxFree_real_T(&pStruct->f1);
 }
 
+/*
+ * Arguments    : emxArray__common *emxArray
+ *                int oldNumel
+ *                unsigned int elementSize
+ * Return Type  : void
+ */
 void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, unsigned int
   elementSize)
 {
@@ -66,6 +76,10 @@ void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, unsigned int
   }
 }
 
+/*
+ * Arguments    : emxArray_boolean_T **pEmxArray
+ * Return Type  : void
+ */
 void emxFree_boolean_T(emxArray_boolean_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_boolean_T *)NULL) {
@@ -80,6 +94,10 @@ void emxFree_boolean_T(emxArray_boolean_T **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 **pEmxArray
+ * Return Type  : void
+ */
 void emxFree_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray)
 {
   int numEl;
@@ -106,6 +124,10 @@ void emxFree_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : emxArray_int32_T **pEmxArray
+ * Return Type  : void
+ */
 void emxFree_int32_T(emxArray_int32_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_int32_T *)NULL) {
@@ -119,6 +141,10 @@ void emxFree_int32_T(emxArray_int32_T **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T **pEmxArray
+ * Return Type  : void
+ */
 void emxFree_real_T(emxArray_real_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_real_T *)NULL) {
@@ -132,6 +158,11 @@ void emxFree_real_T(emxArray_real_T **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : emxArray_boolean_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int numDimensions)
 {
   emxArray_boolean_T *emxArray;
@@ -148,6 +179,11 @@ void emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_boolean_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_boolean_T1(emxArray_boolean_T **pEmxArray, int numDimensions)
 {
   emxArray_boolean_T *emxArray;
@@ -164,6 +200,11 @@ void emxInit_boolean_T1(emxArray_boolean_T **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray, int numDimensions)
 {
   emxArray_cell_wrap_0 *emxArray;
@@ -180,6 +221,11 @@ void emxInit_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_int32_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_int32_T(emxArray_int32_T **pEmxArray, int numDimensions)
 {
   emxArray_int32_T *emxArray;
@@ -196,6 +242,11 @@ void emxInit_int32_T(emxArray_int32_T **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_int32_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_int32_T1(emxArray_int32_T **pEmxArray, int numDimensions)
 {
   emxArray_int32_T *emxArray;
@@ -212,6 +263,11 @@ void emxInit_int32_T1(emxArray_int32_T **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
 {
   emxArray_real_T *emxArray;
@@ -228,6 +284,11 @@ void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T **pEmxArray
+ *                int numDimensions
+ * Return Type  : void
+ */
 void emxInit_real_T1(emxArray_real_T **pEmxArray, int numDimensions)
 {
   emxArray_real_T *emxArray;
@@ -244,4 +305,8 @@ void emxInit_real_T1(emxArray_real_T **pEmxArray, int numDimensions)
   }
 }
 
-/* End of code generation (link_trajectories3D_emxutil.c) */
+/*
+ * File trailer for link_trajectories3D_emxutil.c
+ *
+ * [EOF]
+ */

@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: find.h
  *
- * find.h
- *
- * Code generation for function 'find'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef FIND_H
 #define FIND_H
 
-/* Include files */
+/* Include Files */
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -27,4 +26,8 @@ extern void eml_find(const emxArray_boolean_T *x, emxArray_int32_T *i);
 
 #endif
 
-/* End of code generation (find.h) */
+/*
+ * File trailer for find.h
+ *
+ * [EOF]
+ */

@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: sortIdx.c
  *
- * sortIdx.c
- *
- * Code generation for function 'sortIdx'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "sortIdx.h"
@@ -22,6 +21,17 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : emxArray_int32_T *idx
+ *                emxArray_real_T *x
+ *                int offset
+ *                int np
+ *                int nq
+ *                emxArray_int32_T *iwork
+ *                emxArray_real_T *xwork
+ * Return Type  : void
+ */
 static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
                   int nq, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
@@ -72,6 +82,16 @@ static void merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int np,
   }
 }
 
+/*
+ * Arguments    : emxArray_int32_T *idx
+ *                emxArray_real_T *x
+ *                int offset
+ *                int n
+ *                int preSortLevel
+ *                emxArray_int32_T *iwork
+ *                emxArray_real_T *xwork
+ * Return Type  : void
+ */
 static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
@@ -105,6 +125,11 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T *x
+ *                emxArray_int32_T *idx
+ * Return Type  : void
+ */
 void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   int ib;
@@ -378,4 +403,8 @@ void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_int32_T(&iwork);
 }
 
-/* End of code generation (sortIdx.c) */
+/*
+ * File trailer for sortIdx.c
+ *
+ * [EOF]
+ */

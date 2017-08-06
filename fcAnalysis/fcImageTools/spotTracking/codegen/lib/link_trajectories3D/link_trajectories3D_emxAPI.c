@@ -2,20 +2,25 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: link_trajectories3D_emxAPI.c
  *
- * link_trajectories3D_emxAPI.c
- *
- * Code generation for function 'link_trajectories3D_emxAPI'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "link_trajectories3D_emxAPI.h"
 #include "link_trajectories3D_emxutil.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : int numDimensions
+ *                int *size
+ * Return Type  : emxArray_cell_wrap_0 *
+ */
 emxArray_cell_wrap_0 *emxCreateND_cell_wrap_0(int numDimensions, int *size)
 {
   emxArray_cell_wrap_0 *emx;
@@ -34,6 +39,11 @@ emxArray_cell_wrap_0 *emxCreateND_cell_wrap_0(int numDimensions, int *size)
   return emx;
 }
 
+/*
+ * Arguments    : int numDimensions
+ *                int *size
+ * Return Type  : emxArray_real_T *
+ */
 emxArray_real_T *emxCreateND_real_T(int numDimensions, int *size)
 {
   emxArray_real_T *emx;
@@ -52,6 +62,12 @@ emxArray_real_T *emxCreateND_real_T(int numDimensions, int *size)
   return emx;
 }
 
+/*
+ * Arguments    : cell_wrap_0 *data
+ *                int numDimensions
+ *                int *size
+ * Return Type  : emxArray_cell_wrap_0 *
+ */
 emxArray_cell_wrap_0 *emxCreateWrapperND_cell_wrap_0(cell_wrap_0 *data, int
   numDimensions, int *size)
 {
@@ -72,6 +88,12 @@ emxArray_cell_wrap_0 *emxCreateWrapperND_cell_wrap_0(cell_wrap_0 *data, int
   return emx;
 }
 
+/*
+ * Arguments    : double *data
+ *                int numDimensions
+ *                int *size
+ * Return Type  : emxArray_real_T *
+ */
 emxArray_real_T *emxCreateWrapperND_real_T(double *data, int numDimensions, int *
   size)
 {
@@ -92,6 +114,12 @@ emxArray_real_T *emxCreateWrapperND_real_T(double *data, int numDimensions, int 
   return emx;
 }
 
+/*
+ * Arguments    : cell_wrap_0 *data
+ *                int rows
+ *                int cols
+ * Return Type  : emxArray_cell_wrap_0 *
+ */
 emxArray_cell_wrap_0 *emxCreateWrapper_cell_wrap_0(cell_wrap_0 *data, int rows,
   int cols)
 {
@@ -115,6 +143,12 @@ emxArray_cell_wrap_0 *emxCreateWrapper_cell_wrap_0(cell_wrap_0 *data, int rows,
   return emx;
 }
 
+/*
+ * Arguments    : double *data
+ *                int rows
+ *                int cols
+ * Return Type  : emxArray_real_T *
+ */
 emxArray_real_T *emxCreateWrapper_real_T(double *data, int rows, int cols)
 {
   emxArray_real_T *emx;
@@ -137,6 +171,11 @@ emxArray_real_T *emxCreateWrapper_real_T(double *data, int rows, int cols)
   return emx;
 }
 
+/*
+ * Arguments    : int rows
+ *                int cols
+ * Return Type  : emxArray_cell_wrap_0 *
+ */
 emxArray_cell_wrap_0 *emxCreate_cell_wrap_0(int rows, int cols)
 {
   emxArray_cell_wrap_0 *emx;
@@ -158,6 +197,11 @@ emxArray_cell_wrap_0 *emxCreate_cell_wrap_0(int rows, int cols)
   return emx;
 }
 
+/*
+ * Arguments    : int rows
+ *                int cols
+ * Return Type  : emxArray_real_T *
+ */
 emxArray_real_T *emxCreate_real_T(int rows, int cols)
 {
   emxArray_real_T *emx;
@@ -179,14 +223,26 @@ emxArray_real_T *emxCreate_real_T(int rows, int cols)
   return emx;
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 *emxArray
+ * Return Type  : void
+ */
 void emxDestroyArray_cell_wrap_0(emxArray_cell_wrap_0 *emxArray)
 {
   emxFree_cell_wrap_0(&emxArray);
 }
 
+/*
+ * Arguments    : emxArray_real_T *emxArray
+ * Return Type  : void
+ */
 void emxDestroyArray_real_T(emxArray_real_T *emxArray)
 {
   emxFree_real_T(&emxArray);
 }
 
-/* End of code generation (link_trajectories3D_emxAPI.c) */
+/*
+ * File trailer for link_trajectories3D_emxAPI.c
+ *
+ * [EOF]
+ */

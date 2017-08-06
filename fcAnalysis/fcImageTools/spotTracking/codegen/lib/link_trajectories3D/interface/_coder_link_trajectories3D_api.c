@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_link_trajectories3D_api.c
  *
- * _coder_link_trajectories3D_api.c
- *
- * Code generation for function '_coder_link_trajectories3D_api'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "tmwtypes.h"
 #include "_coder_link_trajectories3D_api.h"
 #include "_coder_link_trajectories3D_mex.h"
@@ -82,6 +81,13 @@ static real_T g_emlrt_marshallIn(const mxArray *src, const emlrtMsgIdentifier
   *msgId);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ *                emxArray_cell_wrap_0 *y
+ * Return Type  : void
+ */
 static void b_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   *parentId, emxArray_cell_wrap_0 *y)
 {
@@ -115,6 +121,12 @@ static void b_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   emlrtDestroyArray(&u);
 }
 
+/*
+ * Arguments    : const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ *                emxArray_real_T *y
+ * Return Type  : void
+ */
 static void c_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   *parentId, emxArray_real_T *y)
 {
@@ -122,6 +134,11 @@ static void c_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   emlrtDestroyArray(&u);
 }
 
+/*
+ * Arguments    : const mxArray *L
+ *                const char_T *identifier
+ * Return Type  : real_T
+ */
 static real_T d_emlrt_marshallIn(const mxArray *L, const char_T *identifier)
 {
   real_T y;
@@ -134,6 +151,11 @@ static real_T d_emlrt_marshallIn(const mxArray *L, const char_T *identifier)
   return y;
 }
 
+/*
+ * Arguments    : const mxArray *u
+ *                const emlrtMsgIdentifier *parentId
+ * Return Type  : real_T
+ */
 static real_T e_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   *parentId)
 {
@@ -143,6 +165,12 @@ static real_T e_emlrt_marshallIn(const mxArray *u, const emlrtMsgIdentifier
   return y;
 }
 
+/*
+ * Arguments    : const mxArray *peaks
+ *                const char_T *identifier
+ *                emxArray_cell_wrap_0 *y
+ * Return Type  : void
+ */
 static void emlrt_marshallIn(const mxArray *peaks, const char_T *identifier,
   emxArray_cell_wrap_0 *y)
 {
@@ -154,6 +182,10 @@ static void emlrt_marshallIn(const mxArray *peaks, const char_T *identifier,
   emlrtDestroyArray(&peaks);
 }
 
+/*
+ * Arguments    : const emxArray_cell_wrap_0 *u
+ * Return Type  : const mxArray *
+ */
 static const mxArray *emlrt_marshallOut(const emxArray_cell_wrap_0 *u)
 {
   const mxArray *y;
@@ -206,6 +238,12 @@ static const mxArray *emlrt_marshallOut(const emxArray_cell_wrap_0 *u)
   return y;
 }
 
+/*
+ * Arguments    : emxArray__common *emxArray
+ *                int32_T oldNumel
+ *                uint32_T elementSize
+ * Return Type  : void
+ */
 static void emxEnsureCapacity(emxArray__common *emxArray, int32_T oldNumel,
   uint32_T elementSize)
 {
@@ -249,6 +287,11 @@ static void emxEnsureCapacity(emxArray__common *emxArray, int32_T oldNumel,
   }
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 *emxArray
+ *                int32_T oldNumel
+ * Return Type  : void
+ */
 static void emxEnsureCapacity_cell_wrap_0(emxArray_cell_wrap_0 *emxArray,
   int32_T oldNumel)
 {
@@ -302,6 +345,12 @@ static void emxEnsureCapacity_cell_wrap_0(emxArray_cell_wrap_0 *emxArray,
   }
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 *emxArray
+ *                int32_T fromIndex
+ *                int32_T toIndex
+ * Return Type  : void
+ */
 static void emxExpand_cell_wrap_0(emxArray_cell_wrap_0 *emxArray, int32_T
   fromIndex, int32_T toIndex)
 {
@@ -311,11 +360,19 @@ static void emxExpand_cell_wrap_0(emxArray_cell_wrap_0 *emxArray, int32_T
   }
 }
 
+/*
+ * Arguments    : cell_wrap_0 *pStruct
+ * Return Type  : void
+ */
 static void emxFreeStruct_cell_wrap_0(cell_wrap_0 *pStruct)
 {
   emxFree_real_T(&pStruct->f1);
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 **pEmxArray
+ * Return Type  : void
+ */
 static void emxFree_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray)
 {
   int32_T numEl;
@@ -342,6 +399,10 @@ static void emxFree_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T **pEmxArray
+ * Return Type  : void
+ */
 static void emxFree_real_T(emxArray_real_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_real_T *)NULL) {
@@ -355,11 +416,22 @@ static void emxFree_real_T(emxArray_real_T **pEmxArray)
   }
 }
 
+/*
+ * Arguments    : cell_wrap_0 *pStruct
+ *                boolean_T doPush
+ * Return Type  : void
+ */
 static void emxInitStruct_cell_wrap_0(cell_wrap_0 *pStruct, boolean_T doPush)
 {
   emxInit_real_T(&pStruct->f1, 2, doPush);
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 **pEmxArray
+ *                int32_T numDimensions
+ *                boolean_T doPush
+ * Return Type  : void
+ */
 static void emxInit_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray, int32_T
   numDimensions, boolean_T doPush)
 {
@@ -384,6 +456,12 @@ static void emxInit_cell_wrap_0(emxArray_cell_wrap_0 **pEmxArray, int32_T
   }
 }
 
+/*
+ * Arguments    : emxArray_real_T **pEmxArray
+ *                int32_T numDimensions
+ *                boolean_T doPush
+ * Return Type  : void
+ */
 static void emxInit_real_T(emxArray_real_T **pEmxArray, int32_T numDimensions,
   boolean_T doPush)
 {
@@ -407,6 +485,12 @@ static void emxInit_real_T(emxArray_real_T **pEmxArray, int32_T numDimensions,
   }
 }
 
+/*
+ * Arguments    : emxArray_cell_wrap_0 *emxArray
+ *                int32_T fromIndex
+ *                int32_T toIndex
+ * Return Type  : void
+ */
 static void emxTrim_cell_wrap_0(emxArray_cell_wrap_0 *emxArray, int32_T
   fromIndex, int32_T toIndex)
 {
@@ -416,6 +500,12 @@ static void emxTrim_cell_wrap_0(emxArray_cell_wrap_0 *emxArray, int32_T
   }
 }
 
+/*
+ * Arguments    : const mxArray *src
+ *                const emlrtMsgIdentifier *msgId
+ *                emxArray_real_T *ret
+ * Return Type  : void
+ */
 static void f_emlrt_marshallIn(const mxArray *src, const emlrtMsgIdentifier
   *msgId, emxArray_real_T *ret)
 {
@@ -435,6 +525,11 @@ static void f_emlrt_marshallIn(const mxArray *src, const emlrtMsgIdentifier
   emlrtDestroyArray(&src);
 }
 
+/*
+ * Arguments    : const mxArray *src
+ *                const emlrtMsgIdentifier *msgId
+ * Return Type  : real_T
+ */
 static real_T g_emlrt_marshallIn(const mxArray *src, const emlrtMsgIdentifier
   *msgId)
 {
@@ -447,6 +542,11 @@ static real_T g_emlrt_marshallIn(const mxArray *src, const emlrtMsgIdentifier
   return ret;
 }
 
+/*
+ * Arguments    : const mxArray * const prhs[2]
+ *                const mxArray *plhs[1]
+ * Return Type  : void
+ */
 void link_trajectories3D_api(const mxArray * const prhs[2], const mxArray *plhs
   [1])
 {
@@ -468,6 +568,10 @@ void link_trajectories3D_api(const mxArray * const prhs[2], const mxArray *plhs
   emlrtHeapReferenceStackLeaveFcnR2012b(emlrtRootTLSGlobal);
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void link_trajectories3D_atexit(void)
 {
   mexFunctionCreateRootTLS();
@@ -477,6 +581,10 @@ void link_trajectories3D_atexit(void)
   link_trajectories3D_xil_terminate();
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void link_trajectories3D_initialize(void)
 {
   mexFunctionCreateRootTLS();
@@ -485,10 +593,18 @@ void link_trajectories3D_initialize(void)
   emlrtFirstTimeR2012b(emlrtRootTLSGlobal);
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
 void link_trajectories3D_terminate(void)
 {
   emlrtLeaveRtStackR2012b(emlrtRootTLSGlobal);
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
 }
 
-/* End of code generation (_coder_link_trajectories3D_api.c) */
+/*
+ * File trailer for _coder_link_trajectories3D_api.c
+ *
+ * [EOF]
+ */

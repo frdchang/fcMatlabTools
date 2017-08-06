@@ -2,11 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: rt_nonfinite.h
  *
- * rt_nonfinite.h
- *
- * Code generation for function 'link_trajectories3D'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef RT_NONFINITE_H
@@ -52,4 +51,8 @@ typedef struct {
 
 #endif
 
-/* End of code generation (rt_nonfinite.h) */
+/*
+ * File trailer for rt_nonfinite.h
+ *
+ * [EOF]
+ */

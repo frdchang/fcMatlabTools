@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: _coder_link_trajectories3D_mex.c
  *
- * _coder_link_trajectories3D_mex.c
- *
- * Code generation for function '_coder_link_trajectories3D_mex'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "_coder_link_trajectories3D_api.h"
 #include "_coder_link_trajectories3D_mex.h"
 
@@ -18,6 +17,14 @@ static void link_trajectories3D_mexFunction(int32_T nlhs, mxArray *plhs[1],
   int32_T nrhs, const mxArray *prhs[2]);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : int32_T nlhs
+ *                const mxArray *plhs[1]
+ *                int32_T nrhs
+ *                const mxArray *prhs[2]
+ * Return Type  : void
+ */
 static void link_trajectories3D_mexFunction(int32_T nlhs, mxArray *plhs[1],
   int32_T nrhs, const mxArray *prhs[2])
 {
@@ -59,6 +66,13 @@ static void link_trajectories3D_mexFunction(int32_T nlhs, mxArray *plhs[1],
   link_trajectories3D_terminate();
 }
 
+/*
+ * Arguments    : int32_T nlhs
+ *                const mxArray * const plhs[]
+ *                int32_T nrhs
+ *                const mxArray * const prhs[]
+ * Return Type  : void
+ */
 void mexFunction(int32_T nlhs, mxArray *plhs[], int32_T nrhs, const mxArray
                  *prhs[])
 {
@@ -72,10 +86,18 @@ void mexFunction(int32_T nlhs, mxArray *plhs[], int32_T nrhs, const mxArray
   link_trajectories3D_mexFunction(nlhs, plhs, nrhs, prhs);
 }
 
+/*
+ * Arguments    : void
+ * Return Type  : emlrtCTX
+ */
 emlrtCTX mexFunctionCreateRootTLS(void)
 {
   emlrtCreateRootTLS(&emlrtRootTLSGlobal, &emlrtContextGlobal, NULL, 1);
   return emlrtRootTLSGlobal;
 }
 
-/* End of code generation (_coder_link_trajectories3D_mex.c) */
+/*
+ * File trailer for _coder_link_trajectories3D_mex.c
+ *
+ * [EOF]
+ */

@@ -2,14 +2,13 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: eml_setop.c
  *
- * eml_setop.c
- *
- * Code generation for function 'eml_setop'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "eml_setop.h"
@@ -19,6 +18,12 @@
 static double skip_to_last_equal_value(int *k, const emxArray_real_T *x);
 
 /* Function Definitions */
+
+/*
+ * Arguments    : int *k
+ *                const emxArray_real_T *x
+ * Return Type  : double
+ */
 static double skip_to_last_equal_value(int *k, const emxArray_real_T *x)
 {
   double xk;
@@ -48,6 +53,14 @@ static double skip_to_last_equal_value(int *k, const emxArray_real_T *x)
   return xk;
 }
 
+/*
+ * Arguments    : const emxArray_real_T *a
+ *                const emxArray_real_T *b
+ *                emxArray_real_T *c
+ *                emxArray_int32_T *ia
+ *                emxArray_int32_T *ib
+ * Return Type  : void
+ */
 void b_do_vectors(const emxArray_real_T *a, const emxArray_real_T *b,
                   emxArray_real_T *c, emxArray_int32_T *ia, emxArray_int32_T *ib)
 {
@@ -192,6 +205,14 @@ void b_do_vectors(const emxArray_real_T *a, const emxArray_real_T *b,
   }
 }
 
+/*
+ * Arguments    : const emxArray_real_T *a
+ *                const emxArray_real_T *b
+ *                emxArray_real_T *c
+ *                emxArray_int32_T *ia
+ *                emxArray_int32_T *ib
+ * Return Type  : void
+ */
 void do_vectors(const emxArray_real_T *a, const emxArray_real_T *b,
                 emxArray_real_T *c, emxArray_int32_T *ia, emxArray_int32_T *ib)
 {
@@ -373,4 +394,8 @@ void do_vectors(const emxArray_real_T *a, const emxArray_real_T *b,
   }
 }
 
-/* End of code generation (eml_setop.c) */
+/*
+ * File trailer for eml_setop.c
+ *
+ * [EOF]
+ */

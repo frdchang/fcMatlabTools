@@ -2,19 +2,23 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: ifWhileCond.c
  *
- * ifWhileCond.c
- *
- * Code generation for function 'ifWhileCond'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
-/* Include files */
+/* Include Files */
 #include "rt_nonfinite.h"
 #include "link_trajectories3D.h"
 #include "ifWhileCond.h"
 
 /* Function Definitions */
+
+/*
+ * Arguments    : const emxArray_boolean_T *x
+ * Return Type  : boolean_T
+ */
 boolean_T ifWhileCond(const emxArray_boolean_T *x)
 {
   boolean_T y;
@@ -37,4 +41,8 @@ boolean_T ifWhileCond(const emxArray_boolean_T *x)
   return y;
 }
 
-/* End of code generation (ifWhileCond.c) */
+/*
+ * File trailer for ifWhileCond.c
+ *
+ * [EOF]
+ */

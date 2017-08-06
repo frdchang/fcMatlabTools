@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: eml_setop.h
  *
- * eml_setop.h
- *
- * Code generation for function 'eml_setop'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 #ifndef EML_SETOP_H
 #define EML_SETOP_H
 
-/* Include files */
+/* Include Files */
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -29,4 +28,8 @@ extern void do_vectors(const emxArray_real_T *a, const emxArray_real_T *b,
 
 #endif
 
-/* End of code generation (eml_setop.h) */
+/*
+ * File trailer for eml_setop.h
+ *
+ * [EOF]
+ */

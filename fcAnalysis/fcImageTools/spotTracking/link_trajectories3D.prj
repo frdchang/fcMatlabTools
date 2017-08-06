@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2016a">
-  <configuration build-checksum="3666782030" file="/Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.prj" location="/Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking" name="link_trajectories3D" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="399034498" file="/home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.prj" location="/home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking" name="link_trajectories3D" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
       <param.BuiltInstrumentedMex />
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
@@ -52,7 +52,7 @@
       <param.EnableOpenMP>true</param.EnableOpenMP>
       <param.InitFltsAndDblsToZero>true</param.InitFltsAndDblsToZero>
       <param.ConstantInputs />
-      <param.EnableCRICodeCoverage />
+      <param.EnableCRICodeCoverage>true</param.EnableCRICodeCoverage>
       <param.EnableJIT>false</param.EnableJIT>
       <param.EnableJITSilentBailOut />
       <param.CheckForIssuesJIT />
@@ -252,7 +252,7 @@
       <param.InitFltsAndDblsToZero>true</param.InitFltsAndDblsToZero>
       <param.PassStructByReference>true</param.PassStructByReference>
       <param.CustomLAPACKCallback />
-      <param.UseECoderFeatures>false</param.UseECoderFeatures>
+      <param.UseECoderFeatures>true</param.UseECoderFeatures>
       <unset>
         <param.WorkingFolder />
         <param.SpecifiedWorkingFolder />
@@ -732,7 +732,7 @@
     <param.UseGlobals>option.UseGlobals.No</param.UseGlobals>
     <param.outputfile>${PROJECT_ROOT}/codegen/lib/link_trajectories3D/link_trajectories3D.a</param.outputfile>
     <param.version>R2012a</param.version>
-    <param.HasECoderFeatures>false</param.HasECoderFeatures>
+    <param.HasECoderFeatures>true</param.HasECoderFeatures>
     <param.HasGpuCoder>true</param.HasGpuCoder>
     <param.mex.mainhtml />
     <param.grt.mainhtml />
@@ -753,13 +753,13 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen/lib/link_trajectories3D</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>2733287088</var.gc.preBuildChecksum>
+    <var.gc.preBuildChecksum>518684056</var.gc.preBuildChecksum>
     <var.cfi.lastOutputRoot>codegen/mex/link_trajectories3D</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>3085557304</var.cfi.preBuildChecksum>
+    <var.cfi.preBuildChecksum>2992819085</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>link_trajectories3D(peaks,10);</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;/Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;1047921662&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
-    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;/Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;/home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;3278224142&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;/home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/link_trajectories3D.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.configImportActive>false</param.configImportActive>
     <var.boundToGui>true</var.boundToGui>
@@ -933,33 +933,45 @@
       </file>
     </fileset.inputtypes>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}/codegen/lib/link_trajectories3D" name="link_trajectories3D.a" optional="false">/Users/fchang/Documents/MATLAB/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/codegen/lib/link_trajectories3D/link_trajectories3D.a</file>
+      <file location="${PROJECT_ROOT}/codegen/lib/link_trajectories3D" name="link_trajectories3D.a" optional="false">/home/fchang/Dropbox/code/Matlab/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/codegen/lib/link_trajectories3D/link_trajectories3D.a</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>/Applications/MATLAB_R2017a.app</root>
+      <root>/usr/local/MATLAB/R2017a</root>
       <toolboxes>
+        <toolbox name="fixedpoint" />
         <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
       </toolboxes>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
       <toolbox>
         <matlabcoder>
           <enabled>true</enabled>
         </matlabcoder>
       </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
     </matlab>
     <platform>
       <unix>true</unix>
-      <mac>true</mac>
+      <mac>false</mac>
       <windows>false</windows>
       <win2k>false</win2k>
       <winxp>false</winxp>
       <vista>false</vista>
-      <linux>false</linux>
+      <linux>true</linux>
       <solaris>false</solaris>
-      <osver>10.12.6</osver>
+      <osver>4.4.0-89-generic</osver>
       <os32>false</os32>
       <os64>true</os64>
-      <arch>maci64</arch>
+      <arch>glnxa64</arch>
       <matlab>true</matlab>
     </platform>
   </configuration>

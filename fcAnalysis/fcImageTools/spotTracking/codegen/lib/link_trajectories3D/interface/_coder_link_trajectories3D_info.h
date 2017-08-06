@@ -1,25 +1,28 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- *
- * _coder_link_trajectories3D_info.h
- *
- * Code generation for function 'link_trajectories3D'
- *
+/* 
+ * Academic License - for use in teaching, academic research, and meeting 
+ * course requirements at degree granting institutions only.  Not for 
+ * government, commercial, or other organizational use. 
+ * File: _coder_link_trajectories3D_info.h 
+ *  
+ * MATLAB Coder version            : 3.3 
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30 
  */
 
 #ifndef _CODER_LINK_TRAJECTORIES3D_INFO_H
 #define _CODER_LINK_TRAJECTORIES3D_INFO_H
-/* Include files */
+/* Include Files */ 
 #include "tmwtypes.h"
 #include "mex.h"
 #include "emlrt.h"
 
 
-/* Function Declarations */
+/* Function Declarations */ 
 extern const mxArray *emlrtMexFcnResolvedFunctionsInfo(void);
 MEXFUNCTION_LINKAGE mxArray *emlrtMexFcnProperties(void);
 
 #endif
-/* End of code generation (_coder_link_trajectories3D_info.h) */
+/* 
+ * File trailer for _coder_link_trajectories3D_info.h 
+ *  
+ * [EOF] 
+ */

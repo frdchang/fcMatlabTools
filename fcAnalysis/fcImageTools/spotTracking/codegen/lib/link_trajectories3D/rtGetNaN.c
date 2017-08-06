@@ -2,11 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
+ * File: rtGetNaN.c
  *
- * rtGetNaN.c
- *
- * Code generation for function 'link_trajectories3D'
- *
+ * MATLAB Coder version            : 3.3
+ * C/C++ source code generated on  : 06-Aug-2017 13:49:30
  */
 
 /*
@@ -96,4 +95,8 @@ real32_T rtGetNaNF(void)
   return nanF.wordL.wordLreal;
 }
 
-/* End of code generation (rtGetNaN.c) */
+/*
+ * File trailer for rtGetNaN.c
+ *
+ * [EOF]
+ */
