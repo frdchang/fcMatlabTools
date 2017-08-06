@@ -51,15 +51,14 @@ eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',t
 eC_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
-ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons);
-
+%ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons);
 
 %-----USER-----------------------------------------------------------------
 spotThresholds        = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
+
+trackedSpots          = procSpotTracking(ec_T_stageIIOutputs,'searchDist',5,'spotthresh',spotThresholds.thresholds);
 ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons,'spotthresh',spotThresholds.thresholds);
-
-
 toc
 
 
