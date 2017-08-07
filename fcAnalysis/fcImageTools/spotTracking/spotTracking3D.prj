@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2016a">
-  <configuration file="/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/helper/link_trajectories3D.prj" location="/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/helper" name="link_trajectories3D" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration file="/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/spotTracking3D.prj" location="/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking" name="spotTracking3D" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
       <param.BuiltInstrumentedMex />
       <param.RanInstrumentedMex />
@@ -725,7 +725,9 @@
     </profile>
     <param.objective>option.objective.c</param.objective>
     <param.WorkflowStep>inputTypes</param.WorkflowStep>
-    <param.TestSnippets />
+    <param.TestSnippets>
+      <item>link_trajectories3D(peaks,10)</item>
+    </param.TestSnippets>
     <param.DefaultImportExportVariable />
     <param.RowMajor />
     <param.HighlightPotentialRowMajorIssues />
@@ -739,10 +741,10 @@
     <param.grt.mainhtml />
     <param.CallGeneratedCodeFromTest />
     <param.AutoInferDefaultFile />
-    <param.AutoInferUseVariableSize />
-    <param.AutoInferUseUnboundedSize />
-    <param.AutoInferVariableSizeThreshold />
-    <param.AutoInferUnboundedSizeThreshold />
+    <param.AutoInferUseVariableSize>false</param.AutoInferUseVariableSize>
+    <param.AutoInferUseUnboundedSize>false</param.AutoInferUseUnboundedSize>
+    <param.AutoInferVariableSizeThreshold>1024</param.AutoInferVariableSizeThreshold>
+    <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep />
     <param.EnableScreener>true</param.EnableScreener>
     <param.AnnotationChecksum />
@@ -815,7 +817,6 @@
     <param.FixedPointUseDesignRanges />
     <unset>
       <param.objective />
-      <param.TestSnippets />
       <param.DefaultImportExportVariable />
       <param.RowMajor />
       <param.HighlightPotentialRowMajorIssues />
@@ -899,14 +900,64 @@
       <param.FixedPointUseDesignRanges />
     </unset>
     <fileset.entrypoints>
-      <file custom-data-expanded="false" value="${PROJECT_ROOT}/link_trajectories3D.m" />
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}/helper/link_trajectories3D.m">
+        <Marker>1502119946212</Marker>
+      </file>
     </fileset.entrypoints>
     <fileset.testbench />
     <fileset.inputtypes>
-      <file>${PROJECT_ROOT}/link_trajectories3D.m</file>
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}/helper/link_trajectories3D.m">
+        <Inputs fileName="link_trajectories3D.m" functionName="link_trajectories3D">
+          <Input Name="peaks" typeId="0">
+            <Field Name="{1, 1}" typeId="1" />
+            <Field Name="{1, 2}" typeId="1" />
+            <Field Name="{1, 3}" typeId="2" />
+            <Field Name="{1, 4}" typeId="2" />
+          </Input>
+          <Input Name="L" typeId="3" />
+          <idpTable>
+            <type typeId="0">
+              <Class>cell</Class>
+              <Size>1 x 4</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <TypeName />
+              <Extern>false</Extern>
+              <HeaderFile />
+              <Alignment>-1</Alignment>
+              <Homogeneous>false</Homogeneous>
+            </type>
+            <type typeId="1">
+              <Class>double</Class>
+              <Size>4 x 6</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <Complex>false</Complex>
+            </type>
+            <type typeId="2">
+              <Class>double</Class>
+              <Size>3 x 6</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <Complex>false</Complex>
+            </type>
+            <type typeId="3">
+              <Class>double</Class>
+              <Size>1 x 1</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <Complex>false</Complex>
+            </type>
+          </idpTable>
+        </Inputs>
+      </file>
     </fileset.inputtypes>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}/codegen/lib/link_trajectories3D" name="link_trajectories3D.a" optional="false">/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/helper/codegen/lib/link_trajectories3D/link_trajectories3D.a</file>
+      <file location="${PROJECT_ROOT}/codegen/lib/link_trajectories3D" name="link_trajectories3D.a" optional="false">/Users/frederickchang/Documents/fcMatlabTools/fcAnalysis/fcImageTools/spotTracking/codegen/lib/link_trajectories3D/link_trajectories3D.a</file>
     </build-deliverables>
     <workflow />
     <matlab>
