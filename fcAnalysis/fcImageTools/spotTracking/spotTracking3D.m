@@ -34,7 +34,7 @@ for ii = 1:numTimePoints
                if ~isempty(spotXYZs{kk})
                    spotsAtT  = spotXYZs{kk};
                    for ll = 1:numel(spotsAtT)
-                       makePeakSpot = [spotsAtT{ll} 0 -1]';
+                       makePeakSpot = [spotsAtT{ll} -1]';
                        peaksPerChan{kk}{ii}{end+1} = makePeakSpot;
                    end
                else
