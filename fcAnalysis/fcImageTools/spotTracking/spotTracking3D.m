@@ -58,7 +58,7 @@ for ii = 1:numChans
 end
 
 [trackers,energies] = cellfun(@(x) link_trajectories3D(x,params.searchDist),peaksPerChan,'uni',false);
-tracked = extractTrajs(trackers);
+tracked = cellfun(@(trackers) extractTrajs(trackers),trackers,'uni',false);
 end
 
 
