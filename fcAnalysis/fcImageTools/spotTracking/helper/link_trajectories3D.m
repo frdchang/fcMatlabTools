@@ -41,7 +41,7 @@
 % STEP 5: Linking locations into trajectories
 %======================================================================
 
-function peaks = link_trajectories3D(peaks, L)
+function [peaks,energies] = link_trajectories3D(peaks, L)
 
 nframe = length(peaks);
 
@@ -117,7 +117,10 @@ for iframe = 2:nframe
         find(s(1:m)~=1)
     end
     
-    
+%     hold on
+% 	hist(reshape(delta+dm0+dm2,m*n,1),100)
+% 	xlabel('inter-particle cost distance');
+%     
     % iteration loop for the logistic transportation algorithm
     finished = 0;
 
@@ -179,4 +182,5 @@ end
 % terminate all linked lists at the very end
 peaks{nframe}(:,6) = -1;
 
+energies = delta+dm0+dm2;
 return;

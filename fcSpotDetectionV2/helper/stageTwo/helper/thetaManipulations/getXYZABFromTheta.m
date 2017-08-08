@@ -8,7 +8,7 @@ cellOfBkgndsNonFlattened = cellfunNonUniformOutput(@getBkgnds,theta0);
 
 for ii = 1:numel(cellofSpotCoorsNonFlattened)
     if ~isempty( cellofSpotCoorsNonFlattened{ii})
-        cellofSpotCoorsNonFlattened{ii} = cellfunNonUniformOutput(@(x)[x cellOfBkgndsNonFlattened{ii}{1}],cellofSpotCoorsNonFlattened{ii});;
+        cellofSpotCoorsNonFlattened{ii} = cellfunNonUniformOutput(@(x)[x cellOfBkgndsNonFlattened{ii}{1}],cellofSpotCoorsNonFlattened{ii});
     end
 end
 

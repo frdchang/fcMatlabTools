@@ -1,6 +1,10 @@
 function [ tracked ] = spotTracking3D(listOfSpotMLEs,varargin)
 %SPOTTRACKING3D listOFSpotsMLEs, first dimension is timepoint, second
 %dimension is the spot number and the struct is the localization
+% for future note: i can extract the variance of the estimator and have it
+% outputed for the tracks.  so the tracked datastructure should already be
+% so it can gracefully have this info appended ot it.
+% 
 
 %--parameters--------------------------------------------------------------
 params.noSpotCoorVal     = -100;
@@ -53,7 +57,8 @@ for ii = 1:numChans
     end
 end
 
-trackers = cellfunNonUniformOutput(@(x) link_trajectories3D(x,params.searchDist),peaksPerChan);
+[trackers,energies] = cellfun(@(x) link_trajectories3D(x,params.searchDist),peaksPerChan,'uni',false);
+tracked = extractTrajs(trackers);
 end
 
 
