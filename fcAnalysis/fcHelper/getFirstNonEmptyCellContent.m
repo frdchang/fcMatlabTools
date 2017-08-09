@@ -4,6 +4,10 @@ function firstNonEmptyContent = getFirstNonEmptyCellContent(cellArray)
 
 firstNonEmptyIndex = find(cellfun(@isempty,cellArray)==0,1,'first');
 
+if isempty(firstNonEmptyIndex)
+    firstNonEmptyContent = [];
+    return;
+end
 firstNonEmptyContent = cellArray{firstNonEmptyIndex};
 
 end

@@ -16,7 +16,7 @@ for t=2:nframe
     end
     
     % append left overs
-    leftOverIdx = find(peaks{t}(:,7)<0);
+    leftOverIdx = setdiff(1:numel(peaks{t}(:,7)),nextidx);
     for ii = 1:numel(leftOverIdx)
        tracked{end+1} = peaks{t}(leftOverIdx(ii),:); 
     end
