@@ -1,4 +1,4 @@
-function fullMontage = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
+function [fullMontage,tableOfOutputs] = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
 %MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
 % phasePath can be empty if not needed
 %--parameters--------------------------------------------------------------
@@ -47,9 +47,13 @@ rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
 % generate spotkymos
 spotKymos  = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor,varargin{:});
 
-% generate views
+% generate views (sampled)
 phaseViews = buildView(phasePaths,upRezFactor);
 fluorViews = buildView(fluorPaths,upRezFactor);
+
+% generate all timepoint views
+phaseAllViews = buildView(phasePaths,upRezFactor,numSeq);
+fluorAllViews = buildView(fluorPaths,upRezFactor,numSeq);
 
 % generate spotviews
 spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor,varargin{:});
@@ -67,12 +71,17 @@ phaseKymos = phaseKymos{1}{1};
 if numel(fluorViews) > 1
     coloredFluorViews = genRGBFromCell(fluorViews);
     coloredFluorKymos = genRGBFromCell(fluorKymos);
-    assembled = {phaseViews,phaseKymos,coloredFluorViews,coloredFluorKymos,fluorKymosWithSpots};
+    assembled = {phaseViews,phaseKymos,coloredFluorViews,fluorViewsWithSpots,coloredFluorKymos,fluorKymosWithSpots};
 else
-    assembled = {phaseViews,phaseKymos,fluorfluorViewsWithSpots,fluorKymosWithSpots};
+    assembled = {phaseViews,phaseKymos,fluorViews,fluorfluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
 end
 
+individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','fullMontage'};
 fullMontage = genMontage(assembled);
+assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,fullMontage};
+assembled = convertListToListofArguments(assembled);
+
+tableOfOutputs = table(assembled{:},'VariableNames',individualImgsNames);
 end
 
 function x = removeSecondElement(x)

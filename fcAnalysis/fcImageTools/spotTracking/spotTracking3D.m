@@ -32,7 +32,7 @@ for ii = 1:numTimePoints
        numSpots = numel(spotList);
        for jj = 1:numSpots
            currSpot = spotList{jj};
-           spotSelected  = spotSelectorByThresh( currSpot,params);
+           spotSelected  = spotSelectorByThresh(currSpot,params);
            spotXYZs = getXYZABFromTheta(spotSelected.thetaMLEs);
            for kk = 1:numel(spotXYZs)
                if ~isempty(spotXYZs{kk})
@@ -59,6 +59,16 @@ end
 
 [trackers,energies] = cellfun(@(x) link_trajectories3D(x,params.searchDist),peaksPerChan,'uni',false);
 tracked = cellfun(@(trackers) extractTrajs(trackers),trackers,'uni',false);
+tracked = cellfunNonUniformOutput(@(x) removeEmptyCoor(x,emptyCoor),tracked);
 end
 
+function trackers  = removeEmptyCoor(trackers,emptyCoor)
+trackers = cellfunNonUniformOutput(@(x) removeHelper(x,emptyCoor),trackers);
+trackers = removeEmptyCells(trackers);
+end
+
+function aTrack = removeHelper(aTrack,emptyCoor)
+idx = ismember(aTrack(:,2:6),emptyCoor(1:5)','rows');
+aTrack(idx,:) = [];
+end
 

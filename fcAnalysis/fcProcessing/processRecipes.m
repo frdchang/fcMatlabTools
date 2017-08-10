@@ -1,6 +1,6 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 % expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
-tic;camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 expFolder = '~/Desktop/fcDataStorage/20160201-test-adf';
 % expFolder = '~/Desktop/fcDataStorage/20150adsf';
 % expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
@@ -51,15 +51,14 @@ eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',t
 eC_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
 
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
-%ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons);
 
 %-----USER-----------------------------------------------------------------
 spotThresholds        = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
 trackedSpots          = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',spotThresholds.thresholds);
-ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'units',specimenUnitsInMicrons,'spotthresh',spotThresholds.thresholds);
-toc
+ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
+analyzedTracks        = pocAnalyzeTracks(ec_T_3Dviz,trackedSpots);
 
 
 %% build modules

@@ -5,10 +5,12 @@ function [ output ] = saveToProcessed_make3DViz_Seq(  listOfFileInputPaths,funcO
 firstFiles = calcConsensusString(flattenCellArray(listOfFileInputPaths{1}));
 saveProcessedFileAt = genProcessedFileName(firstFiles,myFunc,'paramHash',funcParamHash);
 
-saveProcessedFileAt = [saveProcessedFileAt '.tif'];
-makeDIRforFilename(saveProcessedFileAt);
-imwrite(funcOutput{1},saveProcessedFileAt);
+fullMontageFilePath = [saveProcessedFileAt '.tif'];
+makeDIRforFilename(fullMontageFilePath);
+imwrite(funcOutput{1},fullMontageFilePath);
 
-output = table({saveProcessedFileAt},'VariableNames',{'montage'});
+matFilePath = [saveProcessedFileAt '.mat'];
+saveWithName(funcOutput{2},matFilePath,'montagePieces');
+output = table({fullMontageFilePath},{matFilePath},'VariableNames',{'montage','montagePiecesMat'});
 end
 
