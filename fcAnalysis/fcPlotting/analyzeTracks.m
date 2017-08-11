@@ -17,5 +17,10 @@ vizPieces = load(vizPieces);
 vizPieces = vizPieces.montagePieces;
 
 myTracks = buildTrackSpots(vizPieces.numSeq{1},tracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
+myDists  = getTrackDists(tracks);
+plotDists = plotTrackDists(myDists);
+[As,Bs]  = getTrackAsBs(tracks);
+[plotAs] = plotRasterPlot(plotAs,time);
+[plotBs = plotRasterPlot(plotBs,time);
 end
 

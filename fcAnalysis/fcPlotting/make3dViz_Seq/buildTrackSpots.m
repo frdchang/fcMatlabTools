@@ -31,7 +31,7 @@ for ii = 1:numChans
              A         = currTrack(t,5);
              B         = currTrack(t,6);
              currSpotImg = jj*genSpotIMG(xyz,sizeDatas,upRezFactor);
-             if isempty( trackedSpots{ii}{t})
+             if isempty(trackedSpots{ii}{timepoint})
                   trackedSpots{ii}{timepoint} = currSpotImg;
              else
                   trackedSpots{ii}{timepoint} = trackedSpots{ii}{timepoint}+currSpotImg;
