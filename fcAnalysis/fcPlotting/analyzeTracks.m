@@ -15,5 +15,7 @@ numChans = numel(tracks);
 
 vizPieces = load(vizPieces);
 vizPieces = vizPieces.montagePieces;
+
+myTracks = buildTrackSpots(vizPieces.numSeq{1},tracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
 end
 

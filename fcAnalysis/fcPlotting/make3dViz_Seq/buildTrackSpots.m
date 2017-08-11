@@ -1,4 +1,4 @@
-function [ spotKymos ] = buildTrackSpots(tracks,fluorKymos,sizeDatas,upRezFactor )
+function [ trackedSpots ] = buildTrackSpots(numSeq,tracks,sizeDatas,upRezFactor)
 %BUILDTRACKSPOTS Summary of this function goes heres
 %   Detailed explanation goes here
 
@@ -9,39 +9,39 @@ function [ spotKymos ] = buildTrackSpots(tracks,fluorKymos,sizeDatas,upRezFactor
 
 
 if all(cellfun(@isempty,tracks))
-    spotKymos = [];
+    trackedSpots = [];
     return;
 end
 
-spotKymos = ncellfun(@(x) zeros(size(x)),fluorKymos);
+% gen individual tracks
+numChans = numel(tracks);
 
-for ii = 1:numSeq
-    if ~isempty(spotParamsPaths{ii})
-        % for each spot
-        numSpots = 0;
-        for jj = 1:numel(spotParamsPaths{ii})
-            currSpot = spotParamsPaths{ii}{jj};
-            selectedSpot = spotSelectorByThresh(currSpot,varargin{:});
-            
-            selectedMLESingleSpot = selectedSpot.thetaMLEs;
-            
-            [~,singleSpotTheta,~] =  getSpotCoorsFromTheta(selectedMLESingleSpot);
-            numSpots = numSpots + sum(~cellfun(@isempty,singleSpotTheta));
-            currStacks   = cellfunNonUniformOutput(@(x) genSpotIMG(x,sizeDatas,upRezFactor),singleSpotTheta);
-            for kk = 1:numel(currStacks)
-                currStackXY = max(currStacks{kk},[],3);
-                currStackZ  = max(max(currStacks{kk},[],1),[],2);
-                spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)+max(currStackXY,[],2);
-                spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)+max(currStackXY,[],1)';
-                spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)+currStackZ(:);
-            end
-        end
-        % index the color by numspots
-        spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
-        spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
-        spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;   
-    end
+timeLapse = cell(numSeq,1);
+trackedSpots = cell(numChans,1);
+[trackedSpots{:}] = deal(timeLapse);
+for ii = 1:numChans
+   currChan = tracks{ii};
+   if ~isempty(currChan)
+      numTracks = numel(currChan); 
+      for jj = 1:numTracks
+         currTrack = currChan{jj};
+         for t = 1: size(currTrack,1)
+             timepoint = currTrack(t,1);
+             xyz       = currTrack(t,2:4);
+             A         = currTrack(t,5);
+             B         = currTrack(t,6);
+             currSpotImg = jj*genSpotIMG(xyz,sizeDatas,upRezFactor);
+             if isempty( trackedSpots{ii}{t})
+                  trackedSpots{ii}{timepoint} = currSpotImg;
+             else
+                  trackedSpots{ii}{timepoint} = trackedSpots{ii}{timepoint}+currSpotImg;
+             end
+         end
+      end
+   end
 end
+
+% gen global tracks 
 
 end
 
