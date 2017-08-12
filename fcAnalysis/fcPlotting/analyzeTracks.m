@@ -8,6 +8,7 @@ function [ output ] = analyzeTracks(vizPieces,tracks,varargin)
 
 %--parameters--------------------------------------------------------------
 params.doProcParallel     = false;
+params.minTrackLength     = 2;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -16,11 +17,13 @@ numChans = numel(tracks);
 vizPieces = load(vizPieces);
 vizPieces = vizPieces.montagePieces;
 
+tracks = filterTrackByLength(tracks,params.minTrackLength);
+
 myTracks = buildTrackSpots(vizPieces.numSeq{1},tracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
 myDists  = getTrackDists(tracks);
-plotDists = plotTrackDists(myDists);
-[As,Bs]  = getTrackAsBs(tracks);
-[plotAs] = plotRasterPlot(plotAs,time);
-[plotBs = plotRasterPlot(plotBs,time);
+% plotDists = plotTrackDists(myDists);
+% [As,Bs]  = getTrackAsBs(tracks);
+% [plotAs] = plotRasterPlot(plotAs,time);
+% [plotBs = plotRasterPlot(plotBs,time);
 end
 

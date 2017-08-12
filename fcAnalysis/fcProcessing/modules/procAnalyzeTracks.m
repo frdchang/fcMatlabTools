@@ -1,4 +1,4 @@
-function [ analyzedTracks ] = pocAnalyzeTracks(ec_T_3Dviz,trackedSpots,varargin)
+function [ analyzedTracks ] = procAnalyzeTracks(ec_T_3Dviz,trackedSpots,varargin)
 %POCANALYZETRACKS Summary of this function goes here
 %   Detailed explanation goes here
 
