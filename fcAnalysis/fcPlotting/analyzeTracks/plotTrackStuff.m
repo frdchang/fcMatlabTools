@@ -27,6 +27,7 @@ for ii = 1:numStuff
      Ibackground=bitmapplot(upRezVert*trackStuff{ii}.d,trackStuff{ii}.t,Ibackground,options);
 end
 Ibackground = flipud(Ibackground);
-Ibackground = vertcat(Ibackground,255*ones(1,size(Ibackground,2),3));
+Ibackground = vertcat(Ibackground,ones(1,size(Ibackground,2),3));
+Ibackground = norm2UINT255(Ibackground);
 end
 
