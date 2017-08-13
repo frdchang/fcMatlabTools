@@ -3,6 +3,9 @@ function maxRGBmarked = maxintensityproj4RGB(rgbDataWmarkers,direction)
 %colored markers, the max projection needs to be handled carefully.  the
 %image is 2d.
 sizeData = size(rgbDataWmarkers);
+if numel(sizeData) == 2
+   rgbDataWmarkers = repmat(rgbDataWmarkers,1,1,3); 
+end
 colors = {[1 0 0]',[0 1 0]',[0 0 1]'};
 rgbVals = reshape(permute(rgbDataWmarkers,[3 1 2]),3,numel(rgbDataWmarkers)/3);
 maxVal = double(max(rgbDataWmarkers(:)));

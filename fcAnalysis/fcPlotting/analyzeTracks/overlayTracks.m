@@ -4,6 +4,9 @@ function [ overlayed ] = overlayTracks( fluorViews,spotTracks )
 
 numTimePoints = size(fluorViews,2);
 overlayed = fluorViews;
+if isempty(spotTracks)
+   return; 
+end
 for ii = 1:numTimePoints
     if ~isempty(spotTracks{ii})
             currViews = fluorViews(:,ii);

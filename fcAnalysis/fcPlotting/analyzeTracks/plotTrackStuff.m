@@ -2,7 +2,7 @@ function [ Ibackground ] = plotTrackStuff( trackStuff,numSeq,varargin)
 %PLOTTRACKSTUFF Summary of this function goes here
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
-params.upRezVert        = 2;
+params.upRezVert        = 4;
 params.upRezHorz        = 1;
 params.trackStuffAlpha  = 0.75;
 %--------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Ibackground = zeros(round(upRezVert*maxVals),numSeq,3);
 options.LineWidth = 1;
 for ii = 1:numStuff
      options.Color = [myMap(ii,:) alpha];
-     Ibackground=bitmapplot(upRezVert*trackStuff{ii}.d,trackStuff{ii}.t,Ibackground,options);
+     Ibackground=bitmapplot(upRezVert*trackStuff{ii}.d,trackStuff{ii}.t*upRezHorz,Ibackground,options);
 end
 Ibackground = flipud(Ibackground);
 Ibackground = vertcat(Ibackground,ones(1,size(Ibackground,2),3));

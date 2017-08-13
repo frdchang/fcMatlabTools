@@ -14,7 +14,7 @@ cellOfData = flattenCellArray(cellOfData);
 sizeDatas  = cellfunNonUniformOutput(@size,cellOfData);
 xSize = max(cellfun(@(x) x(1),sizeDatas));
 ySize = max(cellfun(@(x) x(2),sizeDatas));
-temp = ones(xSize,ySize,3);
+
 tempBorder = params.borderColor*ones(params.border,ySize,3);
 numDatas = numel(cellOfData);
 

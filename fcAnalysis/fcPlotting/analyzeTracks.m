@@ -1,8 +1,8 @@
-function [ output ] = analyzeTracks(raws,vizPieces,tracks,varargin)
+function [ fullMontage,As,Bs,trackDists,overlayedTracks] = analyzeTracks(raws,vizPieces,tracks,varargin)
 %ANALYZETRACKS Summary of this function goes here
 %   Detailed explanation goes here
 % make view tracks, alpha = 0.5 for timepoints not progressed yet
-% make kymo tracks, 
+% make kymo tracks,
 % calc various things
 
 %--parameters--------------------------------------------------------------
@@ -26,10 +26,15 @@ BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:});
 distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:});
 
 allFluorViews = vizPieces.fluorAllViews{1};
-overlayedTracks = cellfunNonUniformOutput(@(x,y)overlayTracks(x,y),allFluorViews,myTracks);
 
+if ~isempty(myTracks)
+    overlayedTracks = cellfunNonUniformOutput(@(x,y)overlayTracks(x,y),allFluorViews,myTracks);
+    
+else
+    overlayedTracks = allFluorViews;
+end
 trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
 
-
+fullMontage = genMontage({AsPlot,BsPlot,distPlot,trackKymos{:}});
 end
 

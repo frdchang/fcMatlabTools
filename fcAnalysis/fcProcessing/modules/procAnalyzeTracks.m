@@ -14,9 +14,9 @@ raws= convertA1sToGlued(raws);
 
 kymoPiecesTracks = glueCells(raws,kymoPieces,tracks);
 
-analyzedTracks   = applyFuncTo_listOfListOfArguments(kymoPiecesTracks,@openData_passThru,{},@analyzeTracks,{varargin{:}},@saveToProcessed_make3DViz_Seq,{},'doParallel',params.doProcParallel);
+analyzedTracks   = applyFuncTo_listOfListOfArguments(kymoPiecesTracks,@openData_passThru,{},@analyzeTracks,{varargin{:}},@saveToProcessed_analyzeTracks,{},'doParallel',params.doProcParallel);
 
-analyzedTracks   = procSaver(eC_T_spotOutputs,analyzedTracks);
+analyzedTracks   = procSaver(ec_T_spotOutputs,analyzedTracks);
 end
 
 function glued = convertA1sToGlued(A1s)
