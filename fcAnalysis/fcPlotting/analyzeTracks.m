@@ -27,5 +27,7 @@ distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:});
 
 allFluorViews = vizPieces.fluorAllViews{1};
 overlayedTracks = cellfunNonUniformOutput(@(x,y)overlayTracks(x,y),allFluorViews,myTracks);
+
+trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
 end
 

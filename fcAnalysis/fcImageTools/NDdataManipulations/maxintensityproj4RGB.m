@@ -7,7 +7,7 @@ colors = {[1 0 0]',[0 1 0]',[0 0 1]'};
 rgbVals = reshape(permute(rgbDataWmarkers,[3 1 2]),3,numel(rgbDataWmarkers)/3);
 maxVal = double(max(rgbDataWmarkers(:)));
 diffBasket = cell(numel(colors),1);
-for ii = 1:numel(colors);
+for ii = 1:numel(colors)
     currDiff = bsxfun(@minus,double(rgbVals),colors{ii}*maxVal);
 %     diffBasket{ii} = find(cellfun(@norm,num2cell(currDiff,1))==0);
     diffBasket{ii}= find(any(currDiff)==0);

@@ -16,3 +16,7 @@ for ii = 1:numTimePoints
     end
 end
 
+
+overlayed = convertAll2RGBUINT8(overlayed);
+
+
