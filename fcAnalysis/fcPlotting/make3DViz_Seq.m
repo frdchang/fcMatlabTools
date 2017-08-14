@@ -73,7 +73,7 @@ if numel(fluorViews) > 1
     coloredFluorKymos = genRGBFromCell(fluorKymos);
     assembled = {phaseViews,phaseKymos,coloredFluorViews,fluorViewsWithSpots,coloredFluorKymos,fluorKymosWithSpots};
 else
-    assembled = {phaseViews,phaseKymos,fluorViews,fluorfluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
+    assembled = {phaseViews,phaseKymos,fluorViews,fluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
 end
 
 individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','fullMontage'};

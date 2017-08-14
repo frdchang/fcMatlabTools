@@ -2,7 +2,7 @@ function [ Ibackground ] = plotTrackStuff( trackStuff,numSeq,varargin)
 %PLOTTRACKSTUFF Summary of this function goes here
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
-params.upRezVert        = 4;
+params.upRezVert        = 1;
 params.upRezHorz        = 1;
 params.trackStuffAlpha  = 0.75;
 %--------------------------------------------------------------------------
