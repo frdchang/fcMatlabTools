@@ -1,32 +1,32 @@
-function pairingPlotBMP = genPairingPlotBMP(spotParamsBasket,varargin)
-%GENPAIRINGPLOTBMP Summary of this function goes here
-%   Detailed explanation goes here
+function pairingPlotBMP = genPairingPlotBMP(pairingSig,numSeq,varargin)
+%GENPAIRINGPLOTBMP plots a pairing signature based on three states
+% paired, unpaired and the rest
 
 %--parameters--------------------------------------------------------------
-params.pixelLength     = [];
-params.pairingHeight   = 20;  % make it this tall
-params.bkgndGrey       = 0.0;
-params.color           = [1 0 0];
+params.pairingHeight         = 20;         % make it this tall
+params.nonPairingColor       = [50 50 50];
+params.pairingColor          = [0 255 0];
+params.otherColor            = [0 0 0];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 
-numSeq = numel(spotParamsBasket);
+pairingPlotBMP = ones(1,numSeq,3);
 
-if isempty(params.pixelLength)
-    bmpPlotLength = numSeq;
-else
-    bmpPlotLength = params.pixelLength;
-end
 
-pairingPlotBMP = params.bkgndGrey*ones(params.pairingHeight,bmpPlotLength);
-
-for ii = 1:bmpPlotLength
-    currAmps = returnAmplitudes(spotParamsBasket{ii});
-    if numel(currAmps) == 1
-       pairingPlotBMP(:,ii,:) = 1; 
+for ii = 1:numSeq
+    if ismember(ii,pairingSig.t)
+        idx = ii == pairingSig.t;
+        numTracks = pairingSig.pairing(idx);
+        if numTracks == 1
+            pairingPlotBMP(1,ii,:) = params.pairingColor;
+        else
+            pairingPlotBMP(1,ii,:) = params.otherColor;
+        end
+    else
+        pairingPlotBMP(1,ii,:) = params.otherColor;
     end
 end
 
-pairingPlotBMP = bw2rgb(pairingPlotBMP);
-pairingPlotBMP(:,:,~params.color) = 0;
+pairingPlotBMP = repmat(pairingPlotBMP,params.pairingHeight,1, 1, 1);
+pairingPlotBMP = uint8(pairingPlotBMP);

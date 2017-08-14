@@ -17,13 +17,15 @@ vizPieces = vizPieces.montagePieces;
 tracks = cellfunNonUniformOutput(@(tracks) filterTracksByLength(tracks,params.minTrackLength,Inf),tracks);
 
 [myTracks]    = buildTrackSpots(vizPieces.numSeq{1},tracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
-trackDists    = getTrackDists(tracks);
+[trackDists,pairingSig]    = getTrackDists(tracks);
 As            = getTrackByIndex(tracks,4);
 Bs            = getTrackByIndex(tracks,5);
 
 AsPlot        = plotTrackStuff(As,vizPieces.numSeq{1},varargin{:});
 BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:});
 distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:});
+
+pairingPlot   = genPairingPlotBMP(pairingSig,vizPieces.numSeq{1});
 
 allFluorViews = vizPieces.fluorAllViews{1};
 
@@ -35,6 +37,6 @@ else
 end
 trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
 
-fullMontage = genMontage({AsPlot,BsPlot,distPlot,trackKymos{:}});
+fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
 end
 
