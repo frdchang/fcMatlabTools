@@ -12,7 +12,7 @@ Kmatrix         = benchStruct.Kmatrix;
 
 numConditions = numel(benchConditions);
 conditions    = cell(size(benchConditions));
-display('procBenchMarkStageI() starting...');
+disp('procBenchMarkStageI() starting...');
 setupParForProgress(numConditions);
 parfor ii = 1:numConditions
     incrementParForProgress();
@@ -44,7 +44,7 @@ parfor ii = 1:numConditions
     conditions{ii}.dataFiles             = currFileList;
     conditions{ii}.camVarFile            = currCamVarList;
 end
-display('procBenchMarkStageI() finished...');
+disp('procBenchMarkStageI() finished...');
 
 benchStruct.(func2str(myFunc))  = conditions;
 savePath = conditions{1,1}.(func2str(myFunc)){1};
@@ -53,6 +53,6 @@ savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];
 makeDIRforFilename(saveFile);
 save(saveFile,'benchStruct');
-display(['saving:' saveFile]);
-display('procBenchMarkStageI() saved...');
+disp(['saving:' saveFile]);
+disp('procBenchMarkStageI() saved...');
 
