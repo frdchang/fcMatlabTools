@@ -4,7 +4,7 @@ sigmassq1 = [2,2,2];
 [kern1,~] = ndGauss(sigmassq1,patchSize);
 kernSize = [7 7 7];
 domains = genMeshFromData(kern1);
-[gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(kernSize,kern1);
+[gradientFieldFilters,hessFeldFilters,kerns] = genFieldFilters(kernSize,kern1);
 
 kernObj = myPattern_Numeric(kern1);
 coor1 = getCenterCoor(patchSize);

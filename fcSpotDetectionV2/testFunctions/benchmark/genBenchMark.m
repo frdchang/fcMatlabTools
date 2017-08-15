@@ -12,6 +12,7 @@ params.psfFunc          = @genPSF;
 params.binning          = 3;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
 params.interpMethod     = 'linear';
+params.kMatrix          = [1 0.3144; 0 1];
 
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
@@ -58,12 +59,17 @@ switch params.benchType
         psfObjs = psfObjs(1);
     case 3
         typeOfBenchMark = '2S2C';
-        Kmatrix = [1 0.3144; 0 1];
+        Kmatrix = params.kMatrix;
     otherwise
         error('benchType needs to be {1,2,3}');
 end
 
-folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' num2str(min(params.As)) ',' num2str(max(params.As)) ',' num2str(numel(params.As)) '-B' num2str(min(params.Bs)) ',' num2str(max(params.Bs)) ',' num2str(numel(params.Bs)) '-D' num2str(min(params.dist2Spots)) ',' num2str(max(params.dist2Spots)) ',' num2str(numel(params.dist2Spots))];
+if numel(Kmatrix) == 1
+   kmatrixString = num2str(Kmatrix); 
+else
+   kmatrixString = [num2str(Kmatrix(2)) ',' num2str(Kmatrix(3))]; 
+end
+folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' num2str(min(params.As)) ',' num2str(max(params.As)) ',' num2str(numel(params.As)) '-B' num2str(min(params.Bs)) ',' num2str(max(params.Bs)) ',' num2str(numel(params.Bs)) '-D' num2str(min(params.dist2Spots)) ',' num2str(max(params.dist2Spots)) ',' num2str(numel(params.dist2Spots)) '-K' kmatrixString];
 
 saveFolder = [params.saveFolder filesep folderSave filesep typeOfBenchMark];
 [~,~,~] = mkdir(saveFolder);

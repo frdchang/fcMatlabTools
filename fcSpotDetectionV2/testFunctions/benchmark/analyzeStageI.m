@@ -49,7 +49,7 @@ for ii = 1:prod(sizeAB)
     currB = conditions{ii}.B;
     currD = conditions{ii}.D;
     if isfield(conditions{ii},conditionFunc)
-    currFuncConditions = conditions{ii}.(conditionFunc);
+        currFuncConditions = conditions{ii}.(conditionFunc);
     else
         currFuncConditions = conditions{ii}.(field);
     end
@@ -60,15 +60,15 @@ for ii = 1:prod(sizeAB)
         if iscell(currFuncConditions{jj})
             tempLoad = currFuncConditions{jj};
             tempLoad = tempLoad{1};
-                    currFuncOutput = importStack(tempLoad);
-
+            currFuncOutput = importStack(tempLoad);
+            
         else
-                    currFuncOutput = load(currFuncConditions{jj});
-                            currFuncOutput=  currFuncOutput.x;
-        currFuncOutput = currFuncOutput.(field);
-
+            currFuncOutput = load(currFuncConditions{jj});
+            currFuncOutput=  currFuncOutput.x;
+            currFuncOutput = currFuncOutput.(field);
+            
         end
-
+        
         % if is a cell that means its multi color, so just measure from
         % channel 1
         if iscell(currFuncOutput)
@@ -353,26 +353,27 @@ for ii = 1:prod(sizeAB)
     Bvals{ii} = currB;
 end
 close all;
-figure;
-for ii = numel(bkHolder):-1:1
-    hold on; h = histogram(bkHolder{ii},'DisplayStyle','stairs');
-    h.Normalization = 'pdf';
+if ~isempty(bkHolder)
+    figure;
+    for ii = numel(bkHolder):-1:1
+        hold on; h = histogram(bkHolder{ii},'DisplayStyle','stairs');
+        h.Normalization = 'pdf';
+    end
+    legend(cellfunNonUniformOutput(@num2str,Bvals));
+    xlabel([conditionFunc ' ' field ' values']);
+    
+    ylabel('log pdf');
+    title('bkgnd pdf at different Bs');
+    set(gca,'YScale','log');
+    
+    if currMin > -1
+        set(gca,'XScale','log');
+    end
+    
+    myTitle = ['bkgndCreepLogPDF' filesep conditionFunc ' ' field ' bkgndCreepLogPDF'];
+    exportFigEPS([saveFolder filesep myTitle]);
+    close all;
 end
-legend(cellfunNonUniformOutput(@num2str,Bvals));
-xlabel([conditionFunc ' ' field ' values']);
-
-ylabel('log pdf');
-title('bkgnd pdf at different Bs');
-set(gca,'YScale','log');
-
-if currMin > -1
-    set(gca,'XScale','log');
-end
-
-myTitle = ['bkgndCreepLogPDF' filesep conditionFunc ' ' field ' bkgndCreepLogPDF'];
-exportFigEPS([saveFolder filesep myTitle]);
-close all;
-
 if params.fitGamma
     %% fit gamma distribution
     h = createFullMaxFigure([conditionFunc ' pdf background and gamma fit']);
@@ -444,7 +445,7 @@ if params.fitGamma
     figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigScale']);
     close all;
-
+    
     [shapeFit] = fit([xx',yy'],sigShape(:),'poly11');
     [scaleFit] = fit([xx',yy'],sigScale(:),'poly11');
     plot(shapeFit,[xx',yy'],sigShape(:));xlabel('B');ylabel('A');title(['shapeFit(B,A) = ' num2str(shapeFit.p00) ' + ' num2str(shapeFit.p10) '*B + ' num2str(shapeFit.p01) ' *A']);

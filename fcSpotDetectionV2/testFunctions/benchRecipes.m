@@ -1,3 +1,28 @@
+%% check 2 channel versus 1 channel
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+N = 100;
+kMatrixclean        = [1 0.75; 0 1];
+kMatrix             = [1 0.75; 0 1];
+
+% benchStruct1        = genBenchMark('benchType',1,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'saveFolder',saveFolder);
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+benchStruct3clean   = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrixclean,'saveFolder',saveFolder);
+saveFolder = '~/Desktop/dataStorage/fcDataStorageReversed';
+benchStruct3        = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrix,'saveFolder',saveFolder);
+
+benchStruct3.Kmatrix= kMatrix';
+
+% benchStruct1        = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
+benchStruct3clean   = procBenchMarkStageI(benchStruct3clean,@findSpotsStage1V2);
+benchStruct3        = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
+
+% analyzeStageI(benchStruct1,@findSpotsStage1V2,'LLRatio');
+analyzeStageI(benchStruct3clean,@findSpotsStage1V2,'LLRatio');
+analyzeStageI(benchStruct3,@findSpotsStage1V2,'LLRatio');
+
+benchStruct = procBenchMarkStageIIDirect(benchStruct3,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+
 %% only thing on cluster needed is the stage II analysis
 saveFolder = '/n/klecknergfs/fchang/fcDataStorage';
 N = 10;
@@ -5,7 +30,7 @@ N = 10;
 for type = 1:3
     benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
     benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-    analyzeStageIIDirect(benchStruct);    
+    analyzeStageIIDirect(benchStruct);
 end
 %% 1 spot
 switch computer
