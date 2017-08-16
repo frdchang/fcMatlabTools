@@ -248,6 +248,7 @@ switch numel(sizeConditions)
 end
 
 %% plot EER for different distances
+if numel(analysis) == 3
 for ii = 1:size(analysis,1)
     for jj = 1:size(analysis,2)
         analysis_D = analysis(ii,jj,:);
@@ -270,6 +271,7 @@ for ii = 1:size(analysis,1)
     end
 end
 close all;
+end
 
 
 end
