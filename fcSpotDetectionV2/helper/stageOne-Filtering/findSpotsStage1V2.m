@@ -157,6 +157,8 @@ else
         error('multi spectral kernels need to be the same size');
     end
     
+    data = cellfunNonUniformOutput(@double,data);
+    
     % spotKern must be cell array of kernels for each spectra
     spotKern                = reshape(spotKern,numel(spotKern),1);
     data                    = reshape(data,numel(data),1);

@@ -1,4 +1,142 @@
-% check field estimators
+%% check 2 spot performance at A = 15 B = 6
+% -flip kmatrix in stage ii and see the results to see if its correct.
+
+doPlotEveryN   = inf;
+params.DLLDLambda = @DLLDLambda_PoissPoiss;
+
+params.sizeData         = [29 29 11];%[21 21 9];
+
+params.psfFunc          = @genPSF;
+params.binning          = 3;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
+params.interpMethod     = 'linear';
+params.kMatrix          = [1 0.9144; 0 1];
+
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.numSamples       = 60;
+params.As1               = 15;
+params.As2               = 30;
+params.Bs               = 6;
+params.dist2Spots       = 6;
+
+params.NoiseFuncArgs{1} = params.sizeData;
+params.centerCoor       = round(params.sizeData/2);
+centerCoor  = params.centerCoor;
+Kmatrix = params.kMatrix;
+psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+
+% setup spot
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As1 centerCoor],params.Bs},{[params.As2 secondCoor],params.Bs}};
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+% gen spot
+bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+numSpots        = numSpotsInTheta(bigTheta);
+
+MLEs = cell(params.numSamples,1);
+sizeKern        = size(psfs{1});
+
+setupParForProgress(params.numSamples);
+for ii = 1:params.numSamples
+    incrementParForProgress();
+    camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
+    [~,photonData]              = returnElectrons(stack,cameraParams);
+    estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
+    myTheta0s                   = genSequenceOfThetas(bigTheta,estimated);
+    % define candidates
+    L = zeros(size(stack{1}));
+    spotCoors = getSpotCoorsFromTheta(bigTheta);
+    for zz = 1:numel(spotCoors)
+        cellCoor = num2cell(spotCoors{zz});
+        L(cellCoor{:}) = 1;
+    end
+    
+    
+    L = imdilate(L,strel(ones(sizeKern(:)')));
+    L = bwlabeln(L>0);
+    stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+    
+    currMask = L == 1;
+    carvedDatas                 = carveOutWithMask(photonData,currMask,[0,0,0]);
+    carvedEstimates             = carveOutWithMask(estimated,currMask,[0,0,0],'spotKern','convFunc');
+    carvedCamVar                = carveOutWithMask(cameraVarianceInElectrons,currMask,[0,0,0]);
+    carvedMask                  = carveOutWithMask(currMask,currMask,[0,0,0]);
+    carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
+    carvedEstimates.spotKern    = estimated.spotKern;
+    %-----APPY MY FUNC-------------------------------------------------
+    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix',psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+end
+
+MLEsregular = cell(params.numSamples,1);
+sizeKern        = size(psfs{1});
+
+setupParForProgress(params.numSamples);
+parfor ii = 1:params.numSamples
+    incrementParForProgress();
+    camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
+    [~,photonData]              = returnElectrons(stack,cameraParams);
+    estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
+    myTheta0s                   = genSequenceOfThetas(bigTheta,estimated);
+    % define candidates
+    L = zeros(size(stack{1}));
+    spotCoors = getSpotCoorsFromTheta(bigTheta);
+    for zz = 1:numel(spotCoors)
+        cellCoor = num2cell(spotCoors{zz});
+        L(cellCoor{:}) = 1;
+    end
+    
+    
+    L = imdilate(L,strel(ones(sizeKern(:)')));
+    L = bwlabeln(L>0);
+    stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+    
+    currMask = L == 1;
+    carvedDatas                 = carveOutWithMask(photonData,currMask,[0,0,0]);
+    carvedEstimates             = carveOutWithMask(estimated,currMask,[0,0,0],'spotKern','convFunc');
+    carvedCamVar                = carveOutWithMask(cameraVarianceInElectrons,currMask,[0,0,0]);
+    carvedMask                  = carveOutWithMask(currMask,currMask,[0,0,0]);
+    carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
+    carvedEstimates.spotKern    = estimated.spotKern;
+    %-----APPY MY FUNC-------------------------------------------------
+    MLEsregular{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+end
+
+% plot MLEs
+regular = [];
+inverted  = [];
+
+for ii = 1:numel(MLEs)
+    display(ii);
+    if numel(MLEs{ii}) == 3 && numel(MLEsregular{ii}) == 3
+    xyzabs = getXYZABFromTheta(MLEs{ii}(3).theta0s);
+    xyzabsregular = getXYZABFromTheta(MLEsregular{ii}(3).theta0s);
+    
+    regular(end+1) = xyzabsregular{1}{1}(4);
+    regular(end+1) = xyzabsregular{2}{1}(4);
+    inverted(end+1) = xyzabs{1}{1}(4);
+    inverted(end+1) = xyzabs{2}{1}(4);
+    end
+end
+
+histogram(regular(2:2:end));hold on;histogram(inverted(2:2:end));
+
+figure;
+histogram(regular(1:2:end));hold on;histogram(inverted(1:2:end));
+
+%% check field estimators
 patchSize = [31 31 31];
 sigmassq1 = [2,2,2];
 [kern1,~] = ndGauss(sigmassq1,patchSize);
