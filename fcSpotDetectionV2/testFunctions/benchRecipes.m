@@ -24,7 +24,7 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3,'doN',inf,'doPlotEveryN',i
 benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
 
 %% only thing on cluster needed is the stage II analysis
-saveFolder = '/n/klecknergfs/fchang/fcDataStorage';
+saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
 N = 10;
 
 for type = 1:3
