@@ -39,7 +39,7 @@ secondCoor = centerCoor+[params.dist2Spots 0 0];
 spotCoors = {{[params.As1 centerCoor],params.Bs},{[params.As2 secondCoor],params.Bs}};
 bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 % gen spot
-bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+[bigLambdas,d1,d2]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
 numSpots        = numSpotsInTheta(bigTheta);
 
 MLEs = cell(params.numSamples,1);
