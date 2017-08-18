@@ -1,9 +1,10 @@
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 % expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI2048x2048-SlowScan-sensorCorrectionOFF-20161021.mat';
 expFolder = '~/Desktop/fcDataStorage/20160201-test-adf';
 expFolder = '~/Desktop/fcDataStorage/20150adsf';
-% expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
+expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170323-mitosis-FCY308/doTimeLapse_1';
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
 
@@ -15,16 +16,20 @@ specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 psfObjs = {psfObj1};
 Kmatrix = 1;
 channels = {'FITC\(WhiteTTL\)'};
-
+tic;
+times = {};
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
-
+times{end+1} = toc;
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
+times{end+1} = toc;
 
+tic;
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
+times{end+1} = toc;
 
 
 T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs);
@@ -33,33 +38,34 @@ T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs);
 T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs);
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs);
+times{end+1} = toc;
 
 %-----USER-----------------------------------------------------------------
 edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
 thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 %--------------------------------------------------------------------------
-
+times{end+1} = toc;
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',false);
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',false);
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
-
+times{end+1} = toc;
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,edgeProfileZs,'doParallel',true,'doPlot',false);
-
+times{end+1} = toc;
 eC_T_stageIOutputs    = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
 eC_T_qpmOutputs       = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
 eC_T_spotOutputs      = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
-
+times{end+1} = toc;
 ec_T_stageIIOutputs   = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
-
+times{end+1} = toc;
 %-----USER-----------------------------------------------------------------
 spotThresholds        = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
-
+times{end+1} = toc;
 trackedSpots          = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',spotThresholds.thresholds);
 ec_T_3Dviz            = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
 analyzedTracks        = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
-
+times{end+1} = toc;
 
 %% build modules
 
