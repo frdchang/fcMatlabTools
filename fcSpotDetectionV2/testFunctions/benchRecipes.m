@@ -1,9 +1,38 @@
-%% Notes
-% psf size extends to [25,25,17]
-% edge effects of kern is [11 11 11];
+%% check 2 channel versus 1 channel
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+N = 100;
+kMatrixclean        = [1 0.75; 0 1];
+kMatrix             = [1 0.75; 0 1];
 
-%% compare 1 spot vs 2 color processing
+% benchStruct1        = genBenchMark('benchType',1,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'saveFolder',saveFolder);
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+benchStruct3clean   = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrixclean,'saveFolder',saveFolder);
+saveFolder = '~/Desktop/dataStorage/fcDataStorageReversed';
+benchStruct3        = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrix,'saveFolder',saveFolder);
 
+benchStruct3.Kmatrix= kMatrix';
+
+% benchStruct1        = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
+benchStruct3clean   = procBenchMarkStageI(benchStruct3clean,@findSpotsStage1V2);
+benchStruct3        = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
+
+% analyzeStageI(benchStruct1,@findSpotsStage1V2,'LLRatio');
+analyzeStageI(benchStruct3clean,@findSpotsStage1V2,'LLRatio');
+analyzeStageI(benchStruct3,@findSpotsStage1V2,'LLRatio');
+
+benchStruct = procBenchMarkStageIIDirect(benchStruct3,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+
+%% only thing on cluster needed is the stage II analysis
+saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
+N = 10;
+
+for type = 1:3
+    benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
+    benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+    benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+    analyzeStageIIDirect(benchStruct);
+end
 %% 1 spot
 switch computer
     case 'MACI64'
@@ -13,64 +42,63 @@ switch computer
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 1000;
     otherwise
-   error('asdf');     
+        error('asdf');
 end
 
-for type = [3, 1]
-
-benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);
-benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
-benchStruct = procBenchMarkStageI(benchStruct,@logConv);
-benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
-benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
-benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
-% benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
-benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
-
-analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
-analyzeStageI(benchStruct,@logConv,'logConv');
-analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
-analyzeStageI(benchStruct,@regularConv,'regularConv');
-analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
-analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTGamma');
-
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
-% analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
-% analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
-analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
-% analyzeStageI(benchStruct,@gammaCorrection,'gammaSig2');
-% analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig2');
-% analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSigP2');
-
-
-analyzeStageIDataOut(benchStruct,@conditions,'fileList');
-analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
-analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
-analyzeStageIDataOut(benchStruct,@logConv,'logConv');
-analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
-analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
-analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
-analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
-analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
-analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTGamma');
-
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
-% analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
-% analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
-analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
-% analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig2');
-% analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
-% analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
-
+for type = 1:3
+    benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);
+    benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+    benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+    benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
+    benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+    benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+    % benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
+    benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
+    
+    analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+    analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
+    analyzeStageI(benchStruct,@logConv,'logConv');
+    analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+    analyzeStageI(benchStruct,@regularConv,'regularConv');
+    analyzeStageI(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+    analyzeStageI(benchStruct,@fieldEstimator,'hessDOTLLRatio');
+    analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+    analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTGamma');
+    
+    % analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
+    % analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
+    % analyzeStageI(benchStruct,@llrpowered,'LLRatio4');
+    % analyzeStageI(benchStruct,@llrpowered,'LLRatio5');
+    % analyzeStageI(benchStruct,@llrpowered,'LLRatio20');
+    % analyzeStageI(benchStruct,@gammaCorrection,'gammaSig');
+    analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
+    % analyzeStageI(benchStruct,@gammaCorrection,'gammaSig2');
+    % analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig2');
+    % analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSigP2');
+    
+    
+    analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+    analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+    analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+    analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+    analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
+    analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
+    analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradDOTLLRatio');
+    analyzeStageIDataOut(benchStruct,@fieldEstimator,'hessDOTLLRatio');
+    analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+    analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTGamma');
+    
+    % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
+    % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
+    % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio4');
+    % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio5');
+    % analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio20');
+    % analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig');
+    analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
+    % analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig2');
+    % analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
+    % analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
+    
 end
 %% 2 spot 2 colors see gamma fit
 switch computer
@@ -81,7 +109,7 @@ switch computer
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 1000;
     otherwise
-   error('asdf');     
+        error('asdf');
 end
 
 benchStruct1 = genBenchMark('benchType',3,'dist2Spots',0,'sizeData',[37 21 9],'numSamples',N,'saveFolder',saveFolder);
@@ -92,9 +120,9 @@ benchStruct2 = genBenchMark('benchType',3,'dist2Spots',10,'sizeData',[37 21 9],'
 benchStruct2 = procBenchMarkStageI(benchStruct2,@findSpotsStage1V2);
 analyzeStageI(benchStruct2,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 
-% measure signal is ok for second case for separated spots.  
+% measure signal is ok for second case for separated spots.
 % measure signal is ok for first case for overlapping spots and measure
-% bkgnd is ok for this case for both.  
+% bkgnd is ok for this case for both.
 
 %% 2 spot 2 colors
 benchStruct = genBenchMark('benchType',3,'numSamples',1000);
@@ -130,7 +158,7 @@ switch computer
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
     otherwise
-   error('asdf');     
+        error('asdf');
 end
 benchStruct = genBenchMark('benchType',1,'As',linspace(0,6,11),'Bs',linspace(0,4.8,5),'numSamples',1000,'dist2Spots',0,'saveFolder',saveFolder);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
@@ -191,7 +219,7 @@ switch computer
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 1000;
     otherwise
-   error('asdf');     
+        error('asdf');
 end
 
 benchStruct1 = genBenchMark('benchType',1,'numSamples',N,'sizeData',[31,31,31],'saveFolder',saveFolder);
@@ -251,7 +279,7 @@ switch computer
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 100;
     otherwise
-   error('asdf');     
+        error('asdf');
 end
 timings = [];
 tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder);
@@ -272,7 +300,7 @@ timings(end+1) = toc;
 % timings(end+1) = toc;
 % tic;analyzeStageIIDirect(benchStruct);
 % timings(end+1) = toc;
-% 
+%
 timings = [];
 tic;benchStruct = genBenchMark('benchType',2,'numSamples',N,'saveFolder',saveFolder);
 timings(end+1) = toc;

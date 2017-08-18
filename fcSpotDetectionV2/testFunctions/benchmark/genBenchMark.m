@@ -12,6 +12,7 @@ params.psfFunc          = @genPSF;
 params.binning          = 3;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
 params.interpMethod     = 'linear';
+params.kMatrix          = [1 0.3144; 0 1];
 
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
@@ -21,8 +22,8 @@ params.numSamples       = 10;
 params.As               = linspace(0,30,11);
 params.Bs               = linspace(0,24,5);
 params.dist2Spots       = linspace(0,6,7);
-params.dist2SpotsAtA    = [3,15,27,30];
-params.dist2SpotsAtB    = [0,6,24,0];
+params.dist2SpotsAtA    = [];%[3,15,27,30];
+params.dist2SpotsAtB    = [];%[0,6,24,0];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 params.NoiseFuncArgs{1} = params.sizeData;
@@ -58,12 +59,17 @@ switch params.benchType
         psfObjs = psfObjs(1);
     case 3
         typeOfBenchMark = '2S2C';
-        Kmatrix = [1 0.3144; 0 1];
+        Kmatrix = params.kMatrix;
     otherwise
         error('benchType needs to be {1,2,3}');
 end
 
-folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' vector2Str(params.As) '-B' vector2Str(params.Bs) '-D' vector2Str(params.dist2Spots)];
+if numel(Kmatrix) == 1
+   kmatrixString = num2str(Kmatrix); 
+else
+   kmatrixString = [num2str(Kmatrix(2)) ',' num2str(Kmatrix(3))]; 
+end
+folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' num2str(min(params.As)) ',' num2str(max(params.As)) ',' num2str(numel(params.As)) '-B' num2str(min(params.Bs)) ',' num2str(max(params.Bs)) ',' num2str(numel(params.Bs)) '-D' num2str(min(params.dist2Spots)) ',' num2str(max(params.dist2Spots)) ',' num2str(numel(params.dist2Spots)) '-K' kmatrixString];
 
 saveFolder = [params.saveFolder filesep folderSave filesep typeOfBenchMark];
 [~,~,~] = mkdir(saveFolder);
@@ -78,77 +84,81 @@ display('genBenchMark() starting...');
 setupParForProgress(totNum)
 for zz = 1:totNum
     incrementParForProgress();
-      [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
-%     for bi = 1:numel(params.Bs)
-%         for di = 1:numel(params.dist2Spots)
-            benchConditions{zz}.bigTheta = {};
-            benchConditions{zz}.fileList = {};
-            benchConditions{zz}.cameraVarList = {};
-            benchConditions{zz}.A = params.As(ai);
-            benchConditions{zz}.B = params.Bs(bi);
-            benchConditions{zz}.D = params.dist2Spots(di);
-            currA = params.As(ai);
-            currB = params.Bs(bi);
-            currD = params.dist2Spots(di);
+    [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
+    %     for bi = 1:numel(params.Bs)
+    %         for di = 1:numel(params.dist2Spots)
+    benchConditions{zz}.bigTheta = {};
+    benchConditions{zz}.fileList = {};
+    benchConditions{zz}.cameraVarList = {};
+    benchConditions{zz}.A = params.As(ai);
+    benchConditions{zz}.B = params.Bs(bi);
+    benchConditions{zz}.D = params.dist2Spots(di);
+    currA = params.As(ai);
+    currB = params.Bs(bi);
+    currD = params.dist2Spots(di);
+    
+    if ~isempty(params.dist2SpotsAtA) && ~isempty(params.dist2SpotsAtB)
+        idxs = arrayfun(@(A,B) find(A==currA,1) & find(B==currB,1),params.dist2SpotsAtA,params.dist2SpotsAtB,'UniformOutput',false);
+        idxs = cell2mat(idxs);
+        rightAandB = any(idxs);
+        if ~rightAandB && ~isequal(currD,0) && numel(params.dist2Spots) ~= 1
+            continue;
+        end
+    end
+    
+    if currD ~= 0 && (currB > currA)
+       continue; 
+    end
+    
+    
+    switch params.benchType
+        case 1
+            % generate a single spot
+            %                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi))]);
+            conditionStr = ['A' num2str(ai) 'B' num2str(bi)];
+            spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)}};
+        case 2
+            % generate spots given that there is 1 channel
+            %                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
+            conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
+            secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
+            spotCoors = {{[params.As(ai) centerCoor],[params.As(ai) secondCoor],params.Bs(bi)}};
             
-            if ~isempty(params.dist2SpotsAtA) && ~isempty(params.dist2SpotsAtB)
-            idxs = arrayfun(@(A,B) find(A==currA,1) & find(B==currB,1),params.dist2SpotsAtA,params.dist2SpotsAtB,'UniformOutput',false);
-            idxs = cell2mat(idxs);
-            rightAandB = any(idxs);
-            if ~rightAandB && ~isequal(currD,0) && numel(params.dist2Spots) ~= 1
-                continue;
+        case 3
+            % generate spots given that there is 2 channels
+            %                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
+            conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
+            secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
+            spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)},{[params.As(ai) secondCoor],params.Bs(bi)}};
+    end
+    
+    bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+    bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+    fileList        = cell(params.numSamples,1);
+    cameraVarList   = cell(params.numSamples,1);
+    for ii = 1:params.numSamples
+        cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
+        [sampledData,~,cameraParams]  = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+        saveFileVar = [saveFolder filesep conditionStr filesep 'cameraVar' filesep 'cameraVar-' conditionStr '-' num2str(ii)];
+        makeDIRforFilename(saveFileVar);
+        saveCameraVar(saveFileVar,cameraParams);
+        cameraVarList{ii} = saveFileVar;
+        if iscell(sampledData)
+            saveFile = cell(numel(sampledData),1);
+            for jj = 1:numel(sampledData)
+                saveFile{jj} = [saveFolder filesep conditionStr filesep 'channel' num2str(jj) '-' conditionStr '-' num2str(ii) '.tif'];
+                exportSingleTifStack(saveFile{jj},sampledData{jj});
             end
-            end
-            
-            
-            switch params.benchType
-                case 1
-                    % generate a single spot
-%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi))]);
-                    conditionStr = ['A' num2str(ai) 'B' num2str(bi)];
-                    spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)}};
-                case 2
-                    % generate spots given that there is 1 channel
-%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
-                    conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
-                    secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
-                    spotCoors = {{[params.As(ai) centerCoor],[params.As(ai) secondCoor],params.Bs(bi)}};
-                    
-                case 3
-                    % generate spots given that there is 2 channels
-%                     display(['genBenchMark(): A:' num2str(params.As(ai)) ' B:' num2str(params.Bs(bi)) ' D:' num2str(params.dist2Spots(di))]);
-                    conditionStr = ['A' num2str(ai) 'B' num2str(bi) 'D' num2str(di)];
-                    secondCoor = centerCoor+[params.dist2Spots(di) 0 0];
-                    spotCoors = {{[params.As(ai) centerCoor],params.Bs(bi)},{[params.As(ai) secondCoor],params.Bs(bi)}};
-            end
-            
-            bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
-            bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
-            fileList        = cell(params.numSamples,1);
-            cameraVarList   = cell(params.numSamples,1);
-            for ii = 1:params.numSamples
-                cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
-                [sampledData,~,cameraParams]  = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
-                saveFileVar = [saveFolder filesep conditionStr filesep 'cameraVar' filesep 'cameraVar-' conditionStr '-' num2str(ii)];
-                makeDIRforFilename(saveFileVar);
-                 saveCameraVar(saveFileVar,cameraParams);
-                cameraVarList{ii} = saveFileVar;
-                if iscell(sampledData)
-                    saveFile = cell(numel(sampledData),1);
-                    for jj = 1:numel(sampledData)
-                        saveFile{jj} = [saveFolder filesep conditionStr filesep 'channel' num2str(jj) '-' conditionStr '-' num2str(ii) '.tif'];
-                        exportSingleTifStack(saveFile{jj},sampledData{jj});
-                    end
-                else
-                    saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
-                    exportSingleTifStack(saveFile,round(sampledData));
-                end
-                fileList{ii} = saveFile;
-            end
-            benchConditions{zz}.bigTheta = bigTheta;
-            benchConditions{zz}.fileList = fileList;
-            benchConditions{zz}.cameraVarList = cameraVarList;
-            
+        else
+            saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
+            exportSingleTifStack(saveFile,round(sampledData));
+        end
+        fileList{ii} = saveFile;
+    end
+    benchConditions{zz}.bigTheta = bigTheta;
+    benchConditions{zz}.fileList = fileList;
+    benchConditions{zz}.cameraVarList = cameraVarList;
+    
 end
 display('genBenchMark() done...');
 benchStruct.psfObjs     = psfObjs;
