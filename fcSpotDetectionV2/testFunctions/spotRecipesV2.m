@@ -49,7 +49,7 @@ setupParForProgress(params.numSamples);
 for ii = 1:params.numSamples
     incrementParForProgress();
     camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
-    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
     cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
     [~,photonData]              = returnElectrons(stack,cameraParams);
     estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
@@ -85,7 +85,7 @@ setupParForProgress(params.numSamples);
 parfor ii = 1:params.numSamples
     incrementParForProgress();
     camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
-    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
     cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
     [~,photonData]              = returnElectrons(stack,cameraParams);
     estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
