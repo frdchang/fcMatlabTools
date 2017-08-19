@@ -1,3 +1,32 @@
+%% define an analytic 3d gaussian and compare to numeric
+% analytic is 2 orders of magnitude faster and comparable to numeric
+
+sizeData         = [29 29 11];
+sigmaSq          = [0.9,0.9,0.9];
+domains          = genMeshFromData(zeros(sizeData));
+centerCoor       = getCenterCoor(sizeData);
+
+% define analytic gaussian
+gaussObj         = myPattern_3DGaussianConstSigmas(sigmaSq);
+[D,D1,D2]        = gaussObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
+% define numeric gaussian
+binning          = 10;
+
+holder = [];
+for binning = 1:4
+    display(binning);
+sigmas           = sqrt(sigmaSq);
+kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
+
+numericObj       = myPattern_Numeric(kernBinning,'downSample',[binning,binning,binning]);
+[Dn,D1n,D2n]        = numericObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
+myError = (D1{1} - D1n{1}).^2;
+holder(end+1) =  sqrt(mean(myError(:)));
+end
+plot(holder);
+
+
+
 %% check 2 spot performance at A = 15 B = 6
 % -flip kmatrix in stage ii and see the results to see if its correct.
 

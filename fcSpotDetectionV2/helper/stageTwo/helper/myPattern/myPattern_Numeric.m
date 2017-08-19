@@ -8,6 +8,7 @@ classdef myPattern_Numeric < myPattern_Interface
         downSample
         newDomains
         interpMethod
+        shiftdomains
     end
     
     methods
@@ -51,18 +52,18 @@ classdef myPattern_Numeric < myPattern_Interface
             obj.numDims         = numel(obj.centerCoorOG);
             
             obj.interpMethod    = params.interpMethod;
-
+            
         end
         
         function [myOGShape] = returnShape(obj)
             selector = cell(ndims(obj.ndPatternOG),1);
             centerCoor = getCenterCoor(size(obj.ndPatternOG));
-
+            
             for ii = 1:ndims(obj.ndPatternOG)
                 selector{ii} = [flip(centerCoor(ii)-obj.downSample(ii):-obj.downSample(ii):1) centerCoor(ii):obj.downSample(ii):size(obj.ndPatternOG,ii)];
             end
             myOGShape = obj.ndPatternOG(selector{:});
-%             binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
+            %             binnedShape = NDbinData(obj.ndPatternOG,obj.downSample);
         end
         
         function [lambdas,heartFunc] = givenTheta(obj,domains,theta,varargin)
@@ -72,11 +73,11 @@ classdef myPattern_Numeric < myPattern_Interface
             % it knows the bin mode, so the domain you give it doesn't have
             % to take into account the downSample.  so give it regular domain,
             % and this functino will expand the domain
-           
+            
             % calc how the shape will be moved
             deltaPosition = theta(:) - obj.centerCoorOG(1:numel(theta));
             % do domain expansino according to bin
-%             domainParams = calcMinMaxFromMeshData(domains);
+            %             domainParams = calcMinMaxFromMeshData(domains);
             
             %             for ii = 1:numel(domains)
             %                 myArg = num2cell(domainParams(ii,:).*[obj.downSample(ii) obj.downSample(ii) obj.downSample(ii)]);
@@ -91,10 +92,20 @@ classdef myPattern_Numeric < myPattern_Interface
             end
             obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},obj.interpMethod);
             obj.heartFunc(isnan(obj.heartFunc)) = 0;
+            
             obj.newDomains = domains(:);
             heartFunc = obj.heartFunc;
             lambdas = heartFunc;
             %             lambdas = NDbinData(obj.heartFunc,obj.downSample);
+            
+            shiftdomains = cell(size(obj.domainsOG));
+            for ii = 1:numel(domains)
+                shiftdomains{ii} = obj.domainsOG{ii} - deltaPosition(ii);
+            end
+            obj.heartFunc = interpn(obj.domainsOG{:},obj.ndPatternOG,shiftdomains{:},obj.interpMethod);
+            obj.heartFunc(isnan(obj.heartFunc)) = 0;
+            obj.newDomains = domains;
+            obj.shiftdomains = shiftdomains;
         end
         
         function [gradLambdas,hessLambdas] = getDerivatives(obj,maxThetas)
@@ -107,7 +118,7 @@ classdef myPattern_Numeric < myPattern_Interface
                 useThisDomain = genMeshFromData(useThisHeart);
             else
                 useThisHeart = obj.heartFunc;
-                useThisDomain = obj.newDomains;
+                useThisDomain = obj.shiftdomains;
             end
             
             switch nargout
@@ -118,6 +129,7 @@ classdef myPattern_Numeric < myPattern_Interface
                         gradLambdas = cellfunNonUniformOutput(@(x) x(linearIndices),gradLambdas);
                         gradLambdas = isNaN2Zero(gradLambdas);
                     end
+                    gradLambdas = cellfunNonUniformOutput(@(x) interpn(useThisDomain,x,obj.newDomains,obj.interpMethod),gradLambdas);
                 case 2
                     [gradLambdas,hessLambdas] = NDgradientAndHessian(useThisHeart,useThisDomain);
                     hessianIndices = maxThetas(:)*maxThetas(:)';
@@ -130,6 +142,11 @@ classdef myPattern_Numeric < myPattern_Interface
                     gradLambdas = isNaN2Zero(gradLambdas);
                     hessLambdas = isNaN2Zero(hessLambdas);
                     %                     hessLambdas = cellfunNonUniformOutput(@(x) NDbinData(x,obj.downSample),hessLambdas);
+                    gradLambdas = cellfunNonUniformOutput(@(x) interpn(useThisDomain{:},x,obj.newDomains{:},obj.interpMethod),gradLambdas);
+                    gradLambdas = cellfunNonUniformOutput(@setNaNsToZero,gradLambdas);
+                    
+                    hessLambdas = cellfunNonUniformOutput(@(x) interpn(useThisDomain{:},x,obj.newDomains{:},obj.interpMethod),hessLambdas);
+                    hessLambdas = cellfunNonUniformOutput(@setNaNsToZero,hessLambdas);
                 otherwise
                     error('number of arguments out is not 1 or 2');
             end
