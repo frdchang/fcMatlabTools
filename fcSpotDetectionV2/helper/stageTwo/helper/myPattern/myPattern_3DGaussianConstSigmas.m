@@ -34,7 +34,7 @@ classdef myPattern_3DGaussianConstSigmas < myPattern_Interface
             myShape = obj.heartFunc;
         end
         
-        function lambdas = givenTheta(obj,myDomains,theta)
+        function lambdas = givenTheta(obj,myDomains,theta,varargin)
             obj.myDomains = myDomains;
             obj.posCoor = theta;
             sigmas = obj.mySigmas;

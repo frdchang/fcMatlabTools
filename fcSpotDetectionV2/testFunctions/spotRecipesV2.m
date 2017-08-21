@@ -1,3 +1,5 @@
+%%
+
 %% define an analytic 3d gaussian and compare to numeric
 % analytic is 2 orders of magnitude faster and comparable to numeric
 
@@ -10,21 +12,54 @@ centerCoor       = getCenterCoor(sizeData);
 gaussObj         = myPattern_3DGaussianConstSigmas(sigmaSq);
 [D,D1,D2]        = gaussObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
 % define numeric gaussian
-binning          = 10;
 
-holder = [];
-for binning = 1:4
+holder = zeros(10,1);
+parfor binning = 1:10
     display(binning);
-sigmas           = sqrt(sigmaSq);
-kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
-
-numericObj       = myPattern_Numeric(kernBinning,'downSample',[binning,binning,binning]);
-[Dn,D1n,D2n]        = numericObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
-myError = (D1{1} - D1n{1}).^2;
-holder(end+1) =  sqrt(mean(myError(:)));
+    sigmas           = sqrt(sigmaSq);
+    kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
+    kernBinning = kernBinning/max(kernBinning(:));
+    numericObj       = myPattern_Numeric(kernBinning,'downSample',[binning,binning,binning],'interpMethod','neighbor');
+    [Dn,D1n,D2n]        = numericObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
+    holder(binning) =  calcRMSE(D2{1},D2n{1});
 end
 plot(holder);
+ylim([0 inf]);
 
+% binning = 3 is optimal.  RMSE doesn't converge, but i think its because
+% the ndgauss isn't growing as if you can downsample it back to a smaller
+% one.  below is an example that works.
+
+
+delta = 1:-0.1:0.1;
+x1 = 0:10;
+x2 = 0:0.01:10;
+func = @(x) sin(x);
+dfunc = @(x) cos(x);
+y = func(x1);
+dy = dfunc(x1);
+
+ndy = gradient(y);
+ndy2 = gradient(func(x2),0.01);
+ndy3 = interpn(x2,ndy2,x1,'linear');
+plot(x1,y,'--x');hold on;plot(x1,dy,'--x');
+plot(x1,ndy,'-o');plot(x2,ndy2,'-');plot(x1,ndy3,'-s');
+
+figure;
+plot(x1,dy,'-x');hold on;plot(x1,ndy3,'--s');
+
+% i think the difference lays in the fact that sigma does not scale
+% correctly.  let me check this
+sigmas = [2];
+sizeData = [11];
+N = 10;
+for binning = 1:N
+    kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
+    down = interpn(linspace(1,sizeData,sizeData*binning),kernBinning,1:sizeData,'linear');
+    hold on; plot(down);
+end
+
+% yup.  
 
 
 %% check 2 spot performance at A = 15 B = 6
@@ -45,7 +80,7 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 60;
+params.numSamples       = 50;
 params.As1               = 15;
 params.As2               = 30;
 params.Bs               = 6;
@@ -53,11 +88,17 @@ params.dist2Spots       = 6;
 
 params.NoiseFuncArgs{1} = params.sizeData;
 params.centerCoor       = round(params.sizeData/2);
-centerCoor  = params.centerCoor;
-Kmatrix = params.kMatrix;
-psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+centerCoor              = params.centerCoor;
+Kmatrix                 = params.kMatrix;
+
+
+% psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+% psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+% psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+
+sigmaSQ = [1 1 1];
+patchSize = [16 16 16];
+psfObjs     = {genGaussKernObj(sigmaSQ,patchSize),genGaussKernObj(sigmaSQ,patchSize)};
 psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
 
@@ -75,7 +116,7 @@ MLEs = cell(params.numSamples,1);
 sizeKern        = size(psfs{1});
 
 setupParForProgress(params.numSamples);
-for ii = 1:params.numSamples
+parfor ii = 1:params.numSamples
     incrementParForProgress();
     camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
     [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
@@ -104,7 +145,7 @@ for ii = 1:params.numSamples
     carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
     carvedEstimates.spotKern    = estimated.spotKern;
     %-----APPY MY FUNC-------------------------------------------------
-    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix',psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
 end
 
 MLEsregular = cell(params.numSamples,1);
@@ -150,13 +191,13 @@ inverted  = [];
 for ii = 1:numel(MLEs)
     display(ii);
     if numel(MLEs{ii}) == 3 && numel(MLEsregular{ii}) == 3
-    xyzabs = getXYZABFromTheta(MLEs{ii}(3).theta0s);
-    xyzabsregular = getXYZABFromTheta(MLEsregular{ii}(3).theta0s);
-    
-    regular(end+1) = xyzabsregular{1}{1}(4);
-    regular(end+1) = xyzabsregular{2}{1}(4);
-    inverted(end+1) = xyzabs{1}{1}(4);
-    inverted(end+1) = xyzabs{2}{1}(4);
+        xyzabs = getXYZABFromTheta(MLEs{ii}(3).theta0s);
+        xyzabsregular = getXYZABFromTheta(MLEsregular{ii}(3).theta0s);
+        
+        regular(end+1) = xyzabsregular{1}{1}(1);
+        regular(end+1) = xyzabsregular{2}{1}(1);
+        inverted(end+1) = xyzabs{1}{1}(1);
+        inverted(end+1) = xyzabs{2}{1}(1);
     end
 end
 
