@@ -6,7 +6,7 @@ numEl = numel(cellVector);
 output = cell(numEl,numEl);
 
 for ii = 1:numel(x_i)
-   output{ii} = cellVector{x_i(ii)}.*cellVector{y_i(ii)}; 
+   output{ii} = smartElMulti(cellVector{x_i(ii)},cellVector{y_i(ii)}); 
 end
 
 end

@@ -1,4 +1,4 @@
-function [ infoMatrix,asymtotVar,stdErrorMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
+function [ infoMatrix,asymtotVar,stdErrorMatrix,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
 %CALCFISHERINFO given thetas, this function calculates the expected fisher
 %information and the symtotic variance = inv(fisher);
 % standard error = sqrt of diagonal of the variance matrix
@@ -9,12 +9,30 @@ function [ infoMatrix,asymtotVar,stdErrorMatrix] = calcExpectedFisherInfo(bigLam
 % secondpart = dLambdaDthetai * dLambdaDthetaj
 % 
 
-firstPart = cellfunNonUniformOutput(@(bigLambdas) 1./(bigLambdas + camVarInLambdaUnits),bigLambdas);
-secondPart = cellfunNonUniformOutput(@(bigDLambdas) cellOuterProduct(bigDLambdas),bigDLambdas);
+numChans = numel(bigLambdas);
 
-infoMatrix = cellfun(@(firstPart,secondPart) firstPart.*secondPart,firstPart,secondPart);
-infoMatrix = cellfun(@(infoMatrix) sum(infoMatrix(:)),infoMatrix);
+firstPart = cellfunNonUniformOutput(@(x) 1./(x + camVarInLambdaUnits),bigLambdas);
 
+% lop off Kmatrix part of bigDLambdas
+
+secondPart = cell(numChans,1);
+for ii = 1:numChans
+   secondPart{ii} = cellOuterProduct(bigDLambdas(ii,:)); 
+end
+
+fullInfoMatrix = cell(size(secondPart));
+for ii = 1:numel(secondPart)
+    subInfo = zeros(size(secondPart{ii}));
+    for jj = 1:numel(secondPart{ii})
+        temp = smartElMulti(firstPart{ii},secondPart{ii}{jj});
+        subInfo(jj) = sum(temp(:));
+    end
+    fullInfoMatrix{ii} = subInfo;
+end
+
+fullInfoMatrix = sumCellContents(fullInfoMatrix);
+% take out the kmatrix part
+infoMatrix = fullInfoMatrix(2*numChans+1:end,2*numChans+1:end);
 asymtotVar = inv(infoMatrix);
 stdErrorMatrix = sqrt(asymtotVar);
 
