@@ -1,4 +1,4 @@
-function [ infoMatrix,asymtotVar,stdErrorMatrix,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
+function [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
 %CALCFISHERINFO given thetas, this function calculates the expected fisher
 %information and the symtotic variance = inv(fisher);
 % standard error = sqrt of diagonal of the variance matrix
@@ -34,6 +34,6 @@ fullInfoMatrix = sumCellContents(fullInfoMatrix);
 % take out the kmatrix part
 infoMatrix = fullInfoMatrix(2*numChans+1:end,2*numChans+1:end);
 asymtotVar = inv(infoMatrix);
-stdErrorMatrix = sqrt(asymtotVar);
+stdErrors= sqrt(diag(asymtotVar));
 
 
