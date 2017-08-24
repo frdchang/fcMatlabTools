@@ -11,7 +11,7 @@ function [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherI
 
 numChans = numel(bigLambdas);
 
-firstPart = cellfunNonUniformOutput(@(x) 1./(x + camVarInLambdaUnits),bigLambdas);
+firstPart = cellfunNonUniformOutput(@(x,y) 1./(x + y),bigLambdas,camVarInLambdaUnits);
 
 % lop off Kmatrix part of bigDLambdas
 
