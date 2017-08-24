@@ -14,7 +14,7 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 10;
+params.numSamples       = 10000;
 params.As1              = 15;
 params.As2              = 30;
 params.Bs               = 6;
@@ -84,10 +84,46 @@ parfor ii = 1:params.numSamples
     MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
 end
 
-% define cramer rao bound
-[ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,{cameraVarianceInElectrons,cameraVarianceInElectrons});
+% define cramer rao bound, need to carve out big lambdas and such 
+        bigLambdas = cellfunNonUniformOutput(@(x) x(currMask),bigLambdas);
+        
+        for kk = 1:numel(bigDLambdas)
+            if ~isscalar(bigDLambdas{kk})
+                bigDLambdas{kk} = bigDLambdas{kk}(currMask);
+            end
+        end
+        
+        carvedsigmasqs = cellfunNonUniformOutput(@(x) x(currMask),{cameraVarianceInElectrons,cameraVarianceInElectrons});
 
+[ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,carvedsigmasqs);
+observedFisherInfo = extractCellStructField(MLEs,3,'thetaStdErrors');
+observedFisherInfo = removeEmptyCells(observedFisherInfo);
+observedFisherInfo = cell2mat(observedFisherInfo');
 
+thetas = extractCellStructField(MLEs,3,'thetaMLEs');
+thetas = removeEmptyCells(thetas);
+thetas = cellfunNonUniformOutput(@(x) flattenTheta0s(x),thetas);
+thetas = cellfunNonUniformOutput(@(x) x(5:end),thetas);
+thetas = cell2mat(thetas');
+
+trueTheta = flattenTheta0s(bigTheta);
+trueTheta = trueTheta(5:end);
+createFullMaxFigure;
+for ii = 1:numel(stdErrors)
+   subplot_tight(2,5,ii);
+   h = histogram(thetas(ii,:));title(['theta ' num2str(ii)]);
+   h.Normalization = 'pdf';
+   gaussDom = linspace(h.BinLimits(1),h.BinLimits(2),100);
+   gauss = normpdf(gaussDom,trueTheta(ii),stdErrors(ii));
+   hold on; plot(gaussDom,gauss);
+end
+
+createFullMaxFigure;
+for ii = 1:numel(stdErrors)
+    subplot_tight(2,5,ii);
+    histogram(observedFisherInfo(ii,:));title(['theta ' num2str(ii)]);
+    vline(stdErrors(ii),'r','expected fisher');
+end
 %% define an analytic 3d gaussian and compare to numeric
 % analytic is 2 orders of magnitude faster and comparable to numeric
 
