@@ -43,6 +43,16 @@ end
 
 outputFiles = cell(numApplications,1);
 
+% funcOutputs = cell(numApplications,1);
+%     for ii = 1:numApplications
+%         disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
+%         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
+%         numFuncOutput       = nargout(myFunc);
+%         funcArgs            = {extractedVariables{:},myFuncParams{:}};
+%         funcOutputs{ii}     = batch(myFunc,numFuncOutput,funcArgs,'pool',params.numWorkers);
+%     end
+%     
+%             outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
 if params.doParallel
     initMatlabParallel();
     parfor ii = 1:numApplications
