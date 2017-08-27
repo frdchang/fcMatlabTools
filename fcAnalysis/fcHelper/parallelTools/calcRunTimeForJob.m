@@ -6,7 +6,7 @@ tStart = datetime(job.StartTime,'InputFormat','eee MMM d HH:mm:ss ZZZZ y','TimeZ
 
 if isempty(job.FinishTime)
 tNow = datetime;
-tNow.TimeZone = tStart.TimeZone;
+tNow.TimeZone = 'America/New_York'	;
 
 else
    tNow = datetime(job.FinishTime,'InputFormat','eee MMM d HH:mm:ss ZZZZ y','TimeZone','America/Chicago');
