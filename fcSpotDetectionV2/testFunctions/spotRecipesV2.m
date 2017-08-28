@@ -123,7 +123,8 @@ end
 createFullMaxFigure;
 for ii = 1:numel(stdErrors)
     subplot_tight(2,5,ii);
-    h = histogram(observedFisherInfo(ii,:));title(['theta ' num2str(ii)]);
+    data =  deleteoutliers(observedFisherInfo(ii,:),0.05);
+    h = histogram(data);title(['theta ' num2str(ii)]);
        h.Normalization = 'pdf';
         h.EdgeColor = 'none';
             setAxesByThresh(h,3);
