@@ -1,8 +1,8 @@
 %% see if i can max out the workers
-setupCluster('setWallTime','00:10:00','setMemUsage','600');
+setupCluster('setWallTime','00:20:00','setMemUsage','600');
 clusterObj = parcluster;
 
-numBatches = 100;
+numBatches = 1000;
 funcArg = {@testParFOr, 1, {126}, 'pool', 12};
 j = cell(numBatches,1);
 jobIDX = 1:numBatches;
@@ -14,7 +14,7 @@ for ii = jobIDX
 end
 toc
 
-%% find finished 
+% find finished 
 
 pollingPeriod   = 1;
 numSigmaThresh  = 1;

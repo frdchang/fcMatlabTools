@@ -113,6 +113,8 @@ for ii = 1:numel(stdErrors)
    subplot_tight(2,5,ii);
    h = histogram(thetas(ii,:));title(['theta ' num2str(ii)]);
    h.Normalization = 'pdf';
+    h.EdgeColor = 'none';
+    setAxesByThresh(h,4);
    gaussDom = linspace(h.BinLimits(1),h.BinLimits(2),100);
    gauss = normpdf(gaussDom,trueTheta(ii),stdErrors(ii));
    hold on; plot(gaussDom,gauss);
@@ -121,7 +123,11 @@ end
 createFullMaxFigure;
 for ii = 1:numel(stdErrors)
     subplot_tight(2,5,ii);
-    histogram(observedFisherInfo(ii,:));title(['theta ' num2str(ii)]);
+    h = histogram(observedFisherInfo(ii,:));title(['theta ' num2str(ii)]);
+       h.Normalization = 'pdf';
+        h.EdgeColor = 'none';
+            setAxesByThresh(h,3);
+
     vline(stdErrors(ii),'r','expected fisher');
 end
 %% define an analytic 3d gaussian and compare to numeric
