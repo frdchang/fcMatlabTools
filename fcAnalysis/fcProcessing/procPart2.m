@@ -18,7 +18,7 @@ else
     selectCandsParallel         = {'doProcParallel',true};
     stageIIOutputsParallel      = {'doProcParallel',true};
     T_stageIIOutputsParallel    = {'doProcParallel',true};
-    T_yeastSegsParallel         = {'doProcParallel',true};
+    T_yeastSegsParallel         = {'doParallel',true};
     eC_T_stageIOutputsParallel  = {'doProcParallel',true};
 end
 

@@ -13,7 +13,7 @@ params.threshold_increase_factor    = 0.2;
 params.phase_subtraction_factor     = 1.2;
 params.min_cell_size                = 10;
 params.cell_margin                  = 12;
-params.doParallel                   = true;
+params.doParallel                   = false;
 params.doPlot                       = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
