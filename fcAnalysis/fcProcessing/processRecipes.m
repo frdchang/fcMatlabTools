@@ -1,3 +1,13 @@
+%% test bulk modules
+camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+Kmatrix                  = [1 0.31; 0 1];
+channels                 = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
+useCluster               = false;
+
+expFolder  = '~/Desktop/fcDataStorage/20160201-test-adf';
+procPart1(expFolder,'camVarFile',camVarFile,'Kmatrix',Kmatrix,'channels',channels,'useCluster',useCluster);
+procPart2(expFolder);
+procPart3(expFolder);
 %% build modules for 2 spot case and see if it generalizes to 1 spot case
 % expFolder = '~/Dropbox/Public/smalldataset/fcDataStorage/20160201-test-adf';
 camVarFile = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
@@ -37,14 +47,14 @@ T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doProcParallel'
 
 %-----USER-----------------------------------------------------------------
 thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
-edgeProfileZs       = procGetEdgeProfileZ(T_phaseOutputs,'end');
+T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
-T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,edgeProfileZs,'doParallel',true,'doPlot',false);
+T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 
 eC_T_stageIOutputs  = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
 eC_T_qpmOutputs     = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
