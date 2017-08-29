@@ -1,9 +1,12 @@
 %% test my batch func workers
-numBatches = 100;
+numBatches = 1000;
 listOflistOfArguments = cell(numBatches,1);
 [listOflistOfArguments{:}] = deal(126);
-batchOutputs = sendFuncsByBatch(@testParFor,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','600');
-histogram(flattenCellArray(batchOutputs));
+listOflistOfArguments = convertListToListofArguments(listOflistOfArguments);
+[batchOutputs,runTimeBasket] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
+histogram(cell2mat(flattenCellArray(batchOutputs)));
+hold on;
+histogram(runTimeBasket);
 
 
 
