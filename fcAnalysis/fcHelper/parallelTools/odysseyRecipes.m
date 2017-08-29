@@ -5,12 +5,12 @@ batchOutputs    = cell(numBatches,1);
 runTimeBasket   = cell(numBatches,1);
 counters        = cell(numBatches,1);
 for numBatches = logspace(1,4,Nsamples)
-    listOflistOfArguments = cell(numBatches,1);
-    [listOflistOfArguments{:}] = deal(126);
-    listOflistOfArguments = convertListToListofArguments(listOflistOfArguments);
+    listOflistOfArguments       = cell(numBatches,1);
+    [listOflistOfArguments{:}]  = deal(126);
+    listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
     tic;
     [batchOutputs{numBatches},runTimeBasket{numBatches},counters{numBatches}] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
-    timings(numBatches) = toc;
+    timings(numBatches)         = toc;
 end
 semilogx(numBatches,timings,'-x');
 
