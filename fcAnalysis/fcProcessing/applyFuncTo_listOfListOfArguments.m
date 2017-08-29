@@ -16,6 +16,10 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 %                       this information, you can specify how to save the
 %                       output
 % saveFuncParams:       params for that function
+%
+% notes: this function can pass to a cluster, therefore additional
+% parameters,e.g. those required for sendFuncsByBatch and setupCluster can
+% take parameters.
 
 %--parameters--------------------------------------------------------------
 params.doParallel      = false;
@@ -45,27 +49,11 @@ end
 
 outputFiles = cell(numApplications,1);
 
-% funcOutputs = cell(numApplications,1);
-%     for ii = 1:numApplications
-%         disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
-%         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
-%         numFuncOutput       = nargout(myFunc);
-%         funcArgs            = {extractedVariables{:},myFuncParams{:}};
-%         funcOutputs{ii}     = batch(myFunc,numFuncOutput,funcArgs,'pool',params.numWorkers);
-%     end
-%
-%             outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
 if params.doParallel
     if params.useBatchWorkers > 0
-        setupCluster(varargin{:});
-        for ii = 1:numApplications
-            disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
-            extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
-            numFuncOutput       = nargout(myFunc);
-            funcArgs            = {extractedVariables{:},myFuncParams{:}};
-            batchOutput         = batch(@batchHelper,numFuncOutput,{listOflistOfArguments{ii},myFunc,hashMyFuncParams,funcArgs,saveFunc},'pool',params.useBatchWorkers);
-            outputFiles{ii}     = batchOutput{1};
-        end
+        disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
+        batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
+        outputFiles = sendFuncsByBatch(batchFunc,batchHelperArgs,params.useBatchWorkers,varargin{:});
     else
         initMatlabParallel();
         parfor ii = 1:numApplications
@@ -94,7 +82,15 @@ inputsOutputs.myFunc        = myFunc;
 
 end
 
-function output = batchHelper(listOfArguments,myFunc,hashMyFuncParams,saveFuncParams,funcArgs,saveFunc)
-funcOutput = myFunc(funcArgs{:});
-output = saveFunc(listOfArguments,funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
+function outputFiles = batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams)
+extractedVariables   = openFileFunc(listOfArguments{:},openFileFuncParams{:});
+funcOutput           = cell(nargout(myFunc),1);
+[funcOutput{:}]      = myFunc(extractedVariables{:},myFuncParams{:});
+outputFiles          = saveFunc(listOfArguments,funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
 end
+
+% function output = expandHelper(this,numApplications)
+% output = cell(numApplications,1);
+% [output{:}] = deal(this);
+% output = convertListToListofArguments(output);
+% end
