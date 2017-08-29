@@ -20,6 +20,8 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 % notes: this function can pass to a cluster, therefore additional
 % parameters,e.g. those required for sendFuncsByBatch and setupCluster can
 % take parameters.
+%
+% 'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',12,'doParallel',true
 
 %--parameters--------------------------------------------------------------
 params.doParallel      = false;
@@ -53,7 +55,8 @@ if params.doParallel
     if params.useBatchWorkers > 0
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
-        outputFiles = sendFuncsByBatch(batchFunc,batchHelperArgs,params.useBatchWorkers,varargin{:});
+        outputFiles = sendFuncsByBatch(batchFunc,listOflistOfArguments,params.useBatchWorkers,varargin{:});
+        % additional output file processing?
     else
         initMatlabParallel();
         parfor ii = 1:numApplications

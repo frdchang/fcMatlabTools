@@ -27,8 +27,8 @@ segparams.phase_subtraction_factor     = params.phase_subtraction_factor;
 segparams.min_cell_size                = params.min_cell_size;
 segparams.cell_margin                  = params.cell_margin;
 
-trackingSeedData.L = lastTimePointSegmented;
-trackingSeedData.orderedFileList = timeLapseFiles;
+trackingSeedData.L                     = lastTimePointSegmented;
+trackingSeedData.orderedFileList       = timeLapseFiles;
 
 yeastSegmented = CT_track_modByFred(segparams,trackingSeedData,params.doParallel,params.doPlot);
 
