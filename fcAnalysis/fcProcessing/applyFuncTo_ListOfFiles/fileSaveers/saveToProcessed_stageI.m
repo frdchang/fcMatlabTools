@@ -35,7 +35,7 @@ saveFields{end+1} = 'mat';
 savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' returnFileName(saveProcessedFileAt)];
 makeDIRforFilename(savePath);
 estimated = rmfield(estimated,intersect(listOfFields,params.rmFieldsForStruct));
-save(savePath,'estimated');
+save(savePath,'estimated','-v6');
 output{end+1} = [savePath '.mat'];
 listOutput = convertListToListofArguments(output);
 output = table(listOutput{:},'VariableNames',saveFields);
