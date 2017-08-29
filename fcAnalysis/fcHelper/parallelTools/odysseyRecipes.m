@@ -1,3 +1,19 @@
+%% titrate numBatches to see cluster performance
+Nsamples        = 4;
+timings         = zeros(numBatches,1);
+batchOutputs    = cell(numBatches,1);
+runTimeBasket   = cell(numBatches,1);
+counters        = cell(numBatches,1);
+for numBatches = logspace(1,4,Nsamples)
+    listOflistOfArguments = cell(numBatches,1);
+    [listOflistOfArguments{:}] = deal(126);
+    listOflistOfArguments = convertListToListofArguments(listOflistOfArguments);
+    tic;
+    [batchOutputs{numBatches},runTimeBasket{numBatches},counters{numBatches}] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
+    timings(numBatches) = toc;
+end
+semilogx(numBatches,timings,'-x');
+
 %% test my batch func workers
 numBatches = 1000;
 listOflistOfArguments = cell(numBatches,1);
@@ -23,12 +39,12 @@ jobIDX = 1:numBatches;
 % submit all the jobs
 
 tic;
-for ii = jobIDX 
-   j{ii} = clusterObj.batch(funcArg{:}); 
+for ii = jobIDX
+    j{ii} = clusterObj.batch(funcArg{:});
 end
 toc
 
-% find finished 
+% find finished
 
 pollingPeriod   = 1;
 numSigmaThresh  = 1;
@@ -40,14 +56,14 @@ runTimeBasket   = zeros(numBatches,1);
 while(true)
     % copy the finished jobs to my output holder
     rel_IDX = cellfun(@(x) isequal(x.State,'finished'),j(jobIDX));
-    % get idx of those that have errors 
+    % get idx of those that have errors
     rel_errorIDX = ~cellfun(@(x) all(cellfun(@isempty,{x.Tasks.ErrorMessage})),j(jobIDX));
     % resubmit jobs with errors
     errorIDX = jobIDX(rel_errorIDX);
     for jj = 1:numel(errorIDX)
         disp(['resubmitting error ' mat2str(errorIDX)]);
         j{errorIDX(jj)}.delete;
-        j{errorIDX(jj)} = clusterObj.batch(funcArg{:}); 
+        j{errorIDX(jj)} = clusterObj.batch(funcArg{:});
     end
     % finished with errors do not get updated
     rel_IDX(rel_errorIDX) = 0;
@@ -61,13 +77,13 @@ while(true)
     % resubmit failed jobs
     failedIDX = jobIDX(cellfun(@(x) isequal(x.State,'failed'),j(jobIDX)));
     for jj = 1:numel(failedIDX)
-                        disp(['resubmitting failed ' mat2str(failedIDX)]);
-                 j{failedIDX(jj)}.delete;
-
-        j{failedIDX(jj)} = clusterObj.batch(funcArg{:}); 
+        disp(['resubmitting failed ' mat2str(failedIDX)]);
+        j{failedIDX(jj)}.delete;
+        
+        j{failedIDX(jj)} = clusterObj.batch(funcArg{:});
     end
     % if jobs are all deleted then breaks
-%     disp([num2str(sum(cellfun(@(x) isequal(x.State,'running'),j(jobIDX)))) ' running, ' num2str(sum(cellfun(@(x) isequal(x.State,'pending'),j(jobIDX)))) ' pending, ' num2str(sum(cellfun(@(x) isequal(x.State,'queued'),j(jobIDX)))) ' queued']);
+    %     disp([num2str(sum(cellfun(@(x) isequal(x.State,'running'),j(jobIDX)))) ' running, ' num2str(sum(cellfun(@(x) isequal(x.State,'pending'),j(jobIDX)))) ' pending, ' num2str(sum(cellfun(@(x) isequal(x.State,'queued'),j(jobIDX)))) ' queued']);
     if all(alldone)
         break;
     end

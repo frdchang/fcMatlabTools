@@ -1,4 +1,4 @@
-function [batchOutputs,runTimeBasket] = sendFuncsByBatch(myFunc,listOflistOfArguments,numWorkers,varargin)
+function [batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(myFunc,listOflistOfArguments,numWorkers,varargin)
 %SENDFUNCSBYBATCH will send a bunch of myFunc commands parsed by
 %listOfFuncArgs.
 
@@ -19,6 +19,7 @@ numBatches          = numel(listOflistOfArguments);
 j = cell(numBatches,1);
 jobIDX = 1:numBatches;
 for ii = jobIDX
+    disp(['sendFuncsByBatch(): submitting ' num2str(ii) '/' num2str(numBatches)]);
     j{ii} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{ii},'pool',numWorkers);
 end
 
@@ -30,6 +31,9 @@ batchOutputs    = cell(numBatches,1);
 alldone         = zeros(numBatches,1);
 runTimeBasket   = zeros(numBatches,1);
 counter         = 1;
+failedCounter   = 0;
+slowCounter     = 0;
+errorCounter    = 0;
 
 while(true)
     % copy the finished jobs to my output holder
@@ -42,6 +46,7 @@ while(true)
         disp(['sendFuncsByBatch(): resubmitting error ' mat2str(errorIDX)]);
         j{errorIDX(jj)}.delete;
         j{errorIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers);
+        errorCounter = errorCounter + 1;
     end
     % finished with errors do not get updated
     rel_IDX(rel_errorIDX) = 0;
@@ -57,8 +62,8 @@ while(true)
     for jj = 1:numel(failedIDX)
         disp(['sendFuncsByBatch(): resubmitting failed ' mat2str(failedIDX)]);
         j{failedIDX(jj)}.delete;
-        
         j{failedIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers);
+        failedCounter = failedCounter + 1;
     end
     % if jobs are all deleted then breaks
     disp(['sendFuncsByBatch(): ' num2str(counter) ' ' num2str(sum(cellfun(@(x) isequal(x.State,'running'),j(jobIDX)))) ' running, ' num2str(sum(cellfun(@(x) isequal(x.State,'pending'),j(jobIDX)))) ' pending, ' num2str(sum(cellfun(@(x) isequal(x.State,'queued'),j(jobIDX)))) ' queued']);
@@ -85,6 +90,7 @@ while(true)
         disp(['sendFuncsByBatch(): resubmitting slow ' mat2str(reRunJobsIDX)]);
         j{reRunJobsIDX(jj)}.delete;
         j{reRunJobsIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers);
+        slowCounter = slowCounter + 1;
     end
     pause(pollingPeriod);
     counter = counter + 1;
@@ -92,6 +98,10 @@ end
 
 % clear jobs in cluster
 clusterObj.Jobs.delete
+
+counters.failed = failedCounter;
+counters.slow   = slowCounter;
+counters.error  = errorCounter;
 
 
 
