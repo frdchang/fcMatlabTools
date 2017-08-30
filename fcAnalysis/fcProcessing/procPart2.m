@@ -16,7 +16,7 @@ if params.useCluster
 else
     cellMasksParallel           = {'doProcParallel',true};
     selectCandsParallel         = {'doProcParallel',true};
-    stageIIOutputsParallel      = {'doProcParallel',true};
+    stageIIOutputsParallel      = {'doParallel',true};
     T_stageIIOutputsParallel    = {'doProcParallel',true};
     T_yeastSegsParallel         = {'doParallel',true};
     eC_T_stageIOutputsParallel  = {'doProcParallel',true};

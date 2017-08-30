@@ -33,6 +33,14 @@ end
 fullInfoMatrix = sumCellContents(fullInfoMatrix);
 % take out the kmatrix part
 infoMatrix = fullInfoMatrix(2*numChans+1:end,2*numChans+1:end);
+
+conditionNumber = rcond(infoMatrix);
+% check condition 
+if  conditionNumber < 2e-16 || isnan(conditionNumber)
+
+
+end
+    
 asymtotVar = inv(infoMatrix);
 stdErrors= sqrt(diag(asymtotVar));
 
