@@ -9,16 +9,20 @@ params = updateParams(params,varargin);
 
 if exist('ClusterInfo','var')== 0
     try
-    configCluster;
-    ClusterInfo.setWallTime(params.setWallTime);
-    ClusterInfo.setQueueName(params.setQueueName);
-    ClusterInfo.setMemUsage(params.setMemUsage);
+        configCluster;
     catch
-       error('there is no cluster configuration'); 
+        error('there is no cluster configuration');
     end
 else
-    ClusterInfo.setWallTime(params.setWallTime);
-    ClusterInfo.setQueueName(params.setQueueName);
-    ClusterInfo.setMemUsage(params.setMemUsage);
+    
 end
+c = parcluster;
+c.AdditionalProperties.MemUsage= params.setMemUsage;
+c.AdditionalProperties.WallTime = params.setWallTime;
+c.AdditionalProperties.QueueName = params.setQueueName;
+
+
+% ClusterInfo.setWallTime(params.setWallTime);
+% ClusterInfo.setQueueName(params.setQueueName);
+% ClusterInfo.setMemUsage(params.setMemUsage);
 
