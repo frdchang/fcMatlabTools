@@ -1,18 +1,20 @@
 %% titrate numBatches to see cluster performance
-Nsamples        = 4;
-timings         = zeros(numBatches,1);
-batchOutputs    = cell(numBatches,1);
-runTimeBasket   = cell(numBatches,1);
-counters        = cell(numBatches,1);
-for numBatches = logspace(1,4,Nsamples)
-    listOflistOfArguments       = cell(numBatches,1);
+Ntry            = [10,100,1000];
+Nsamples        = numel(Ntry);
+timings         = zeros(Nsamples,1);
+batchOutputs    = cell(Nsamples,1);
+runTimeBasket   = cell(Nsamples,1);
+counters        = cell(Nsamples,1);
+
+for ii = 1:Nsamples
+    listOflistOfArguments       = cell(Ntry(ii),1);
     [listOflistOfArguments{:}]  = deal(126);
     listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
     tic;
-    [batchOutputs{numBatches},runTimeBasket{numBatches},counters{numBatches}] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
-    timings(numBatches)         = toc;
+    [batchOutputs{ii},runTimeBasket{ii},counters{ii}] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
+    timings(ii)                 = toc;
 end
-semilogx(numBatches,timings,'-x');
+semilogx(Ntry,timings,'-x');
 
 %% test my batch func workers
 numBatches = 1000;
