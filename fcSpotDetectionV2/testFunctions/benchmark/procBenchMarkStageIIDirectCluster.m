@@ -27,6 +27,8 @@ benchCC         = benchStruct.conditions;
 numConditions = numel(stageIConds);
 conditions    = cell(size(stageIConds));
 disp('procBenchMarkStageIIDirect() starting...');
+
+
 parfor ii = 1:numConditions
     %     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};
