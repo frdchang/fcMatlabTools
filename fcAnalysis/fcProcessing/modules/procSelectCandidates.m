@@ -19,7 +19,7 @@ if ~isempty(params.cellMasks)
    stageIandThresholds = glueCells(stageIStructs,cellMaskFiles,thresholds);
 end
 
-selectCands     = applyFuncTo_listOfListOfArguments(stageIandThresholds,@openData_selectCandidates,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},'doParallel',params.doProcParallel);
+selectCands     = applyFuncTo_listOfListOfArguments(stageIandThresholds,@openData_selectCandidates,{},@selectCandidates,{varargin{:}},@saveToProcessed_selectCandidates,{},params);
 
 
 selectCands = procSaver(stageIOutputs,selectCands);

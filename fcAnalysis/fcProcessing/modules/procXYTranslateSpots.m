@@ -18,7 +18,7 @@ MLEs = convertListToListofArguments(MLEs);
 MLEsAndAlignments = glueCellArguments(MLEs,xyAlignDatas);
 
 
-T_stageIIOutputs    = applyFuncTo_listOfListOfArguments(MLEsAndAlignments,@ openData_passThru,{},@translateSpots,{},@saveToProcessed_translateSpots,{},'doParallel',params.doProcParallel );
+T_stageIIOutputs    = applyFuncTo_listOfListOfArguments(MLEsAndAlignments,@ openData_passThru,{},@translateSpots,{},@saveToProcessed_translateSpots,{},params);
 
 T_stageIIOutputs = procSaver(stageIIOutputs,T_stageIIOutputs);
 end

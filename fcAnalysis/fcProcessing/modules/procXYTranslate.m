@@ -29,7 +29,7 @@ for ii = 1:numel(tableNames)
             currChan = groupByTimeLapses(currChan);
             currChan = convertListToListofArguments(currChan);
             imgAndTransData = glueCellArguments(currChan,xyAlignDatas);
-            cellOutput{end+1} = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},'doParallel',params.doProcParallel);
+            cellOutput{end+1} = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},params);
         end
         Trans_procOutput.inputFiles = horzcat(Trans_procOutput.inputFiles,table(currEntry,'VariableNames',tableNames(ii)));
         gluedOutputs = cellfunNonUniformOutput(@(x) x.outputFiles.translateSeq,cellOutput);
@@ -41,7 +41,7 @@ for ii = 1:numel(tableNames)
         currEntrybyTime = groupByTimeLapses(currEntry);
         currEntryList = convertListToListofArguments(currEntrybyTime);
         imgAndTransData = glueCellArguments(currEntryList,xyAlignDatas);
-        currOutput = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},'doParallel',params.doProcParallel);
+        currOutput = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},params);
         Trans_procOutput.inputFiles = horzcat(Trans_procOutput.inputFiles, table(currEntry,'VariableNames',tableNames(ii)));
         Trans_procOutput.outputFiles = horzcat(Trans_procOutput.outputFiles, table(currOutput.outputFiles.translateSeq,'VariableNames',tableNames(ii)));
     end

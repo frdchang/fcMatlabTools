@@ -17,7 +17,7 @@ finalLs         = cellfunNonUniformOutput(@(finalPhases,finalQpms,edgeProfiles) 
 finalLs         = convertListToListofArguments(finalLs);
 
 yeastSegInputs  = glueCellArguments(convertListToListofArguments(qpms),finalLs);
-T_yeastSegs     = applyFuncTo_listOfListOfArguments(yeastSegInputs,@ openData_passThru,{},@trackingYeast,{varargin{:}},@saveToProcessed_yeastSeg,{},'doParallel',params.doProcParallel );
+T_yeastSegs     = applyFuncTo_listOfListOfArguments(yeastSegInputs,@ openData_passThru,{},@trackingYeast,{varargin{:}},@saveToProcessed_yeastSeg,{},params);
 T_yeastSegs     = procSaver(T_phaseOutputs,T_yeastSegs);
 end
 

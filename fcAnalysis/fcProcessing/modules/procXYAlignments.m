@@ -12,7 +12,7 @@ imgFiles = procOutputs.outputFiles.(params.imgTableName);
 imgFiles = groupByTimeLapses(imgFiles);
 imgFiles = convertListToListofArguments(imgFiles);
 
-xyAlignments   = applyFuncTo_listOfListOfArguments(imgFiles,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},'doParallel',params.doProcParallel);
+xyAlignments   = applyFuncTo_listOfListOfArguments(imgFiles,@openData_passThru,{},@stageAlign,{},@saveToProcessed_stageAlign,{},params);
 
 xyAlignments = procSaver(procOutputs,xyAlignments);
 end
