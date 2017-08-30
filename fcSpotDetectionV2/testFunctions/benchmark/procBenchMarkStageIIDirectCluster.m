@@ -29,6 +29,10 @@ conditions    = cell(size(stageIConds));
 disp('procBenchMarkStageIIDirect() starting...');
 
 
+
+[batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(@testParFOr,listOflistOfArguments,12,'setWallTime','00:20:00','setMemUsage','900');
+
+
 parfor ii = 1:numConditions
     %     display(['iteration ' num2str(ii) ' of ' num2str(numConditions)]);
     currStageI      = stageIConds{ii};

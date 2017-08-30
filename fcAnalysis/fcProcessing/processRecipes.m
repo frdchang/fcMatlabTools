@@ -1,3 +1,12 @@
+%% test bulk modules on cluster
+camVarFile = '/n/regal/kleckner_lab/fchang/fcDataStorage/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+Kmatrix    = 1;
+channels   = {'FITC\(WhiteTTL\)'};
+useCluster = true;
+
+expFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage/20209999-test';
+procPart1(expFolder,'camVarFile',camVarFile,'Kmatrix',Kmatrix,'channels',channels,'useCluster',useCluster);
+
 %% test bulk modules
 camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 Kmatrix                  = [1 0.31; 0 1];
