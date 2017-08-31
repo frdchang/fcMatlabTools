@@ -15,6 +15,9 @@ clusterObj = parcluster;
 
 %% issue the batch commands parsed by listOfFuncArgs
 numFuncOutput       = nargout(myFunc);
+if numFuncOutput < 0
+   numFuncOutput = 1; 
+end
 numBatches          = numel(listOflistOfArguments);
 j = cell(numBatches,1);
 jobIDX = 1:numBatches;
