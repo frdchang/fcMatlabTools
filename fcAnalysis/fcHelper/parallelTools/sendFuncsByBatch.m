@@ -9,6 +9,7 @@ params.minSamples        = 5;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+myPaths = getPathFromFunc();
 %% setup cluster stuff
 setupCluster(varargin{:});
 clusterObj = parcluster;
@@ -23,7 +24,7 @@ j = cell(numBatches,1);
 jobIDX = 1:numBatches;
 for ii = jobIDX
     disp(['sendFuncsByBatch(): submitting ' num2str(ii) '/' num2str(numBatches)]);
-    j{ii} = clusterObj.batch(myFunc,numFuncOutput,{listOflistOfArguments(ii)},'pool',numWorkers);
+    j{ii} = clusterObj.batch(myFunc,numFuncOutput,{listOflistOfArguments(ii)},'pool',numWorkers,'AdditionalPaths',myPaths);
 end
 
 %% keep track of failed batch commands and re-issue
