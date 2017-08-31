@@ -7,6 +7,8 @@ params.setMemUsage     = '4000';
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
+[ myPath ] = getPathFromFunc();
+
 if exist('ClusterInfo','var')== 0
     try
         configCluster;
@@ -16,10 +18,13 @@ if exist('ClusterInfo','var')== 0
 else
     
 end
+
+
 c = parcluster;
-c.AdditionalProperties.MemUsage= params.setMemUsage;
+c.AdditionalProperties.MemUsage = params.setMemUsage;
 c.AdditionalProperties.WallTime = params.setWallTime;
 c.AdditionalProperties.QueueName = params.setQueueName;
+c.AutoAttachFiles = true;
 c.saveProfile;
 
 
