@@ -5,17 +5,17 @@ function [] = procPart1(expFolder,varargin)
 %--parameters--------------------------------------------------------------
 params.camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 params.specimenUnitsInMicrons   = [0.1083,0.1083,0.389];
-params.gaussKernSigmaSqs        = {[0.9,0.9,0.9],[1,1,1]};
-params.gaussPatchSizes          = {[7 7 7],[7 7 7]};
-params.Kmatrix                  = [1 0.31; 0 1];
-params.channels                 = {'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
+params.gaussKernSigmaSqs        = {[0.9,0.9,0.9]};%{[0.9,0.9,0.9],[1,1,1]};
+params.gaussPatchSizes          = {[7 7 7]};%{[7 7 7],[7 7 7]};
+params.Kmatrix                  = 1;%[1 0.31; 0 1];
+params.channels                 = {'FITC\(WhiteTTL\)'};%{'FITC\(WhiteTTL\)','mCherry\(WhiteTTL\)'};
 params.useCluster               = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 if params.useCluster
     qpmOutputsParallel      = {'setWallTime','00:06:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
-    xyAlignmentsParallel    = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
+    xyAlignmentsParallel    = {'setWallTime','00:20:00','setMemUsage','2000','useBatchWorkers',1,'doProcParallel',true};
     stageIOutputsParallel   = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',4,'doProcParallel',true};
     maxColoredProjsParallel = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
     xyMaxProjNDsParallel    = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};

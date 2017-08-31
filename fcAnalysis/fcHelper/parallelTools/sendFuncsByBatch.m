@@ -13,7 +13,7 @@ myPaths = getPathFromFunc();
 %% setup cluster stuff
 setupCluster(varargin{:});
 clusterObj = parcluster;
-
+clearCluster();
 %% issue the batch commands parsed by listOfFuncArgs
 numFuncOutput       = nargout(myFunc);
 if numFuncOutput < 0
@@ -44,6 +44,12 @@ while(true)
     rel_IDX = cellfun(@(x) isequal(x.State,'finished'),j(jobIDX));
     % get idx of those that have errors
     rel_errorIDX = ~cellfun(@(x) all(cellfun(@isempty,{x.Tasks.ErrorMessage})),j(jobIDX));
+    % display error
+    if any(rel_errorIDX)
+    errorMSG = cellfunNonUniformOutput(@(x) removeEmptyCells({x.Tasks.ErrorMessage}),j(jobIDX));
+    errorMSG = flattenCellArray(errorMSG);
+    errorMSG{:}
+    end
     % resubmit jobs with errors
     errorIDX = jobIDX(rel_errorIDX);
     for jj = 1:numel(errorIDX)
@@ -102,7 +108,6 @@ end
 
 % clear jobs in cluster
 clusterObj.Jobs.delete
-
 counters.failed = failedCounter;
 counters.slow   = slowCounter;
 counters.error  = errorCounter;

@@ -56,7 +56,7 @@ if params.doProcParallel
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
         outputFiles = sendFuncsByBatch(batchFunc,listOflistOfArguments,params.useBatchWorkers,varargin{:});
-        % additional output file processing?
+        outputFiles = vertcat(outputFiles{:});
     else
         initMatlabParallel();
         parfor ii = 1:numApplications
