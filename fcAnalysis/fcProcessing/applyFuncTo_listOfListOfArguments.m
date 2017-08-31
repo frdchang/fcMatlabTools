@@ -24,7 +24,7 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 % 'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',12,'doParallel',true
 
 %--parameters--------------------------------------------------------------
-params.doParallel      = false;
+params.doProcParallel      = false;
 params.useBatchWorkers = 0;  % if this is greater than zero, then this functin will batch the parallel work
 
 params.hashOptions     = struct('Format', 'base64', 'Method', 'MD5');
@@ -51,7 +51,7 @@ end
 
 outputFiles = cell(numApplications,1);
 
-if params.doParallel
+if params.doProcParallel
     if params.useBatchWorkers > 0
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);

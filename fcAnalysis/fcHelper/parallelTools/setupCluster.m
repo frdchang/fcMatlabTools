@@ -20,6 +20,7 @@ c = parcluster;
 c.AdditionalProperties.MemUsage= params.setMemUsage;
 c.AdditionalProperties.WallTime = params.setWallTime;
 c.AdditionalProperties.QueueName = params.setQueueName;
+c.saveProfile;
 
 
 % ClusterInfo.setWallTime(params.setWallTime);
