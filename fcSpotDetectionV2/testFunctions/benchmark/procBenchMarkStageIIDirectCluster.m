@@ -20,7 +20,7 @@ psfObjs         = benchStruct.psfObjs;
 psfs            = benchStruct.psfs;
 Kmatrix         = benchStruct.Kmatrix;
 trueCoor        = benchStruct.centerCoor;
-sizeKern        = size(psfs{1});
+sizeKern        = getPatchSize(psfs{1});
 stageIConds     = benchStruct.findSpotsStage1V2;
 benchCC         = benchStruct.conditions;
 

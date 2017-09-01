@@ -8,11 +8,11 @@ function idxCell = ind2subND(siz,ndx)
 idxCell = cell(numel(siz),1);
 nout = numel(siz);
 k = [1 cumprod(siz(1:end-1))];
-for i = nout:-1:1,
+for i = nout:-1:1
     vi = rem(ndx-1, k(i)) + 1;
     vj = (ndx - vi)/k(i) + 1;
     idxCell{i} = double(vj);
     ndx = vi;
 end
-end
+
 

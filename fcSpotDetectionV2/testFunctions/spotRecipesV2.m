@@ -14,7 +14,7 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 10000;
+params.numSamples       = 100;
 params.As1              = 15;
 params.As2              = 30;
 params.Bs               = 6;
@@ -31,7 +31,7 @@ Kmatrix                 = params.kMatrix;
 % psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
 
 sigmaSQ = [1 1 1];
-patchSize = [16 16 16];
+patchSize = [17 17 17];
 psfObjs     = {genGaussKernObj(sigmaSQ,patchSize),genGaussKernObj(sigmaSQ,patchSize)};
 psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
@@ -47,7 +47,7 @@ bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 numSpots        = numSpotsInTheta(bigTheta);
 
 MLEs = cell(params.numSamples,1);
-sizeKern        = size(psfs{1});
+sizeKern        = getPatchSize(psfs{1});
 
  camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
  [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);

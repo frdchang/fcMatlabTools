@@ -31,7 +31,16 @@ classdef myPattern_3DGaussianConstSigmas < myPattern_Interface
         end
         
         function myShape = returnShape(obj)
-            myShape = obj.heartFunc;
+            sizeVector =  calcMinMaxFromMeshData(obj.myDomains);
+            sizeVector = sizeVector(:,3);
+            [~,separateComponents] = ndGauss(obj.mySigmas,sizeVector);
+            myShape = separateComponents;
+        end
+        
+        function mySize = returnSize(obj)
+                        sizeVector =  calcMinMaxFromMeshData(obj.myDomains);
+            sizeVector = sizeVector(:,3);
+            mySize = sizeVector;
         end
         
         function lambdas = givenTheta(obj,myDomains,theta,varargin)
