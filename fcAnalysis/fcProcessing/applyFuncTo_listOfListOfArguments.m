@@ -24,7 +24,7 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 % 'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',12,'doParallel',true
 
 %--parameters--------------------------------------------------------------
-params.doProcParallel      = false;
+params.doProcParallel  = false;
 params.useBatchWorkers = 0;  % if this is greater than zero, then this functin will batch the parallel work
 
 params.hashOptions     = struct('Format', 'base64', 'Method', 'MD5');

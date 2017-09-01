@@ -4,8 +4,8 @@ function [batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(myFunc,listOfl
 
 %--parameters--------------------------------------------------------------
 params.pollingPeriod     = 10;
-params.numSigmaThresh    = 1;
-params.minSamples        = 5;
+% params.numSigmaThresh    = 1;
+% params.minSamples        = 5;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -17,7 +17,7 @@ clearCluster();
 %% issue the batch commands parsed by listOfFuncArgs
 numFuncOutput       = nargout(myFunc);
 if numFuncOutput < 0
-   numFuncOutput = 1; 
+    numFuncOutput = 1;
 end
 numBatches          = numel(listOflistOfArguments);
 j = cell(numBatches,1);
@@ -29,8 +29,8 @@ end
 
 %% keep track of failed batch commands and re-issue
 pollingPeriod   = params.pollingPeriod;
-numSigmaThresh  = params.numSigmaThresh;
-minSamples      = params.minSamples;
+% numSigmaThresh  = params.numSigmaThresh;
+% minSamples      = params.minSamples;
 batchOutputs    = cell(numBatches,1);
 alldone         = zeros(numBatches,1);
 runTimeBasket   = zeros(numBatches,1);
@@ -46,9 +46,9 @@ while(true)
     rel_errorIDX = ~cellfun(@(x) all(cellfun(@isempty,{x.Tasks.ErrorMessage})),j(jobIDX));
     % display error
     if any(rel_errorIDX)
-    errorMSG = cellfunNonUniformOutput(@(x) removeEmptyCells({x.Tasks.ErrorMessage}),j(jobIDX));
-    errorMSG = flattenCellArray(errorMSG);
-    errorMSG{:}
+        errorMSG = cellfunNonUniformOutput(@(x) removeEmptyCells({x.Tasks.ErrorMessage}),j(jobIDX));
+        errorMSG = flattenCellArray(errorMSG);
+        errorMSG{:}
     end
     % resubmit jobs with errors
     errorIDX = jobIDX(rel_errorIDX);
@@ -80,28 +80,28 @@ while(true)
     if all(alldone)
         break;
     end
-%     % resubmit jobs that are taking too long
-%     rel_runningIDX = cellfun(@(x) isequal(x.State,'running'),j(jobIDX));
-%     runningIDX     = jobIDX(rel_runningIDX);
-%     calcElapsedTime = cellfun(@calcRunTimeForJob,j(runningIDX));
-%     
-%     meanRunTime = mean(runTimeBasket(alldone>0));
-%     stdRunTime  = std(runTimeBasket(alldone>0));
-%     
-%     threshTime = meanRunTime + stdRunTime*numSigmaThresh;
-%     
-%     if sum(alldone) < minSamples
-%         threshTime = inf;
-%     end
-%     
-%     slowJobsIDX = calcElapsedTime > threshTime;
-%     reRunJobsIDX = runningIDX(slowJobsIDX);
-%     for jj = 1:numel(reRunJobsIDX)
-%         disp(['sendFuncsByBatch(): resubmitting slow ' mat2str(reRunJobsIDX)]);
-%         j{reRunJobsIDX(jj)}.delete;
-%         j{reRunJobsIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers,'AdditionalPaths',myPaths);
-%         slowCounter = slowCounter + 1;
-%     end
+    %     % resubmit jobs that are taking too long
+    %     rel_runningIDX = cellfun(@(x) isequal(x.State,'running'),j(jobIDX));
+    %     runningIDX     = jobIDX(rel_runningIDX);
+    %     calcElapsedTime = cellfun(@calcRunTimeForJob,j(runningIDX));
+    %
+    %     meanRunTime = mean(runTimeBasket(alldone>0));
+    %     stdRunTime  = std(runTimeBasket(alldone>0));
+    %
+    %     threshTime = meanRunTime + stdRunTime*numSigmaThresh;
+    %
+    %     if sum(alldone) < minSamples
+    %         threshTime = inf;
+    %     end
+    %
+    %     slowJobsIDX = calcElapsedTime > threshTime;
+    %     reRunJobsIDX = runningIDX(slowJobsIDX);
+    %     for jj = 1:numel(reRunJobsIDX)
+    %         disp(['sendFuncsByBatch(): resubmitting slow ' mat2str(reRunJobsIDX)]);
+    %         j{reRunJobsIDX(jj)}.delete;
+    %         j{reRunJobsIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers,'AdditionalPaths',myPaths);
+    %         slowCounter = slowCounter + 1;
+    %     end
     pause(pollingPeriod);
     counter = counter + 1;
 end

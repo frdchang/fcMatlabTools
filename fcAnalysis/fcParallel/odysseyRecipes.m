@@ -1,3 +1,11 @@
+%% test batch
+Ntry = 100;
+listOflistOfArguments       = cell(Ntry,1);
+[listOflistOfArguments{:}]  = deal(126);
+listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
+[batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:20:00','setMemUsage','900');
+
+    
 %% titrate numBatches to see cluster performance
 Ntry            = [10,100,1000];
 Nsamples        = numel(Ntry);
