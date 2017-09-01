@@ -3,7 +3,7 @@ Ntry = 100;
 listOflistOfArguments       = cell(Ntry,1);
 [listOflistOfArguments{:}]  = deal(126);
 listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
-[batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:20:00','setMemUsage','900');
+[batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:10:00','setMemUsage','900');
 
     
 %% titrate numBatches to see cluster performance
