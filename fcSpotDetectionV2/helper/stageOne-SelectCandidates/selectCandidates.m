@@ -36,7 +36,7 @@ params = updateParams(params,varargin);
 
 %% universal computation - preprocessing
 if iscell(estimated.A1)
-    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern{1}/sum(estimated.spotKern{1}(:)));
+    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern{1});
     Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
     Athresholded = ~multiCellContents(Athresholded);
     
