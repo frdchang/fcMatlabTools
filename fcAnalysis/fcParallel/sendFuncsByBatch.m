@@ -55,7 +55,7 @@ while(true)
     for jj = 1:numel(errorIDX)
         disp(['sendFuncsByBatch(): resubmitting error ' mat2str(errorIDX)]);
         j{errorIDX(jj)}.delete;
-        j{errorIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers,'AdditionalPaths',myPaths);
+        j{errorIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,{listOflistOfArguments(errorIDX(jj))},'pool',numWorkers,'AdditionalPaths',myPaths);
         errorCounter = errorCounter + 1;
     end
     % finished with errors do not get updated
@@ -72,7 +72,7 @@ while(true)
     for jj = 1:numel(failedIDX)
         disp(['sendFuncsByBatch(): resubmitting failed ' mat2str(failedIDX)]);
         j{failedIDX(jj)}.delete;
-        j{failedIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers,'AdditionalPaths',myPaths);
+        j{failedIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,{listOflistOfArguments(failedIDX(jj))},'pool',numWorkers,'AdditionalPaths',myPaths);
         failedCounter = failedCounter + 1;
     end
     % if jobs are all deleted then breaks
@@ -99,7 +99,7 @@ while(true)
     %     for jj = 1:numel(reRunJobsIDX)
     %         disp(['sendFuncsByBatch(): resubmitting slow ' mat2str(reRunJobsIDX)]);
     %         j{reRunJobsIDX(jj)}.delete;
-    %         j{reRunJobsIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,listOflistOfArguments{jj},'pool',numWorkers,'AdditionalPaths',myPaths);
+    %         j{reRunJobsIDX(jj)} = clusterObj.batch(myFunc,numFuncOutput,{listOflistOfArguments(reRunJobsIDX(jj))},'pool',numWorkers,'AdditionalPaths',myPaths);
     %         slowCounter = slowCounter + 1;
     %     end
     pause(pollingPeriod);

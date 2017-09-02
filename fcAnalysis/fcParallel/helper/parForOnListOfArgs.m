@@ -1,10 +1,12 @@
 function [ outputs ] = parForOnListOfArgs(myFunc,listOflistOfArguments )
 %PARFORONLISTOFARGS Summary of this function goes here
 %   Detailed explanation goes here
-
-outputs = cell(numel(listOflistOfArguments),1);
-parfor ii = 1:numel(listOflistOfArguments)
-    outputs{ii} = myFunc(listOflistOfArguments{ii}{:});
+numArgs = numel(listOflistOfArguments);
+outputs = cell(numArgs,1);
+display(numArgs);
+for ii = 1:numel(listOflistOfArguments)
+    display(listOflistOfArguments{ii});
+     outputs{ii} = myFunc(listOflistOfArguments{ii}{:});
 end
 
 end

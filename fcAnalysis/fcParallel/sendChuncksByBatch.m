@@ -5,7 +5,7 @@ function [batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(myFunc,listO
 
 
 %--parameters--------------------------------------------------------------
-params.workersPerChunk = 12;
+params.workersPerChunk = 11;
 params.maxWorkers      = 256;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -16,11 +16,12 @@ numChunks = floor(params.maxWorkers / (params.workersPerChunk + 1));
 chunkedlistOflistOfArguments = mat2cell(listOflistOfArguments, diff(round(linspace(0, M, numChunks+1))), N);
 chunkedlistOflistOfArguments = removeEmptyCells(chunkedlistOflistOfArguments);
 
-chunkHandler = @(x) parForOnListOfArgs(myFunc,x{1});
+chunkHandler = @(x) parForOnListOfArgs(myFunc,x);
 % send it off to batches
 [batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(chunkHandler,chunkedlistOflistOfArguments,params.workersPerChunk,varargin);
 
 % concate outputs
+batchOutputs = vertcat(batchOutputs{:});
 batchOutputs = vertcat(batchOutputs{:});
 end
 
