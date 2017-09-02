@@ -14,6 +14,7 @@ params = updateParams(params,varargin);
 numChunks = floor(params.maxWorkers / (params.workersPerChunk + 1));
 [M, N] = size(listOflistOfArguments); 
 chunkedlistOflistOfArguments = mat2cell(listOflistOfArguments, diff(round(linspace(0, M, numChunks+1))), N);
+chunkedlistOflistOfArguments = removeEmptyCells(chunkedlistOflistOfArguments);
 
 chunkHandler = @(x) parForOnListOfArgs(myFunc,x{1});
 % send it off to batches
