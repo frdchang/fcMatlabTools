@@ -55,7 +55,7 @@ if params.doProcParallel
     if params.useBatchWorkers 
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
-        outputFiles = sendChunksByBatch(batchFunc,listOflistOfArguments,varargin{:});
+        outputFiles = sendChuncksByBatch(batchFunc,listOflistOfArguments,varargin{:});
         outputFiles = vertcat(outputFiles{:});
     else
         initMatlabParallel();
