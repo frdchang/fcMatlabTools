@@ -16,9 +16,10 @@ numChunks = floor(params.maxWorkers / (params.workersPerChunk + 1));
 chunkedlistOflistOfArguments = mat2cell(listOflistOfArguments, diff(round(linspace(0, M, numChunks+1))), N);
 chunkedlistOflistOfArguments = removeEmptyCells(chunkedlistOflistOfArguments);
 
+numWorkers = min(params.workersPerChunk,numel(chunkedlistOflistOfArguments));
 chunkHandler = @(x) parForOnListOfArgs(myFunc,x);
 % send it off to batches
-[batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(chunkHandler,chunkedlistOflistOfArguments,params.workersPerChunk,varargin);
+[batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(chunkHandler,chunkedlistOflistOfArguments,numWorkers,varargin);
 
 % concate outputs
 batchOutputs = vertcat(batchOutputs{:});
