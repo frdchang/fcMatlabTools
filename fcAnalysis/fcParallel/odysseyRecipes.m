@@ -1,5 +1,5 @@
 %% test batch
-Ntry = 100;
+Ntry = 3;
 listOflistOfArguments       = cell(Ntry,1);
 [listOflistOfArguments{:}]  = deal(126);
 listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
