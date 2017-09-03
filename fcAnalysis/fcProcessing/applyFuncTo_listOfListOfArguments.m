@@ -25,7 +25,7 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 
 %--parameters--------------------------------------------------------------
 params.doProcParallel  = false;
-params.useBatchWorkers = 0;  % if this is greater than zero, then this functin will batch the parallel work
+params.useBatchWorkers = false;  % if true use cluster batch 
 
 params.hashOptions     = struct('Format', 'base64', 'Method', 'MD5');
 params.hashLength      = 5;
@@ -52,10 +52,10 @@ end
 outputFiles = cell(numApplications,1);
 
 if params.doProcParallel
-    if params.useBatchWorkers > 0
+    if params.useBatchWorkers 
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
-        outputFiles = sendFuncsByBatch(batchFunc,listOflistOfArguments,params.useBatchWorkers,varargin{:});
+        outputFiles = sendChunksByBatch(batchFunc,listOflistOfArguments,varargin{:});
         outputFiles = vertcat(outputFiles{:});
     else
         initMatlabParallel();

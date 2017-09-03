@@ -14,12 +14,12 @@ params.useCluster               = false;
 params = updateParams(params,varargin);
 
 if params.useCluster
-    qpmOutputsParallel      = {'setWallTime','00:06:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
-    xyAlignmentsParallel    = {'setWallTime','00:20:00','setMemUsage','2000','useBatchWorkers',1,'doProcParallel',true};
-    stageIOutputsParallel   = {'setWallTime','00:20:00','setMemUsage','2000','useBatchWorkers',4,'doProcParallel',true};
-    maxColoredProjsParallel = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
-    xyMaxProjNDsParallel    = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
-    T_stageIOutputsParallel = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',1,'doProcParallel',true};
+    qpmOutputsParallel      = {'setWallTime','00:06:00','setMemUsage','900','useBatchWorkers',true,'doProcParallel',true};
+    xyAlignmentsParallel    = {'setWallTime','00:20:00','setMemUsage','2000','useBatchWorkers',true,'doProcParallel',true};
+    stageIOutputsParallel   = {'setWallTime','00:20:00','setMemUsage','2000','useBatchWorkers',true,'doProcParallel',true};
+    maxColoredProjsParallel = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',true,'doProcParallel',true};
+    xyMaxProjNDsParallel    = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',true,'doProcParallel',true};
+    T_stageIOutputsParallel = {'setWallTime','00:20:00','setMemUsage','900','useBatchWorkers',true,'doProcParallel',true};
 else
     qpmOutputsParallel      = {'doProcParallel',true};
     xyAlignmentsParallel    = {'doProcParallel',true};
