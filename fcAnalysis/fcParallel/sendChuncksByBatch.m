@@ -5,7 +5,7 @@ function [batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(myFunc,listO
 
 
 %--parameters--------------------------------------------------------------
-params.workersPerChunk =1;
+params.workersPerChunk = 1;
 params.maxWorkers      = 256;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -13,12 +13,10 @@ params = updateParams(params,varargin);
 % divide listOflistOfArguments into chunks
 numChunks = floor(params.maxWorkers / (params.workersPerChunk + 1));
 [M, N] = size(listOflistOfArguments);
-if numel(listOflistOfArguments) < params.workersPerChunk
-    chunkedlistOflistOfArguments = {listOflistOfArguments};
-else
-    chunkedlistOflistOfArguments = mat2cell(listOflistOfArguments, diff(round(linspace(0, M, numChunks+1))), N);
-    chunkedlistOflistOfArguments = removeEmptyCells(chunkedlistOflistOfArguments);
-end
+
+chunkedlistOflistOfArguments = mat2cell(listOflistOfArguments, diff(round(linspace(0, M, numChunks+1))), N);
+chunkedlistOflistOfArguments = removeEmptyCells(chunkedlistOflistOfArguments);
+
 
 
 numWorkers = min(params.workersPerChunk,numel(chunkedlistOflistOfArguments));
