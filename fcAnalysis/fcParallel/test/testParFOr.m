@@ -1,4 +1,4 @@
-function [ output ] = testParFOr(N)
+function [ output ] = testParFOr(N,varargin)
 %TESTPARFOR Summary of this function goes here
 %   Detailed explanation goes here
 

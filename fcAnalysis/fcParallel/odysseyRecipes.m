@@ -1,8 +1,10 @@
 %% test batch
 Ntry = 3;
-listOflistOfArguments       = cell(Ntry,1);
-[listOflistOfArguments{:}]  = deal(126);
-listOflistOfArguments       = convertListToListofArguments(listOflistOfArguments);
+listOfArguments1       = cell(Ntry,1);
+listOfArguments2       = cell(Ntry,1);
+[listOfArguments1{:}]  = deal(126);
+[listOfArguments2{:}]  = deal(1);
+listOflistOfArguments       = glueCells(listOfArguments1,listOfArguments2);
 [batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:10:00','setMemUsage','900');
 
     
