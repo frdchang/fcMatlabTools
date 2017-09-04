@@ -14,7 +14,7 @@ params = updateParams(params,varargin);
 phaseFiles = qpmOutputs.outputFiles.(params.phaseTableName);
 phaseFiles = convertListToListofArguments(phaseFiles);
 
-cellMasks = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},params.thresholdFunc,{params.thresholdFuncArg{:}},@saveToProcessed_images,{},params);
+cellMasks = applyFuncTo_listOfListOfArguments(phaseFiles,@openImage_applyFuncTo,{},params.thresholdFunc,{params.thresholdFuncArg{:}},@saveToProcessed_images,{},varargin{:});
 cellMasks = procSaver(qpmOutputs,cellMasks);
 end
 

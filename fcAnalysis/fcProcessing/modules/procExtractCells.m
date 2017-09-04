@@ -21,7 +21,7 @@ for ii = 1:numel(tableNames)
     end
     currEntry = convertListToListofArguments(currEntry);
     imgAndSegData = glueCellArguments(currEntry,segData);
-    currOutput =  applyFuncTo_listOfListOfArguments(imgAndSegData,@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},params);
+    currOutput =  applyFuncTo_listOfListOfArguments(imgAndSegData,@openData_passThru,{},@extractCells,{},@saveToProcessed_passThru,{},varargin{:});
     eC_T_procOutputs.inputFiles = horzcat(eC_T_procOutputs.inputFiles,table(imgAndSegData,'VariableNames',tableNames(ii)));
     eC_T_procOutputs.outputFiles = horzcat(eC_T_procOutputs.outputFiles,table(currOutput.outputFiles.passThru,'VariableNames',tableNames(ii)));
 end

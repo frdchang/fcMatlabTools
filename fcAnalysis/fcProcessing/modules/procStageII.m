@@ -26,7 +26,7 @@ selectCandsFiles     = convertListToListofArguments(selectCandsFiles);
 
 stageIIArgFiles      = glueCellArguments(dataFiles,camVarFile,stageIStructsFiles,selectCandsFiles,convertListToListofArguments({stageIOutputs.Kmatrix}),psfObj);
 
-stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{params},@saveToProcessed_findSpotsStage2V2,{},params);
+stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{params},@saveToProcessed_findSpotsStage2V2,{},varargin{:});
 
 stageIIOutputs       = procSaver(stageIOutputs,stageIIOutputs);
 
