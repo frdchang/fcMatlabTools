@@ -3,10 +3,11 @@ function [ outputs ] = parForOnListOfArgs(myFunc,listOflistOfArguments )
 %   Detailed explanation goes here
 numArgs = numel(listOflistOfArguments);
 outputs = cell(numArgs,1);
-display(numArgs);
+disp(numArgs);
+disp(listOflistOfArguments);
 parfor ii = 1:numel(listOflistOfArguments)
-    display(listOflistOfArguments{ii});
-    outputs{ii} = myFunc(listOflistOfArguments{ii}{:});
+    disp(listOflistOfArguments{ii});
+    outputs{ii} = myFunc(listOflistOfArguments{ii});
 end
 
 end

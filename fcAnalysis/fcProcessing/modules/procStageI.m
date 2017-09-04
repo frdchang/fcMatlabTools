@@ -16,7 +16,7 @@ spotFileInputs = spotOutputs.outputFiles.files;
 % spotFiles      = convertListToListofArguments(spotFiles);
 
 
-stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_stageI,{},params.stageIFunc,{cellfunNonUniformOutput(@(x) x.returnShape,psfObj),params.camVarFile,'kMatrix',params.Kmatrix,varargin{:}},@saveToProcessed_stageI,{},params);
+stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_stageI,{},params.stageIFunc,{cellfunNonUniformOutput(@(x) x.returnShape,psfObj),params.camVarFile,'kMatrix',params.Kmatrix,varargin{:}},@saveToProcessed_stageI,{},varargin{:});
 
 % spot_Thetas     = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{1}'});
 % spot_A1s        = grabFromListOfCells(stageIOutputs.outputFiles,{'@(x) x{2}'});
