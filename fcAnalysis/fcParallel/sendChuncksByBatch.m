@@ -5,7 +5,7 @@ function [batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(myFunc,listO
 
 
 %--parameters--------------------------------------------------------------
-params.workersPerChunk = 1;
+params.workersPerChunk = 12;
 params.maxWorkers      = 256;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);

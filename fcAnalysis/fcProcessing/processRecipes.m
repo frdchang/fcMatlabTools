@@ -5,6 +5,7 @@ channels   = {'FITC\(WhiteTTL\)'};
 useCluster = true;
 
 expFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage/20209999-test';
+% expFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage/20170323-mitosis-FCY308';
 procPart1(expFolder,'camVarFile',camVarFile,'Kmatrix',Kmatrix,'channels',channels,'useCluster',useCluster);
 
 %% test bulk modules
