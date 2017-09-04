@@ -5,8 +5,8 @@ listOfArguments2       = cell(Ntry,1);
 [listOfArguments1{:}]  = deal(126);
 [listOfArguments2{:}]  = deal(1);
 listOflistOfArguments       = glueCells(listOfArguments1,listOfArguments2);
-[batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:10:00','setMemUsage','900');
-
+% [batchOutputs,runTimeBasket,counters] = sendChuncksByBatch(@testParFOr,listOflistOfArguments,'setWallTime','00:10:00','setMemUsage','900');
+applyFuncTo_listOfListOfArguments(listOflistOfArguments,@openData_passThru,{},@testParFOr,{},@saveToProcessed_passThru,{},'doProcParallel',true,'useBatchWorkers',true);
     
 %% titrate numBatches to see cluster performance
 Ntry            = [10,100,1000];
