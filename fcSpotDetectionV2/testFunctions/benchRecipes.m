@@ -31,7 +31,7 @@ N = 1;
 for type = 1
     benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
     benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
-    benchStruct = procBenchMarkStageIIDirect(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+    benchStruct = procBenchMarkStageIIDirectCluster(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
     analyzeStageIIDirect(benchStruct);
 end
 %% 1 spot
