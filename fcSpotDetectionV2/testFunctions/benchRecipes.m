@@ -25,15 +25,15 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 
 %% only thing on cluster needed is the stage II analysis
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-saveFolder = '~/Desktop/test';
-N = 1;
+% saveFolder = '~/Desktop/test';
+N = 100;
 
-for type = 1
-    benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-    benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+type = 1;
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder,'dist2Spots',0);
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
     benchStruct = procBenchMarkStageIIDirectCluster(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-    analyzeStageIIDirect(benchStruct);
-end
+   analyzeStageIIDirect(benchStruct);
+
 %% 1 spot
 switch computer
     case 'MACI64'

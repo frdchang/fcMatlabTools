@@ -4,7 +4,7 @@ function [ benchStruct ] = procBenchMarkStageIIDirectCluster(benchStruct,varargi
 params.doN          = inf;
 params.doPlotEveryN = inf;
 params.DLLDLambda   = @DLLDLambda_PoissPoiss;
-params.setWallTime  = '00:20:00';
+params.setWallTime  = '00:10:00';
 params.setMemUsage  = '900';
 params.numWorkers   = 12;
 %--------------------------------------------------------------------------
@@ -34,19 +34,17 @@ disp('procBenchMarkStageIIDirect() starting...');
 currStageI = stageIConds;
 thetaTrue = cellfunNonUniformOutput(@(x) x.bigTheta,benchCC);
 listOflistOfArguments = glueCells(currStageI,thetaTrue);
-myFunc = @(currStageI,thetaTrue) stageIIhelper(currStageI,thetaTrue,params,sizeKern,Kmatrix,psfObjs);
+myFunc = @(currStageIthetaTrue) stageIIhelper(currStageIthetaTrue,params,sizeKern,Kmatrix,psfObjs);
 [batchOutputs,runTimeBasket,counters] = sendFuncsByBatch(myFunc,listOflistOfArguments,params.numWorkers,'setWallTime',params.setWallTime,'setMemUsage',params.setMemUsage);
-
+ batchOutputs = vertcat(batchOutputs{:});
 %%% need to copy over the outputs
 for ii = 1:numConditions
-    currStageI      = stageIConds{ii};
-    thetaTrue       = benchCC{ii}.bigTheta;
-    conditions{ii}.A                = currA;
-    conditions{ii}.B                = currB;
-    conditions{ii}.D                = currD;
-    conditions{ii}.MLEsByDirect     = MLEs;
-    conditions{ii}.bigTheta         = thetaTrue;
-    conditions{ii}.saveFiles        = myFuncOutSave;
+    conditions{ii}.A                = batchOutputs{ii}.currA;
+    conditions{ii}.B                = batchOutputs{ii}.currB;
+    conditions{ii}.D                = batchOutputs{ii}.currD;
+    conditions{ii}.MLEsByDirect     = batchOutputs{ii}.MLEs;
+     conditions{ii}.bigTheta         = batchOutputs{ii}.thetaTrue;
+    conditions{ii}.saveFiles        = batchOutputs{ii}.myFuncOutSave;
 end
 
 

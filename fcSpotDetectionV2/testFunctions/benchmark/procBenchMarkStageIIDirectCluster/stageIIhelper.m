@@ -1,5 +1,10 @@
-function stageIIOutputs = stageIIhelper(currStageI,thetaTrue,params,sizeKern,Kmatrix,psfObjs)
+function stageIIOutputs = stageIIhelper(currStageIthetaTrue,params,sizeKern,Kmatrix,psfObjs)
 % generate sequence of thetas from thetaTrue and num spots to fit
+currStageI = currStageIthetaTrue{1};
+thetaTrue = currStageIthetaTrue{2};
+
+display(currStageI);
+display(thetaTrue);
 numSpots        = numSpotsInTheta(thetaTrue);
 % get stage I stuff
 currStageIFiles = currStageI.findSpotsStage1V2;
@@ -13,6 +18,13 @@ currD           = currStageI.D;
 doNum = min(params.doN,numel(currFileList));
 myFuncOutSave   = cell(doNum,1);
 MLEs            = cell(doNum,1);
+
+stageIIOutputs.currA = currA;
+stageIIOutputs.currB = currB;
+stageIIOutputs.currD = currD;
+stageIIOutputs.MLEs = MLEs;
+stageIIOutputs.thetaTrue = thetaTrue;
+stageIIOutputs.myFuncOutSave = myFuncOutSave;
 if currA == 0
     return;
 end
@@ -54,10 +66,7 @@ parfor jj = 1:doNum
     parForSave(myFuncOutSave{jj},MLEs{jj});
     
 end
-stageIIOutputs.currA = currA;
-stageIIOutputs.currB = currB;
-stageIIOutputs.currD = currD;
+
 stageIIOutputs.MLEs = MLEs;
 stageIIOutputs.myFuncOutSave = myFuncOutSave;
-
 end

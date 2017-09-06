@@ -40,7 +40,7 @@ for ii = 1:numConds
         
         MLEs         = stageIIconds{ii}.MLEsByDirect;
         
-        if isempty(stageIIconds{ii}.bigTheta)
+        if isempty(stageIIconds{ii}.bigTheta) || all(cellfun(@isempty,MLEs))
             continue;
         end
         masterTheta  = stageIIconds{ii}.bigTheta;
@@ -54,6 +54,7 @@ for ii = 1:numConds
         LLPGBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         for jj = 1:numSamples
             currMLEholder           = MLEs{jj}{1};
+%             currMLEholder           = MLEs{jj};
             if ~all(abs([currMLEholder.logLikePP])>0)
                 continue;
             end
