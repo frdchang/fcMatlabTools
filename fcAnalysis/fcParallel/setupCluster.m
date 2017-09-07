@@ -18,13 +18,16 @@ else
     
 end
 
-
+try
 c = parcluster;
 c.AdditionalProperties.MemUsage = params.setMemUsage;
 c.AdditionalProperties.WallTime = params.setWallTime;
 c.AdditionalProperties.QueueName = params.setQueueName;
 % c.AutoAttachFiles = true;
 c.saveProfile;
+catch
+    
+end
 
 
 % ClusterInfo.setWallTime(params.setWallTime);

@@ -4,8 +4,8 @@ function [ benchStruct ] = procBenchMarkStageIIDirectCluster(benchStruct,varargi
 params.doN          = inf;
 params.doPlotEveryN = inf;
 params.DLLDLambda   = @DLLDLambda_PoissPoiss;
-params.setWallTime  = '00:10:00';
-params.setMemUsage  = '900';
+params.setWallTime  = '02:00:00';
+params.setMemUsage  = '1800';
 params.numWorkers   = 12;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
