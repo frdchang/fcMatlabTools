@@ -1,7 +1,7 @@
 function [] = setupCluster(varargin)
 %SETUPCLUSTER setups the cluster
 %--parameters--------------------------------------------------------------
-params.setWallTime     = '01:00:00';
+params.setWallTime     = '08:00:00';
 params.setQueueName    = 'serial_requeue';
 params.setMemUsage     = '4000';
 %--------------------------------------------------------------------------

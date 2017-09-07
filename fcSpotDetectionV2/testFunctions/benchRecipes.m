@@ -27,10 +27,10 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
 % saveFolder = '~/Desktop/test';
 setupCluster();
-N = 100;
+N = 500;
 tic;
 type = 3;
-benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder,'dist2Spots',0);
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageIIDirectCluster(benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
 analyzeStageIIDirect(benchStruct);
