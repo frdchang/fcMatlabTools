@@ -8,7 +8,7 @@ function [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherI
 % firstpart = 1/(lambda + noise)
 % secondpart = dLambdaDthetai * dLambdaDthetaj
 % 
-
+warning off;
 numChans = numel(bigLambdas);
 
 firstPart = cellfunNonUniformOutput(@(x,y) 1./(x + y),bigLambdas(:),camVarInLambdaUnits(:));
@@ -43,5 +43,6 @@ end
     
 asymtotVar = inv(infoMatrix);
 stdErrors= sqrt(diag(asymtotVar));
+warning on;
 
 

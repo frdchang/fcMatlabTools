@@ -44,6 +44,7 @@ for ii = 1:numConds
             continue;
         end
         masterTheta  = stageIIconds{ii}.bigTheta;
+        stdErrorList     = benchStruct.stdErrorList{ii}.stdErrorList;
         trueTheta    = flattenTheta0s(stageIIconds{ii}.bigTheta);
         numSamples   = numel(MLEs);
         
@@ -93,11 +94,13 @@ for ii = 1:numConds
         end
         % remove empty thetas in thetaHolder
         thetaHolder = thetaHolder(:,LLPPHolder>0);
+        stdErrorList = stdErrorList(LLPPHolder>0);
         thetaHolder(:,~any(thetaHolder,1)) = [];
         LLPPBasket  = LLPPBasket(:,LLPPHolder>0);
         LLPGBasket  = LLPGBasket(:,LLPPHolder>0);
         LLPPHolder  = LLPPHolder(LLPPHolder>0);
         
+        analysis{ii}.stdErrorList = stdErrorList;
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
         analysis{ii}.LLPPBasket  = LLPPBasket;
@@ -313,7 +316,7 @@ switch numel(sizeConditions)
             end
         end
         
-        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
+        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf
             for ii = 1:prod(currSizeConditions)
                 if ~isempty(analysis{ii})
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
