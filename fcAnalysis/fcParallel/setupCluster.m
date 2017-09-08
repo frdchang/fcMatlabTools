@@ -1,12 +1,16 @@
 function [] = setupCluster(varargin)
 %SETUPCLUSTER setups the cluster
 %--parameters--------------------------------------------------------------
-params.setWallTime     = '08:00:00';
+params.setWallTime     = '01:00:00';
 params.setQueueName    = 'serial_requeue';
-params.setMemUsage     = '4000';
+params.setMemUsage     = '8000';
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-
+try
+    clearCluster();
+catch
+    
+end
 
 if exist('ClusterInfo','var')== 0
     try
