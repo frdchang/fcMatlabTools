@@ -282,7 +282,7 @@ analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 switch computer
     case 'MACI64'
         saveFolder = '~/Desktop/dataStorage/fcDataStorage';
-        N = 1;
+        N = 10;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 100;
@@ -290,7 +290,7 @@ switch computer
         error('asdf');
 end
 timings = [];
-tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder);
+tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder,'dist2Spots',0);
 timings(end+1) = toc;
 tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
