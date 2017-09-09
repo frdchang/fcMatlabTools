@@ -154,7 +154,7 @@ for ii = 1:numTheta
         minMaxOfDomains = calcMinMaxFromMeshData(domains);
         ADoms = minMaxOfDomains(1,:);
         BDoms = minMaxOfDomains(2,:);
-        [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
+        [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),10),linspace(BDoms(1),BDoms(2),10));
         AA = domains{1}(:,:,currD);
         BB = domains{2}(:,:,currD);
         AA(isnan(currSTDMap)) = [];
@@ -300,6 +300,7 @@ switch numel(sizeConditions)
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
                 hSub.Normalization = 'pdf';
+                hSub.EdgeColor  = 'none';
                 if currMin > min(hSub.BinEdges)
                     currMin = min(hSub.BinEdges);
                 end
@@ -345,6 +346,7 @@ switch numel(sizeConditions)
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     hSub = histogram(currAnalysis{ii}.thetaHolder(currTheta,:));
                     hSub.Normalization = 'pdf';
+                    hSub.EdgeColor  = 'none';
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currAnalysis{ii}.thetaHolder(currTheta,:))));
                     if currMin > min(hSub.BinEdges)
