@@ -290,7 +290,7 @@ switch computer
         error('asdf');
 end
 timings = [];
-tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder,'dist2Spots',0);
+tic;benchStruct = genBenchMark('benchType',3,'numSamples',N,'saveFolder',saveFolder);
 timings(end+1) = toc;
 tic;benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 timings(end+1) = toc;
