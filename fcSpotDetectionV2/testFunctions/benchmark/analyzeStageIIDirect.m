@@ -44,7 +44,7 @@ for ii = 1:numConds
             continue;
         end
         masterTheta  = stageIIconds{ii}.bigTheta;
-        stdErrorList     = benchStruct.stdErrorList{ii}.stdErrorList;
+        stdErrorList     = benchStruct.conditions{ii}.stdErrorList;
         trueTheta    = flattenTheta0s(stageIIconds{ii}.bigTheta);
         numSamples   = numel(MLEs);
         
@@ -55,7 +55,7 @@ for ii = 1:numConds
         LLPGBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         for jj = 1:numSamples
             currMLEholder           = MLEs{jj}{1};
-%             currMLEholder           = MLEs{jj};
+            %             currMLEholder           = MLEs{jj};
             if ~all(abs([currMLEholder.logLikePP])>0)
                 continue;
             end
@@ -253,28 +253,28 @@ end
 
 %% plot EER for different distances
 if ndims(analysis) == 3
-for ii = 1:size(analysis,1)
-    for jj = 1:size(analysis,2)
-        analysis_D = analysis(ii,jj,:);
-        if all(~cellfun(@isempty,analysis_D))
-            currEER = zeros(numel(analysis_D),1);
-            currD = zeros(numel(analysis_D),1);
-            for di = 1:numel(analysis_D)
-                currLLR = analysis_D{di}.LLPPBasket;
-                currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
-                ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
-                currEER(di) = ROC.EER;
-                currD(di) = analysis_D{di}.D;
+    for ii = 1:size(analysis,1)
+        for jj = 1:size(analysis,2)
+            analysis_D = analysis(ii,jj,:);
+            if all(~cellfun(@isempty,analysis_D))
+                currEER = zeros(numel(analysis_D),1);
+                currD = zeros(numel(analysis_D),1);
+                for di = 1:numel(analysis_D)
+                    currLLR = analysis_D{di}.LLPPBasket;
+                    currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
+                    ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
+                    currEER(di) = ROC.EER;
+                    currD(di) = analysis_D{di}.D;
+                end
+                close all;
+                myTitle = ['EERoverD' filesep 'EER-A_' num2str(analysis_D{di}.A) ' B_' num2str(analysis_D{di}.B)];
+                makeDIRforFilename([saveFolder filesep myTitle]);
+                plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
+                print('-painters','-depsc', [saveFolder filesep myTitle]);
             end
-            close all;
-            myTitle = ['EERoverD' filesep 'EER-A_' num2str(analysis_D{di}.A) ' B_' num2str(analysis_D{di}.B)];
-            makeDIRforFilename([saveFolder filesep myTitle]);
-            plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
-            print('-painters','-depsc', [saveFolder filesep myTitle]);
         end
     end
-end
-close all;
+    close all;
 end
 
 
@@ -322,7 +322,9 @@ switch numel(sizeConditions)
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     axis([currMin currMax 0 peakMax]);
                     xDomain = linspace(currMin,currMax,100);
-                    hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                    currErrors = cell2mat(analysis{ii}.stdErrorList);
+                    currStds = sqrt(mean(currErrors.^2,2));
+                    hold on; plot(xDomain,normpdf(xDomain, analysis{ii}.trueTheta(currTheta),currStds(currTheta)));
                 end
             end
         end
@@ -366,7 +368,9 @@ switch numel(sizeConditions)
                         subplot(currSizeConditions(2), currSizeConditions(1),ii);
                         axis([currMin currMax 0 peakMax]);
                         xDomain = linspace(currMin,currMax,100);
-                        hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                        currErrors = cell2mat(analysis{ii}.stdErrorList);
+                        currStds = sqrt(mean(currErrors.^2,2));
+                        hold on; plot(xDomain,normpdf(xDomain, analysis{ii}.trueTheta(currTheta),currStds(currTheta)));
                     end
                 end
             end
