@@ -25,8 +25,8 @@ params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 params.useThisCamVar    = 2.5919;  % this value simulates the slow mode with broken pixels
 
 params.numSamples       = 10;
-params.As               = linspace(0,30,30);
-params.Bs               = linspace(0,24,20);
+params.As               = linspace(0,30,31);
+params.Bs               = linspace(0,24,25);
 params.dist2Spots       = linspace(0,6,7);
 params.dist2SpotsAtA    = [];%[3,15,27,30];
 params.dist2SpotsAtB    = [];%[0,6,24,0];
@@ -95,7 +95,7 @@ setupParForProgress(totNum);
 parfor zz = 1:totNum
     incrementParForProgress();
     [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
-   
+    
     currA = params.As(ai);
     currB = params.Bs(bi);
     currD = params.dist2Spots(di);
@@ -109,9 +109,9 @@ parfor zz = 1:totNum
         end
     end
     
-    if currD ~= 0 && (currB > currA)
-        continue;
-    end
+    %     if currD ~= 0 && (currB > currA)
+    %         continue;
+    %     end
     
     
     switch params.benchType
@@ -143,29 +143,56 @@ parfor zz = 1:totNum
     else
         camVarInLambdaUnits = params.useThisCamVar*ones(size(bigLambdas{1}));
     end
-   [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
-
+    [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits);
+    
     benchConditions{zz} = stdErrors;
 end
 
 numThetas = numel(getFirstNonEmptyCellContent(benchConditions));
+[aa,bb] = meshgrid(params.As,params.Bs);
+numLines = 10;
+gradC = linspace(0.2,0.5,size(benchConditions,3));
 for ii = 1:numThetas
-    for jj = 1:size(benchConditions,3)
-     currBench = benchConditions(:,:,jj);
-     currPlot = NaN(size(currBench));
-     for zz = 1:numel(currBench)
-         if ~isempty(currBench{zz})
-         currPlot(zz) = currBench{zz}(ii);
-         end
-     end
-     figure;
-     contour(currPlot','LineWidth',3,'ShowText','on');
-        set(gca,'Ydir','reverse');
-        axis equal;
-           xlabel('A');ylabel('B');
-        box off;
-        title(['theta ' num2str(ii) 'd ' num2str(jj)]);
+    
+    for jj = [size(benchConditions,3),2]
+        display(jj)
+        currBench = benchConditions(:,:,jj);
+        currPlot = NaN(size(currBench));
+        for zz = 1:numel(currBench)
+            if ~isempty(currBench{zz})
+                if currBench{zz}(ii) ~= Inf
+                    currPlot(zz) = currBench{zz}(ii);
+                end
+            end
+        end
+        if ~all(isreal(currPlot))
+            continue;
+        end
+        if jj == size(benchConditions,3)
+            createFullMaxFigure;
+            [cc, hh]=contour(aa,bb,currPlot',numLines,'LineWidth',3,'ShowText','on','LabelSpacing',300);
+            prevMin = min(currPlot(:));
+            prevMax = max(currPlot(:));
+            %             [cc, hh]=contour(aa,bb,currPlot',numLines,'LineWidth',3,'ShowText','on','LabelSpacing',300,'LevelList',round2(hh.LevelList,0.1));
+        else
+            hold on;
+            if prevMax < min(currPlot(:))
+                            contour(aa,bb,currPlot',numLines,'LineWidth',1,'ShowText','on','LabelSpacing',1100,'LineStyle','--');
+
+            else
+                            contour(aa,bb,currPlot',numLines,'LineWidth',1,'ShowText','on','LabelSpacing',1100,'LevelList',hh.LevelList,'LineStyle','--');
+
+            end
+        end
+        
     end
+    set(gca,'Ydir','reverse');
+    %             axis equal;
+    xlabel('A');ylabel('B');
+    box off;
+    title(['theta ' num2str(ii) ' d' num2str(size(benchConditions,3)) '(colored) and then d' num2str(jj)]);
+    exportFigEPS(['~/Desktop/' num2str(ii) '_' num2str(jj) '.eps']);
+    close all;
 end
 
 % display('genBenchMark() done...');
@@ -176,3 +203,4 @@ end
 % benchStruct.centerCoor  = centerCoor;
 % save([saveFolder filesep 'benchStruct'],'benchStruct');
 % display('genBenchmark() saved...');
+end
