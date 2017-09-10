@@ -1,7 +1,5 @@
-function [benchStruct] = genBenchMark(varargin)
-%GENBENCHMARK will generate a battery datasets for the spot detection to do
-% benchmarking on
-
+function [] = genSTDLandscape(varargin)
+% will generate the std landscape from cramer rao lb.
 
 %--parameters--------------------------------------------------------------
 params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
@@ -24,9 +22,11 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
+params.useThisCamVar    = 2.5919;  % this value simulates the slow mode with broken pixels
+
 params.numSamples       = 10;
-params.As               = linspace(0,30,11);
-params.Bs               = linspace(0,24,5);
+params.As               = linspace(0,30,30);
+params.Bs               = linspace(0,24,20);
 params.dist2Spots       = linspace(0,6,7);
 params.dist2SpotsAtA    = [];%[3,15,27,30];
 params.dist2SpotsAtB    = [];%[0,6,24,0];
@@ -90,20 +90,12 @@ domains     = genMeshFromData(zeros(params.sizeData));
 
 benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots));
 totNum = numel(params.As)*numel(params.Bs)*numel(params.dist2Spots);
-display('genBenchMark() starting...');
-setupParForProgress(totNum)
+
+setupParForProgress(totNum);
 parfor zz = 1:totNum
     incrementParForProgress();
     [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
-    %     for bi = 1:numel(params.Bs)
-    %         for di = 1:numel(params.dist2Spots)
-    benchConditions{zz}.bigTheta = {};
-    benchConditions{zz}.fileList = {};
-    benchConditions{zz}.stdErrorList = {};
-    benchConditions{zz}.cameraVarList = {};
-    benchConditions{zz}.A = params.As(ai);
-    benchConditions{zz}.B = params.Bs(bi);
-    benchConditions{zz}.D = params.dist2Spots(di);
+   
     currA = params.As(ai);
     currB = params.Bs(bi);
     currD = params.dist2Spots(di);
@@ -145,51 +137,42 @@ parfor zz = 1:totNum
     
     bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
     [bigLambdas,bigDLambdas,~]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
-
-    fileList        = cell(params.numSamples,1);
-    stdErrorList    = cell(params.numSamples,1);
-    cameraVarList   = cell(params.numSamples,1);
-    for ii = 1:params.numSamples
-        cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
-        [sampledData,~,cameraParams]  = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
-        saveFileVar = [saveFolder filesep conditionStr filesep 'cameraVar' filesep 'cameraVar-' conditionStr '-' num2str(ii)];
-        makeDIRforFilename(saveFileVar);
-        saveCameraVar(saveFileVar,cameraParams);
-        cameraVarList{ii} = saveFileVar;
-        if iscell(sampledData)
-            saveFile = cell(numel(sampledData),1);
-            for jj = 1:numel(sampledData)
-                saveFile{jj} = [saveFolder filesep conditionStr filesep 'channel' num2str(jj) '-' conditionStr '-' num2str(ii) '.tif'];
-                exportSingleTifStack(saveFile{jj},sampledData{jj});
-            end
-        else
-            saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
-            exportSingleTifStack(saveFile,round(sampledData));
-        end
-        if iscell(bigLambdas)
-            myVar = cell(size(bigLambdas));
-            [myVar{:}] = deal(cameraVar);
-                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,myVar);
-
-        else
-                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,cameraVar);
-
-        end
-
-        fileList{ii} = saveFile;
-        stdErrorList{ii} = stdErrors;
+    if iscell(bigLambdas)
+        camVarInLambdaUnits = cell(numel(bigLambdas),1);
+        [camVarInLambdaUnits{:}] = deal(params.useThisCamVar*ones(size(bigLambdas{1})));
+    else
+        camVarInLambdaUnits = params.useThisCamVar*ones(size(bigLambdas{1}));
     end
-    benchConditions{zz}.bigTheta = bigTheta;
-    benchConditions{zz}.fileList = fileList;
-    benchConditions{zz}.stdErrorList = stdErrorList;
-    benchConditions{zz}.cameraVarList = cameraVarList;
-    
+   [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,camVarInLambdaUnits)
+
+    benchConditions{zz} = stdErrors;
 end
-display('genBenchMark() done...');
-benchStruct.psfObjs     = psfObjs;
-benchStruct.Kmatrix     = Kmatrix;
-benchStruct.conditions  = benchConditions;
-benchStruct.psfs        = psfs;
-benchStruct.centerCoor  = centerCoor;
-save([saveFolder filesep 'benchStruct'],'benchStruct');
-display('genBenchmark() saved...');
+
+numThetas = numel(getFirstNonEmptyCellContent(benchConditions));
+for ii = 1:numThetas
+    for jj = 1:size(benchConditions,3)
+     currBench = benchConditions(:,:,jj);
+     currPlot = NaN(size(currBench));
+     for zz = 1:numel(currBench)
+         if ~isempty(currBench{zz})
+         currPlot(zz) = currBench{zz}(ii);
+         end
+     end
+     figure;
+     contour(currPlot','LineWidth',3,'ShowText','on');
+        set(gca,'Ydir','reverse');
+        axis equal;
+           xlabel('A');ylabel('B');
+        box off;
+        title(['theta ' num2str(ii) 'd ' num2str(jj)]);
+    end
+end
+
+% display('genBenchMark() done...');
+% benchStruct.psfObjs     = psfObjs;
+% benchStruct.Kmatrix     = Kmatrix;
+% benchStruct.conditions  = benchConditions;
+% benchStruct.psfs        = psfs;
+% benchStruct.centerCoor  = centerCoor;
+% save([saveFolder filesep 'benchStruct'],'benchStruct');
+% display('genBenchmark() saved...');
