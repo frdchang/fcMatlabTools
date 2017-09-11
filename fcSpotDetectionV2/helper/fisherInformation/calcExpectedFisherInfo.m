@@ -32,7 +32,13 @@ end
 
 fullInfoMatrix = sumCellContents(fullInfoMatrix);
 % take out the kmatrix part
-infoMatrix = fullInfoMatrix(2*numChans+1:end,2*numChans+1:end);
+if numChans == 1
+    infoMatrix = fullInfoMatrix(2:end,2:end);
+
+else
+    infoMatrix = fullInfoMatrix(2*numChans+1:end,2*numChans+1:end);
+
+end
 
 conditionNumber = rcond(infoMatrix);
 % check condition 
