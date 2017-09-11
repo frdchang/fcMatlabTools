@@ -60,6 +60,14 @@ pathToProcessedSaveFolder = interleave(grabRest,history);
 pathToProcessedSaveFolder = strcat(pathToProcessedSaveFolder{:});
 saveProcessedFileAt = removeDoubleFileSep([pathToProcessedSaveFolder filesep newFileName]);
 
+%% check if file name is too long, if so, hash it.
+
+genFileName = returnFileName(saveProcessedFileAt);
+
+if numel(genFileName) >= 255
+    genFileName = DataHash(genFileName,struct('Format', 'base64', 'Method', 'MD5'));
+    saveProcessedFileAt = [returnFilePath filesep genFileName];
+end
 
 
 
