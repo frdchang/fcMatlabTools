@@ -22,7 +22,7 @@ qpms        = convertTimeLapseOfCellsToCells(qpms);
 
 stageIstageIIQPMs = glueCells(raws,A1s,MLEs,qpms,LLRatios);
 
-ec_T_3Dviz   = applyFuncTo_listOfListOfArguments(stageIstageIIQPMs,@openData_passThru,{},@make3DViz_Seq,{varargin{:},'units',ec_T_spotOutputs.units},@saveToProcessed_make3DViz_Seq,{},'doParallel',params.doProcParallel);
+ec_T_3Dviz   = applyFuncTo_listOfListOfArguments(stageIstageIIQPMs,@openData_passThru,{},@make3DViz_Seq,{varargin{:},'units',ec_T_spotOutputs.units},@saveToProcessed_make3DViz_Seq,{},params);
 
 ec_T_3Dviz   = procSaver(ec_T_spotOutputs,ec_T_3Dviz);
 end

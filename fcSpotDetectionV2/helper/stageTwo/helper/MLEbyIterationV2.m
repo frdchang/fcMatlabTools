@@ -45,13 +45,13 @@ else
     state.readNoises    = [];
     state.domains       = [];
 end
-state.theta0s       = theta0s;
-state.strategy      = strategy;
-state.thetaMLEs     = [];
-state.thetaVars     = [];
-state.logLikePP     = [];
-state.logLikePG     = [];
-state.stateOfStep   = [];
+state.theta0s           = theta0s;
+state.strategy          = strategy;
+state.thetaMLEs         = [];
+state.thetaStdErrors    = [];
+state.logLikePP         = [];
+state.logLikePG         = [];
+state.stateOfStep       = [];
 %--------------------------------------------------------------------------
 
 
@@ -187,6 +187,7 @@ for ii = 1:numStrategies
     end
 end
 
+
 state.stateOfStep = stateOfStep;
 
 if any(flattenTheta0s(theta0s) <0)
@@ -197,11 +198,14 @@ if any(flattenTheta0s(theta0s) <0)
     return;
 end
 if isequal(stateOfStep,'ok')
+    % calculate expected fisher information matrix and get the std errors
+    [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,carvedsigmasqs);
     LLPP = logLike_PoissPoiss(carveddatas(:),bigLambdas(:),carvedsigmasqs(:));
     LLPG = logLike_PoissGauss(carveddatas(:),bigLambdas(:),carvedsigmasqs(:));
     state.thetaMLEs = theta0s;
     state.logLikePP = LLPP;
     state.logLikePG = LLPG;
+    state.thetaStdErrors = stdErrors;
 else
     state.thetaMLEs = theta0s;
     state.logLikePP = 0;

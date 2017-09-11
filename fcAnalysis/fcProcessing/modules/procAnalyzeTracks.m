@@ -14,7 +14,7 @@ raws= convertA1sToGlued(raws);
 
 kymoPiecesTracks = glueCells(raws,kymoPieces,tracks);
 
-analyzedTracks   = applyFuncTo_listOfListOfArguments(kymoPiecesTracks,@openData_passThru,{},@analyzeTracks,{varargin{:}},@saveToProcessed_analyzeTracks,{},'doParallel',params.doProcParallel);
+analyzedTracks   = applyFuncTo_listOfListOfArguments(kymoPiecesTracks,@openData_passThru,{},@analyzeTracks,{varargin{:}},@saveToProcessed_analyzeTracks,{},params);
 
 analyzedTracks   = procSaver(ec_T_spotOutputs,analyzedTracks);
 end

@@ -13,7 +13,7 @@ params.threshold_increase_factor    = 0.2;
 params.phase_subtraction_factor     = 1.2;
 params.min_cell_size                = 10;
 params.cell_margin                  = 12;
-params.doParallel                   = true;
+params.doParallel                   = false;
 params.doPlot                       = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -27,8 +27,8 @@ segparams.phase_subtraction_factor     = params.phase_subtraction_factor;
 segparams.min_cell_size                = params.min_cell_size;
 segparams.cell_margin                  = params.cell_margin;
 
-trackingSeedData.L = lastTimePointSegmented;
-trackingSeedData.orderedFileList = timeLapseFiles;
+trackingSeedData.L                     = lastTimePointSegmented;
+trackingSeedData.orderedFileList       = timeLapseFiles;
 
 yeastSegmented = CT_track_modByFred(segparams,trackingSeedData,params.doParallel,params.doPlot);
 

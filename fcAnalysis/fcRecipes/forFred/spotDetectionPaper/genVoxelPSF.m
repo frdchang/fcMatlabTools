@@ -3,12 +3,14 @@ function H = genVoxelPSF(psf,centerCoor)
 %   Detailed explanation goes here
 psfThresh = 0.025;
 surfParams = {'EdgeColor','none'};
-axisParams = {'-','Color',[0.5,0.5,0.5]};
+axisParams = {'-','Color',[1,1,1],'LineWidth',2};
 coorParams = {'-','Color',[1,0,0]};
 angle = -45;
 elevation = 20;
-axisOff = 'on';
-openFlaps = 1;
+axisOff = 'off';
+openFlaps = 3;
+axisRatio = [1 1 1.5];
+bkgnd = [0.2,0.2,0.2];
 
 alpha = psf > psfThresh;
 % plot3Dstack(alpha);drawnow;close all;
@@ -28,7 +30,10 @@ alpha(centerCoor(1)+1:end,centerCoor(2)+1:end,:) = 0;
 volData = logPSF;
 volData(~idx) = min(logPSF(idx));
 % alpha(alpha<0.1 & alpha > 0) = 0.1;
+createFullMaxFigure();
+if openFlaps ~= 3
 H=vol3d('CData',volData,'Alpha',alpha);
+end
 [xL,yL,zL] = size(psf);
 surfXY = maxintensityproj(psf,3);
 surfXY = surfXY';
@@ -65,6 +70,14 @@ if openFlaps == 1
     surface(reshape(sY,xL,zL),reshape(sX,xL,zL),reshape(sZ,xL,zL),repmat(surfYZ,1,1,3),surfParams{:});
 
     view(angle,elevation);
+        plot3([0,xL-1],[yL-1,yL-1],[zL-1,zL-1],axisParams{:});
+    plot3([xL-1,xL-1],[yL-1,yL-1],[0,zL-1],axisParams{:});
+    plot3([xL-1,xL-1],[0,yL-1],[zL-1,zL-1],axisParams{:});
+    
+    
+    plot3([xL-1,xL-1],[yL-1,yL-1],[zL-1,0],axisParams{:});
+    plot3([0,0],[yL-1,yL-1],[zL-1,0],axisParams{:});
+    plot3([xL-1,xL-1],[0,0],[zL-1,0],axisParams{:});
 elseif openFlaps == 2
     [sX,sY,sZ] = meshgrid(0:xL-1,0:yL-1,0);
     surface(sX,sY,sZ,repmat(surfXY,1,1,3),surfParams{:});
@@ -113,7 +126,6 @@ end
 
 
 axis tight;
-pbaspect([1 1 1]);
 set(gca,'XTick',5:10:xL-1);
 set(gca,'YTick',5:10:yL-1);
 set(gca,'ZTick',5:5:zL-1);
@@ -124,24 +136,28 @@ plot3([0,xL-1],[yL-1,yL-1],[0,0],axisParams{:});
 plot3([xL-1,xL-1],[yL-1,yL-1],[0,zL-1],axisParams{:});
 plot3([xL-1,xL-1],[0,yL-1],[0,0],axisParams{:});
 
+if openFlaps ==1
     set(gca,'XLim',[0,xL-1]);
     set(gca,'YLim',[0 yL-1]);
     set(gca,'ZLim',[0 zL-1]);
+end
 
 %% plot the lines for coordinate
 myCoor = centerCoor - 0.5;
 plot3(...
     [myCoor(1),myCoor(1)],...
     [myCoor(2),myCoor(2)],...
-    [myCoor(3),0],coorParams{:});
+    [myCoor(3),0],coorParams{:},'LineWidth',2);
 plot3(...
     [myCoor(1),myCoor(1)],...
     [myCoor(2),yL-1],...
-    [myCoor(3),myCoor(3)],coorParams{:});
+    [myCoor(3),myCoor(3)],coorParams{:},'LineWidth',2);
 plot3(...
     [myCoor(1),xL-1],...
     [myCoor(2),myCoor(2)],...
-    [myCoor(3),myCoor(3)],coorParams{:});
+    [myCoor(3),myCoor(3)],coorParams{:},'LineWidth',2);
 
 axis(axisOff);
-
+pbaspect(axisRatio);
+whitebg(bkgnd);
+set(gcf,'color',bkgnd);

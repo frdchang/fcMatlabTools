@@ -16,6 +16,11 @@ LLRatios    = cellfun(@(x) x - x(1),LLs,'uni',false);
 LLRatios    = cellfun(@(x) x',LLRatios,'uni',false);
 states      = cellfun(@(x) x',states,'uni',false);
 
+sizes = cellfun(@numel,LLRatios);
+idx = sizes == max(sizes);
+LLRatios(~idx) = [];
+states(~idx) = [];
+
 LLRatios = cell2mat(LLRatios);
 states   = cell2mat(states);
 

@@ -8,6 +8,12 @@ params.saveFolder       = '~/Desktop/dataStorage/fcDataStorage';
 params.sizeData         = [29 29 11];%[21 21 9];
 params.benchType        = 3; % 1 = 1 spot, 2 = 2 spots, 3= 2 spots 2 channels
 
+params.usePSFfunc       = false;
+%-----Gaussian FUNC--------------
+params.psfSigmas        = {[0.9 0.9 0.9],[1.2 1.2 1.2]};
+params.psfSizes         = {[21 21 21],[21 21 21]};
+
+%-----PSF FUNC-------------------
 params.psfFunc          = @genPSF;
 params.binning          = 3;
 params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
@@ -36,13 +42,17 @@ month = temp(2);
 day = temp(3);
 today = sprintf('%d%02d%02d',year,month,day);
 
-
-psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
-psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
-psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
-
+if params.usePSFfunc
+    psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+    psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+    psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+    psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+    psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+else
+    psfObjs     = cellfunNonUniformOutput(@(x,y) genGaussKernObj(x,y),params.psfSigmas,params.psfSizes);
+    psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+    psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+end
 
 
 switch params.benchType
@@ -65,9 +75,9 @@ switch params.benchType
 end
 
 if numel(Kmatrix) == 1
-   kmatrixString = num2str(Kmatrix); 
+    kmatrixString = num2str(Kmatrix);
 else
-   kmatrixString = [num2str(Kmatrix(2)) ',' num2str(Kmatrix(3))]; 
+    kmatrixString = [num2str(Kmatrix(2)) ',' num2str(Kmatrix(3))];
 end
 folderSave = [today '-gBM-' typeOfBenchMark '-N' num2str(params.numSamples) '-sz' vector2Str(params.sizeData) '-A' num2str(min(params.As)) ',' num2str(max(params.As)) ',' num2str(numel(params.As)) '-B' num2str(min(params.Bs)) ',' num2str(max(params.Bs)) ',' num2str(numel(params.Bs)) '-D' num2str(min(params.dist2Spots)) ',' num2str(max(params.dist2Spots)) ',' num2str(numel(params.dist2Spots)) '-K' kmatrixString];
 
@@ -82,13 +92,14 @@ benchConditions = cell(numel(params.As),numel(params.Bs),numel(params.dist2Spots
 totNum = numel(params.As)*numel(params.Bs)*numel(params.dist2Spots);
 display('genBenchMark() starting...');
 setupParForProgress(totNum)
-for zz = 1:totNum
+parfor zz = 1:totNum
     incrementParForProgress();
     [ai,bi,di] = ind2sub([numel(params.As),numel(params.Bs),numel(params.dist2Spots)],zz);
     %     for bi = 1:numel(params.Bs)
     %         for di = 1:numel(params.dist2Spots)
     benchConditions{zz}.bigTheta = {};
     benchConditions{zz}.fileList = {};
+    benchConditions{zz}.stdErrorList = {};
     benchConditions{zz}.cameraVarList = {};
     benchConditions{zz}.A = params.As(ai);
     benchConditions{zz}.B = params.Bs(bi);
@@ -107,7 +118,7 @@ for zz = 1:totNum
     end
     
     if currD ~= 0 && (currB > currA)
-       continue; 
+        continue;
     end
     
     
@@ -133,8 +144,10 @@ for zz = 1:totNum
     end
     
     bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
-    bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+    [bigLambdas,bigDLambdas,~]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+
     fileList        = cell(params.numSamples,1);
+    stdErrorList    = cell(params.numSamples,1);
     cameraVarList   = cell(params.numSamples,1);
     for ii = 1:params.numSamples
         cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
@@ -153,10 +166,22 @@ for zz = 1:totNum
             saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
             exportSingleTifStack(saveFile,round(sampledData));
         end
+        if iscell(bigLambdas)
+            myVar = cell(size(bigLambdas));
+            [myVar{:}] = deal(cameraVar);
+                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,myVar);
+
+        else
+                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,cameraVar);
+
+        end
+
         fileList{ii} = saveFile;
+        stdErrorList{ii} = stdErrors;
     end
     benchConditions{zz}.bigTheta = bigTheta;
     benchConditions{zz}.fileList = fileList;
+    benchConditions{zz}.stdErrorList = stdErrorList;
     benchConditions{zz}.cameraVarList = cameraVarList;
     
 end

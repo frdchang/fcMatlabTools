@@ -1,6 +1,4 @@
-%% check 2 spot performance at A = 15 B = 6
-% -flip kmatrix in stage ii and see the results to see if its correct.
-
+%% i want to check if i can take the average scmos noise and calcualte expected fisher
 doPlotEveryN   = inf;
 params.DLLDLambda = @DLLDLambda_PoissPoiss;
 
@@ -16,7 +14,299 @@ params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.numSamples       = 60;
+params.numSamples       = 1000;
+params.As1              = 15;
+params.As2              = 30;
+params.Bs               = 6;
+params.dist2Spots       = 6;
+
+params.NoiseFuncArgs{1} = params.sizeData;
+params.centerCoor       = round(params.sizeData/2);
+centerCoor              = params.centerCoor;
+Kmatrix                 = params.kMatrix;
+
+
+% psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+% psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+% psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+
+sigmaSQ = [1 1 1];
+patchSize = [17 17 17];
+psfObjs     = {genGaussKernObj(sigmaSQ,patchSize),genGaussKernObj(sigmaSQ,patchSize)};
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+
+% setup spot
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As1 centerCoor],params.Bs},{[params.As2 secondCoor],params.Bs}};
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+% gen spot
+[bigLambdas,bigDLambdas,d2]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+numSpots        = numSpotsInTheta(bigTheta);
+
+MLEs = cell(params.numSamples,1);
+sizeKern        = getPatchSize(psfs{1});
+
+setupParForProgress(params.numSamples);
+stds = cell(params.numSamples,1);
+parfor ii = 1:params.numSamples
+    incrementParForProgress();
+    camVar = params.NoiseFunc(params.NoiseFuncArgs{:});
+   [ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,{camVar,camVar});
+   stds{ii} = stdErrors;
+end
+
+% got the slow scan noise data
+sampleSize = 209715200;
+slowScanEdges =[0.54 0.57 0.6 0.63 0.66 0.69 0.72 0.75 0.78 0.81 0.84 0.87 0.9 0.93 0.96 0.99 1.02 1.05 1.08 1.11 1.14 1.17 1.2 1.23 1.26 1.29 1.32 1.35 1.38 1.41 1.44 1.47 1.5 1.53 1.56 1.59 1.62 1.65 1.68 1.71 1.74 1.77 1.8 1.83 1.86 1.89 1.92 1.95 1.98 2.01 2.04 2.07 2.1 2.13 2.16 2.19 2.22 2.25 2.28 2.31 2.34 2.37 2.4 2.43 2.46 2.49 2.52 2.55 2.58 2.61 2.64 2.67 2.7 2.73 2.76 2.79 2.82 2.85 2.88 2.91 2.94 2.97 3 3.03 3.06 3.09 3.12 3.15 3.18 3.21 3.24 3.27 3.3 3.33 3.36 3.39 3.42 3.45 3.48 3.51 3.54 3.57 3.6 3.63 3.66 3.69 3.72 3.75 3.78 3.81 3.84 3.87 3.9 3.93 3.96 3.99 4.02 4.05 4.08 4.11 4.14 4.17 4.2 4.23 4.26 4.29 4.32 4.35 4.38 4.41 4.44 4.47 4.5 4.53 4.56 4.59 4.62 4.65 4.68 4.71 4.74 4.77 4.8 4.83 4.86 4.89 4.92 4.95 4.98 5.01 5.04 5.07 5.1 5.13 5.16 5.19 5.22 5.25 5.28 5.31 5.34 5.37 5.4 5.43 5.46 5.49 5.52 5.55 5.58 5.61 5.64 5.67 5.7 5.73 5.76 5.79 5.82 5.85 5.88 5.91 5.94 5.97 6 6.03 6.06 6.09 6.12 6.15 6.18 6.21 6.24 6.27 6.3 6.33 6.36 6.39 6.42 6.45 6.48 6.51 6.54 6.57 6.6 6.63 6.66 6.69 6.72 6.75 6.78 6.81 6.84 6.87 6.9 6.93 6.96 6.99 7.02 7.05 7.08 7.11 7.14 7.17 7.2 7.23 7.26 7.29 7.32 7.35 7.38 7.41 7.44 7.47 7.5 7.53 7.56 7.59 7.62 7.65 7.68 7.71 7.74 7.77 7.8 7.83 7.86 7.89 7.92 7.95 7.98 8.01 8.04 8.07 8.1 8.13 8.16 8.19 8.22 8.25 8.28 8.31 8.34 8.37 8.4 8.43 8.46 8.49 8.52 8.55 8.58 8.61 8.64 8.67 8.7 8.73 8.76 8.79 8.82 8.85 8.88 8.91 8.94 8.97 9 9.03 9.06 9.09 9.12 9.15 9.18 9.21 9.24 9.27 9.3 9.33 9.36 9.39 9.42 9.45 9.48 9.51 9.54 9.57 9.6 9.63 9.66 9.69 9.72 9.75 9.78 9.81 9.84 9.87 9.9 9.93 9.96 9.99 10.02 10.05 10.08 10.11 10.14 10.17 10.2 10.23 10.26 10.29 10.32 10.35 10.38 10.41 10.44 10.47 10.5 10.53 10.56 10.59 10.62 10.65 10.68 10.71 10.74 10.77 10.8 10.83 10.86 10.89 10.92 10.95 10.98 11.01 11.04 11.07 11.1 11.13 11.16 11.19 11.22 11.25 11.28 11.31 11.34 11.37 11.4 11.43 11.46 11.49 11.52 11.55 11.58 11.61 11.64 11.67 11.7 11.73 11.76 11.79 11.82 11.85 11.88 11.91 11.94 11.97 12 12.03 12.06 12.09 12.12 12.15 12.18 12.21 12.24 12.27 12.3 12.33 12.36 12.39 12.42 12.45 12.48 12.51 12.54 12.57 12.6 12.63 12.66 12.69 12.72 12.75 12.78 12.81 12.84 12.87 12.9 12.93 12.96 12.99 13.02 13.05 13.08 13.11 13.14 13.17 13.2 13.23 13.26 13.29 13.32 13.35 13.38 13.41 13.44 13.47 13.5 13.53 13.56 13.59 13.62 13.65 13.68 13.71 13.74 13.77 13.8 13.83 13.86 13.89 13.92 13.95 13.98 14.01 14.04 14.07 14.1 14.13 14.16 14.19 14.22 14.25 14.28 14.31 14.34 14.37 14.4 14.43 14.46 14.49 14.52 14.55 14.58 14.61 14.64 14.67 14.7 14.73 14.76 14.79 14.82 14.85 14.88 14.91 14.94 14.97 15 15.03 15.06 15.09 15.12 15.15 15.18 15.21 15.24 15.27 15.3 15.33 15.36 15.39 15.42 15.45 15.48 15.51 15.54 15.57 15.6 15.63 15.66 15.69 15.72 15.75 15.78 15.81 15.84 15.87 15.9 15.93 15.96 15.99 16.02 16.05 16.08 16.11 16.14 16.17 16.2 16.23 16.26 16.29 16.32 16.35 16.38 16.41 16.44 16.47 16.5 16.53 16.56 16.59 16.62 16.65 16.68 16.71 16.74 16.77 16.8 16.83 16.86 16.89 16.92 16.95 16.98 17.01 17.04 17.07 17.1 17.13 17.16 17.19 17.22 17.25 17.28 17.31 17.34 17.37 17.4 17.43 17.46 17.49 17.52 17.55 17.58 17.61 17.64 17.67 17.7 17.73 17.76 17.79 17.82 17.85 17.88 17.91 17.94 17.97 18 18.03 18.06 18.09 18.12 18.15 18.18 18.21 18.24 18.27 18.3 18.33 18.36 18.39 18.42 18.45 18.48 18.51 18.54 18.57 18.6 18.63 18.66 18.69 18.72 18.75 18.78 18.81 18.84 18.87 18.9 18.93 18.96 18.99 19.02 19.05 19.08 19.11 19.14 19.17 19.2 19.23 19.26 19.29 19.32 19.35 19.38 19.41 19.44 19.47 19.5 19.53 19.56 19.59 19.62 19.65 19.68 19.71 19.74 19.77 19.8 19.83 19.86 19.89 19.92 19.95 19.98 20.01 20.04 20.07 20.1 20.13 20.16 20.19 20.22 20.25 20.28 20.31 20.34 20.37 20.4 20.43 20.46 20.49 20.52 20.55 20.58 20.61 20.64 20.67 20.7 20.73 20.76 20.79 20.82 20.85 20.88 20.91 20.94 20.97 21];
+slowScanVals =[0.000127156575520833 0.00565846761067708 0.120894114176433 0.626722971598307 1.2427012125651 1.98974609375001 3.05636723836263 3.61483891805013 3.23162078857422 2.52660115559896 2.07773844401042 1.71957015991211 1.37691497802734 1.09939575195313 0.862439473470051 0.719070434570312 0.605996449788411 0.519212086995442 0.454711914062503 0.406106313069658 0.365320841471357 0.336106618245442 0.310325622558593 0.279076894124349 0.251197814941406 0.234317779541015 0.205930074055989 0.18752415974935 0.17722447713216 0.162410736083985 0.146897633870443 0.136057535807292 0.131575266520182 0.119495391845703 0.116062164306641 0.108464558919271 0.103473663330079 0.0955899556477864 0.0924110412597655 0.0887870788574218 0.0831286112467447 0.0801086425781249 0.0801722208658854 0.0775655110677088 0.0738779703776041 0.0694910685221354 0.0686963399251301 0.0643412272135416 0.0609397888183598 0.0613530476888016 0.0594139099121089 0.0555674235026045 0.0554084777832035 0.0525474548339839 0.0508944193522139 0.0514984130859378 0.0494321187337236 0.0494639078776038 0.046189626057943 0.0435829162597659 0.0448226928710934 0.0436464945475263 0.0421206156412763 0.0422159830729163 0.0405629475911455 0.0389099121093753 0.0375111897786461 0.0367800394694007 0.0358581542968752 0.0335057576497393 0.0341733296712242 0.0344276428222653 0.0337282816569013 0.0323295593261721 0.0325838724772133 0.0291506449381512 0.0306447347005206 0.0315348307291669 0.0303586324055987 0.0281651814778648 0.0269889831542971 0.0259081522623696 0.0275611877441408 0.0282287597656248 0.0246047973632814 0.0252723693847654 0.0238418579101564 0.0227292378743491 0.0229517618815102 0.0228563944498699 0.0231742858886717 0.0232696533203127 0.0217437744140623 0.0205993652343751 0.0193913777669269 0.0207901000976564 0.0188509623209637 0.0192324320475259 0.0182151794433595 0.0177701314290363 0.0184059143066407 0.0171661376953124 0.017070770263672 0.0176111857096353 0.0156084696451824 0.0157992045084636 0.0169754028320311 0.0157992045084636 0.0152905782063801 0.0161806742350261 0.0163396199544269 0.0145912170410157 0.0153859456380209 0.0146547953287759 0.0150680541992188 0.0145276387532553 0.0124295552571614 0.0132560729980468 0.0134150187174482 0.0120162963867187 0.0137011210123697 0.0105857849121096 0.0136375427246089 0.0111897786458336 0.0122070312499999 0.0112533569335937 0.0115394592285159 0.0116030375162759 0.0114123026529947 0.0106811523437502 0.0109672546386718 0.0102678934733072 0.0100771586100263 0.00934600830078117 0.0102043151855468 0.00861485799153639 0.0095367431640627 0.00858306884765618 0.00918706258138013 0.00921885172526034 0.00855127970377622 0.0094413757324218 0.00915527343749992 0.00785191853841139 0.00839233398437518 0.00715255737304682 0.00864664713541659 0.00759760538736995 0.00743865966796869 0.00718434651692702 0.00686645507812494 0.00769297281901058 0.00794728597005202 0.00734329223632806 0.00613530476888034 0.0067075093587239 0.00578562418619787 0.00635782877604161 0.00689824422200536 0.00594456990559891 0.00588099161783849 0.00616709391276055 0.00540415445963537 0.00667572021484369 0.00578562418619787 0.00549952189127616 0.00537236531575516 0.00588099161783849 0.00546773274739595 0.00584920247395828 0.00572204589843745 0.00575383504231766 0.00480016072591156 0.005499521891276 0.00451405843098955 0.00483194986979177 0.00454584757486975 0.0055313110351562 0.00400543212890622 0.00445048014322926 0.0039418538411458 0.00457763671874996 0.00403722127278643 0.00416437784830738 0.00381469726562497 0.00381469726562497 0.0035285949707032 0.00349680582682289 0.00336964925130206 0.0035285949707031 0.00486373901367198 0.00336964925130206 0.0031471252441406 0.00330607096354174 0.00324249267578122 0.00362396240234372 0.00336964925130206 0.00311533610026048 0.00254313151041665 0.0027656555175781 0.00324249267578132 0.00311533610026039 0.00267028808593748 0.0027656555175781 0.00273386637369798 0.00305175781249997 0.00254313151041665 0.00270207722981769 0.00219345092773442 0.00216166178385415 0.00212987263997394 0.00257492065429693 0.00244776407877602 0.00267028808593748 0.00209808349609373 0.00187555948893233 0.00219345092773436 0.00241597493489581 0.00267028808593756 0.00219345092773436 0.00219345092773436 0.00165303548177082 0.002129872639974 0.00209808349609373 0.00203450520833332 0.00184377034505212 0.00187555948893228 0.00184377034505207 0.00152587890624999 0.00155766805013024 0.00241597493489581 0.00130335489908853 0.00133514404296878 0.00152587890624999 0.00187555948893228 0.00219345092773436 0.00123977661132815 0.0015576680501302 0.00178019205729165 0.0013987223307292 0.00178019205729165 0.00171661376953124 0.00187555948893228 0.00152587890625003 0.00146230061848957 0.00130335489908853 0.00127156575520832 0.00120798746744794 0.00178019205729165 0.00114440917968752 0.00120798746744787 0.000985463460286479 0.00117619832356773 0.00117619832356766 0.00146230061848961 0.00123977661132815 0.000985463460286421 0.00136693318684899 0.00120798746744794 0.00108083089192704 0.00139872233072911 0.000953674316406327 0.00104904174804684 0.000794728597005178 0.00111262003580738 0.000858306884765592 0.0008900960286458 0.00130335489908865 0.000858306884765592 0.00101725260416663 0.00069936116536464 0.000540415445963521 0.000826517740885385 0.000762939453125061 0.0008900960286458 0.000921885172526007 0.000731150309244764 0.000890096028645905 0.000635782877604143 0.000762939453124971 0.000858306884765694 0.000540415445963521 0.000826517740885385 0.000921885172526116 0.0004450480143229 0.000953674316406214 0.000858306884765694 0.000317891438802071 0.000476837158203107 0.000890096028645905 0.00066757202148435 0.000476837158203107 0.000476837158203163 0.000603993733723935 0.000572204589843728 0.000540415445963585 0.000635782877604143 0.000476837158203107 0.000794728597005272 0.000603993733723935 0.000508626302083314 0.000476837158203107 0.00034968058268232 0.000699361165364557 0.000699361165364557 0.000381469726562531 0.000317891438802071 0.000381469726562486 0.000667572021484429 0.000349680582682278 0.000508626302083314 0.000413258870442742 0.000349680582682278 0.000572204589843728 0.000413258870442742 0.000349680582682278 0.000413258870442693 0.000413258870442742 0.000349680582682278 0.000381469726562486 0.000445048014322953 0.000286102294921864 0.000286102294921864 0.000540415445963585 0.000127156575520829 0.000476837158203107 0.00022252400716145 0.000286102294921898 0.000349680582682278 0.000254313151041657 0.000254313151041687 0.000190734863281243 0.000190734863281243 0.000381469726562531 0.000317891438802071 0.000317891438802071 0.000222524007161476 0.000413258870442693 0.000349680582682278 0.000286102294921898 0.000127156575520829 0.000190734863281243 0.000317891438802109 0.000158945719401036 0.00022252400716145 0.000413258870442742 0.000254313151041657 0.000190734863281243 0.000286102294921898 0.000381469726562486 0.000190734863281243 0.000127156575520844 0.000317891438802071 0.000127156575520829 0.00022252400716145 0.000413258870442742 0.000127156575520829 0.000286102294921864 9.53674316406327e-05 0.000317891438802071 0.000254313151041657 0.000286102294921898 0.000190734863281243 0.000254313151041657 0.000222524007161476 0.000190734863281243 0.000254313151041657 0.000190734863281265 0.000286102294921864 0.000286102294921864 0.000158945719401054 0.000190734863281243 0.000190734863281243 0.000158945719401054 0.000190734863281243 3.17891438802071e-05 0.000158945719401054 9.53674316406214e-05 0.000317891438802071 6.35782877604143e-05 0.000254313151041687 0.00022252400716145 0.000127156575520829 0.000381469726562531 0.000158945719401036 0.000254313151041657 0.000190734863281265 0.000127156575520829 9.53674316406214e-05 3.17891438802109e-05 0.00022252400716145 9.53674316406214e-05 9.53674316406327e-05 0.000158945719401036 9.53674316406214e-05 6.35782877604218e-05 9.53674316406214e-05 0.000127156575520829 0.000127156575520844 0.000158945719401036 0.000127156575520829 0.000254313151041687 0.000127156575520829 9.53674316406214e-05 6.35782877604143e-05 0.000190734863281265 9.53674316406214e-05 0.000190734863281243 9.53674316406327e-05 3.17891438802071e-05 6.35782877604143e-05 0.000127156575520844 0.000190734863281243 6.35782877604143e-05 9.53674316406327e-05 3.17891438802071e-05 0.000127156575520829 6.35782877604218e-05 3.17891438802071e-05 3.17891438802071e-05 3.17891438802109e-05 0 3.17891438802071e-05 0.000190734863281265 9.53674316406214e-05 9.53674316406214e-05 3.17891438802109e-05 0 9.53674316406214e-05 3.17891438802071e-05 6.35782877604218e-05 9.53674316406214e-05 0 6.35782877604218e-05 0 6.35782877604143e-05 6.35782877604218e-05 3.17891438802071e-05 0.000190734863281243 6.35782877604218e-05 3.17891438802071e-05 9.53674316406214e-05 0 0 9.53674316406214e-05 6.35782877604218e-05 6.35782877604143e-05 0 0 3.17891438802071e-05 6.35782877604143e-05 6.35782877604218e-05 3.17891438802071e-05 3.17891438802071e-05 0 3.17891438802109e-05 3.17891438802071e-05 6.35782877604143e-05 3.17891438802109e-05 6.35782877604143e-05 6.35782877604143e-05 9.53674316406327e-05 9.53674316406214e-05 6.35782877604143e-05 9.53674316406327e-05 3.17891438802071e-05 0 3.17891438802109e-05 3.17891438802071e-05 3.17891438802071e-05 6.35782877604218e-05 3.17891438802071e-05 3.17891438802071e-05 3.17891438802109e-05 3.17891438802071e-05 0 9.53674316406327e-05 0 0 3.17891438802109e-05 3.17891438802071e-05 3.17891438802071e-05 3.17891438802071e-05 3.17891438802109e-05 9.53674316406214e-05 9.53674316406214e-05 0 3.17891438802071e-05 3.17891438802071e-05 0 0 3.17891438802071e-05 6.35782877604218e-05 6.35782877604143e-05 0 0 0 3.17891438802071e-05 6.35782877604218e-05 6.35782877604143e-05 3.17891438802071e-05 3.17891438802109e-05 3.17891438802071e-05 3.17891438802071e-05 0 3.17891438802071e-05 0 6.35782877604143e-05 6.35782877604218e-05 3.17891438802071e-05 0 6.35782877604218e-05 0 0 6.35782877604218e-05 3.17891438802071e-05 0 0 3.17891438802071e-05 3.17891438802071e-05 0 0 0 0 0 0 6.35782877604218e-05 3.17891438802071e-05 0 9.53674316406327e-05 0 0 6.35782877604143e-05 0 0 0 3.17891438802071e-05 0 0 0 0 6.35782877604218e-05 0 0 0 0 0 3.17891438802109e-05 3.17891438802071e-05 3.17891438802071e-05 0 0 3.17891438802071e-05 0 0 3.17891438802071e-05 6.35782877604143e-05 3.17891438802109e-05 0 3.17891438802071e-05 0 6.35782877604143e-05 3.17891438802071e-05 0 3.17891438802071e-05 0 0 0 3.17891438802071e-05 0 0 0 3.17891438802109e-05 0 0 3.17891438802071e-05 0 0 0 0 0 0 3.17891438802109e-05 0 0 3.17891438802109e-05 3.17891438802071e-05 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.17891438802071e-05 6.35782877604218e-05 0 0 0 0 0 0 0 3.17891438802071e-05 0 0 0 3.17891438802109e-05 0 3.17891438802071e-05 0 0 0 3.17891438802109e-05 0 0 0 0 0 0 0 0 3.17891438802071e-05 0 0 0 0 0 0 0 0 0 0 0 0 3.17891438802109e-05 0 0 0 3.17891438802071e-05 0 0 0 0 0 0 0 0 3.17891438802109e-05 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.17891438802071e-05];
+
+scmosNoise= sampleFromEmpiricalDistribution(slowScanVals,slowScanEdges,sampleSize);
+meanVar = mean(scmosNoise.^2);
+
+[ ~,~,stdErrorsTheory,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,{meanVar*ones(size(camVar)),meanVar*ones(size(camVar))});
+
+%compare this to measured
+measured = mean(stds,1);
+
+% measured is slightly higher since there is also the effects of broken
+% pixels i am simulating that is not captured by simply taking the mean of
+% the variance histogram.  hmm...
+
+% what if i simulate the loss of pixels by higher camera variance?
+
+tryThisVar = meanVar + linspace(-2,2,1000);
+error = zeros(numel(tryThisVar),1);
+parfor ii = 1:numel(tryThisVar)
+    [ ~,~,stdErrorsTheory,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,{tryThisVar(ii)*ones(size(camVar)),tryThisVar(ii)*ones(size(camVar))});
+    error(ii) =corr(measured(:),stdErrorsTheory(:));
+end
+plot(tryThisVar,error);
+idx = find(max(error)==error);
+useThisVar = tryThisVar(idx);
+% this variance gives a best fit   2.5919 for slow scan scmos and its
+% broken pixel rate.  
+% use this to generate a theoretical camera roa or std error landscape
+% 
+% 
+%% check cramer roa lower bound
+doPlotEveryN   = inf;
+params.DLLDLambda = @DLLDLambda_PoissPoiss;
+
+params.sizeData         = [29 29 11];%[21 21 9];
+
+params.psfFunc          = @genPSF;
+params.binning          = 3;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
+params.interpMethod     = 'linear';
+params.kMatrix          = [1 0.9144; 0 1];
+
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.numSamples       = 100;
+params.As1              = 15;
+params.As2              = 30;
+params.Bs               = 6;
+params.dist2Spots       = 6;
+
+params.NoiseFuncArgs{1} = params.sizeData;
+params.centerCoor       = round(params.sizeData/2);
+centerCoor              = params.centerCoor;
+Kmatrix                 = params.kMatrix;
+
+
+% psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+% psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+% psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+
+sigmaSQ = [1 1 1];
+patchSize = [17 17 17];
+psfObjs     = {genGaussKernObj(sigmaSQ,patchSize),genGaussKernObj(sigmaSQ,patchSize)};
+psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
+psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
+
+
+% setup spot
+domains     = genMeshFromData(zeros(params.sizeData));
+secondCoor = centerCoor+[params.dist2Spots 0 0];
+spotCoors = {{[params.As1 centerCoor],params.Bs},{[params.As2 secondCoor],params.Bs}};
+bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
+% gen spot
+[bigLambdas,bigDLambdas,d2]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
+numSpots        = numSpotsInTheta(bigTheta);
+
+MLEs = cell(params.numSamples,1);
+sizeKern        = getPatchSize(psfs{1});
+
+ camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
+ [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
+cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
+    
+setupParForProgress(params.numSamples);
+parfor ii = 1:params.numSamples
+    incrementParForProgress();
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
+    [~,photonData]              = returnElectrons(stack,cameraParams);
+    estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
+    myTheta0s                   = genSequenceOfThetas(bigTheta,estimated);
+    % define candidates
+    L = zeros(size(stack{1}));
+    spotCoors = getSpotCoorsFromTheta(bigTheta);
+    for zz = 1:numel(spotCoors)
+        cellCoor = num2cell(spotCoors{zz});
+        L(cellCoor{:}) = 1;
+    end
+    
+    
+    L = imdilate(L,strel(ones(sizeKern(:)')));
+    L = bwlabeln(L>0);
+    stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+    
+    currMask = L == 1;
+    carvedDatas                 = carveOutWithMask(photonData,currMask,[0,0,0]);
+    carvedEstimates             = carveOutWithMask(estimated,currMask,[0,0,0],'spotKern','convFunc');
+    carvedCamVar                = carveOutWithMask(cameraVarianceInElectrons,currMask,[0,0,0]);
+    carvedMask                  = carveOutWithMask(currMask,currMask,[0,0,0]);
+    carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
+    carvedEstimates.spotKern    = estimated.spotKern;
+    %-----APPY MY FUNC-------------------------------------------------
+    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+end
+
+% define cramer rao bound, need to carve out big lambdas and such 
+        bigLambdas = cellfunNonUniformOutput(@(x) x(currMask),bigLambdas);
+        
+        for kk = 1:numel(bigDLambdas)
+            if ~isscalar(bigDLambdas{kk})
+                bigDLambdas{kk} = bigDLambdas{kk}(currMask);
+            end
+        end
+        
+        carvedsigmasqs = cellfunNonUniformOutput(@(x) x(currMask),{cameraVarianceInElectrons,cameraVarianceInElectrons});
+
+[ infoMatrix,asymtotVar,stdErrors,fullInfoMatrix] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,carvedsigmasqs);
+observedFisherInfo = extractCellStructField(MLEs,3,'thetaStdErrors');
+observedFisherInfo = removeEmptyCells(observedFisherInfo);
+observedFisherInfo = cell2mat(observedFisherInfo');
+
+thetas = extractCellStructField(MLEs,3,'thetaMLEs');
+thetas = removeEmptyCells(thetas);
+thetas = cellfunNonUniformOutput(@(x) flattenTheta0s(x),thetas);
+thetas = cellfunNonUniformOutput(@(x) x(5:end),thetas);
+thetas = cell2mat(thetas');
+
+trueTheta = flattenTheta0s(bigTheta);
+trueTheta = trueTheta(5:end);
+createFullMaxFigure;
+for ii = 1:numel(stdErrors)
+   subplot_tight(2,5,ii);
+   h = histogram(thetas(ii,:));title(['theta ' num2str(ii)]);
+   h.Normalization = 'pdf';
+    h.EdgeColor = 'none';
+    setAxesByThresh(h,4);
+   gaussDom = linspace(h.BinLimits(1),h.BinLimits(2),100);
+   gauss = normpdf(gaussDom,trueTheta(ii),stdErrors(ii));
+   hold on; plot(gaussDom,gauss);
+end
+
+createFullMaxFigure;
+for ii = 1:numel(stdErrors)
+    subplot_tight(2,5,ii);
+    data =  deleteoutliers(observedFisherInfo(ii,:),0.05);
+    h = histogram(data);title(['theta ' num2str(ii)]);
+       h.Normalization = 'pdf';
+        h.EdgeColor = 'none';
+            setAxesByThresh(h,3);
+
+    vline(stdErrors(ii),'r','expected fisher');
+end
+%% define an analytic 3d gaussian and compare to numeric
+% analytic is 2 orders of magnitude faster and comparable to numeric
+
+sizeData         = [29 29 11];
+sigmaSq          = [0.9,0.9,0.9];
+domains          = genMeshFromData(zeros(sizeData));
+centerCoor       = getCenterCoor(sizeData);
+
+% define analytic gaussian
+gaussObj         = myPattern_3DGaussianConstSigmas(sigmaSq);
+[D,D1,D2]        = gaussObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
+% define numeric gaussian
+
+holder = zeros(10,1);
+parfor binning = 1:10
+    display(binning);
+    sigmas           = sqrt(sigmaSq);
+    kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
+    kernBinning = kernBinning/max(kernBinning(:));
+    numericObj       = myPattern_Numeric(kernBinning,'downSample',[binning,binning,binning],'interpMethod','neighbor');
+    [Dn,D1n,D2n]        = numericObj.givenThetaGetDerivatives(domains,centerCoor,[1 1 1]);
+    holder(binning) =  calcRMSE(D2{1},D2n{1});
+end
+plot(holder);
+ylim([0 inf]);
+
+% binning = 3 is optimal.  RMSE doesn't converge, but i think its because
+% the ndgauss isn't growing as if you can downsample it back to a smaller
+% one.  below is an example that works.
+
+
+delta = 1:-0.1:0.1;
+x1 = 0:10;
+x2 = 0:0.01:10;
+func = @(x) sin(x);
+dfunc = @(x) cos(x);
+y = func(x1);
+dy = dfunc(x1);
+
+ndy = gradient(y);
+ndy2 = gradient(func(x2),0.01);
+ndy3 = interpn(x2,ndy2,x1,'linear');
+plot(x1,y,'--x');hold on;plot(x1,dy,'--x');
+plot(x1,ndy,'-o');plot(x2,ndy2,'-');plot(x1,ndy3,'-s');
+
+figure;
+plot(x1,dy,'-x');hold on;plot(x1,ndy3,'--s');
+
+% i think the difference lays in the fact that sigma does not scale
+% correctly.  let me check this
+sigmas = [2];
+sizeData = [11];
+N = 10;
+for binning = 1:N
+    kernBinning      = ndGauss((sigmas*binning).^2,sizeData*binning);
+    down = interpn(linspace(1,sizeData,sizeData*binning),kernBinning,1:sizeData,'linear');
+    hold on; plot(down);
+end
+
+% yup.  
+
+
+%% check 2 spot performance at A = 15 B = 6
+% -flip kmatrix in stage ii and see the results to see if its correct.
+% i had to manually flip the kmatrix in between the parfor loops.  as
+% expected, not taking advtange of correct kmatrix leads to large variance
+% in the parameter. so the code seems ok from this persepctive. 
+doPlotEveryN   = inf;
+params.DLLDLambda = @DLLDLambda_PoissPoiss;
+
+params.sizeData         = [29 29 11];%[21 21 9];
+
+params.psfFunc          = @genPSF;
+params.binning          = 3;
+params.psfFuncArgs      = {{'lambda',514e-9,'f',params.binning,'mode',0},{'lambda',610e-9,'f',params.binning,'mode',0}};
+params.interpMethod     = 'linear';
+params.kMatrix          = [1 0.9144; 0 1];
+
+params.threshPSFArgs    = {[11,11,11]};
+params.NoiseFunc        = @genSCMOSNoiseVar;
+params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
+
+params.numSamples       = 10;
 params.As1               = 15;
 params.As2               = 30;
 params.Bs               = 6;
@@ -24,11 +314,17 @@ params.dist2Spots       = 6;
 
 params.NoiseFuncArgs{1} = params.sizeData;
 params.centerCoor       = round(params.sizeData/2);
-centerCoor  = params.centerCoor;
-Kmatrix = params.kMatrix;
-psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
-psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
-psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+centerCoor              = params.centerCoor;
+Kmatrix                 = params.kMatrix;
+
+
+% psfs        = cellfunNonUniformOutput(@(x) params.psfFunc(x{:}),params.psfFuncArgs);
+% psfs        = cellfunNonUniformOutput(@(x) centerGenPSF(x),psfs);
+% psfObjs     = cellfunNonUniformOutput(@(x) myPattern_Numeric(x,'downSample',[params.binning,params.binning,params.binning],'interpMethod',params.interpMethod),psfs);
+
+sigmaSQ = [1 1 1];
+patchSize = [16 16 16];
+psfObjs     = {genGaussKernObj(sigmaSQ,patchSize),genGaussKernObj(sigmaSQ,patchSize)};
 psfs        = cellfunNonUniformOutput(@(x) x.returnShape,psfObjs);
 psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),psfs);
 
@@ -46,10 +342,10 @@ MLEs = cell(params.numSamples,1);
 sizeKern        = size(psfs{1});
 
 setupParForProgress(params.numSamples);
-for ii = 1:params.numSamples
+parfor ii = 1:params.numSamples
     incrementParForProgress();
     camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
-    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
     cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
     [~,photonData]              = returnElectrons(stack,cameraParams);
     estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
@@ -75,7 +371,7 @@ for ii = 1:params.numSamples
     carvedRectSubArrayIdx       = stats(1).SubarrayIdx;
     carvedEstimates.spotKern    = estimated.spotKern;
     %-----APPY MY FUNC-------------------------------------------------
-    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix',psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+    MLEs{ii}                 = doMultiEmitterFitting(carvedMask,carvedRectSubArrayIdx,carvedDatas,carvedEstimates,carvedCamVar,Kmatrix,psfObjs,'theta0',myTheta0s,'numSpots',numSpots,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
 end
 
 MLEsregular = cell(params.numSamples,1);
@@ -85,7 +381,7 @@ setupParForProgress(params.numSamples);
 parfor ii = 1:params.numSamples
     incrementParForProgress();
     camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
-    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',cameraVar);
+    [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
     cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
     [~,photonData]              = returnElectrons(stack,cameraParams);
     estimated                   = findSpotsStage1V2(photonData,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
@@ -121,13 +417,13 @@ inverted  = [];
 for ii = 1:numel(MLEs)
     display(ii);
     if numel(MLEs{ii}) == 3 && numel(MLEsregular{ii}) == 3
-    xyzabs = getXYZABFromTheta(MLEs{ii}(3).theta0s);
-    xyzabsregular = getXYZABFromTheta(MLEsregular{ii}(3).theta0s);
-    
-    regular(end+1) = xyzabsregular{1}{1}(4);
-    regular(end+1) = xyzabsregular{2}{1}(4);
-    inverted(end+1) = xyzabs{1}{1}(4);
-    inverted(end+1) = xyzabs{2}{1}(4);
+        xyzabs = getXYZABFromTheta(MLEs{ii}(3).theta0s);
+        xyzabsregular = getXYZABFromTheta(MLEsregular{ii}(3).theta0s);
+        
+        regular(end+1) = xyzabsregular{1}{1}(1);
+        regular(end+1) = xyzabsregular{2}{1}(1);
+        inverted(end+1) = xyzabs{1}{1}(1);
+        inverted(end+1) = xyzabs{2}{1}(1);
     end
 end
 

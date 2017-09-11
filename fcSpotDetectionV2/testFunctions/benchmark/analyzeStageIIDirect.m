@@ -40,10 +40,11 @@ for ii = 1:numConds
         
         MLEs         = stageIIconds{ii}.MLEsByDirect;
         
-        if isempty(stageIIconds{ii}.bigTheta)
+        if isempty(stageIIconds{ii}.bigTheta) || all(cellfun(@isempty,MLEs))
             continue;
         end
         masterTheta  = stageIIconds{ii}.bigTheta;
+        stdErrorList     = benchStruct.conditions{ii}.stdErrorList;
         trueTheta    = flattenTheta0s(stageIIconds{ii}.bigTheta);
         numSamples   = numel(MLEs);
         
@@ -54,6 +55,7 @@ for ii = 1:numConds
         LLPGBasket   = zeros(numSpotsInTheta(masterTheta)+1,numSamples);
         for jj = 1:numSamples
             currMLEholder           = MLEs{jj}{1};
+            %             currMLEholder           = MLEs{jj};
             if ~all(abs([currMLEholder.logLikePP])>0)
                 continue;
             end
@@ -92,11 +94,13 @@ for ii = 1:numConds
         end
         % remove empty thetas in thetaHolder
         thetaHolder = thetaHolder(:,LLPPHolder>0);
+        stdErrorList = stdErrorList(LLPPHolder>0);
         thetaHolder(:,~any(thetaHolder,1)) = [];
         LLPPBasket  = LLPPBasket(:,LLPPHolder>0);
         LLPGBasket  = LLPGBasket(:,LLPPHolder>0);
         LLPPHolder  = LLPPHolder(LLPPHolder>0);
         
+        analysis{ii}.stdErrorList = stdErrorList;
         analysis{ii}.thetaHolder = thetaHolder;
         analysis{ii}.LLPPHolder  = LLPPHolder;
         analysis{ii}.LLPPBasket  = LLPPBasket;
@@ -122,18 +126,20 @@ for ii = 1:numTheta
     [stdForEachTheta{ii},domains] = applyFunc(stageIIconds,analysis,@std,ii);
 end
 
-% for ii = 1:numTheta
-%     close all;
-%     currTheta = ii;
-%     d = 1;
-%     [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
-%     set (h, 'LineWidth', 2);
-%     myTitle = ['std deviation theta ' num2str(ii)];
-%     xlabel('A');ylabel('B');title(myTitle);
-%     colorbar;
-%     saveas(gcf,[saveFolder filesep myTitle],'epsc');
-% end
-% close all;
+% % % % % % for ii = 1:numTheta
+% % % % % %     close all;
+% % % % % %     currTheta = ii;
+% % % % % %     d = 1;
+% % % % % %     [c,h] = contour(domains{1}(:,:,d),domains{2}(:,:,d),stdForEachTheta{currTheta}(:,:,d));
+% % % % % %     set (h, 'LineWidth', 2);
+% % % % % %     myTitle = ['std deviation theta ' num2str(ii)];
+% % % % % %     xlabel('A');ylabel('B');title(myTitle);
+% % % % % %     colorbar;
+% % % % % %     saveas(gcf,[saveFolder filesep myTitle],'epsc');
+% % % % % % end
+% % % % % % close all;
+
+currSizeConditions = size(analysis(:,:,1));
 
 if ismatrix(analysis) == 2
     numDs = 1;
@@ -150,7 +156,7 @@ for ii = 1:numTheta
         minMaxOfDomains = calcMinMaxFromMeshData(domains);
         ADoms = minMaxOfDomains(1,:);
         BDoms = minMaxOfDomains(2,:);
-        [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),100),linspace(BDoms(1),BDoms(2),100));
+        [newA,newB] = meshgrid(linspace(ADoms(1),ADoms(2),10),linspace(BDoms(1),BDoms(2),10));
         AA = domains{1}(:,:,currD);
         BB = domains{2}(:,:,currD);
         AA(isnan(currSTDMap)) = [];
@@ -249,27 +255,54 @@ end
 
 %% plot EER for different distances
 if ndims(analysis) == 3
-for ii = 1:size(analysis,1)
-    for jj = 1:size(analysis,2)
-        analysis_D = analysis(ii,jj,:);
-        if all(~cellfun(@isempty,analysis_D))
-            currEER = zeros(numel(analysis_D),1);
-            currD = zeros(numel(analysis_D),1);
-            for di = 1:numel(analysis_D)
-                currLLR = analysis_D{di}.LLPPBasket;
-                currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
-                ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
-                currEER(di) = ROC.EER;
-                currD(di) = analysis_D{di}.D;
+    for ii = 1:size(analysis,1)
+        for jj = 1:size(analysis,2)
+            analysis_D = analysis(ii,jj,:);
+            if all(~cellfun(@isempty,analysis_D))
+                currEER = zeros(numel(analysis_D),1);
+                currD = zeros(numel(analysis_D),1);
+                for di = 1:numel(analysis_D)
+                    currLLR = analysis_D{di}.LLPPBasket;
+                    currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
+                    ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
+                    currEER(di) = ROC.EER;
+                    currD(di) = analysis_D{di}.D;
+                end
+                close all;
+                myTitle = ['EERoverD' filesep 'EER-A_' num2str(analysis_D{di}.A) ' B_' num2str(analysis_D{di}.B)];
+                makeDIRforFilename([saveFolder filesep myTitle]);
+                plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
+                print('-painters','-depsc', [saveFolder filesep myTitle]);
             end
-            close all;
-            myTitle = ['EERoverD' filesep 'EER-A_' num2str(analysis_D{di}.A) ' B_' num2str(analysis_D{di}.B)];
-            makeDIRforFilename([saveFolder filesep myTitle]);
-            plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
-            print('-painters','-depsc', [saveFolder filesep myTitle]);
         end
     end
+    close all;
 end
+
+%% plot global EER
+myTitle = ['EERoverDGlobal' filesep 'EERglobal'];
+makeDIRforFilename([saveFolder filesep myTitle]);
+createFullMaxFigure();
+if ndims(analysis) == 3
+    for ii = 1:size(analysis,1)
+        for jj = 1:size(analysis,2)
+            analysis_D = analysis(ii,jj,:);
+            if all(~cellfun(@isempty,analysis_D))
+                currEER = zeros(numel(analysis_D),1);
+                currD = zeros(numel(analysis_D),1);
+                for di = 1:numel(analysis_D)
+                    currLLR = analysis_D{di}.LLPPBasket;
+                    currLLR = bsxfun(@minus,currLLR,currLLR(1,:));
+                    ROC = genROC(['A:' analysis_D{di}.A 'B:' analysis_D{di}.B],currLLR(3,:),currLLR(2,:),'doPlot',false);
+                    currEER(di) = ROC.EER;
+                    currD(di) = analysis_D{di}.D;
+                end
+                subplot(currSizeConditions(2), currSizeConditions(1),sub2ind(currSizeConditions,ii,jj));                
+                plot(currD,currEER,'-*');xlabel('Distance');ylabel('EER');title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            axis([min(currD) max(currD) 0 0.5]);
+            end
+        end
+    end
+                    print('-painters','-depsc', [saveFolder filesep myTitle]);
 close all;
 end
 
@@ -296,6 +329,7 @@ switch numel(sizeConditions)
                 subplot(currSizeConditions(2), currSizeConditions(1),ii);
                 hSub = histogram(analysis{ii}.thetaHolder(currTheta,:));
                 hSub.Normalization = 'pdf';
+                hSub.EdgeColor  = 'none';
                 if currMin > min(hSub.BinEdges)
                     currMin = min(hSub.BinEdges);
                 end
@@ -312,13 +346,15 @@ switch numel(sizeConditions)
             end
         end
         
-        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf;
+        if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf
             for ii = 1:prod(currSizeConditions)
                 if ~isempty(analysis{ii})
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     axis([currMin currMax 0 peakMax]);
                     xDomain = linspace(currMin,currMax,100);
-                    hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                    currErrors = cell2mat(cellfun(@(x) x',analysis{ii}.stdErrorList,'uni',false));
+                    currStds = sqrt(mean(currErrors.^2,1));
+                    hold on; plot(xDomain,normpdf(xDomain, analysis{ii}.trueTheta(currTheta),currStds(currTheta)));
                 end
             end
         end
@@ -339,6 +375,7 @@ switch numel(sizeConditions)
                     subplot(currSizeConditions(2), currSizeConditions(1),ii);
                     hSub = histogram(currAnalysis{ii}.thetaHolder(currTheta,:));
                     hSub.Normalization = 'pdf';
+                    hSub.EdgeColor  = 'none';
                     title([num2str(ii) ' A:' num2str(currAnalysis{ii}.A) ' B:' num2str(currAnalysis{ii}.B)]);
                     xlabel(num2str(numel(currAnalysis{ii}.thetaHolder(currTheta,:))));
                     if currMin > min(hSub.BinEdges)
@@ -358,11 +395,13 @@ switch numel(sizeConditions)
             if currMin ~= inf && currMax ~= -inf && peakMax ~= -inf
                 
                 for ii = 1:prod(currSizeConditions)
-                    if ~isempty(analysis{ii})
+                    if ~isempty(currAnalysis{ii})
                         subplot(currSizeConditions(2), currSizeConditions(1),ii);
                         axis([currMin currMax 0 peakMax]);
                         xDomain = linspace(currMin,currMax,100);
-                        hold on; plot(xDomain,normpdf(xDomain,currMean(ii),currStd(ii)));
+                        currErrors = cell2mat(cellfun(@(x) x',currAnalysis{ii}.stdErrorList,'uni',false));
+                        currStds = sqrt(mean(currErrors.^2,1));
+                        hold on; plot(xDomain,normpdf(xDomain, currAnalysis{ii}.trueTheta(currTheta),currStds(currTheta)));
                     end
                 end
             end

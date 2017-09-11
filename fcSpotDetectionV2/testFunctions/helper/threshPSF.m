@@ -3,9 +3,20 @@ function [psfData,thresh] = threshPSF(psfData,thresh)
 %   PSF.  if thresh is a vector then it is a BBox size centered at the
 %   brightest pixel
 
+if iscell(psfData)
+    if isscalar(thresh)
+        psfData = cellfunNonUniformOutput(@(x) getSubsetwBBoxND(x,selectCenterBWObj(psfData > thresh)),psfData);
+    else
+        for ii = 1:numel(psfData)
+           currMax = find(psfData{ii}(:)==max(psfData{ii}(:)));
+           psfData{ii} = psfData{ii}([1:thresh(ii)] + floor(currMax/2) - 1);
+        end
+    end
+    return;
+end
 
 if isempty(thresh)
-   [thresh, ~, ~] = threshold(multithresh(psfData(:)), max(psfData(:)), maxintensityproj(psfData,3)); 
+    [thresh, ~, ~] = threshold(multithresh(psfData(:)), max(psfData(:)), maxintensityproj(psfData,3));
 end
 
 if isscalar(thresh)
