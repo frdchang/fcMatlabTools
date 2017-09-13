@@ -10,7 +10,7 @@ benchStruct3clean   = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'
 saveFolder = '~/Desktop/dataStorage/fcDataStorageReversed';
 benchStruct3        = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrix,'saveFolder',saveFolder);
 
-benchStruct3.Kmatrix= kMatrix';
+benchStruct3.Kmatrix= kMatrix';w
 
 % benchStruct1        = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
 benchStruct3clean   = procBenchMarkStageI(benchStruct3clean,@findSpotsStage1V2);
@@ -25,7 +25,7 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 %% do this before putting on regal
 tic;
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-N = 10000;
+N = 5000;
 type = 3;
 benchStruct3 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 benchStruct3 = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
