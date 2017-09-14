@@ -191,5 +191,5 @@ benchStruct.Kmatrix     = Kmatrix;
 benchStruct.conditions  = benchConditions;
 benchStruct.psfs        = psfs;
 benchStruct.centerCoor  = centerCoor;
-save([saveFolder filesep 'benchStruct'],'benchStruct');
+save([saveFolder filesep 'benchStruct'],'benchStruct','-v7.3');
 display('genBenchmark() saved...');

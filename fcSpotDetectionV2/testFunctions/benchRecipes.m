@@ -25,7 +25,7 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 %% do this before putting on regal
 tic;
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-N = 5000;
+N = 10;
 type = 3;
 benchStruct3 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 benchStruct3 = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
@@ -37,7 +37,7 @@ toc;
 %% only thing on cluster needed is the stage II analysis
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
 % saveFolder = '~/Desktop/test';
-setupCluster('setWallTime', '60:00:00','setMemUsage','64000');
+setupCluster('setWallTime', '60:00:00','setMemUsage','64000')w;
 N = 5000;
 
 type = 3;

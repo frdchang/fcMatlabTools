@@ -103,7 +103,7 @@ savePath = grabProcessedRest(savePath);
 savePath = traversePath(savePath{1},1);
 saveFile = [savePath filesep 'benchStruct'];
 makeDIRforFilename(saveFile);
-save(saveFile,'benchStruct');
+save(saveFile,'benchStruct','-v7.3');
 display(['saving:' saveFile]);
 display('procBenchMarkStageIIDirect() saved...');
 
