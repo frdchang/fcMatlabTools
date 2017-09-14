@@ -25,13 +25,16 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 %% do this before putting on regal
 tic;
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-N = 10;
+N = 2000;
 type = 3;
 benchStruct3 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 benchStruct3 = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
 type = 2;
 benchStruct2 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 benchStruct2 = procBenchMarkStageI(benchStruct2,@findSpotsStage1V2);
+type = 1;
+benchStruct1 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
+benchStruct1 = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
 toc;
 
 %% only thing on cluster needed is the stage II analysis
