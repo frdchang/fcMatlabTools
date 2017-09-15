@@ -40,14 +40,21 @@ toc;
 %% only thing on cluster needed is the stage II analysis
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
 % saveFolder = '~/Desktop/test';
-setupCluster('setWallTime', '60:00:00','setMemUsage','64000')w;
-N = 5000;
+setupCluster('setWallTime', '60:00:00','setMemUsage','5000');
+N = 2500;
 
 type = 3;
 % benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
 c = parcluster;
 funcArgs = {'benchType',type,'numSamples',N,'saveFolder',saveFolder};
 j = c.batch(@genBenchMark, 1, funcArgs, 'pool',45);
+
+funcArgs = {'benchType',2,'numSamples',N,'saveFolder',saveFolder};
+j1 = c.batch(@genBenchMark, 1, funcArgs, 'pool',45);
+
+funcArgs = {'benchType',1,'numSamples',N,'saveFolder',saveFolder};
+j2 = c.batch(@genBenchMark, 1, funcArgs, 'pool',45);
+
 wait(j);
 benchStruct = j.fetchOutputs;
 benchStruct = benchStruct{1};
