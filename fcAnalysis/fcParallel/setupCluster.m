@@ -6,11 +6,11 @@ params.setQueueName    = 'serial_requeue';
 params.setMemUsage     = '8000';
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
-try
-    clearCluster();
-catch
-    
-end
+% try
+%     clearCluster();
+% catch
+%     
+% end
 
 if exist('ClusterInfo','var')== 0
     try
