@@ -5,7 +5,7 @@ saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths{1},myFunc,'param
 segOutput = funcOutput{1};
 % save individual mat
 makeDIRforFilename(saveProcessedFileAt);
-save(saveProcessedFileAt,'segOutput');
+save(saveProcessedFileAt,'segOutput','-v7.3');
 % save timelapse of segmentation
 inputFiles = listOfFileInputPaths{1};
 segSequenceFiles = cell(numel(inputFiles),1);

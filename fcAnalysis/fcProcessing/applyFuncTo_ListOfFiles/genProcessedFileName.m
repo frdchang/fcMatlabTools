@@ -66,7 +66,7 @@ genFileName = returnFileName(saveProcessedFileAt);
 
 if numel(genFileName) >= 255
     genFileName = DataHash(genFileName,struct('Format', 'base64', 'Method', 'MD5'));
-    saveProcessedFileAt = [returnFilePath filesep genFileName];
+    saveProcessedFileAt = [returnFilePath(saveProcessedFileAt) filesep genFileName];
 end
 
 
