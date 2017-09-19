@@ -145,7 +145,8 @@ end
 % % % % % % close all;
 
 currSizeConditions = size(analysis(:,:,1));
-totalSampleSize = numel(stageIIconds{1}.MLEsByDirect);
+temp = getFirstNonEmptyCellContent(stageIIconds);
+totalSampleSize = numel(temp.MLEsByDirect);
 
 if ismatrix(analysis) == 2
     numDs = 1;
