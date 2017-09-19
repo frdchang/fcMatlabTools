@@ -88,6 +88,7 @@ parfor ii = 1:numConditions
         parForSave(myFuncOutSave{jj},MLEs{jj});
         
     end
+    conditions{ii}.currMask         = currMask;
     conditions{ii}.A                = currA;
     conditions{ii}.B                = currB;
     conditions{ii}.D                = currD;
