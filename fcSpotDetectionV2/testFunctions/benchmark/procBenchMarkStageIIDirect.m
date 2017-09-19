@@ -50,6 +50,7 @@ parfor ii = 1:numConditions
     if currA == 0
         continue;
     end
+    currMask = [];
     for jj = 1:doNum
 %         display(['A:' num2str(currA) ' B:' num2str(currB) ' D:' num2str(currD) ' i:' num2str(jj) ' of ' num2str(doNum)]);
         stack                       = importStack(currFileList{jj});
