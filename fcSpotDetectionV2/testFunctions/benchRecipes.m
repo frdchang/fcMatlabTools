@@ -340,7 +340,7 @@ analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
 switch computer
     case 'MACI64'
         saveFolder = '~/Desktop/dataStorage/fcDataStorage';
-        N = 1;
+        N = 10;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 100;

@@ -154,6 +154,93 @@ else
     numDs = size(analysis,3);
 end
 minMax= calcMinMaxFromMeshData(domains);
+
+%% plot std of theta across distance
+peakVal = [14.4969169783983;0.555834171552772;0.57231871740964;0.576483684962625;14.5428707059103;0.559154313431826;0.554730186580422;0.46747357495547;0.152201980592447];
+peakVal2 = [14.4969169783983;0.555834171552772;0.57231871740964;0.576483684962625;0.152201980592447;14.5428707059103;0.559154313431826;0.554730186580422;0.46747357495547;0.152201980592447];
+
+% peakVal = zeros(numTheta,1);
+% for ii = 1:numTheta
+%    currSTDMap = stdForEachTheta{ii};
+%    for jj = 1:size(currSTDMap,1)*size(currSTDMap,2)
+%       [xx,yy] = ind2sub([size(currSTDMap,1),size(currSTDMap,2)],jj);
+%       currData = currSTDMap(xx,yy,:);
+%       currData = currData(:);
+%       if all(~isnan(currData(:)))
+%          if max(currData(:)) > peakVal(ii)
+%             peakVal(ii) = max(currData(2:end)); 
+%          end
+%       end
+%    end
+% end
+
+% extract cramer rao lower bound
+raoLBMap = cell(numTheta,1);
+[raoLBMap{:}] = deal(zeros(size(analysis)));
+
+for ii = 1:numTheta
+    for xx = 1:size(analysis,1)
+        for yy = 1:size(analysis,2)
+           for dd =1:size(analysis,3)
+               if ~isempty(analysis{xx,yy,dd})
+               currErrors = cell2mat(cellfun(@(x) x',analysis{xx,yy,dd}.stdErrorList,'uni',false));
+               currStds = sqrt(mean(currErrors.^2,1));
+               raoLBMap{ii}(xx,yy,dd) = currStds(ii);
+               end
+           end
+        end
+    end
+end
+    
+    
+%     for zz = 1:numel(analysis)
+%     if ~isempty(analysis{zz})
+%         currErrors = cell2mat(cellfun(@(x) x',analysis{zz}.stdErrorList,'uni',false));
+%         currStds = sqrt(mean(currErrors.^2,1));
+%         [xx,yy,zz] = ind2sub([size(analysis,1),size(analysis,2),size(analysis,3)],zz);
+%         for jj = 1:numDs
+%            raoLBMap{ii}(xx,yy,jj) = currStds(ii); 
+%         end
+%     end
+%     end
+% end
+
+
+for ii = 1:numTheta
+   currSTDMap = stdForEachTheta{ii};
+   myTitle = ['theta ' num2str(ii) ' versus d'];
+   createFullMaxFigure(myTitle);
+   for jj = 1:size(currSTDMap,1)*size(currSTDMap,2)
+      [xx,yy] = ind2sub([size(currSTDMap,1),size(currSTDMap,2)],jj);
+      currData = currSTDMap(xx,yy,:);
+      if all(~isnan(currData(:)))
+         subplot(size(currSTDMap,2),size(currSTDMap,1),jj);
+         if isscalar(benchStruct.Kmatrix)
+            currData = currData(:);
+            area(2:numel(currData),currData(2:end));
+                     axis([1 numDs 0 peakVal(ii)]);
+
+         else
+            area(currData(:));
+                     axis([1 numDs 0 peakVal2(ii)]);
+
+         end
+         currRao = raoLBMap{ii}(xx,yy,:);
+         hold on;
+         plot(1:numel(currData),currRao(:),'r');
+         title(num2str(jj));
+      end
+   end
+   exportFigEPS([saveFolder filesep 'thetaVsD' filesep myTitle]);
+   close all;
+end
+
+%% do other stuff
+
+
+
+
+
 for ii = 1:numTheta
     for currD = 1:numDs
         close all;
