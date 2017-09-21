@@ -168,73 +168,74 @@ peakVal2 = [14.4969169783983;0.555834171552772;0.57231871740964;0.57648368496262
 %       currData = currData(:);
 %       if all(~isnan(currData(:)))
 %          if max(currData(:)) > peakVal(ii)
-%             peakVal(ii) = max(currData(2:end)); 
+%             peakVal(ii) = max(currData(2:end));
 %          end
 %       end
 %    end
 % end
 
 % extract cramer rao lower bound
-raoLBMap = cell(numTheta,1);
-[raoLBMap{:}] = deal(zeros(size(analysis)));
-
-for ii = 1:numTheta
-    for xx = 1:size(analysis,1)
-        for yy = 1:size(analysis,2)
-           for dd =1:size(analysis,3)
-               if ~isempty(analysis{xx,yy,dd})
-               currErrors = cell2mat(cellfun(@(x) x',analysis{xx,yy,dd}.stdErrorList,'uni',false));
-               currStds = sqrt(mean(currErrors.^2,1));
-               raoLBMap{ii}(xx,yy,dd) = currStds(ii);
-               end
-           end
+if numDs > 1
+    raoLBMap = cell(numTheta,1);
+    [raoLBMap{:}] = deal(zeros(size(analysis)));
+    
+    for ii = 1:numTheta
+        for xx = 1:size(analysis,1)
+            for yy = 1:size(analysis,2)
+                for dd =1:size(analysis,3)
+                    if ~isempty(analysis{xx,yy,dd})
+                        currErrors = cell2mat(cellfun(@(x) x',analysis{xx,yy,dd}.stdErrorList,'uni',false));
+                        currStds = sqrt(mean(currErrors.^2,1));
+                        raoLBMap{ii}(xx,yy,dd) = currStds(ii);
+                    end
+                end
+            end
         end
     end
-end
     
     
-%     for zz = 1:numel(analysis)
-%     if ~isempty(analysis{zz})
-%         currErrors = cell2mat(cellfun(@(x) x',analysis{zz}.stdErrorList,'uni',false));
-%         currStds = sqrt(mean(currErrors.^2,1));
-%         [xx,yy,zz] = ind2sub([size(analysis,1),size(analysis,2),size(analysis,3)],zz);
-%         for jj = 1:numDs
-%            raoLBMap{ii}(xx,yy,jj) = currStds(ii); 
-%         end
-%     end
-%     end
-% end
-
-
-for ii = 1:numTheta
-   currSTDMap = stdForEachTheta{ii};
-   myTitle = ['theta ' num2str(ii) ' versus d'];
-   createFullMaxFigure(myTitle);
-   for jj = 1:size(currSTDMap,1)*size(currSTDMap,2)
-      [xx,yy] = ind2sub([size(currSTDMap,1),size(currSTDMap,2)],jj);
-      currData = currSTDMap(xx,yy,:);
-      if all(~isnan(currData(:)))
-         subplot(size(currSTDMap,2),size(currSTDMap,1),jj);
-         if isscalar(benchStruct.Kmatrix)
-            currData = currData(:);
-            area(2:numel(currData),currData(2:end));
-                     axis([1 numDs 0 peakVal(ii)]);
-
-         else
-            area(currData(:));
-                     axis([1 numDs 0 peakVal2(ii)]);
-
-         end
-         currRao = raoLBMap{ii}(xx,yy,:);
-         hold on;
-         plot(1:numel(currData),currRao(:),'r');
-         title(num2str(jj));
-      end
-   end
-   exportFigEPS([saveFolder filesep 'thetaVsD' filesep myTitle]);
-   close all;
+    %     for zz = 1:numel(analysis)
+    %     if ~isempty(analysis{zz})
+    %         currErrors = cell2mat(cellfun(@(x) x',analysis{zz}.stdErrorList,'uni',false));
+    %         currStds = sqrt(mean(currErrors.^2,1));
+    %         [xx,yy,zz] = ind2sub([size(analysis,1),size(analysis,2),size(analysis,3)],zz);
+    %         for jj = 1:numDs
+    %            raoLBMap{ii}(xx,yy,jj) = currStds(ii);
+    %         end
+    %     end
+    %     end
+    % end
+    
+    
+    for ii = 1:numTheta
+        currSTDMap = stdForEachTheta{ii};
+        myTitle = ['theta ' num2str(ii) ' versus d'];
+        createFullMaxFigure(myTitle);
+        for jj = 1:size(currSTDMap,1)*size(currSTDMap,2)
+            [xx,yy] = ind2sub([size(currSTDMap,1),size(currSTDMap,2)],jj);
+            currData = currSTDMap(xx,yy,:);
+            if all(~isnan(currData(:)))
+                subplot(size(currSTDMap,2),size(currSTDMap,1),jj);
+                if isscalar(benchStruct.Kmatrix)
+                    currData = currData(:);
+                    area(2:numel(currData),currData(2:end));
+                    axis([1 numDs 0 peakVal(ii)]);
+                    
+                else
+                    area(currData(:));
+                    axis([1 numDs 0 peakVal2(ii)]);
+                    
+                end
+                currRao = raoLBMap{ii}(xx,yy,:);
+                hold on;
+                plot(1:numel(currData),currRao(:),'r');
+                title(num2str(jj));
+            end
+        end
+        exportFigEPS([saveFolder filesep 'thetaVsD' filesep myTitle]);
+        close all;
+    end
 end
-
 %% do other stuff
 
 
@@ -259,17 +260,17 @@ for ii = 1:numTheta
         AA(isnan(currSTDMap)) = NaN;
         BB(isnan(currSTDMap)) = NaN;
         
-        % only plot permissive 
+        % only plot permissive
         AA(~permissive) = NaN;
         BB(~permissive) = NaN;
         
         currSTDMap(~permissive) = NaN;
-%         currSTDMap(isnan(currSTDMap)) = [];
-%         AA(isnan(AA)) = [];
-%         BB(isnan(BB)) = [];
-%         F = scatteredInterpolant(AA(:),BB(:),currSTDMap(:));
-%         F.Method = 'natural';
-%         [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
+        %         currSTDMap(isnan(currSTDMap)) = [];
+        %         AA(isnan(AA)) = [];
+        %         BB(isnan(BB)) = [];
+        %         F = scatteredInterpolant(AA(:),BB(:),currSTDMap(:));
+        %         F.Method = 'natural';
+        %         [C,h] = contour(newA,newB,F(newA,newB),'LineWidth',3,'ShowText','on');
         [C,h] = contour(AA,BB,currSTDMap,'LineWidth',3,'ShowText','on');
         axis([minMax(1,1) minMax(1,2) minMax(2,1) minMax(2,2)]);
         set(gca,'Ydir','reverse');
@@ -403,17 +404,17 @@ if ndims(analysis) == 3
                     currEER(di) = ROC.EER;
                     currD(di) = analysis_D{di}.D;
                 end
-                subplot(currSizeConditions(2), currSizeConditions(1),sub2ind(currSizeConditions,ii,jj));                
+                subplot(currSizeConditions(2), currSizeConditions(1),sub2ind(currSizeConditions,ii,jj));
                 area(currD,currEER);
                 %xlabel('Distance');
-                title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);            
+                title(['A:' num2str(analysis_D{di}.A) ' B:' num2str(analysis_D{di}.B)]);
                 axis([min(currD) max(currD) 0 0.5]);
                 drawnow;
             end
         end
     end
-print('-painters','-depsc', [saveFolder filesep myTitle]);
-close all;
+    print('-painters','-depsc', [saveFolder filesep myTitle]);
+    close all;
 end
 
 

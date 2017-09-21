@@ -29,11 +29,11 @@ switch numel(sizeConditions)
                 if currMax < nowMax
                     currMax = nowMax;
                 end
-                if abs(diff(hSub.BinLimits)) > minBinLimits
+                 if abs(diff(hSub.BinLimits)) > minBinLimits
                     if peakMax < max(hSub.Values)
                         peakMax = max(hSub.Values);
                     end
-                end
+                 end
                 title(['A:' num2str(analysis{ii}.A) ' B:' num2str(analysis{ii}.B)]);
                 xlabel(num2str(numel(analysis{ii}.thetaHolder(currTheta,:))));
             end

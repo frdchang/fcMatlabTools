@@ -145,7 +145,7 @@ parfor zz = 1:totNum
     
     bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
     [bigLambdas,bigDLambdas,~]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
-
+    
     fileList        = cell(params.numSamples,1);
     stdErrorList    = cell(params.numSamples,1);
     cameraVarList   = cell(params.numSamples,1);
@@ -166,16 +166,32 @@ parfor zz = 1:totNum
             saveFile = [saveFolder filesep conditionStr filesep conditionStr '-' num2str(ii) '.tif'];
             exportSingleTifStack(saveFile,round(sampledData));
         end
+        
+        [ carvedMask,stats ] = createMaskHelper( bigLambdas,getPatchSize(psfs{1}),bigTheta);
+%         carvedMask                  = carveOutWithMask(currMask,currMask,[0,0,0]);
+        
+        % use only carved mask
+        bigLambdasC = cellfunNonUniformOutput(@(x) x(carvedMask),bigLambdas);
+        bigDLambdasC = bigDLambdas;
+        for kk = 1:numel(bigDLambdas)
+            if ~isscalar(bigDLambdas{kk})
+                bigDLambdasC{kk} = bigDLambdas{kk}(carvedMask);
+            end
+        end
+        
         if iscell(bigLambdas)
             myVar = cell(size(bigLambdas));
             [myVar{:}] = deal(cameraVar);
-                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,myVar);
-
+            myVar = cellfunNonUniformOutput(@(x) x(carvedMask),myVar);
+            
+            [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdasC,bigDLambdasC,myVar);
+            
         else
-                    [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdas,bigDLambdas,cameraVar);
-
+            cameraVar = cameraVar(carvedMask);
+            [ ~,~,stdErrors,~] = calcExpectedFisherInfo(bigLambdasC,bigDLambdasC,cameraVar);
+            
         end
-
+        
         fileList{ii} = saveFile;
         stdErrorList{ii} = stdErrors;
     end
@@ -183,7 +199,6 @@ parfor zz = 1:totNum
     benchConditions{zz}.fileList = fileList;
     benchConditions{zz}.stdErrorList = stdErrorList;
     benchConditions{zz}.cameraVarList = cameraVarList;
-    
 end
 display('genBenchMark() done...');
 benchStruct.psfObjs     = psfObjs;
