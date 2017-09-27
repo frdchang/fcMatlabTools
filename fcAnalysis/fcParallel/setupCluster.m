@@ -1,4 +1,4 @@
-function [] = setupCluster(varargin)
+function c = setupCluster(varargin)
 %SETUPCLUSTER setups the cluster
 %--parameters--------------------------------------------------------------
 params.setWallTime     = '01:00:00';
