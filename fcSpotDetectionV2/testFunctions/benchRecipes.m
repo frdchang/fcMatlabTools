@@ -41,18 +41,18 @@ toc;
 saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
 % saveFolder = '~/Desktop/test';
 % setupCluster('setWallTime', '06:00:00','setMemUsage','5000');
-N = 2600;
+N = 4000;
 workers = 25;
 % benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-c = setupCluster('setWallTime', '60:00:00','setMemUsage','25000');
+c = setupCluster('setWallTime', '4-00:00:00','setMemUsage','5000');
 funcArgs = {'benchType',3,'numSamples',N,'saveFolder',saveFolder};
 j = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
 
-setupCluster('setWallTime', '03:00:00','setMemUsage','5000');
+c=setupCluster('setWallTime', '1-00:00:00','setMemUsage','5000');
 funcArgs = {'benchType',2,'numSamples',N,'saveFolder',saveFolder};
 j1 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
 
-setupCluster('setWallTime', '01:00:00','setMemUsage','5000');
+c=setupCluster('setWallTime', '01:00:00','setMemUsage','5000');
 funcArgs = {'benchType',1,'numSamples',N,'saveFolder',saveFolder};
 j2 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
 
