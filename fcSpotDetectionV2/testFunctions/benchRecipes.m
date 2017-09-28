@@ -10,7 +10,7 @@ benchStruct3clean   = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'
 saveFolder = '~/Desktop/dataStorage/fcDataStorageReversed';
 benchStruct3        = genBenchMark('benchType',3,'numSamples',N,'As',20,'Bs',1,'dist2Spots',0,'kMatrix',kMatrix,'saveFolder',saveFolder);
 
-benchStruct3.Kmatrix= kMatrix';w
+benchStruct3.Kmatrix= kMatrix';
 
 % benchStruct1        = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
 benchStruct3clean   = procBenchMarkStageI(benchStruct3clean,@findSpotsStage1V2);
@@ -22,82 +22,85 @@ analyzeStageI(benchStruct3,@findSpotsStage1V2,'LLRatio');
 
 benchStruct = procBenchMarkStageIIDirect(benchStruct3,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
 benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-%% do this before putting on regal
-tic;
-saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-N = 2000;
-type = 3;
-benchStruct3 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-benchStruct3 = procBenchMarkStageI(benchStruct3,@findSpotsStage1V2);
-type = 2;
-benchStruct2 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-benchStruct2 = procBenchMarkStageI(benchStruct2,@findSpotsStage1V2);
-type = 1;
-benchStruct1 = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-benchStruct1 = procBenchMarkStageI(benchStruct1,@findSpotsStage1V2);
-toc;
 
 %% only thing on cluster needed is the stage II analysis
-saveFolder = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-% saveFolder = '~/Desktop/test';
-% setupCluster('setWallTime', '06:00:00','setMemUsage','5000');
-N = 4000;
-workers = 25;
-% benchStruct = genBenchMark('benchType',type,'numSamples',N,'saveFolder',saveFolder);
-c = setupCluster('setWallTime', '4-00:00:00','setMemUsage','5000');
+saveFolder  = '/n/regal/kleckner_lab/fchang/fcDataStorage';
+N           = 100; %4000
+workers     = 25;
+myPaths     = getPathFromFunc();
+
+wallTimeGEN  = '4-00:00:00'; % '4-00:00:00';
+memoryGEN    = '5000';
+wallTimeStg1 = '08:00:00';
+memoryStg1   = '10000';
+wallTimeStg2 = '02:00:00';
+memoryStg2   = '1800';
+
+c = setupCluster('setWallTime', wallTimeGEN,'setMemUsage',memoryGEN);
 funcArgs = {'benchType',3,'numSamples',N,'saveFolder',saveFolder};
 j = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
-
-c=setupCluster('setWallTime', '1-00:00:00','setMemUsage','5000');
-funcArgs = {'benchType',2,'numSamples',N,'saveFolder',saveFolder};
-j1 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
-
-c=setupCluster('setWallTime', '01:00:00','setMemUsage','5000');
-funcArgs = {'benchType',1,'numSamples',N,'saveFolder',saveFolder};
-j2 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
-
 wait(j);
-wait(j1);
-wait(j2);
-
+disp('do stageI');
+funcArgs = {j.fetchOutputs{1},@findSpotsStage1V2};
 clearCluster();
-myPaths = getPathFromFunc();
-c = parcluster;
-
-% benchStruct1S1C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-1S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,0,1-K1/1S1C/benchStruct.mat');
-funcArgs = {benchStruct1S1C.benchStruct,@findSpotsStage1V2};
-setupCluster('setWallTime', '04:00:00','setMemUsage','10000');
-j3 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
-
-% benchStruct2S1C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-2S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K1/2S1C/benchStruct.mat');
-
-funcArgs = {benchStruct2S1C.benchStruct,@findSpotsStage1V2};
-j4 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
-
-% benchStruct2S2C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-2S2C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K0,0.3144/2S2C/benchStruct.mat');
-funcArgs = {benchStruct2S2C.benchStruct,@findSpotsStage1V2};
-j5 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
-
-clearCluster();
-benchStruct1S1C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-1S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,0,1-K1/1S1C/benchStruct.mat');
-% setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
-benchStruct = procBenchMarkStageIIDirectCluster(benchStruct1S1C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+c = setupCluster('setWallTime',wallTimeStg1 ,'setMemUsage',memoryStg1);
+j = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
+wait(j);
+disp('do stageII');
+benchStruct = procBenchMarkStageIIDirectCluster(j.fetchOutputs{1},'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss,'setWallTime',wallTimeStg2,'setMemUsage',memoryStg2);
+disp('analyze stageII');
 analyzeStageIIDirect(benchStruct);
-
 clearCluster();
-benchStruct2S2C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-2S2C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K0,0.3144/2S2C/benchStruct.mat');
-% setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
-benchStruct = procBenchMarkStageIIDirectCluster(benchStruct2S2C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-analyzeStageIIDirect(benchStruct);
-
-clearCluster();
-benchStruct2S1C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-2S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K1/2S1C/benchStruct.mat');
-% setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
-benchStruct = procBenchMarkStageIIDirectCluster(benchStruct2S1C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
-analyzeStageIIDirect(benchStruct);
 
 
-toc
+% c = setupCluster('setWallTime', '1-00:00:00','setMemUsage','5000');
+% funcArgs = {'benchType',2,'numSamples',N,'saveFolder',saveFolder};
+% j1 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
+% wait(j1);
+% 
+% c = setupCluster('setWallTime', '01:00:00','setMemUsage','5000');
+% funcArgs = {'benchType',1,'numSamples',N,'saveFolder',saveFolder};
+% j2 = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
+% wait(j2);
+% 
+% clearCluster();
+% 
+% c = parcluster;
+% 
+% % benchStruct1S1C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-1S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,0,1-K1/1S1C/benchStruct.mat');
+% funcArgs = {benchStruct1S1C.benchStruct,@findSpotsStage1V2};
+% setupCluster('setWallTime', '04:00:00','setMemUsage','10000');
+% j3 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
+% 
+% % benchStruct2S1C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-2S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K1/2S1C/benchStruct.mat');
+% 
+% funcArgs = {benchStruct2S1C.benchStruct,@findSpotsStage1V2};
+% j4 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
+% 
+% % benchStruct2S2C = load('/n/regal/kleckner_lab/fchang/fcDataStorage/20170915-gBM-2S2C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K0,0.3144/2S2C/benchStruct.mat');
+% funcArgs = {benchStruct2S2C.benchStruct,@findSpotsStage1V2};
+% j5 = c.batch(@procBenchMarkStageI,1,funcArgs,'pool',workers,'AdditionalPaths',myPaths);
+% 
+% clearCluster();
+% benchStruct1S1C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-1S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,0,1-K1/1S1C/benchStruct.mat');
+% % setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
+% benchStruct = procBenchMarkStageIIDirectCluster(benchStruct1S1C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+% analyzeStageIIDirect(benchStruct);
+% 
+% clearCluster();
+% benchStruct2S2C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-2S2C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K0,0.3144/2S2C/benchStruct.mat');
+% % setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
+% benchStruct = procBenchMarkStageIIDirectCluster(benchStruct2S2C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+% analyzeStageIIDirect(benchStruct);
+% 
+% clearCluster();
+% benchStruct2S1C = load('/n/regal/kleckner_lab/fchang/fcProcessed/20170915-gBM-2S1C-N1000-sz_29 29 11_-A0,30,11-B0,24,5-D0,6,7-K1/2S1C/benchStruct.mat');
+% % setupCluster('setWallTime', '04:00:00','setMemUsage','20000');
+% benchStruct = procBenchMarkStageIIDirectCluster(benchStruct2S1C.benchStruct,'doN',inf,'doPlotEveryN',inf,'DLLDLambda',@DLLDLambda_PoissPoiss);
+% analyzeStageIIDirect(benchStruct);
+% 
+% 
+% toc
 %% 1 spot
 switch computer
     case 'MACI64'

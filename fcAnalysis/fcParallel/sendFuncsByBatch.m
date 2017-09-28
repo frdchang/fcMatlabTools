@@ -11,9 +11,8 @@ params = updateParams(params,varargin);
 
 myPaths = getPathFromFunc();
 %% setup cluster stuff
-setupCluster(varargin{:});
-clusterObj = parcluster;
 clearCluster();
+clusterObj = setupCluster(varargin{:});
 %% issue the batch commands parsed by listOfFuncArgs
 numFuncOutput       = nargout(myFunc);
 if numFuncOutput < 0
