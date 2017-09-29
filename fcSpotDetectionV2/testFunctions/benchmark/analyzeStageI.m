@@ -461,7 +461,7 @@ if params.fitGamma
 end
 
 % for A=18 B 12 find threshold then replot the stuff
-idx = sub2ind(sizeAB,7,3);
+idx = sub2ind(sizeAB,8,3);
 thisA = conditions{idx}.A;
 thisB = conditions{idx}.B;
 sig = conditionHolder{idx}.sig;
@@ -494,11 +494,11 @@ fp(isnan(fp)) = 1;
 aspectRatio = (maxA-minA)/(maxB-minB);
 
 figure;imagesc([minA,maxA],[minB,maxB],tp');colorbar;title(['tp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
-pbaspect([aspectRatio 1 1]);
+pbaspect([aspectRatio 1 1]);caxis([0 1]);
 exportFigEPS([saveFolder filesep 'tp' filesep conditionFunc '_tp']);
 close all;
 figure;imagesc([minA,maxA],[minB,maxB],fp');colorbar;title(['fp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
-pbaspect([aspectRatio 1 1]);
+pbaspect([aspectRatio 1 1]);caxis([0 1]);
 exportFigEPS([saveFolder filesep 'fp' filesep conditionFunc '_fp']);
 close all;
 
