@@ -39,7 +39,8 @@ memoryStg2   = '1800';
 c = setupCluster('setWallTime', wallTimeGEN,'setMemUsage',memoryGEN);
 funcArgs = {'benchType',3,'numSamples',N,'saveFolder',saveFolder};
 j = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
-wait(j);
+wait(j);analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+
 disp('do stageI');
 funcArgs = {j.fetchOutputs{1},@findSpotsStage1V2};
 clearCluster();
@@ -101,11 +102,34 @@ clearCluster();
 % 
 % 
 % toc
+%%
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+N = 100;
+type = 3;
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
+benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+
+analyzeStageI(benchStruct,@conditions,'fileList');
+analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
+analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageI(benchStruct,@logConv,'logConv');
+analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageI(benchStruct,@regularConv,'regularConv');
+
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
 %% 1 spot
 switch computer
     case 'MACI64'
         saveFolder = '~/Desktop/dataStorage/fcDataStorage';
-        N = 10;
+        N = 50;
     case 'GLNXA64'
         saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
         N = 1000;
@@ -166,7 +190,6 @@ for type = 1:3
     % analyzeStageIDataOut(benchStruct,@gammaCorrection,'gammaSig2');
     % analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig2');
     % analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSigP2');
-    
 end
 %% 2 spot 2 colors see gamma fit
 switch computer

@@ -73,9 +73,9 @@ for ii = 1:prod(sizeAB)
         % channel 1
         if iscell(currFuncOutput)
             currFuncOutput = currFuncOutput{1};
-            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}),params.noEdgeEffects);
+            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,getPatchSize(benchStruct.psfs{1}),params.noEdgeEffects);
         else
-            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,size(benchStruct.psfs{1}),params.noEdgeEffects);
+            [sig(jj),bk{jj}] = measureSigBkgnd(currFuncOutput,benchStruct.centerCoor,getPatchSize(benchStruct.psfs{1}),params.noEdgeEffects);
         end
     end
     bk = cell2mat(bk);
@@ -162,7 +162,7 @@ end
 
 for ii = 1:prod(sizeAB)
     hold on;subplot(sizeAB(2),sizeAB(1),ii);
-    if currMin < -1
+    if currMin < -1 || currMax == -Inf
         axis([minXaxis maxXaxis minYaxis maxYaxis]);
     else
         axis([myMin 10^ceil(log10(currMax))  minYaxis maxYaxis]);
@@ -220,7 +220,7 @@ exportFigEPS([saveFolder filesep myTitle]);
 
 myTitle = ['loglogcdf' filesep conditionFunc ' ' field ' loglogcdf'];
 
-if currMin >= -1
+if currMin >= -1 
     for ii = 1:prod(sizeAB)
         hold on;subplot(sizeAB(2),sizeAB(1),ii);
         axis([myMin 10^ceil(log10(currMax)) 0 1]);
@@ -439,10 +439,14 @@ if params.fitGamma
         xx(end+1) = currB;
         yy(end+1) = currA;
     end
+    aspectRatio = (maxA-minA)/(maxB-minB);
+
     print('-painters','-depsc', [saveFolder filesep myTitle '-pdf signal and gamma fit']);
-    figure;imagesc([minA,maxA],[minB,maxB],sigShape');colorbar;title('sig shape');xlabel('A');ylabel('B');
+    figure;imagesc([minA,maxA],[minB,maxB],sigShape');colorbar;title('sig shape');xlabel('A');ylabel('B');pbaspect([aspectRatio 1 1]);
+
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigShape']);
-    figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');
+    figure;imagesc([minA,maxA],[minB,maxB],sigScale');colorbar;title('sig scale');xlabel('A');ylabel('B');pbaspect([aspectRatio 1 1]);
+
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigScale']);
     close all;
     
@@ -455,3 +459,45 @@ if params.fitGamma
     print('-painters','-depsc', [saveFolder filesep myTitle '-sigScaleFit']);
     close all;
 end
+
+% for A=18 B 12 find threshold then replot the stuff
+idx = sub2ind(sizeAB,7,3);
+thisA = conditions{idx}.A;
+thisB = conditions{idx}.B;
+sig = conditionHolder{idx}.sig;
+bk  = conditionHolder{idx}.bk;
+ROC = genROC([conditionFunc ' ' field 'global ROC'],sig,bk,'doPlot',false);
+threshold_idx = find(ROC.withoutTargetCDF > 0.99,1,'first');
+threshold = ROC.newDomain(threshold_idx);
+fp = NaN(sizeAB);
+tp = NaN(sizeAB);
+for ii = 1:prod(sizeAB)
+    %     display(ii);
+    incrementParForProgress();
+    sig = conditionHolder{ii}.sig;
+    bk = conditionHolder{ii}.bk;
+    %     pause(1);
+    ROC = genROC('adsf',sig,bk,'doPlot',false);
+    tp_curr = 1-ROC.withTargetCDF(find(ROC.newDomain > threshold,1,'first'));
+    fp_curr = 1-ROC.withoutTargetCDF(find(ROC.newDomain > threshold,1,'first'));
+    if ~isempty(tp_curr)
+    tp(ii) = tp_curr;
+    end
+    if ~isempty(fp_curr)
+    fp(ii) = fp_curr; 
+    end
+    close all;
+end
+
+aspectRatio = (maxA-minA)/(maxB-minB);
+
+figure;imagesc([minA,maxA],[minB,maxB],tp');colorbar;title(['tp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
+pbaspect([aspectRatio 1 1]);
+exportFigEPS([saveFolder filesep 'tp_fp' filesep conditionFunc '_tp']);
+close all;
+figure;imagesc([minA,maxA],[minB,maxB],fp');colorbar;title(['fp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
+pbaspect([aspectRatio 1 1]);
+exportFigEPS([saveFolder filesep 'tp_fp' filesep conditionFunc '_fp']);
+close all;
+
+

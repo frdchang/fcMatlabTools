@@ -5,8 +5,8 @@ sigCoor = round(sigCoor);
 sigCoorCell = num2cell(sigCoor);
 sig = data(sigCoorCell{:});
 hkern = floor(kernSize/2);
-bottom = sigCoor - hkern;
-top    = sigCoor + hkern;
+bottom = sigCoor(:) - hkern(:);
+top    = sigCoor(:) + hkern(:);
 sizeData = size(data);
 selectorSig = cell(numel(bottom),1);
 
