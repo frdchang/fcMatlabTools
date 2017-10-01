@@ -129,6 +129,7 @@ end
 
 
 datas.withTargetCDF = wCDF;
+datas.newDomain = newDomain;
 datas.withoutTargetCDF = woCDF;
 datas.withTargetPDF = h1.Values;
 datas.withTargetBinEdges = h1.BinEdges;

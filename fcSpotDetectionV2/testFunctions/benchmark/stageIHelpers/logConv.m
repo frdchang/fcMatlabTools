@@ -9,7 +9,7 @@ function [ estimated ] = logConv(electrons,psfs,varargin)
 psfs1 = [0.851594945672866;0.851594945693638;0.847455759928694];
 psfs2 = [0.988514633034135;0.988514632883964;0.993139588899949];
 
-sizePsfs = cellfunNonUniformOutput(@size,psfs);
+sizePsfs = cellfunNonUniformOutput(@getPatchSize,psfs);
 psfs = {psfs1,psfs2};
 
 for ii = 1:numel(electrons)

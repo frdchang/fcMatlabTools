@@ -10,6 +10,10 @@ data = data{1};
 spotKern = spotKern{1};
 end
 
+if iscell(spotKern)
+   spotKern = genKernelFromSep(spotKern); 
+end
+
 estimated = findSpotsStage1V2(data,spotKern,cameraVariance,varargin{:});
 [gradientFieldFilters,hessFieldFilters,kerns] = genFieldFilters(size(spotKern),spotKern);
 % [ estGamma ] = gammaCorrection( data,spotKern,cameraVariance);
