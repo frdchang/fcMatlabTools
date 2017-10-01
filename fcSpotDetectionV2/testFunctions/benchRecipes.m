@@ -54,18 +54,18 @@ N           = 1000; %4000
 workers     = 25;
 myPaths     = getPathFromFunc();
 
-wallTimeGEN  = '4-00:00:00'; % '4-00:00:00';
+wallTimeGEN  = '06:00:00'; % '4-00:00:00';
 memoryGEN    = '5000';
 wallTimeStg1 = '1-00:00:00';
 memoryStg1   = '5000';
-wallTimeStg2 = '05:00:00';
-memoryStg2   = '1800';
+wallTimeStg2 = '00:10:00';
+memoryStg2   = '2000';
 
+clearCluster();
 c = setupCluster('setWallTime', wallTimeGEN,'setMemUsage',memoryGEN);
 funcArgs = {'benchType',3,'numSamples',N,'saveFolder',saveFolder};
 j = c.batch(@genBenchMark, 1, funcArgs, 'pool',workers);
-wait(j);analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-
+wait(j);
 disp('do stageI');
 funcArgs = {j.fetchOutputs{1},@findSpotsStage1V2};
 clearCluster();
