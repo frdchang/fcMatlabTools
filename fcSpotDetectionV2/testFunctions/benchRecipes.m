@@ -57,15 +57,15 @@ benchStruct = procBenchMarkStageIIDirect(benchStruct3clean,'doN',inf,'doPlotEver
 
 %% only thing on cluster needed is the stage II analysis
 saveFolder  = '/n/regal/kleckner_lab/fchang/fcDataStorage';
-N           = 1000; %4000
+N           = 3001; %4000
 workers     = 25;
 myPaths     = getPathFromFunc();
 
-wallTimeGEN  = '06:00:00'; % '4-00:00:00';
+wallTimeGEN  = '1-00:00:00'; % '4-00:00:00';
 memoryGEN    = '5000';
 wallTimeStg1 = '1-00:00:00';
-memoryStg1   = '5000';
-wallTimeStg2 = '00:10:00';
+memoryStg1   = '6000';
+wallTimeStg2 = '01:00:00';
 memoryStg2   = '2000';
 
 clearCluster();
