@@ -4,7 +4,7 @@ saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
 N = 1000;
 for type = 1:3
 
-benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',linspace(0,30,31),'Bs',linspace(0,24,25));
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
