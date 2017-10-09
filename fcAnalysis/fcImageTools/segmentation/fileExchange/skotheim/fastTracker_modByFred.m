@@ -97,7 +97,6 @@ if sum(checkCell(:)) > 0              %if the cell exists for this time
     exI(1,1:end)=1;exI(end,1:end)=1;exI(1:end,1)=1;exI(1:end,end)=1; %added march 26th 2012
     
     for j=1:256 %for al possible image intensities
-        
         %again watershed algorithm
         
         bw=tmpI1<(j);
@@ -118,7 +117,13 @@ if sum(checkCell(:)) > 0              %if the cell exists for this time
         
         %do not include parts of the watershed that are also part of the image edge!
         
-        intr_segm=setxor([0:max(max(L))],[unique(uint8(L).*exI)']);
+%         intr_segm=setxor([0:max(max(L))],[unique(uint8(L).*exI)']);
+if isa(L,'uint8')
+    intr_segm=setxor([0:max(max(L))],[unique((L).*exI)']);
+else
+    exItemp = uint16(exI);
+    intr_segm=setxor([0:max(max(L))],[unique((L).*exItemp)']);
+end
         
         %----add all relevant parts of L to the new object---------
         
@@ -126,8 +131,8 @@ if sum(checkCell(:)) > 0              %if the cell exists for this time
         
         for j2=intr_segm %only go over parts that are not included in edges
             
-            if sum(sum((L==j2).*tmpI2))./sum(sum((L==j2)))>0.4 ...         %select pieces that are over 40% cell and less than 33% non-cell
-                    && sum(sum(((L==j2).*~bw)==1))./sum(sum((L==j2)))<0.33
+            if sum(sum((L==j2).*tmpI2))/sum(sum((L==j2)))>0.4 ...         %select pieces that are over 40% cell and less than 33% non-cell
+                    && sum(sum(((L==j2).*~bw)==1))/sum(sum((L==j2)))<0.33
                 
                 newI=newI+(L==j2);                                         %add all selected pieces to the same image
                 

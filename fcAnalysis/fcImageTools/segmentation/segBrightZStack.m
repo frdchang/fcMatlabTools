@@ -30,13 +30,15 @@ end
 
 cells          = imreconstruct(foregroundMask,cells,4);
 cells          = imfill(cells,'holes');
-
+cells          = bwareaopen(cells,params.minArea);
 if params.breakApart
    seeds = imerode(cells,strel('disk',params.ballR,4));
    seeds = bwareaopen(seeds,params.minArea);
    segmented = doWaterShedSeg(qpm,seeds,cells);
    cells = segmented.L;
 end
+
+
 
 CC      = bwconncomp(cells,4);
 stats   = regionprops(CC);

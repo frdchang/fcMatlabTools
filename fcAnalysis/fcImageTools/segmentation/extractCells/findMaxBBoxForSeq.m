@@ -9,7 +9,11 @@ for ii = 1:numCells
     getTimeIndexOfMaxSize = indexOfMaxArea(ii);
     segmenationOfMaxSize = Lseq(:,:,getTimeIndexOfMaxSize);
     stats = regionprops(bwconvhull(segmenationOfMaxSize==ii));
+    if ~isempty(stats)
     maxBBoxForEachCell{ii} = genSizeFromBBox(stats.BoundingBox);
+    else
+        maxBBoxForEachCell{ii} = [];
+    end
 end
 
 

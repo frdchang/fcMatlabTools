@@ -86,16 +86,18 @@ if doParallel
         end
     end %end time point loop
 else
-    for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
-        I=imread(orderedFileList{c_time});
-        display(['timepoint:' num2str(c_time) ' inverting and normalizing phase image to [0,255]']);
+     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
+        I=importStack(orderedFileList{c_time});
+        display(['timepoint:' num2str(c_time) ' file:' orderedFileList{c_time}]);
         I = uint8(norm0to1(-double(I))*255);
+%         initMatlabParallel();
+        fprintf([repmat('.',1,no_obj) '\n\n']);
         for i = 1:no_obj
-            display(['cell:' num2str(i)]);
             [new_c_Image2,newcell_exists]  = fastTracker_modByFred(cell_exists,i,I,Lcells,c_time,params,max_allowed_cell_size);
             cell_area_basket(i,c_time) = sum(sum(new_c_Image2>0));
             Lbasket(:,:,i) = new_c_Image2;
             cell_exists_basket{i} = newcell_exists;
+            fprintf('\b|\n');
         end
         % update cell_exists with all the ones i tried. multiply all of them to
         % get the global update
@@ -105,15 +107,46 @@ else
         end
         logicalLbasket = Lbasket > 0;
         checkOverlap = sum(logicalLbasket,3);
-        overlapSet = checkOverlap == 1;
+        overlapSet = uint16(checkOverlap == 1);
         Lbasket = bsxfun(@times,Lbasket,overlapSet);
         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
         Lcells = all_obj.cells(:,:,c_time);
         if doPlot
             rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
             set(hImage,'CData',rgbLabels);
+            title(['timepoint' num2str(c_time) ' ']);
+            fprintf('\n');
+            drawnow;
         end
     end %end time point loop
+%     for c_time=current_seg_start_time:-1:1  %c_time = current time, note segmentation is backwards in time
+%         I=imread(orderedFileList{c_time});
+%         display(['timepoint:' num2str(c_time) ' inverting and normalizing phase image to [0,255]']);
+%         I = uint8(norm0to1(-double(I))*255);
+%         for i = 1:no_obj
+%             display(['cell:' num2str(i)]);
+%             [new_c_Image2,newcell_exists]  = fastTracker_modByFred(cell_exists,i,I,Lcells,c_time,params,max_allowed_cell_size);
+%             cell_area_basket(i,c_time) = sum(sum(new_c_Image2>0));
+%             Lbasket(:,:,i) = new_c_Image2;
+%             cell_exists_basket{i} = newcell_exists;
+%         end
+%         % update cell_exists with all the ones i tried. multiply all of them to
+%         % get the global update
+%         cell_exists = ones(no_obj,2);
+%         for k = 1:no_obj
+%             cell_exists = cell_exists.*cell_exists_basket{k};
+%         end
+%         logicalLbasket = Lbasket > 0;
+%         checkOverlap = sum(logicalLbasket,3);
+%         overlapSet = checkOverlap == 1;
+%         Lbasket = bsxfun(@times,Lbasket,overlapSet);
+%         all_obj.cells(:,:,c_time)   = sum(Lbasket,3);
+%         Lcells = all_obj.cells(:,:,c_time);
+%         if doPlot
+%             rgbLabels = plotLabels(-double(I),Lcells,'showTextLabels',true,'showPlot',false);
+%             set(hImage,'CData',rgbLabels);
+%         end
+%     end %end time point loop
 end
 
 

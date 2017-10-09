@@ -9,6 +9,11 @@ if ~iscell(listOfStrings)
     return;
 end
 
+if isempty(listOfStrings)
+   consensusString = '';
+   idxmatch = [];
+   return;
+end
 numElements = min(cellfun(@(x) numel(x),listOfStrings));
 consensusString = '';
 idxmatch = zeros(numElements,1);

@@ -13,7 +13,7 @@ phases          = T_phaseOutputs.outputFiles.files;
 finalQpms       = cellfunNonUniformOutput(@(x) importStack(x{end}),qpms);
 finalPhases     = cellfunNonUniformOutput(@(x) importStack(x{end}),phases);
 
-finalLs         = cellfunNonUniformOutput(@(finalPhases,finalQpms,edgeProfiles) segBrightZStack(finalPhases,finalQpms,'edgeProfileZ',edgeProfiles),finalPhases,finalQpms,edgeProfiles');
+finalLs         = cellfunNonUniformOutput(@(finalPhases,finalQpms,edgeProfiles) segBrightZStack(finalPhases,finalQpms,'edgeProfileZ',edgeProfiles,varargin{:}),finalPhases,finalQpms,edgeProfiles');
 finalLs         = convertListToListofArguments(finalLs);
 
 yeastSegInputs  = glueCellArguments(convertListToListofArguments(qpms),finalLs);
