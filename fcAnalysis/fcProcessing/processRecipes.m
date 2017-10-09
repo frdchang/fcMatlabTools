@@ -2,13 +2,16 @@
 camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 Kmatrix                  = 1;
 channels                 = {'mChry\(WhiteTTL\)'};
-useCluster               = false;
+specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
+psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
+psfObjs = {psfObj1};
+
 
 expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_1';
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
 
-qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true);
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',20);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);

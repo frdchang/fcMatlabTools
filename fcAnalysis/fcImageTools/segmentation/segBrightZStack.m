@@ -31,6 +31,7 @@ end
 cells          = imreconstruct(foregroundMask,cells,4);
 cells          = imfill(cells,'holes');
 cells          = bwareaopen(cells,params.minArea);
+
 if params.breakApart
    seeds = imerode(cells,strel('disk',params.ballR,4));
    seeds = bwareaopen(seeds,params.minArea);
@@ -40,7 +41,7 @@ end
 
 
 
-CC      = bwconncomp(cells,4);
+CC      = bwconncomp(cells,8);
 stats   = regionprops(CC);
 L       = labelmatrix(CC);
 
