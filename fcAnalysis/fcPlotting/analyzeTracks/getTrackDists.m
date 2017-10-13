@@ -35,6 +35,9 @@ for ii = 1:numel(idxCombos)
     track2Time = currTracks{2}(:,1);
     commonTimePoints = intersect(track1Time,track2Time);
     
+    if isempty(commonTimePoints)
+       continue; 
+    end
     vector1 = currTracks{1}(ismember(track1Time,commonTimePoints),2:4);
     vector2 = currTracks{2}(ismember(track2Time,commonTimePoints),2:4);
     

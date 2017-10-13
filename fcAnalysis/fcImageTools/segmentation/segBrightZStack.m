@@ -22,7 +22,7 @@ foregroundMask = bwareaopen(foregroundMask,params.minArea);
 edgeMask       = genEdgeMapFromZ(brightZstack,params.edgeProfileZ);
 
 cells          = -edgeMask;
-cells          = genMaskWOtsu(cells);
+cells          =  genMaskWOtsu(cells);
 
 if params.clearBorder
     cells       = clearXYBorder(cells);

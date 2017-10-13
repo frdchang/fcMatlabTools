@@ -5,13 +5,14 @@ channels                 = {'mChry\(WhiteTTL\)'};
 specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
 psfObjs = {psfObj1};
+useFocalPlane = 6;
 
+expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_6';
 
-expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_1';
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
 
-qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',20);
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',20,'nFocus',useFocalPlane);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
@@ -34,7 +35,9 @@ cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
-T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false,'breakApart',false);
+
+T_yeastSegs         = procManualSeg(T_xyMaxProjNDs);
+% T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false,'breakApart',false);
 
 eC_T_stageIOutputs  = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
 eC_T_qpmOutputs     = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
