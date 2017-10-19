@@ -70,7 +70,6 @@ if isempty(cameraVariance)
     else
         cameraVariance = ones(size(data));
     end
-    
 end
 
 if ~iscell(data)
@@ -78,8 +77,10 @@ if ~iscell(data)
     %% load into gpu if instructed
     if params.loadIntoGpu
         data = gpuArray(data);
+        if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,1./cameraVariance)
         spotKern = gpuArray(spotKern);
         cameraVariance = gpuArray(cameraVariance);
+        end
     end
     
     if iscell(spotKern)

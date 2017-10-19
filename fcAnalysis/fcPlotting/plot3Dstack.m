@@ -56,6 +56,7 @@ p.addParamValue('colorCodeProj',false,@(x) true);
 p.addParamValue('spotParams',[],@(x) true);
 p.addParamValue('projectionFunc',@maxintensityproj,@(x) true);
 p.addParamValue('keepFigure',[],@(x) true);
+p.addParamValue('stageIIMLEs',[],@(x) true);
 
 p.parse(varargin{:});
 
@@ -84,6 +85,7 @@ colorCodeProj = input.colorCodeProj;
 spotParams  = input.spotParams;
 projectionFunc = input.projectionFunc;
 keepFigure = input.keepFigure;
+stageIIMLEs = input.stageIIMLEs;
 
 if forPoster
     border = 0.02;

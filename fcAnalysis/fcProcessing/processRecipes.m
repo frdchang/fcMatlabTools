@@ -1,13 +1,12 @@
 %% process mreb
+expFolder                = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_6';
 camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
 Kmatrix                  = 1;
 channels                 = {'mChry\(WhiteTTL\)'};
-specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
-psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
-psfObjs = {psfObj1};
-useFocalPlane = 6;
-
-expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_6';
+useFocalPlane            = 6;
+specimenUnitsInMicrons   = [0.1083,0.1083,0.389];  % axial scaling factor included
+psfObj1                  = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
+psfObjs                  = {psfObj1};
 
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
@@ -15,7 +14,7 @@ spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUni
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',20,'nFocus',useFocalPlane);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2cubed,'camVarFile',camVarFile,'doProcParallel',true);
 maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
@@ -27,13 +26,17 @@ T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doProcParallel',
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doProcParallel',true);
 
 %-----USER-----------------------------------------------------------------
-thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio3');
 T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
-selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
+% selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',true);
+% use 5e8
+selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',false,'doParallel',true);
+
+%% changed
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true,'newtonSteps',1);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 
 T_yeastSegs         = procManualSeg(T_xyMaxProjNDs);
@@ -45,15 +48,17 @@ eC_T_spotOutputs    = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',tr
 
 ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
+% spotthresholds 7 and 250
 %-----USER-----------------------------------------------------------------
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
-visualizeSpots      = procVizSpots(eC_T_stageIOutputs,ec_T_stageIIOutputs,'spotthresh',spotThresholds.thresholds);
+% visualizeSpots      = procVizSpots(eC_T_stageIOutputs,ec_T_stageIIOutputs,'spotthresh',spotThresholds.thresholds);
 
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',spotThresholds.thresholds);
+
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',40,'spotthresh',spotThresholds.thresholds);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
-analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
+% analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
 
 %% test bulk modules on cluster
 camVarFile = '/n/regal/kleckner_lab/fchang/fcDataStorage/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';

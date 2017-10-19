@@ -18,5 +18,3 @@ switch numel(varargin)
     otherwise
         error('not programmed in');
 end
-  
-

@@ -27,6 +27,7 @@ inputFiles = deleteEmptyCells(inputFiles);
 inputFiles = regexprep(inputFiles,'_w','');
 % inputFiles = regexprep(inputFiles,'_','');
 inputFiles = regexprep(inputFiles,'TTL','');
+inputFiles =  getCompactTimePoints(inputFiles);
 fileInputs = strjoin(inputFiles,',');
 
 functionName    =  char(myFunc);

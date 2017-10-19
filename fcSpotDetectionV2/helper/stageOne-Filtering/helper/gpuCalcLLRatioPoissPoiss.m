@@ -65,4 +65,6 @@ LLRatio = arrayfun(@gpuLLRatioPerPatch,idx,idy,idz);
 % note that the output is flipped xy
 LLRatio = permute(LLRatio,[2 1 3]);
 LLRatio = gather(LLRatio);
+LLRatio(isnan(LLRatio)) = 0;
+LLRatio(LLRatio<0) = 0;
 end

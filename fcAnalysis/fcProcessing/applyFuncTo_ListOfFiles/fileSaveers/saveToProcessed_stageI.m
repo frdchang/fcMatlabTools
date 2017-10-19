@@ -2,7 +2,7 @@ function output = saveToProcessed_stageI(listOfFileInputPaths,funcOutput,myFunc,
 %SAVETOPROCESSED_STAGEI Summary of this function goes here
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
-params.saveFieldsAsImages     = {'A1','LLRatio','gradHessDOTLLRatio','negLoggammaSig'};
+params.saveFieldsAsImages     = {'A1','LLRatio','gradHessDOTLLRatio','negLoggammaSig','LLRatio3'};
 params.rmFieldsForStruct    = {'A0'};
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -35,7 +35,8 @@ saveFields{end+1} = 'mat';
 savePath = [returnFilePath(saveProcessedFileAt) filesep 'mat' filesep 'mat_' returnFileName(saveProcessedFileAt)];
 makeDIRforFilename(savePath);
 estimated = rmfield(estimated,intersect(listOfFields,params.rmFieldsForStruct));
-save(savePath,'estimated','-v6');
+% save(savePath,'estimated','-v6');
+savefast(savePath,'estimated');
 output{end+1} = [savePath '.mat'];
 listOutput = convertListToListofArguments(output);
 output = table(listOutput{:},'VariableNames',saveFields);

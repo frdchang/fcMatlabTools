@@ -23,7 +23,7 @@ params.strategy             = 'threshold';     % {'hdome','threshold','otsu'}
 %==universal parameters====================================================
 params.Athreshold           = 0;               % select regions where A > Athreshold
 params.clearBorder          = true;            % clear border on xy perimeter
-params.minVol               = 1;               % min volume of feature
+params.minVol               = 10;              % min volume of feature
 params.imposeMinSize        = true;            % 
 params.useMask              = [];              % use permissive mask
 %==hdome specific parameters===============================================
@@ -36,7 +36,8 @@ params = updateParams(params,varargin);
 
 %% universal computation - preprocessing
 if iscell(estimated.A1)
-    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern{1});
+%     smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern{1});
+    smoothField = estimated.(params.selectField);
     Athresholded = cellfunNonUniformOutput(@(x) x<params.Athreshold,estimated.A1);
     Athresholded = ~multiCellContents(Athresholded);
     
@@ -96,11 +97,14 @@ if params.imposeMinSize
     % combine the min mask with the current bwmask
     L = L | minBBoxMask;
 end
-
+[L,~,seeds] = breakApartMasks(smoothField,L>0);
+L = bwareaopen(L,params.minVol);
 L = bwlabeln(L>0);
 stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
 % need to have minimum volume
 candidates.L        = L;
 % candidates.BWmask   = BWmask;
 candidates.stats    = stats;
-
+candidates.seeds    = seeds;
+candidates.smoothField = smoothField;
+candidates.params   = params;

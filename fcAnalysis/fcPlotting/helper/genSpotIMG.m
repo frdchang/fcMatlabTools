@@ -15,9 +15,19 @@ if iscell(singleSpotTheta)
 end
 theta = singleSpotTheta.*upRezFactor;
 theta = round(theta);
+if theta(3) < 1
+   theta(3) = 1; 
+end
+
+if theta(3) > size(spotImg,3)
+   theta(3) = size(spotImg,3); 
+end
 theta = num2cell(theta);
-if all(singleSpotTheta > 0) && all(singleSpotTheta <= sizeDatas) 
+
+if all(cell2mat(theta) > 0) && all(cell2mat(theta) <= size(spotImg)) 
 spotImg(theta{:}) = 1;
 end
+
+
 end
 

@@ -4,14 +4,14 @@ function [thresholdOutputs] = procSelectThreshold(stageIOutputs,varargin )
 
  
 %--parameters--------------------------------------------------------------
-params.outputSelector     = 'LLRatio'; 
+params.selectField     = 'LLRatio'; 
 params.divisor            = 1;  % divide the image into this num
 params.resizeToThis       = [600,1024];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
 % structs are stored at end
-imageFiles = stageIOutputs.outputFiles.(params.outputSelector);
+imageFiles = stageIOutputs.outputFiles.(params.selectField);
 [imageFiles,idxs] = groupByTimeLapses(imageFiles);
 projTimeLapseBasket = cell(numel(imageFiles),1);
 % for each timelapse define threshold
@@ -20,6 +20,7 @@ for ii = 1:numel(imageFiles)
     projTimeLapseImg = cell(1,numel(currTimeLapse));
     for jj = 1:numel(currTimeLapse)
         currImg = importStack(currTimeLapse{jj});
+        saveCurrImg = xyMaxProjND(currImg);
         currImg = maxintensityproj(currImg,3);
         % calcualte how to divide the image
         imgSize = size(currImg);
@@ -33,7 +34,7 @@ for ii = 1:numel(imageFiles)
         projTimeLapseImg{jj} = cell2mat(currImg);
     end
     projTimeLapseImg = cell2mat(projTimeLapseImg)';
-    projTimeLapseBasket{ii} = imresize(projTimeLapseImg,params.resizeToThis,'nearest');
+    projTimeLapseBasket{ii} = cat(2,saveCurrImg,imresize(projTimeLapseImg,size(saveCurrImg),'nearest'));
 end
 
 thresholdSelected = cell(numel(imageFiles),1);
@@ -41,7 +42,7 @@ for ii = 1:numel(projTimeLapseBasket)
     [mythresh, ~, ~] = threshold(multithresh(projTimeLapseBasket{ii}(:)), max(projTimeLapseBasket{ii}(:)), projTimeLapseBasket{ii});
     thresholdSelected{ii} = mythresh; 
 end
-outputFilesFlattened = zeros(numel(stageIOutputs.outputFiles.(params.outputSelector)),1);
+outputFilesFlattened = zeros(numel(stageIOutputs.outputFiles.(params.selectField)),1);
 cellfun(@helper,idxs,thresholdSelected);
 thresholdOutputs.inputFiles  = imageFiles;
 thresholdOutputs.outputFiles = table(thresholdSelected,'VariableNames',{'thresholds'});
