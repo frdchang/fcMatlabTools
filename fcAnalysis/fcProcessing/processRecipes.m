@@ -33,7 +33,7 @@ T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
 % selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',true);
 % use 5e8
-selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',false,'doParallel',true);
+selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','neighborTs',2,'doProcParallel',false,'doParallel',true);
 
 %% changed
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true,'newtonSteps',1);
