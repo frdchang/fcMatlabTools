@@ -48,7 +48,7 @@ eC_T_spotOutputs    = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',tr
 
 ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
-% spotthresholds 7 and 250
+% spotthresholds 1 and 250
 %-----USER-----------------------------------------------------------------
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------

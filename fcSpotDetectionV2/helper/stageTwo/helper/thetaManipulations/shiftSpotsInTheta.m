@@ -9,7 +9,7 @@ function indtheta = shiftSpots(indtheta,shiftFactor)
 
 for ii = 1:numel(indtheta)
     if ~isempty(regexp(class(indtheta{ii}{1}),'myPattern','ONCE'))
-        indtheta{ii}{2}(1:numel(shiftFactor)) = indtheta{ii}{2}(1:numel(shiftFactor)) + shiftFactor;
+        indtheta{ii}{2}(2:1+numel(shiftFactor)) = indtheta{ii}{2}(2:1+numel(shiftFactor)) + shiftFactor;
     end
 end
 end
