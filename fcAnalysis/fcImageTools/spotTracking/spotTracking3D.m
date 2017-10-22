@@ -9,6 +9,7 @@ function [ tracked ] = spotTracking3D(listOfSpotMLEs,varargin)
 %--parameters--------------------------------------------------------------
 params.noSpotCoorVal     = -100;
 params.searchDist        = 100;
+params.specimenUnitsInMicrons = [1 1 1];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -38,7 +39,9 @@ for ii = 1:numTimePoints
                if ~isempty(spotXYZs{kk})
                    spotsAtT  = spotXYZs{kk};
                    for ll = 1:numel(spotsAtT)
-                       makePeakSpot = [spotsAtT{ll} -1]';
+                       currCoor = spotsAtT{ll};
+                       currCoor = currCoor.*[params.specimenUnitsInMicrons 1 1];
+                       makePeakSpot = [currCoor -1]';
                        peaksPerChan{kk}{ii}{end+1} = makePeakSpot;
                    end
                else
@@ -58,6 +61,8 @@ for ii = 1:numChans
 end
 
 [trackers,energies] = cellfun(@(x) link_trajectories3D(x,params.searchDist),peaksPerChan,'uni',false);
+trackers = cellfunNonUniformOutput(@(trackers) cellfunNonUniformOutput(@(x) x./[params.specimenUnitsInMicrons 1 1 1],trackers),trackers);
+
 tracked = cellfun(@(trackers) extractTrajs(trackers),trackers,'uni',false);
 tracked = cellfunNonUniformOutput(@(x) removeEmptyCoor(x,emptyCoor),tracked);
 end

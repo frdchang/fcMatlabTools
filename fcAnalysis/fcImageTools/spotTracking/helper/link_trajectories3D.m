@@ -75,8 +75,8 @@ for iframe = 2:nframe
     
     % C(i,j): cost function for link p_i, q_j
     C = L*L*ones(m+1,n+1);   % set broken dummy links to L^2
-    C(1:m,1:n) = (delta+dm0+dm2);
-    
+    %C(1:m,1:n) = (delta+dm0+dm2);
+    C(1:m,1:n) = (delta);
     % set cost of matchings that will never occur to Inf
     C1 = C(1:m,1:n) - repmat(C(m+1,1:n),m,1);
     C2 = C(1:m,1:n) - repmat(C(1:m,n+1),1,n);

@@ -36,7 +36,7 @@ cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'
 selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','neighborTs',2,'doProcParallel',false,'doParallel',true);
 
 %% changed
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true,'newtonSteps',1);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true,'newtonSteps',1,'hybridSteps',1,'gradSteps',200);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 
 T_yeastSegs         = procManualSeg(T_xyMaxProjNDs);
@@ -50,15 +50,16 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
 % spotthresholds 1 and 250
 %-----USER-----------------------------------------------------------------
-spotThresholds      = procSpotThresholds(stageIIOutputs);
+% spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
 % visualizeSpots      = procVizSpots(eC_T_stageIOutputs,ec_T_stageIIOutputs,'spotthresh',spotThresholds.thresholds);
 
 
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',40,'spotthresh',spotThresholds.thresholds);
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',2,'spotthresh',spotThresholds.thresholds);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
-% analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
+analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
+gen3DTracks         = proc3DTracks(eC_T_qpmOutputs,eC_T_stageIOutputs,trackedSpots,'spotthresh',spotThresholds.thresholds);
 
 %% test bulk modules on cluster
 camVarFile = '/n/regal/kleckner_lab/fchang/fcDataStorage/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
