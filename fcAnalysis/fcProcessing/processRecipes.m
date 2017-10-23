@@ -11,7 +11,7 @@ psfObjs                  = {psfObj1};
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
 
-qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',20,'nFocus',useFocalPlane);
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',true,'doProcParallel',true,'ballSize',50,'nFocus',useFocalPlane);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2cubed,'camVarFile',camVarFile,'doProcParallel',true);
@@ -50,7 +50,7 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
 % spotthresholds 1 and 250
 %-----USER-----------------------------------------------------------------
-% spotThresholds      = procSpotThresholds(stageIIOutputs);
+ spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
 % visualizeSpots      = procVizSpots(eC_T_stageIOutputs,ec_T_stageIIOutputs,'spotthresh',spotThresholds.thresholds);
