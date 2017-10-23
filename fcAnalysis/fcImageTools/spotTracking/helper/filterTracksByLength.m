@@ -8,5 +8,7 @@ permissiveTracks = trackL >= minLength & trackL <= maxLength;
 
 tracks(~permissiveTracks) = [];
 
+trackIsPos = cellfun(@(x) all(all(x(:,2:6)>=0)),tracks);
+tracks(~trackIsPos) = [];
 end
 

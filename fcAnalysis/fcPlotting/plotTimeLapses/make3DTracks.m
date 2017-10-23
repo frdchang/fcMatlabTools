@@ -25,18 +25,25 @@ numTimePoints = numel(phaseFiles);
 % pause();
 % [az,el] = view;
 % filePath = cell(numTimePoints,1);
+
+xMax = cellfun(@(tracks) max(cellfun(@(x) max(max(x(:,2))),tracks)),tracks);
+yMax = cellfun(@(tracks) max(cellfun(@(x) max(max(x(:,3))),tracks)),tracks);
+zMax = cellfun(@(tracks) max(cellfun(@(x) max(max(x(:,4))),tracks)),tracks);
+
+filePath = cell(numTimePoints);
 for ii = 1:numTimePoints
     currFluors = importStack(fluorsFiles{ii});
     currPhase  = importStack(phaseFiles{ii});
     currPhase  = currPhase*params.phaseFactor ;
     close all;
     plotTracks(currFluors,currPhase,tracks,ii);
+    axis(ceil([0 max(xMax,size(currFluors,1)) 0 max(yMax,size(currFluors,2)) 0 max(zMax,size(currFluors,3))]));
     view([-26,83]);
     set(gca,'Color','none');
-    sizeData = size(currFluors);
     pbaspect([1 1 2]);
-    filePath{ii} = [savePath filesep num2str(ii)];
-    export_fig(filePath{ii} ,'-tif','-r200');
+    filePath{ii} = [savePath filesep num2str(ii) '.tif'];
+%     saveas(gcf,filePath{ii});
+    export_fig(filePath{ii} ,'-tif','-native');
 end
 end
 
