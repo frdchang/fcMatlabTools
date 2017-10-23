@@ -8,7 +8,7 @@ coorParams = {'-','Color',[1,0,0]};
 angle = -45;
 elevation = 20;
 axisOff = 'off';
-openFlaps = 3;
+openFlaps = 1;
 axisRatio = [1 1 1.5];
 bkgnd = [0.2,0.2,0.2];
 
@@ -31,7 +31,7 @@ volData = logPSF;
 volData(~idx) = min(logPSF(idx));
 % alpha(alpha<0.1 & alpha > 0) = 0.1;
 createFullMaxFigure();
-if openFlaps ~= 3
+if openFlaps ~= 1
 H=vol3d('CData',volData,'Alpha',alpha);
 end
 [xL,yL,zL] = size(psf);

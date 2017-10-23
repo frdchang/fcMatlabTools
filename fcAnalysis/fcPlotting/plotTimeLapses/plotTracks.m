@@ -43,7 +43,7 @@ plot3([xL-1,xL-1],[0,yL-1],[0,0],axisParams{:});
 z           = phaseData';
 [x,y]       = meshgrid(1:size(z,2),1:size(z,1));
 planeimg    = z/max(z(z~=inf));
-planeimg    = planeimg * (zL-1);
+planeimg    = planeimg * (zL);
 scaledimg   = round(norm0to1(z)*255);
 colorimg    = ind2rgb(scaledimg,gray(256));
 h = surf(x,y,double(planeimg),colorimg,'edgecolor','none' ,'facecolor','texture');
