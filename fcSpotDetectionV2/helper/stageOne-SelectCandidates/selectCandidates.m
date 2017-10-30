@@ -100,7 +100,17 @@ end
 [L,~,seeds] = breakApartMasks(smoothField,L>0);
 L = bwareaopen(L,params.minVol);
 L = bwlabeln(L>0);
+stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList','BoundingBox');
+% remove any bbox that only has 1 dimension, this is not a spot
+for ii = 1:numel(stats)
+    currSize = genSizeFromBBox(stats(ii).BoundingBox);
+    if any(currSize == 1)
+         L(stats(ii).PixelIdxList) = 0;
+    end
+end
+L = bwlabeln(L>0);
 stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
+
 % need to have minimum volume
 candidates.L        = L;
 % candidates.BWmask   = BWmask;
