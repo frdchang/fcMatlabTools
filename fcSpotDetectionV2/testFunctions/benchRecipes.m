@@ -1,27 +1,27 @@
 %% this is the final version
 % saveFolder = '~/Desktop/dataStorage/fcDataStorage';
 saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-N = 100;
+N = 5000;
 for type = 1
 
-benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',linspace(0,30,31),'Bs',linspace(0,30,31));
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);%,'As',linspace(0,30,11),'Bs',linspace(0,30,11));
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 % benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 % benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
 % benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
 % benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
-analyzeStageI(benchStruct,@conditions,'fileList');
+% analyzeStageI(benchStruct,@conditions,'fileList');
 analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',true);
-analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
+% analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
 % analyzeStageI(benchStruct,@logConv,'logConv');
 % analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
 % analyzeStageI(benchStruct,@regularConv,'regularConv');
 % analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
 
-analyzeStageIDataOut(benchStruct,@conditions,'fileList');
-analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
-analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+% analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+% analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+% analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
 % analyzeStageIDataOut(benchStruct,@logConv,'logConv');
 % analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
 % analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');

@@ -238,6 +238,7 @@ for ideal use case (this fulfills MLE):
 
 
 ## diary of progress
+* 20171101 __SNR__ correlates the EER? checking on it
 * 20170507 __genMicroscopeNoise__ takes places where there is inf camera variance (where pixels are broken) and inpaints that place with neighboring median filter, which is what hammamtsu does.  
 * 20170501 __Big Lambda__ decided that i won't change biglambda interface.  but to insert patterns it will be a 'param' argument.  awkward but will do for now.
 * 20170501 __Big Lambda__ kernel manipulation should be pure functions.  its argument should be (domains,theta0,patterns). handle the case of {spot,spot} or {spot, bkgnd} with ease.

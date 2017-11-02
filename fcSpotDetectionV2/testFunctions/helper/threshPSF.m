@@ -9,7 +9,7 @@ if iscell(psfData)
     else
         for ii = 1:numel(psfData)
            currMax = find(psfData{ii}(:)==max(psfData{ii}(:)));
-           psfData{ii} = psfData{ii}([1:thresh(ii)] + floor(currMax/2) - 1);
+           psfData{ii} = psfData{ii}([1:thresh(ii)] + floor(currMax) - floor((thresh(ii))/2)-1);
         end
     end
     return;

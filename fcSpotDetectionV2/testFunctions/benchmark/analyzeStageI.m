@@ -8,7 +8,7 @@ params.NumBinsMAX       = 200;
 params.contourLineSig   = 0.05;
 params.contourLines     = 0.05:0.05:0.5;
 params.minAForGlobalROC = 0;
-params.noEdgeEffects    = false;
+params.noEdgeEffects    = true;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -460,52 +460,53 @@ if params.fitGamma
     close all;
 end
 
-% for A=18 B 12 find threshold then replot the stuff
-idx = sub2ind(sizeAB,22,3);
-thisA = conditions{idx}.A;
-thisB = conditions{idx}.B;
-sig = conditionHolder{idx}.sig;
-bk  = conditionHolder{idx}.bk;
-ROC = genROC([conditionFunc ' ' field 'global ROC'],sig,bk,'doPlot',false);
-threshold_idx = find(ROC.withoutTargetCDF > 0.99,1,'first');
-threshold = ROC.newDomain(threshold_idx);
-fp = NaN(sizeAB);
-tp = NaN(sizeAB);
-for ii = 1:prod(sizeAB)
-    %     display(ii);
-    incrementParForProgress();
-    sig = conditionHolder{ii}.sig;
-    bk = conditionHolder{ii}.bk;
-    %     pause(1);
-    ROC = genROC('adsf',sig,bk,'doPlot',false);
-    tp_curr = 1-ROC.withTargetCDF(find(ROC.newDomain > threshold,1,'first'));
-    fp_curr = 1-ROC.withoutTargetCDF(find(ROC.newDomain > threshold,1,'first'));
-    if ~isempty(tp_curr)
-    tp(ii) = tp_curr;
-    end
-    if ~isempty(fp_curr)
-    fp(ii) = fp_curr; 
-    end
-    close all;
+% % for A=18 B 12 find threshold then replot the stuff
+% idx = sub2ind(sizeAB,22,3);
+% thisA = conditions{idx}.A;
+% thisB = conditions{idx}.B;
+% sig = conditionHolder{idx}.sig;
+% bk  = conditionHolder{idx}.bk;
+% ROC = genROC([conditionFunc ' ' field 'global ROC'],sig,bk,'doPlot',false);
+% threshold_idx = find(ROC.withoutTargetCDF > 0.99,1,'first');
+% threshold = ROC.newDomain(threshold_idx);
+% fp = NaN(sizeAB);
+% tp = NaN(sizeAB);
+% for ii = 1:prod(sizeAB)
+%     %     display(ii);
+%     incrementParForProgress();
+%     sig = conditionHolder{ii}.sig;
+%     bk = conditionHolder{ii}.bk;
+%     %     pause(1);
+%     ROC = genROC('adsf',sig,bk,'doPlot',false);
+%     tp_curr = 1-ROC.withTargetCDF(find(ROC.newDomain > threshold,1,'first'));
+%     fp_curr = 1-ROC.withoutTargetCDF(find(ROC.newDomain > threshold,1,'first'));
+%     if ~isempty(tp_curr)
+%     tp(ii) = tp_curr;
+%     end
+%     if ~isempty(fp_curr)
+%     fp(ii) = fp_curr; 
+%     end
+%     close all;
+% end
+% tp(isnan(tp)) = 0;
+% fp(isnan(fp)) = 1;
+% 
+% aspectRatio = (maxA-minA)/(maxB-minB);
+% 
+% figure;imagesc([minA,maxA],[minB,maxB],tp');colorbar;title(['tp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
+% pbaspect([aspectRatio 1 1]);caxis([0 1]);
+% exportFigEPS([saveFolder filesep 'tp' filesep conditionFunc '_tp']);
+% close all;
+% figure;imagesc([minA,maxA],[minB,maxB],fp');colorbar;title(['fp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
+% pbaspect([aspectRatio 1 1]);caxis([0 1]);
+% exportFigEPS([saveFolder filesep 'fp' filesep conditionFunc '_fp']);
+% close all;
+% permissive = fp <0.1 & tp> 0.99;
+% figure;imagesc([minA,maxA],[minB,maxB],permissive');colorbar;title(['fp<' num2str(0.1) ' & tp>' num2str(0.99)]);xlabel('A');ylabel('B');
+% pbaspect([aspectRatio 1 1]);caxis([0 1]);colormap(flipud(gray));
+% exportFigEPS([saveFolder filesep 'tpfp' filesep conditionFunc '_tpfp']);
+% close all;
 end
-tp(isnan(tp)) = 0;
-fp(isnan(fp)) = 1;
-
-aspectRatio = (maxA-minA)/(maxB-minB);
-
-figure;imagesc([minA,maxA],[minB,maxB],tp');colorbar;title(['tp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
-pbaspect([aspectRatio 1 1]);caxis([0 1]);
-exportFigEPS([saveFolder filesep 'tp' filesep conditionFunc '_tp']);
-close all;
-figure;imagesc([minA,maxA],[minB,maxB],fp');colorbar;title(['fp: ' num2str(thisA) ',' num2str(thisB)]);xlabel('A');ylabel('B');
-pbaspect([aspectRatio 1 1]);caxis([0 1]);
-exportFigEPS([saveFolder filesep 'fp' filesep conditionFunc '_fp']);
-close all;
-permissive = fp <0.1 & tp> 0.99;
-figure;imagesc([minA,maxA],[minB,maxB],permissive');colorbar;title(['fp<' num2str(0.1) ' & tp>' num2str(0.99)]);xlabel('A');ylabel('B');
-pbaspect([aspectRatio 1 1]);caxis([0 1]);colormap(flipud(gray));
-exportFigEPS([saveFolder filesep 'tpfp' filesep conditionFunc '_tpfp']);
-close all;
 
 
 
