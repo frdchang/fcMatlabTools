@@ -1,7 +1,7 @@
 %% this is the final version
 % saveFolder = '~/Desktop/dataStorage/fcDataStorage';
 saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-N = 5000;
+N = 1000;
 for type = 1
 
 benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);%,'As',linspace(0,30,11),'Bs',linspace(0,30,11));

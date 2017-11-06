@@ -31,7 +31,7 @@ parfor ii = 1:numConditions
         cameraVarianceInElectrons   = camVar.cameraParams.cameraVarianceInADU.*(camVar.cameraParams.gainElectronPerCount.^2);
         electrons                   = returnElectrons(stack,camVar.cameraParams);
         %-----APPY MY FUNC-------------------------------------------------
-        estimated                   = myFunc(electrons,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix);
+        estimated                   = myFunc(electrons,psfs,cameraVarianceInElectrons,'kMatrix',Kmatrix,'nonNegativity',false);
         %-----SAVE MY FUNC OUTPUT------------------------------------------
         myFuncOutSave{jj}           = genProcessedFileName(currFileList{jj},myFunc);
         makeDIRforFilename(myFuncOutSave{jj});
