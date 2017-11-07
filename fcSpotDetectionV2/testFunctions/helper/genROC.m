@@ -11,7 +11,7 @@ params = updateParams(params,varargin);
 Nsamples = 10000;
 titleText = [nameOfMeasure ' as Measure'];
 xLabelText = [nameOfMeasure ' Value'];
-yLabelText = 'counts';
+yLabelText = 'pdf';
 % plot pdfs
 if params.doPlot
     grandf = figure;
@@ -37,7 +37,7 @@ ylabel(yLabelText);
 set(gca,'Color',[1 1 1]);
 set(gcf,'Color',[1 1 1]);
 legend('bkgnd','signal');
-set(gca,'Yscale','log');
+% set(gca,'Yscale','log');
 h1.EdgeColor = 'none';
 h2.EdgeColor = 'none';
 if h1.NumBins > params.NumBinsMAX
@@ -137,8 +137,8 @@ datas.withoutTargetPDF = h2.Values;
 datas.withoutTargetBinEdges = h2.BinEdges;
 datas.EER  = EER;
 
-h1.Normalization = 'count';
-h2.Normalization = 'count';
+% h1.Normalization = 'count';
+% h2.Normalization = 'count';
 
 if h1.BinEdges(end) == Inf && h1.Values(end) ~=0
     figure(grandf);
