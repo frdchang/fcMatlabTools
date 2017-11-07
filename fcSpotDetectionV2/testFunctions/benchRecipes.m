@@ -1,3 +1,21 @@
+%% check bkgnd creep by measuring FPR vs B
+% saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+saveFolder = '~/Desktop/fcDataStorage/';
+N = 1000;
+benchStruct = genBenchMark('benchType',1,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',0,'Bs',[1 10 100 1000]);
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
+benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
+
+
+analyzeStageIFPR(benchStruct,@findSpotsStage1V2,'LLRatio');
+analyzeStageIFPR(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageIFPR(benchStruct,@logConv,'logConv');
+analyzeStageIFPR(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageIFPR(benchStruct,@regularConv,'regularConv');
+analyzeStageIFPR(benchStruct,@gammaCorrection,'negLoggammaSig');
 %% this is the final version
 % saveFolder = '~/Desktop/dataStorage/fcDataStorage';
 saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
