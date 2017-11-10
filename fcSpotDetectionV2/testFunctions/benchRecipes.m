@@ -1,6 +1,6 @@
 %% check bkgnd creep by measuring FPR vs B
-% saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-saveFolder = '~/Desktop/fcDataStorage/';
+ saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+% saveFolder = '~/Desktop/fcDataStorage/';
 N = 1000;
 benchStruct = genBenchMark('benchType',1,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',0,'Bs',[1 10 100 1000]);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
