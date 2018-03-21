@@ -47,6 +47,15 @@ subFunc1('name',value,params)
 end
 ```
 
+### Camera Calibration .Mat File
+```Matlab
+brokenPixel
+cameraVarianceInADU
+gainElectronPerCount
+offsetInADU
+QE
+```
+
 - complicated functions with sub-functions should be organized by the following folder hierarchy.
 
 ```Matlab
