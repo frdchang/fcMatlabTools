@@ -20,10 +20,10 @@ markerParam = {'or','LineWidth',3,'MarkerSize',15};
 markerParamW = {'ow','LineWidth',1,'MarkerSize',10};
 nucleiParam = {'-sr'};
 volumeParam = {'FaceColor',[1,0,0],'EdgeAlpha',0.1,'FaceAlpha',0.5};
-volMarkerParam = {80,'fill','ko','MarkerEdgeColor',[0,0,0],'MarkerFaceColor',[0,0,0]};
+volMarkerParam = {80,'fill','ro','MarkerEdgeColor',[1,0,0],'MarkerFaceColor',[1,0,0]};
 edgeParams = {'-b','LineWidth',1.5};
 pairWiseParam = {'-r','LineWidth',1.5};
-projParam  = {'Color',[0.3 0.3 0.3]};
+projParam  = {'--r','Color',[1 0 0]};
 segmentationParams = {'--w','LineWidth',1.5};
 rgbTol = 0.02;
 
@@ -137,12 +137,11 @@ if keepFigure
     
 else
     if ~toDisk
-        fig = figure('Position', [10, 10, 1400, 1400]);
+        fig = createMaxFigure;
     else
         fig = figure('Position', [10, 10, 1400, 1400],'Visible','off');
     end
 end
-
 
 if forPoster
     set(gcf,'color','w');
@@ -216,8 +215,12 @@ if ~isempty(clustCent)
     %     pairWiseLines = returnPairWiseDists(clustCent)';
 end
 
-minVal = min(stack(:));
-maxVal = max(stack(:));
+projs = {projectionFunc(stack, 3),projectionFunc(stack, 2),projectionFunc(stack, 1)};
+minVal = min([min(projs{1}(:)),min(projs{1}(:)),min(projs{1}(:))]);
+maxVal = max([max(projs{1}(:)),max(projs{1}(:)),max(projs{1}(:))]);
+
+% minVal = min(stack(:));
+% maxVal = max(stack(:));
 
 % now subplot each frame subplot('Position',[left bottom width height])
 %% PLOT XY-----------------------------------------------------------------
@@ -542,6 +545,7 @@ end
 
 
 %% last quadrant volume rendering------------------------------------------
+clustCent = clustCent +0.5;
 if ~isempty(nucVol)
     subplot('Position',[4*border+relYDirY,1 - (2*border + relXDirZ + relXDirX),relYDirZ-border*2,relXDirZ-border*2]);
     %     nucVol = maskToCoors(nucVol>0);
@@ -644,6 +648,12 @@ else
         colormap(gca,'default');
         axis tight;
         
+        c = gca;
+        c.Color = [0.2,0.2,0.2];
+        c.XColor = [1 1 1];
+        c.YColor = [1 1 1];
+        c.ZColor = [1 1 1];
+    
         if ~isempty(clustCent)
             hold on;
             if ~isempty(nucDists)
