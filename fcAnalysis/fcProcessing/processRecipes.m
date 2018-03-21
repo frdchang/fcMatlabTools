@@ -1,3 +1,59 @@
+%% Fast 2 color case
+expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
+camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
+
+psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
+psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
+
+specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
+
+psfObjs = {psfObj1,psfObj2};
+Kmatrix = [1 0.31; 0 1];
+channels = {'redGr\(ChABTTL\)','redGr\(ChCTTL\)'};
+
+phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
+spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);
+
+qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
+xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
+
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
+xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
+
+T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs,'doProcParallel',true);
+T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs,'doProcParallel',true);
+T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs,'doProcParallel',true);
+T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs,'doProcParallel',true);
+T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doProcParallel',true);
+T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doProcParallel',true);
+
+%-----USER-----------------------------------------------------------------
+thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
+%--------------------------------------------------------------------------
+
+cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
+selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true);
+T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
+T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
+
+eC_T_stageIOutputs  = procExtractCells(T_yeastSegs,T_stageIOutputs,'doParallel',true);
+eC_T_qpmOutputs     = procExtractCells(T_yeastSegs,T_qpmOutputs,'doParallel',true);
+eC_T_spotOutputs    = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',true);
+
+ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
+
+%-----USER-----------------------------------------------------------------
+spotThresholds      = procSpotThresholds(stageIIOutputs);
+%--------------------------------------------------------------------------
+
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',spotThresholds.thresholds);
+ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
+analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots);
+
+
 %% process mreb
 expFolder                = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20170703-lowlabel-HaloSubtilius/doTimeLapse_6';
 camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
