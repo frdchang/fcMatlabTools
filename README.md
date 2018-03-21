@@ -52,7 +52,7 @@ end
 brokenPixel
 cameraVarianceInADU
 gainElectronPerCount
-offsetInADU
+offsetInAdu
 QE
 ```
 

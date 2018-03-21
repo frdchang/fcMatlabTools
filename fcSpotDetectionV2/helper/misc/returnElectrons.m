@@ -20,6 +20,6 @@ end
 
 function [electrons] = returnElectronsHelper(data,cameraParamStruct)
 data = double(data);
-electrons = bsxfun(@minus,data, cameraParamStruct.offsetInAdu);
+electrons = bsxfun(@minus,data, cameraParamStruct.offsetInADU);
 electrons = bsxfun(@times,electrons,cameraParamStruct.gainElectronPerCount);
 end
