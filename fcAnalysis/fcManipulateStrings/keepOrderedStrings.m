@@ -22,6 +22,7 @@ for ii = 2:numCells
     notKeepers = cellfun(@(x,y) numel(x{1}) == numel(y),currentMatched,cellOfStrings);
     currentMatched(notKeepers) = [];
     currHistory = cellfun(@(x) strjoin(x,''),currentMatched,'UniformOutput',false);
+    [~,idx] = ismember(history,currHistory);
     kept{ii} = exactMatched(idx);
 end
 

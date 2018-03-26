@@ -5,12 +5,7 @@ function [ fileOutputs ] = procGetImages( expFolder,regexpMatch,saveName,specime
 files      = getAllFiles(expFolder,'tif');
 files = keepCertainStringsUnion(files,regexpMatch);
 if iscell(regexpMatch)
-    files      = cellfunNonUniformOutput(@(x) keepCertainStringsIntersection(files,x),regexpMatch);
-    temp = cell(numel(files{1}),1);
-    for ii = 1:numel(files{1})
-        temp{ii} = cellfun(@(x) x(ii),files);
-    end
-    files = temp;
+    files = keepOrderedStrings(files,regexpMatch);
 else
     files      = keepCertainStringsIntersection(files,regexpMatch);
     
