@@ -7,11 +7,22 @@ function [kept] = keepOrderedStrings(cellOfStrings,cellofRegexpKeys)
 
 numCells = numel(cellofRegexpKeys);
 
-for ii = 1:numCells
-   currentMatched = regexp(cellOfStrings,cellofRegexpKeys{ii},'split');
-   notKeepers = cellfun(@(x,y) numel(x{1}) == numel(y),currentMatched,cellOfStrings);
-   currentMatched(notKeepers) = [];
-   history = cellfun(@(x) strjoin(x,''),currentMatched);
+currentMatched = regexp(cellOfStrings,cellofRegexpKeys{1},'split');
+exactMatched = keepCertainStringsUnion(cellOfStrings,cellofRegexpKeys{1});
+
+notKeepers = cellfun(@(x,y) numel(x{1}) == numel(y),currentMatched,cellOfStrings);
+currentMatched(notKeepers) = [];
+history = cellfun(@(x) strjoin(x,''),currentMatched,'UniformOutput',false);
+
+kept = cell(numCells,1);
+kept{1} = exactMatched;
+for ii = 2:numCells
+    currentMatched = regexp(cellOfStrings,cellofRegexpKeys{ii},'split');
+    exactMatched = keepCertainStringsUnion(cellOfStrings,cellofRegexpKeys{ii});
+    notKeepers = cellfun(@(x,y) numel(x{1}) == numel(y),currentMatched,cellOfStrings);
+    currentMatched(notKeepers) = [];
+    currHistory = cellfun(@(x) strjoin(x,''),currentMatched,'UniformOutput',false);
+    kept{ii} = exactMatched(idx);
 end
 
 end
