@@ -3,6 +3,7 @@ function [ fileOutputs ] = procGetImages( expFolder,regexpMatch,saveName,specime
 %   Detailed explanation goes here
 
 files      = getAllFiles(expFolder,'tif');
+files = keepCertainStringsUnion(files,regexpMatch);
 if iscell(regexpMatch)
     files      = cellfunNonUniformOutput(@(x) keepCertainStringsIntersection(files,x),regexpMatch);
     temp = cell(numel(files{1}),1);
