@@ -6,6 +6,7 @@ files      = getAllFiles(expFolder,'tif');
 files = keepCertainStringsUnion(files,regexpMatch);
 if iscell(regexpMatch)
     files = keepOrderedStrings(files,regexpMatch);
+    files = glueCells(files{:});
 else
     files      = keepCertainStringsIntersection(files,regexpMatch);
     

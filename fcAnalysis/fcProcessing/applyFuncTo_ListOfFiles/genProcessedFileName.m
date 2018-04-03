@@ -12,6 +12,13 @@ params = updateParams(params,varargin);
 if ischar(listOfFileInputPaths)
     listOfFileInputPaths = {listOfFileInputPaths};
 end
+
+% return stuff in between parenthesis because they are channel states
+if numel(listOfFileInputPaths) > 1
+    listOfFileInputPaths = regexprep(listOfFileInputPaths,'\(([^)]+)\)','');
+end
+
+
 listOfFileInputPaths = removeEmptyCells(listOfFileInputPaths);
 allThePaths = cellfunNonUniformOutput(@(x) calcConsensusString(returnFilePath(x)),listOfFileInputPaths);
 allTheFileNames = cellfunNonUniformOutput(@(x) calcConsensusString(returnFileName(x)),listOfFileInputPaths);
