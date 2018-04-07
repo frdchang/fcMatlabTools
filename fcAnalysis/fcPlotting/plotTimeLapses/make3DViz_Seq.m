@@ -37,7 +37,11 @@ display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellA
 numSeq = numel(fluorPaths);
 firstFile = getFirstNonEmptyCellContent(fluorPaths);
 currFluor = importStack(firstFile);
+if iscell(currFluor)
+    
+else
 sizeDatas  = size(currFluor{1});
+end
 
 % generate kymos
 phaseKymos = buildKymo(phasePaths,upRezFactor);
