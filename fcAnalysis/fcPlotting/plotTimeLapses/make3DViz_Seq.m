@@ -18,7 +18,7 @@ myUnits = params.units / params.units(1);
 upRezFactor   = round(params.upRez*myUnits);
 
 
-validTimepoints = find(~cellfun(@isempty,fluorPaths));
+validTimepoints = [getFirstNonEmptyIndex(fluorPaths):getLastNonEmptyIndex(fluorPaths)];
 if isempty(validTimepoints)
     fullMontage = [];
     return;
