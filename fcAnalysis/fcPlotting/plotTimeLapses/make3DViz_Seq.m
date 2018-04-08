@@ -37,8 +37,9 @@ display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellA
 numSeq = numel(fluorPaths);
 firstFile = getFirstNonEmptyCellContent(fluorPaths);
 currFluor = importStack(firstFile);
-if iscell(currFluor)
-    
+if ~iscell(currFluor)
+    sizeDatas  = size(currFluor);
+
 else
 sizeDatas  = size(currFluor{1});
 end

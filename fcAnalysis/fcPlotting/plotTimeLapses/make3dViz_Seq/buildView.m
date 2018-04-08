@@ -24,7 +24,7 @@ timepoints = cell(3,numViews);
 if numViews ==1
     idx = 1;
 else
-    idx = linspace(1,numSeq,numViews);
+    idx = round(linspace(1,numSeq,numViews));
 end
 for ii = 1:numel(idx)
     currFluor = importStack(listOfFiles{idx(ii)});

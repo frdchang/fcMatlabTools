@@ -1,5 +1,6 @@
-%% Fast 2 color case
+%% 2 color case
 expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
+expFolder = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/twoColorDataset';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
@@ -10,6 +11,16 @@ specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 psfObjs = {psfObj1,psfObj2};
 Kmatrix = [1 0.31; 0 1];
 channels = {'redGr\(ChABTTL\)','redGr\(ChCTTL\)'};
+
+%% 1 color case
+% expFolder                = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/singleColorDataset';
+% camVarFile               = '~/Dropbox/code/Matlab/fcBinaries/calibration-ID001486-CoolerAIR-ROI1024x1024-SlowScan-20160916-noDefectCorrection.mat';
+% Kmatrix                  = 1;
+% channels                 = {'mChry\(WhiteTTL\)'};
+% useFocalPlane            = 6;
+% specimenUnitsInMicrons   = [0.1083,0.1083,0.389];  % axial scaling factor included
+% psfObj1                  = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
+% psfObjs                  = {psfObj1};
 
 phaseOutputs        = procGetImages(expFolder,'BrightFieldTTL','phaseOutputs',specimenUnitsInMicrons);
 spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUnitsInMicrons);

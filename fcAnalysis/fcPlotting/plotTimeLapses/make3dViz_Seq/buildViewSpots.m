@@ -10,7 +10,7 @@ numSeq = numel(listOfFiles);
 
 firstFile = getFirstNonEmptyCellContent(listOfFiles);
 currFluor = importStack(firstFile);
-sizeDatas  = size(currFluor{1});
+sizeDatas  = getSize(currFluor);
 upRezFactor = upRezFactor(1:numel(sizeDatas));
 
 numViews = ceil(numSeq/sizeDatas(2));
@@ -25,7 +25,7 @@ for ii = 1:numViews
 end
 
 [viewSpots{:}] = deal(timepoints);
-idx = linspace(1,numSeq,numViews);
+idx = round(linspace(1,numSeq,numViews));
 for ii = 1:numel(idx)
     if ~isempty(spotParamsPaths{ii})
         % for each spot
@@ -49,12 +49,14 @@ for ii = 1:numel(idx)
     end
 end
 
-outputViews = cell(numel(listOfFiles{1}),1);
-timepoints = cell(3,1);
-[outputViews{:}] = deal(timepoints);
-for ii = 1:numel(viewSpots)
-    outputViews{ii}{1} = [viewSpots{ii}{1,:}];
-    outputViews{ii}{2} = [viewSpots{ii}{2,:}];
-    outputViews{ii}{3} = [viewSpots{ii}{3,:}];
-end
+outputViews = viewSpots;
+
+% outputViews = cell(numel(listOfFiles{1}),1);
+% timepoints = cell(3,1);
+% [outputViews{:}] = deal(timepoints);
+% for ii = 1:numel(viewSpots)
+%     outputViews{ii}{1} = [viewSpots{ii}(1,:)];
+%     outputViews{ii}{2} = [viewSpots{ii}(2,:)];
+%     outputViews{ii}{3} = [viewSpots{ii}(3,:)];
+% end
 end
