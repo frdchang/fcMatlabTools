@@ -1,6 +1,13 @@
 function [ outputViews ] = buildViewSpots(listOfFiles,spotParamsPaths,upRezFactor,varargin)
 %BUILDVIEWSPOTS Summary of this function goes here
 %   Detailed explanation goes here
+ 
+%--parameters--------------------------------------------------------------
+params.markerRadius     = 3;
+%--------------------------------------------------------------------------
+params = updateParams(params,varargin);
+
+SE = strel('sphere',params.markerRadius);
 
 if isempty(listOfFiles)
     viewSpots = [];
@@ -27,16 +34,17 @@ end
 [viewSpots{:}] = deal(timepoints);
 idx = round(linspace(1,numSeq,numViews));
 for ii = 1:numel(idx)
-    if ~isempty(spotParamsPaths{ii})
+    if ~isempty(spotParamsPaths{idx(ii)})
         % for each spot
         numSpots = 0;
-        for jj = 1:numel(spotParamsPaths{ii})
-            currSpot = spotParamsPaths{ii}{jj};
+        for jj = 1:numel(spotParamsPaths{idx(ii)})
+            currSpot = spotParamsPaths{idx(ii)}{jj};
             selectedSpot = spotSelectorByThresh(currSpot,varargin{:});
             selectedMLESingleSpot = selectedSpot.thetaMLEs;
             [~,singleSpotTheta,~] =  getSpotCoorsFromTheta(selectedMLESingleSpot);
             numSpots = numSpots + sum(~cellfun(@isempty,singleSpotTheta));
             currStacks   = cellfunNonUniformOutput(@(x) genSpotIMG(x,sizeDatas,upRezFactor),singleSpotTheta);
+            currStacks   = cellfunNonUniformOutput(@(x) imdilate(x,SE),currStacks);
             for kk = 1:numel(currStacks)
                 viewSpots{kk}{1,ii} = viewSpots{kk}{1,ii} + maxintensityproj(currStacks{kk},3);
                 viewSpots{kk}{2,ii} = viewSpots{kk}{2,ii} + maxintensityproj(currStacks{kk},2);

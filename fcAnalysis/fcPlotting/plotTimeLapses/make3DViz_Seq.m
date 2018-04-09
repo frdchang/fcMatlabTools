@@ -37,12 +37,8 @@ display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellA
 numSeq = numel(fluorPaths);
 firstFile = getFirstNonEmptyCellContent(fluorPaths);
 currFluor = importStack(firstFile);
-if ~iscell(currFluor)
-    sizeDatas  = size(currFluor);
 
-else
-sizeDatas  = size(currFluor{1});
-end
+sizeDatas = getSize(currFluor);
 
 % generate kymos
 phaseKymos = buildKymo(phasePaths,upRezFactor);
@@ -69,13 +65,21 @@ fluorKymosWithSpots = myOverlay(fluorKymos,spotKymos);
 
 % remove the second views in build view and remove 2nd and 3rd dim from
 % phase
-fluorViews = cellfunNonUniformOutput(@removeSecondElement,fluorViews);
-phaseViews = phaseViews{1}{1};
-phaseKymos = phaseKymos{1}{1};
+fluorViews          = cellfunNonUniformOutput(@removeSecondElement,fluorViews);
+fluorViewsWithSpots = cellfunNonUniformOutput(@removeSecondElement,fluorViewsWithSpots);
+phaseViews          = cell2mat(phaseViews{1}(1,:));
+phaseKymos          = phaseKymos{1}(1);
 % if this is multi color dataset, generate a multi color kymograph
 if numel(fluorViews) > 1
     coloredFluorViews = genRGBFromCell(fluorViews);
     coloredFluorKymos = genRGBFromCell(fluorKymos);
+    
+    % convert views to rgb
+    eachView = applyFuncToCellRows(@cell2mat,coloredFluorViews);
+    coloredFluorViews = vertcat(eachView{:});
+    
+    fluorViewsWithSpots = cellfun(@(x) applyFuncToCellRows(@cell2mat,x),fluorViewsWithSpots,'un',0);
+    fluorViewsWithSpots = vertcat(fluorViewsWithSpots{:});
     assembled = {phaseViews,phaseKymos,coloredFluorViews,fluorViewsWithSpots,coloredFluorKymos,fluorKymosWithSpots};
 else
     assembled = {phaseViews,phaseKymos,fluorViews,fluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
@@ -89,7 +93,5 @@ assembled = convertListToListofArguments(assembled);
 tableOfOutputs = table(assembled{:},'VariableNames',individualImgsNames);
 end
 
-function x = removeSecondElement(x)
-x(2) = [];
-end
+
 
