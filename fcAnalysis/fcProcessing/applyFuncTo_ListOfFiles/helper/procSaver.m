@@ -24,9 +24,9 @@ saveFile = createProcessedDir(saveFile);
 makeDIRforFilename(saveFile);
 S.(newName) = outputVariable;
 if exist(saveFile,'file')==0
-    save(saveFile, '-struct', 'S');
+    save(saveFile, '-struct', 'S','-nocompression','-v7.3');
 else
-    save(saveFile, '-struct', 'S','-append');
+    save(saveFile, '-struct', 'S','-append','-nocompression','-v7.3');
 end
 
 end
