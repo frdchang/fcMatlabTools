@@ -1,6 +1,8 @@
 function outputVariable = procSaver(expFolder,outputVariable,varargin)
 %PROCSAVER will save the variable at path
 
+saveVersion = '-v6';
+
 if isstruct(expFolder)
     if isfield(expFolder,'units')
     units     = expFolder.units;
@@ -24,9 +26,9 @@ saveFile = createProcessedDir(saveFile);
 makeDIRforFilename(saveFile);
 S.(newName) = outputVariable;
 if exist(saveFile,'file')==0
-    save(saveFile, '-struct', 'S','-nocompression','-v7.3');
+    save(saveFile, '-struct', 'S',saveVersion);
 else
-    save(saveFile, '-struct', 'S','-append','-nocompression','-v7.3');
+    save(saveFile, '-struct', 'S','-append');
 end
 
 end
