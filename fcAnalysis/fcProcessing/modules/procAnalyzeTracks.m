@@ -1,4 +1,4 @@
-function [ analyzedTracks ] = procAnalyzeTracks(ec_T_spotOutputs,ec_T_3Dviz,trackedSpots,varargin)
+function [ analyzedTracks ] = procAnalyzeTracks(ec_T_spotOutputs,ec_T_3Dviz,trackedSpots,spots,varargin)
 %POCANALYZETRACKS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -10,9 +10,10 @@ params = updateParams(params,varargin);
 raws        = ec_T_spotOutputs.outputFiles.files;
 kymoPieces  = ec_T_3Dviz.outputFiles.montagePiecesMat;
 tracks      = trackedSpots.outputFiles.passThru;
-raws= convertA1sToGlued(raws);
+spots       = spots.outputFiles.extractSpots{1};
+raws        = convertA1sToGlued(raws);
 
-kymoPiecesTracks = glueCells(raws,kymoPieces,tracks);
+kymoPiecesTracks = glueCells(raws,kymoPieces,tracks,spots);
 
 analyzedTracks   = applyFuncTo_listOfListOfArguments(kymoPiecesTracks,@openData_passThru,{},@analyzeTracks,{varargin{:}},@saveToProcessed_analyzeTracks,{},params);
 

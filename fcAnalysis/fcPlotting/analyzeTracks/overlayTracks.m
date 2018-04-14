@@ -12,14 +12,12 @@ for ii = 1:numTimePoints
             currViews = fluorViews(:,ii);
             maxZ = maxintensityproj(spotTracks{ii},3);       
             maxX = maxintensityproj(spotTracks{ii},1);
-            maxY= maxintensityproj(spotTracks{ii},2);
+            maxY = maxintensityproj(spotTracks{ii},2);
             overlayed{1,ii} = indexedOverlay(fluorViews{1,ii},maxZ);
             overlayed{2,ii} = indexedOverlay(fluorViews{2,ii},maxY);
             overlayed{3,ii} = indexedOverlay(fluorViews{3,ii},maxX');
     end
 end
 
-
-overlayed = convertAll2RGBUINT8(overlayed);
 
 

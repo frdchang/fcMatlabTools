@@ -2,7 +2,7 @@ function [ output ] = saveToProcessed_analyzeTracks(listOfFileInputPaths,funcOut
 %SAVETOPROCESSED_ANALYZETRACKS Summary of this function goes here
 %   Detailed explanation goes here [ fullMontage,As,Bs,trackDists ]
 
-saveFileArea = getFirstNonEmptyCellContent(flattenCellArray(listOfFileInputPaths));
+saveFileArea = getFirstNonEmptyCellContent(cellflat(listOfFileInputPaths));
 saveProcessedFileAt = genProcessedFileName(saveFileArea,myFunc,'paramHash',funcParamHash);
 
 % save full montage as image

@@ -1,4 +1,4 @@
-function [ trackedSpots ] = buildTrackSpots(numSeq,tracks,sizeDatas,upRezFactor)
+function [ trackedSpots ] = buildTrackSpots(numSeq,validTimePoints,tracks,sizeDatas,upRezFactor)
 %BUILDTRACKSPOTS Summary of this function goes heres
 %   Detailed explanation goes here
 
@@ -27,6 +27,7 @@ for ii = 1:numChans
          currTrack = currChan{jj};
          for t = 1: size(currTrack,1)
              timepoint = currTrack(t,1);
+             timepoint = find(validTimePoints==timepoint);
              xyz       = currTrack(t,2:4);
              A         = currTrack(t,5);
              B         = currTrack(t,6);

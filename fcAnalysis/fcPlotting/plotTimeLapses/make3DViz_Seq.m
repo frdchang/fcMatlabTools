@@ -85,9 +85,9 @@ else
     assembled = {phaseViews,phaseKymos,fluorViews,fluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
 end
 
-individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','fullMontage'};
+individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','validTimepoints','fullMontage'};
 fullMontage = genMontage(assembled);
-assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,numSeq,fullMontage};
+assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,numSeq,validTimepoints,fullMontage};
 assembled = convertListToListofArguments(assembled);
 
 tableOfOutputs = table(assembled{:},'VariableNames',individualImgsNames);

@@ -1,4 +1,4 @@
-function [ fullMontage,As,Bs,trackDists,overlayedTracks] = analyzeTracks(raws,vizPieces,tracks,varargin)
+function [ fullMontage,As,Bs,trackDists,overlayedTracks] = analyzeTracks(raws,vizPieces,tracks,spots,varargin)
 %ANALYZETRACKS Summary of this function goes here
 %   Detailed explanation goes here
 % make view tracks, alpha = 0.5 for timepoints not progressed yet
@@ -14,16 +14,25 @@ params = updateParams(params,varargin);
 vizPieces = load(vizPieces);
 vizPieces = vizPieces.montagePieces;
 
-tracks = cellfunNonUniformOutput(@(tracks) filterTracksByLength(tracks,params.minTrackLength,Inf),tracks);
+filteredTracks = cellfunNonUniformOutput(@(tracks) filterTracksByLength(tracks,params.minTrackLength,Inf),tracks);
 
-[myTracks]    = buildTrackSpots(vizPieces.numSeq{1},tracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
-[trackDists,pairingSig]    = getTrackDists(tracks);
-As            = getTrackByIndex(tracks,4);
-Bs            = getTrackByIndex(tracks,5);
+[myTracks]    = buildTrackSpots(vizPieces.numSeq{1},vizPieces.validTimepoints{1},filteredTracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
 
-AsPlot        = plotTrackStuff(As,vizPieces.numSeq{1},varargin{:});
-BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:});
-distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:});
+
+
+
+
+
+
+
+
+[trackDists,pairingSig]    = getTrackDists(filteredTracks);
+As            = getTrackByIndex(filteredTracks,4);
+Bs            = getTrackByIndex(filteredTracks,5);
+
+[AsPlot,maxVals]        = plotTrackStuff(As,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
+BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1},'maxVals',maxVals);
+distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
 
 pairingPlot   = genPairingPlotBMP(pairingSig,vizPieces.numSeq{1});
 
@@ -38,5 +47,7 @@ end
 trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
 
 fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
+imshow(fullMontage);
+
 end
 

@@ -13,7 +13,7 @@ while iscell(cellarray)
        % flattened if the first dimension is 1
        break; 
     end
-    cellarray=horzcat(cellarray(~cellID),cellfun(@(x) x(:).',cellarray(cellID),'uni',false));
+    cellarray=horzcat(cellarray(~cellID),cellfun(@(x) x(:).',cellarray(cellID),'uni',false));    
     cellarray=[cellarray{:}];
 end
 
