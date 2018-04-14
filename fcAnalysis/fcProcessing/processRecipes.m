@@ -4,7 +4,7 @@ expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
-psfObj2 = genGaussKernObj([1,1,1],[7 7 7]);
+psfObj2 = genGaussKernObj([1.1,1.1,1.1],[7 7 7]);
 
 specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 
@@ -29,12 +29,12 @@ qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',t
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
 stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
-maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
-xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
+% maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
+% xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
 T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs,'doProcParallel',true);
-T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs,'doProcParallel',true);
-T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs,'doProcParallel',true);
+% T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs,'doProcParallel',true);
+% T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs,'doProcParallel',true);
 T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs,'doProcParallel',true);
 T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doProcParallel',true);
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doProcParallel',true);
