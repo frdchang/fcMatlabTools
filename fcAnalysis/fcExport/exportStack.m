@@ -4,20 +4,21 @@ function filename = exportStack(filename,stack)
 
 % tiffwriteimj(stack,[filename '.tif']);
 if isequal(unique(stack),[0 ;1])
-stack = uint8(stack);
+    stack = uint8(stack);
 end
 makeDIRforFilename(filename);
-if isinteger(stack)
-   filename = [filename '.tif'];
-   if size(stack,3) == 3
-       imwrite(stack,filename);
-   else
-       
-   exportSingleTifStack(filename,stack); 
-   end
+if checkIfInteger(stack)
+    filename = [filename '.tif'];
+    if size(stack,3) == 3
+        imwrite(stack,filename);
+    else
+        exportSingleTifStack(filename,stack);
+    end
 else
-    filename = [filename '.fits'];
-   exportSingleFitsStack(filename,stack);
+    %     filename = [filename '.fits'];
+    %    exportSingleFitsStack(filename,stack);
+    filename = [filename '.tif'];
+    tiffwriteimj(stack,filename);
 end
 end
 
