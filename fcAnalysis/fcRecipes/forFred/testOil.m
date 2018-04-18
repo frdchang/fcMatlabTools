@@ -1,42 +1,59 @@
-custom1 = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180414-testingOil-ABN2LDF_0p1454_old_1/takeA3DStack/ABN2LDF_0p1454_old_1_w3-GFP(AllFourTTL).tif');
-custom2 = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180414-testingOil-custom_again/takeA3DStack/custom_again_w3-GFP(AllFourTTL).tif');
-nikon1= importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180414-testingOil-nikon_A_2/takeA3DStack/nikon_A_2_w3-GFP(AllFourTTL).tif');
-ldf = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180414-testingOil-LDF_1/takeA3DStack/LDF_1_w3-GFP(AllFourTTL).tif');
-fresh = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180414-testingOil-fresh_custom/takeA3DStack/fresh_custom_w3-GFP(AllFourTTL).tif');
-
-kern = ndGauss([1 1 1],[7 7 7]);
-cus = findSpotsStage1V2(custom1,kern,ones(size(custom1)));
-nik = findSpotsStage1V2(nikon1,kern,ones(size(nikon1)));
-cus2 = findSpotsStage1V2(custom2,kern,ones(size(custom1)));
-ldf = findSpotsStage1V2(ldf,kern,ones(size(custom1)));
-fresh = findSpotsStage1V2(fresh,kern,ones(size(custom1)));
-
-myThresh = threshold(maxintensityproj(cus.LLRatio,3));
-idx_cus = cus.LLRatio > myThresh;
-myThresh = threshold(maxintensityproj(nik.LLRatio,3));
-idx_nik = nik.LLRatio > myThresh;
-myThresh = threshold(maxintensityproj(cus2.LLRatio,3));
-idx_cus2 = cus2.LLRatio > myThresh;
-myThresh = threshold(maxintensityproj(ldf.LLRatio,3));
-idx_ldf = ldf.LLRatio > myThresh;
-myThresh = threshold(maxintensityproj(fresh.LLRatio,3));
-idx_fresh = fresh.LLRatio > myThresh;
 
 
+cus_0p108 = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180415-testingOil_REDGREEN-ABN2LDF_0p108/takeA3DStack/ABN2LDF_0p108_w5-mCherry(AllFourTTL).tif');
+% 0p087
+cus_0p1449 = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180415-testingOil_REDGREEN-ABN2LDF_0p087/takeA3DStack/ABN2LDF_0p087_w5-mCherry(AllFourTTL).tif');
+nikon_A= importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180415-testingOil_REDGREEN-nikon_A/takeA3DStack/nikon_A_w5-mCherry(AllFourTTL).tif');
+% 0p05
+cus_0p3141 = importStack('/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180414-testingOil/20180415-testingOil_REDGREEN-ABN2LDF_0p05/takeA3DStack/ABN2LDF_0p05_w5-mCherry(AllFourTTL).tif');
 
-histogram(cus.A1(idx_cus));
+[~,kern] = ndGauss([1 1 1],[7 7 7]);
+cus_0p108 = findSpotsStage1V2(cus_0p108,kern,ones(size(cus_0p108)));
+nikon_A = findSpotsStage1V2(nikon_A,kern,ones(size(nikon_A)));
+cus_0p1449 = findSpotsStage1V2(cus_0p1449,kern,ones(size(cus_0p1449)));
+cus_0p3141 = findSpotsStage1V2(cus_0p3141,kern,ones(size(cus_0p3141)));
+
+minRange = 10;
+maxRange = 50;
+
+myThresh = threshold(maxintensityproj(cus_0p108.LLRatio,3));
+idx_cus_0p108 = cus_0p108.LLRatio > myThresh;
+idx_cus_0p108 = filterBWbySizeRange(idx_cus_0p108,minRange,maxRange);
+A1_cus_0p108 = maxInEachBWRegion(idx_cus_0p108,cus_0p108.A1);
+
+myThresh = threshold(maxintensityproj(nikon_A.LLRatio,3));
+idx_nikon_A = nikon_A.LLRatio > myThresh;
+idx_nikon_A = filterBWbySizeRange(idx_nikon_A,minRange,maxRange);
+A1_nikon_A = maxInEachBWRegion(idx_nikon_A,nikon_A.A1);
+
+
+myThresh = threshold(maxintensityproj(cus_0p1449.LLRatio,3));
+idx_cus_0p1449 = cus_0p1449.LLRatio > myThresh;
+idx_cus_0p1449 = filterBWbySizeRange(idx_cus_0p1449,minRange,maxRange);
+A1_cus_0p1449 = maxInEachBWRegion(idx_cus_0p1449,cus_0p1449.A1);
+
+
+myThresh = threshold(maxintensityproj(cus_0p3141.LLRatio,3));
+idx_cus_0p3141 = cus_0p3141.LLRatio > myThresh;
+idx_cus_0p3141 = filterBWbySizeRange(idx_cus_0p3141,minRange,maxRange);
+A1_cus_0p3141 = maxInEachBWRegion(idx_cus_0p3141,cus_0p3141.A1);
+
+
+
+
+
+h = histogram(cus_0p108.A1(idx_cus_0p108));h.DisplayStyle = 'stairs';
 hold on;
-histogram(nik.A1(idx_nik));
-histogram(cus2.A1(idx_cus2));
-histogram(ldf.A1(idx_ldf));
-histogram(fresh.A1(idx_fresh));
-legend('custom','nikon','custom2','ldf','fresh');
+h = histogram(nikon_A.A1(idx_nikon_A));h.DisplayStyle = 'stairs';
+h = histogram(cus_0p1449.A1(idx_cus_0p1449));h.DisplayStyle = 'stairs';
+h = histogram(cus_0p3141.A1(idx_cus_0p3141));h.DisplayStyle = 'stairs';
+legend('0.108','nikon_A','0.087','0.05');
 
 figure;
-
-histogram(cus.A1(idx_cus)./cus.B1(idx_cus));
+h = histogram(A1_cus_0p108);h.DisplayStyle = 'stairs';h.Normalization = 'pdf';
 hold on;
-histogram(nik.A1(idx_nik)./nik.B1(idx_nik));
-histogram(cus2.A1(idx_cus2)./cus2.B1(idx_cus2));
-histogram(ldf.A1(idx_ldf)./ldf.B1(idx_ldf));
-legend('custom','nikon','custom2','ldf');
+h = histogram(A1_nikon_A);h.DisplayStyle = 'stairs';h.Normalization = 'pdf';
+h = histogram(A1_cus_0p1449);h.DisplayStyle = 'stairs';h.Normalization = 'pdf';
+h = histogram(A1_cus_0p3141);h.DisplayStyle = 'stairs';h.Normalization = 'pdf';
+legend('0.108','nikon_A','0.087','0.05');
+title('mcherry');

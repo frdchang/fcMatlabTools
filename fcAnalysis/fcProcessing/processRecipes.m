@@ -46,7 +46,8 @@ T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',true,'newtonSteps',1,'hybridSteps',1,'gradSteps',200);
+%%%%%figure this out
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',false,'newtonSteps',1,'hybridSteps',1,'gradSteps',200);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 
