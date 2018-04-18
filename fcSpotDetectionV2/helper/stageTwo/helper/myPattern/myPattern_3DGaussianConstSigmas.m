@@ -1,7 +1,7 @@
 classdef myPattern_3DGaussianConstSigmas < myPattern_Interface
     %GAUSSIANPATTERN theta = {x0,y0,z0,sigXsq,sigYsq,sigZsq}
     
-    properties (Access = protected)
+    properties (Access = public)
         heartFunc
         numDims
         prevTheta

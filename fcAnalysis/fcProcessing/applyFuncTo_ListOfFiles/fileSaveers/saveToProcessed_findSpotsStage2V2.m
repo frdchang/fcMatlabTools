@@ -8,6 +8,8 @@ saveProcessedFileAt = genProcessedFileName(fileInputs,myFunc,'paramHash',funcPar
 stageIIMLEs = funcOutput{1};
 makeDIRforFilename(saveProcessedFileAt);
 save(saveProcessedFileAt,'stageIIMLEs');
-outputs = table({[saveProcessedFileAt '.mat']},{stageIIMLEs},'VariableNames',{'pathToStageIIMLEs','stageIIMLEs'});
+% outputs = table({[saveProcessedFileAt '.mat']},{stageIIMLEs},'VariableNames',{'pathToStageIIMLEs','stageIIMLEs'});
+outputs = table({[saveProcessedFileAt '.mat']},'VariableNames',{'pathToStageIIMLEs'});
+
 
 

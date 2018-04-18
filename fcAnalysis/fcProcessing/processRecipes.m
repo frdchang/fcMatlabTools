@@ -1,6 +1,7 @@
 %% 2 color case
-expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
+% expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
 % expFolder = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/twoColorDataset';
+expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
@@ -47,7 +48,7 @@ T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
 selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
 %%%%%figure this out
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doParallel',false,'newtonSteps',1,'hybridSteps',1,'gradSteps',200);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',1,'hybridSteps',1,'gradSteps',200,'doPlotEveryN',inf);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 

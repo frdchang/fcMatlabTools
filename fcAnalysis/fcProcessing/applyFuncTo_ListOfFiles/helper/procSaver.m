@@ -1,7 +1,7 @@
 function outputVariable = procSaver(expFolder,outputVariable,varargin)
 %PROCSAVER will save the variable at path
 
-saveVersion = '-v7.3';
+saveVersion = '-v7';
 
 if isstruct(expFolder)
     if isfield(expFolder,'units')
