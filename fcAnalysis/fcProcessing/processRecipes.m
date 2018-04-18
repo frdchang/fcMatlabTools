@@ -32,12 +32,12 @@ stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFu
 % maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 % xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
-T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs,'doProcParallel',true);
+T_stageIOutputs     = procXYTranslate(xyAlignments,stageIOutputs,'doParallel',true);
 % T_maxColoredProjs   = procXYTranslate(xyAlignments,maxColoredProjs,'doProcParallel',true);
 % T_xyMaxProjNDs      = procXYTranslate(xyAlignments,xyMaxProjNDs,'doProcParallel',true);
-T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs,'doProcParallel',true);
-T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doProcParallel',true);
-T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doProcParallel',true);
+T_qpmOutputs        = procXYTranslate(xyAlignments,qpmOutputs,'doParallel',true);
+T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doParallel',true);
+T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doParallel',true);
 
 %-----USER-----------------------------------------------------------------
 thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');

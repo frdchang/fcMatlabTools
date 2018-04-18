@@ -41,7 +41,7 @@ for ii = 1:numel(tableNames)
         currEntrybyTime = groupByTimeLapses(currEntry);
         currEntryList = convertListToListofArguments(currEntrybyTime);
         imgAndTransData = glueCellArguments(currEntryList,xyAlignDatas);
-        currOutput = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{},@ saveToProcessed_translateSeq,{},varargin{:});
+        currOutput = applyFuncTo_listOfListOfArguments(imgAndTransData,@openData_passThru,{},@translateSeq,{params},@ saveToProcessed_translateSeq,{},varargin{:});
         Trans_procOutput.inputFiles = horzcat(Trans_procOutput.inputFiles, table(currEntry,'VariableNames',tableNames(ii)));
         Trans_procOutput.outputFiles = horzcat(Trans_procOutput.outputFiles, table(currOutput.outputFiles.translateSeq,'VariableNames',tableNames(ii)));
     end
