@@ -3,6 +3,7 @@
 % LINK_TRAJECTORIES: links particle positions into trajectories
 % * modified by fred chang 20170805 
 %   - added 3D support
+%   - added L1 penalty versus L2
 %
 % SYNTAX:  peaks = link_trajectories(peaks, L, viz, nfig)
 %
@@ -61,7 +62,8 @@ for iframe = 2:nframe
     xdiff = xrep - repmat(peaks{iframe-1}(:,1),1,n);
     ydiff = yrep - repmat(peaks{iframe-1}(:,2),1,n);
     zdiff = zrep - repmat(peaks{iframe-1}(:,3),1,n);
-    delta = (xdiff.^2)+(ydiff.^2)+(zdiff.^2);
+%%%%     delta = (xdiff.^2)+(ydiff.^2)+(zdiff.^2);
+    delta = abs(xdiff)+abs(ydiff)+abs(zdiff);
     
     % dm0(i,j): quadratic difference between m0 moments of p_i and q_j
     xrep = repmat(peaks{iframe}(:,4)',m,1);
@@ -74,7 +76,8 @@ for iframe = 2:nframe
     dm2 = xdiff.^2;
     
     % C(i,j): cost function for link p_i, q_j
-    C = L*L*ones(m+1,n+1);   % set broken dummy links to L^2
+    %%%% C = L*L*ones(m+1,n+1);   % set broken dummy links to L^2
+    C = L*ones(m+1,n+1);
     %C(1:m,1:n) = (delta+dm0+dm2);
     C(1:m,1:n) = (delta);
     % set cost of matchings that will never occur to Inf
@@ -83,6 +86,8 @@ for iframe = 2:nframe
     set1 = find(C1 > 0);
     set2 = find(C2 > 0);
     s = union(set1,set2);
+    % weight the intensity
+    C(1:m,1:n) = (delta+dm0+dm2);
     [i,j] = ind2sub([m n],s);
     C(sub2ind(size(C),i,j)) = Inf;
     
