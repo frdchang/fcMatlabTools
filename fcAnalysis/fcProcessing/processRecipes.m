@@ -1,7 +1,7 @@
 %% 2 color case
-% expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
+expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
 % expFolder = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/twoColorDataset';
-expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
+% expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
@@ -10,7 +10,7 @@ psfObj2 = genGaussKernObj([1.1,1.1,1.1],[7 7 7]);
 specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 
 psfObjs = {psfObj1,psfObj2};
-Kmatrix = [1 0.31; 0 1];
+Kmatrix = [1 0.31; 0 1]';
 channels = {'redGr\(ChABTTL\)','redGr\(ChCTTL\)'};
 
 %% 1 color case
@@ -29,7 +29,7 @@ spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUni
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 % maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 % xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 

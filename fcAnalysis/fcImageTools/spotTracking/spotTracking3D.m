@@ -34,6 +34,9 @@ for ii = 1:numTimePoints
        for jj = 1:numSpots
            currSpot = spotList{jj};
            spotSelected  = spotSelectorByThresh(currSpot,params);
+           if isempty(spotSelected)
+              continue; 
+           end
            spotXYZs = getXYZABFromTheta(spotSelected.thetaMLEs);
            for kk = 1:numel(spotXYZs)
                if ~isempty(spotXYZs{kk})

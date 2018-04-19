@@ -3,7 +3,7 @@ function [ outputViews ] = buildViewSpots(listOfFiles,spotParamsPaths,upRezFacto
 %   Detailed explanation goes here
  
 %--parameters--------------------------------------------------------------
-params.markerRadius     = 3;
+params.markerRadius     = 1;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 

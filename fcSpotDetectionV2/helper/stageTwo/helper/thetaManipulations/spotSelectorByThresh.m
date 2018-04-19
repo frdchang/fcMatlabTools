@@ -46,14 +46,17 @@ params.spotthresh(~okstates(1:min(numel(params.spotthresh),numel(okstates)))) = 
 LLRatios = LLs - LLs(1);
 permissiveOnes = arrayfun(@(x) find(LLRatios>=x),params.spotthresh,'UniformOutput',false);
 
-idx = [];
-for ii = 1:numel(permissiveOnes)
-   if ~isempty(permissiveOnes{ii})
-       if  permissiveOnes{ii}(1)== ii
-          idx =ii; 
-       end
-   end
-end
+% idx = [];
+% for ii = 1:numel(permissiveOnes)
+%    if ~isempty(permissiveOnes{ii})
+%        if  permissiveOnes{ii}(1)== ii
+%           idx =ii; 
+%        end
+%    end
+% end
+
+idx  = LLRatios(:) > params.spotthresh(:);
+idx  = find(idx >0,1,'last');
 if isempty(idx)
     spotSelected = [];
 else

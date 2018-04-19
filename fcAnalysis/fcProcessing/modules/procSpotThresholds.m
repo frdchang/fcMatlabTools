@@ -6,7 +6,9 @@ params.threshField     = 'logLikePP';
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-MLEs = flattenCellArray(stageIIOutputs.outputFiles.stageIIMLEs);
+MLEs = loadTheSpots(stageIIOutputs.outputFiles.pathToStageIIMLEs);
+
+MLEs = flattenCellArray(MLEs);
 
 LLs         = cellfun(@(x) [x.(params.threshField)],MLEs,'uni',false);
 states      = cellfun(@(x) {x.stateOfStep},MLEs,'uni',false);
@@ -52,3 +54,10 @@ spotThresholds = procSaver(stageIIOutputs,spotThresholds);
 
 end
 
+function spots = loadTheSpots(files)
+spots = cell(numel(files),1);
+for ii = 1:numel(files)
+    temp = load(files{ii});
+    spots{ii} = temp.stageIIMLEs;
+end
+end

@@ -1,4 +1,4 @@
-function listOfMLEs = translateSpots(listOfMLEs,translationSequence)
+function listOfMLEs = translateSpots(listOfMLEs,translationSequence,varargin)
 %TRANSLATESPOTS translates the listOfMLEs with translationSequence.  
 for ii = 1:numel(listOfMLEs)
    for jj = 1:numel(listOfMLEs{ii})

@@ -13,7 +13,8 @@ segData = convertListToListofArguments(segData);
 ec_T_stageIIOutputs.inputFiles = table;
 ec_T_stageIIOutputs.outputFiles = table;
 
-currEntry =  T_stageIIOutputs.outputFiles.stageIIMLEs;
+currEntry =  load(T_stageIIOutputs.outputFiles.xy_stageIIMLEs{1});
+currEntry = currEntry.funcOutput;
 currEntry = convertListToListofArguments(currEntry);
 
 MLEsAndSegData = glueCellArguments(currEntry,segData);
@@ -21,6 +22,4 @@ ec_T_stageIIOutputs =  applyFuncTo_listOfListOfArguments(MLEsAndSegData,@openDat
   
 ec_T_stageIIOutputs = procSaver(T_yeastSegs,ec_T_stageIIOutputs);
 end
-
-
 

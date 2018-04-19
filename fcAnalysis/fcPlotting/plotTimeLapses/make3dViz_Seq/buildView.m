@@ -21,11 +21,9 @@ views = cell(numel(listOfFiles{1}),1);
 timepoints = cell(3,numViews);
 [views{:}] = deal(timepoints);
 
-if numViews ==1
-    idx = 1;
-else
+
     idx = round(linspace(1,numSeq,numViews));
-end
+
 for ii = 1:numel(idx)
     currFluor = importStack(listOfFiles{idx(ii)});
     currFluor = cellfunNonUniformOutput(@(x) myIMResize(x,upRezFactor.*size(x),'nearest'),currFluor);
