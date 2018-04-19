@@ -17,6 +17,6 @@ for ii = 1:numTimePoints
    trackedKymos{3}(:,ii,:) = maxintensityproj4RGB(overlayedTracks{3,1},2);
 end
 
-trackedKymos = cellfunNonUniformOutput(@norm2UINT255,trackedKymos);
+% trackedKymos = cellfunNonUniformOutput(@norm2UINT255,trackedKymos);
 end
 

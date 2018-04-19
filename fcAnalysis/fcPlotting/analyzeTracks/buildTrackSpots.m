@@ -1,4 +1,4 @@
-function [ trackedSpots ] = buildTrackSpots(numSeq,validTimePoints,tracks,sizeDatas,upRezFactor)
+function [ trackedSpots,saveNumTracks ] = buildTrackSpots(numSeq,validTimePoints,tracks,sizeDatas,upRezFactor)
 %BUILDTRACKSPOTS Summary of this function goes heres
 %   Detailed explanation goes here
 
@@ -19,10 +19,12 @@ numChans = numel(tracks);
 timeLapse = cell(numSeq,1);
 trackedSpots = cell(numChans,1);
 [trackedSpots{:}] = deal(timeLapse);
+saveNumTracks = [];
 for ii = 1:numChans
    currChan = tracks{ii};
    if ~isempty(currChan)
       numTracks = numel(currChan); 
+      saveNumTracks(end+1) = numTracks;
       for jj = 1:numTracks
          currTrack = currChan{jj};
          for t = 1: size(currTrack,1)

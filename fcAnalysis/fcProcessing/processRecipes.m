@@ -62,7 +62,7 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',spotThresholds.thresholds);
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',1,'spotthresh',spotThresholds.thresholds,'doProcParallel',true);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds);
 analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots,ec_T_stageIIOutputs);
 

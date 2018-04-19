@@ -11,7 +11,7 @@ if iscell(singleSpotTheta)
     spotImg = cellfunNonUniformOutput(@(x) myHelper(x,sizeDatas,upRezFactor),singleSpotTheta);
     spotImg = sumCellContents(spotImg);
 else
-    spotImg = myHelper(singleSpotTheta);
+    spotImg = myHelper(singleSpotTheta,sizeDatas,upRezFactor);
 end
 
 

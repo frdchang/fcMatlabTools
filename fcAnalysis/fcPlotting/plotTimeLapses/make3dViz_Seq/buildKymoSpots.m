@@ -24,7 +24,9 @@ for ii = 1:numSeq
         for jj = 1:numel(spotParamsPaths{ii})
             currSpot = spotParamsPaths{ii}{jj};
             selectedSpot = spotSelectorByThresh(currSpot,varargin{:});
-            
+            if isempty(selectedSpot)
+                continue;
+            end
             selectedMLESingleSpot = selectedSpot.thetaMLEs;
             
             [~,singleSpotTheta,~] =  getSpotCoorsFromTheta(selectedMLESingleSpot);
@@ -38,10 +40,13 @@ for ii = 1:numSeq
                 spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)+currStackZ(:);
             end
         end
-        % index the color by numspots
-        spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
-        spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
-        spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;   
+        for kk = 1:numel(currStacks)
+            % index the color by numspots
+            spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
+            spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
+            spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;
+        end
+
     end
 end
 

@@ -6,7 +6,7 @@ function [ fullMontage,As,Bs,trackDists,overlayedTracks] = analyzeTracks(raws,vi
 % calc various things
 
 %--parameters--------------------------------------------------------------
-params.minTrackLength     = 2;
+params.minTrackLength     = 3;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -16,7 +16,7 @@ vizPieces = vizPieces.montagePieces;
 
 filteredTracks = cellfunNonUniformOutput(@(tracks) filterTracksByLength(tracks,params.minTrackLength,Inf),tracks);
 
-[myTracks]    = buildTrackSpots(vizPieces.numSeq{1},vizPieces.validTimepoints{1},filteredTracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
+[myTracks,saveNumTracks]    = buildTrackSpots(vizPieces.numSeq{1},vizPieces.validTimepoints{1},filteredTracks,vizPieces.sizeDatas{1},vizPieces.upRezFactor{1});
 
 
 
@@ -39,7 +39,7 @@ pairingPlot   = genPairingPlotBMP(pairingSig,vizPieces.numSeq{1});
 allFluorViews = vizPieces.fluorAllViews{1};
 
 if ~isempty(myTracks)
-    overlayedTracks = cellfunNonUniformOutput(@(x,y)overlayTracks(x,y),allFluorViews,myTracks);
+    overlayedTracks = cellfunNonUniformOutput(@(x,y,z)overlayTracks(x,y,z),allFluorViews,myTracks,num2cell(saveNumTracks)');
     
 else
     overlayedTracks = allFluorViews;
@@ -48,6 +48,15 @@ trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overla
 
 fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
 imshow(fullMontage);
+
+
+handles = imshow(overlayedTracks{2}{1,1});
+
+for ii = 1:size(overlayedTracks{2},2)
+    handles.CData = overlayedTracks{1}{1,ii};
+    title(num2str(ii));
+    waitforbuttonpress();
+end
 
 end
 
