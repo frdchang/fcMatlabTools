@@ -7,9 +7,11 @@ params.doProcParallel     = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
-MLEs = ec_T_stageIIOutputs.outputFiles.extractSpots;
-MLEsByCells = cat(1,MLEs{:});
-MLEsByCells = convertListToListofArguments(MLEsByCells);
+MLEs = load(ec_T_stageIIOutputs.outputFiles.mat{1});
+MLEs = MLEs.extractSpots;
+% MLEsByCells = cat(1,MLEs{:});
+% MLEsByCells = convertListToListofArguments(MLEsByCells);
+MLEsByCells = convertListToListofArguments(MLEs);
 
 trackedSpots   = applyFuncTo_listOfListOfArguments(MLEsByCells,@openData_passThru,{},@spotTracking3D,{varargin{:},'specimenUnitsInMicrons',ec_T_stageIIOutputs.units},@saveToProcessed_passThru,{},params);
 

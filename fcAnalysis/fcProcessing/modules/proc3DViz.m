@@ -10,7 +10,9 @@ params = updateParams(params,varargin);
 raws        = ec_T_spotOutputs.outputFiles.files;
 A1s         = eC_T_stageIOutputs.outputFiles.A1;
 LLRatios    = eC_T_stageIOutputs.outputFiles.LLRatio;
-MLEs        = ec_T_stageIIOutputs.outputFiles.extractSpots;
+% MLEs        = ec_T_stageIIOutputs.outputFiles.extractSpots;
+MLEs = load(ec_T_stageIIOutputs.outputFiles.mat{1});
+MLEs = MLEs.extractSpots;
 qpms        = eC_T_qpmOutputs.outputFiles.genQPM1;
 
 A1s = convertA1sToGlued(A1s);

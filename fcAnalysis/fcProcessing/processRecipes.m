@@ -4,8 +4,8 @@
 expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
-psfObj1 = genGaussKernObj([0.9,0.9,0.9],[7 7 7]);
-psfObj2 = genGaussKernObj([1.1,1.1,1.1],[7 7 7]);
+psfObj1 = genGaussKernObj([1.1,1.1,1.2],[7 7 7]);
+psfObj2 = genGaussKernObj([1.2,1.2,1.2],[7 7 7]);
 
 specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 
