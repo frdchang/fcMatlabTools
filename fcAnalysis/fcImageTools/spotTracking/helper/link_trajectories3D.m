@@ -90,7 +90,9 @@ for iframe = 2:nframe
     C(1:m,1:n) = (delta+dm0+dm2);
     [i,j] = ind2sub([m n],s);
     C(sub2ind(size(C),i,j)) = Inf;
-    
+    %%%% cost is inf 
+    C(:,end) = inf;
+    C(end,:) = inf;
     % initialize link matrix A
     for i=1:m
         % sort costs of real particles
