@@ -17,7 +17,7 @@ fileOutputs.regexpMatch = regexpMatch;
 
 output.expFolder = expFolder;
 output.units     = specimenUnits;
-fileOutputs = procSaver(output,fileOutputs,saveName);
+fileOutputs = procSaver(output,fileOutputs,'newName',saveName);
 
 end
 

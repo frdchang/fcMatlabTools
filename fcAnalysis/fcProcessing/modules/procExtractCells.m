@@ -27,6 +27,6 @@ for ii = 1:numel(tableNames)
 end
 procOutputOGName = inputname(2);
 TransName = ['eC_' procOutputOGName];
-eC_T_procOutputs = procSaver(T_yeastSegs,eC_T_procOutputs,TransName);
+eC_T_procOutputs = procSaver(T_yeastSegs,eC_T_procOutputs,'newName',TransName);
 end
 

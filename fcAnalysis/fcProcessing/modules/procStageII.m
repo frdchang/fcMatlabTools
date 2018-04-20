@@ -28,6 +28,7 @@ stageIIArgFiles      = glueCellArguments(dataFiles,camVarFile,stageIStructsFiles
 
 stageIIOutputs       = applyFuncTo_listOfListOfArguments(stageIIArgFiles,@openData_stageII,{},@findSpotsStage2V2,{params},@saveToProcessed_findSpotsStage2V2,{},varargin{:});
 
+stageIIOutputs       = removeInputs(stageIIOutputs);
 stageIIOutputs       = procSaver(stageIOutputs,stageIIOutputs);
 
 

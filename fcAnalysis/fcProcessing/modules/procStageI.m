@@ -31,5 +31,5 @@ stageIOutputs    = applyFuncTo_listOfListOfArguments(spotFileInputs,@ openData_s
 stageIOutputs.psfObj     = psfObj;
 stageIOutputs.camVarFile = params.camVarFile;
 stageIOutputs.Kmatrix    = params.Kmatrix;
-stageIOutputs = procSaver(spotOutputs,stageIOutputs);
+stageIOutputs = procSaver(spotOutputs,stageIOutputs,'removeInputs',false);
 

@@ -48,6 +48,6 @@ for ii = 1:numel(tableNames)
 end
 
 TransName = ['T_' procOutputOGName];
-Trans_procOutput = procSaver(procOutput,Trans_procOutput,TransName);
+Trans_procOutput = procSaver(procOutput,Trans_procOutput,'newName',TransName);
 end
 

@@ -50,9 +50,9 @@ fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
 imshow(fullMontage);
 
 
-handles = imshow(overlayedTracks{2}{1,1});
+handles = imshow(overlayedTracks{1}{1,1});
 
-for ii = 1:size(overlayedTracks{2},2)
+for ii = 1:size(overlayedTracks{1},2)
     handles.CData = overlayedTracks{1}{1,ii};
     title(num2str(ii));
     waitforbuttonpress();

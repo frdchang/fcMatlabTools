@@ -19,7 +19,7 @@ currEntry = convertListToListofArguments(currEntry);
 
 MLEsAndSegData = glueCellArguments(currEntry,segData);
 ec_T_stageIIOutputs =  applyFuncTo_listOfListOfArguments(MLEsAndSegData,@openData_passThru,{},@extractSpots,{},@saveToProcessed_extractSpots,{},'doParallel',params.doProcParallel);
-  
+ec_T_stageIIOutputs = removeInputs(ec_T_stageIIOutputs);  
 ec_T_stageIIOutputs = procSaver(T_yeastSegs,ec_T_stageIIOutputs);
 end
 
