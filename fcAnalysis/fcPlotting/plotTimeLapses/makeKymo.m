@@ -1,6 +1,6 @@
-function [fullMontage,tableOfOutputs] = make3DViz_Seq(rawFluorPaths,fluorPaths,spotParamPaths,phasePaths,LLRatioPaths,varargin)
-%MAKE3DVIZ_SEQ will make a 3D visualization of the image sequence.
-% phasePath can be empty if not needed
+function [fullMontage,tableOfOutputs] = makeKymo(fluorPaths,spotParamPaths,varargin)
+%MAKEKYMO Summary of this function goes here
+%   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
 params.upRez            = 1;
 params.units            = [0.1083,0.1083,0.45700];
@@ -23,16 +23,10 @@ if isempty(validTimepoints)
     fullMontage = [];
     return;
 else
-    rawFluorPaths   = rawFluorPaths(validTimepoints);
     fluorPaths      = fluorPaths(validTimepoints);
     spotParamPaths  = spotParamPaths(validTimepoints);
-    phasePaths      = phasePaths(validTimepoints);
-    LLRatioPaths    = LLRatioPaths(validTimepoints);
-    
-    phasePaths      = convertListToListofArguments(phasePaths);
-    LLRatioPaths    = convertListToListofArguments(LLRatioPaths);
 end
-display(['make3Dviz_Seq(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
+display(['makeKymo(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
 
 numSeq = numel(fluorPaths);
 firstFile = getFirstNonEmptyCellContent(fluorPaths);
@@ -42,11 +36,5 @@ sizeDatas = getSize(currFluor);
 
 % generate kymos
 fluorKymos = buildKymo(fluorPaths,upRezFactor);
-
-
-
-
-end
-
-
+% generate spotkymos
 

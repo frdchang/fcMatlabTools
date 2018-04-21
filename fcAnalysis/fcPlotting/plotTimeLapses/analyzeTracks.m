@@ -51,11 +51,19 @@ imshow(fullMontage);
 
 
 handles = imshow(overlayedTracks{1}{1,1});
-
-for ii = 1:size(overlayedTracks{1},2)
+ii = 1;
+while(1)
     handles.CData = overlayedTracks{1}{1,ii};
     title(num2str(ii));
-    waitforbuttonpress();
+    state = getkey();
+    switch state
+        case 28
+            ii = ii -1;
+        case 29
+            ii = ii + 1;
+        otherwise
+        break;
+    end
 end
 
 end

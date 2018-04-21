@@ -37,7 +37,7 @@ for ii = 1:numChans
              if isempty(trackedSpots{ii}{timepoint})
                   trackedSpots{ii}{timepoint} = currSpotImg;
              else
-                  trackedSpots{ii}{timepoint} = trackedSpots{ii}{timepoint}+currSpotImg;
+                  trackedSpots{ii}{timepoint}(currSpotImg>0) = currSpotImg(currSpotImg>0);
              end
          end
       end

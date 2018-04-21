@@ -4,6 +4,6 @@ function [ outputFiles ] = saveToProcessed_extractSpots(listOfFileInputPaths,fun
 saveProcessedFileAt = genProcessedFileName(listOfFileInputPaths{2},myFunc,'paramHash',funcParamHash);
 saveProcessedFileAt = [saveProcessedFileAt '.mat'];
 saveWithName(funcOutput{1},saveProcessedFileAt,'extractSpots');
-outputFiles = table({saveProcessedFileAt},funcOutput,'VariableNames',{'mat','extractSpots'});
+outputFiles = table({saveProcessedFileAt},'VariableNames',{'mat'});
 end
 
