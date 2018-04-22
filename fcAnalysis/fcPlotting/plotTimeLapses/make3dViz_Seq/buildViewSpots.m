@@ -40,6 +40,9 @@ for ii = 1:numel(idx)
         for jj = 1:numel(spotParamsPaths{idx(ii)})
             currSpot = spotParamsPaths{idx(ii)}{jj};
             selectedSpot = spotSelectorByThresh(currSpot,varargin{:});
+            if isempty(selectedSpot)
+               continue; 
+            end
             selectedMLESingleSpot = selectedSpot.thetaMLEs;
             [~,singleSpotTheta,~] =  getSpotCoorsFromTheta(selectedMLESingleSpot);
             numSpots = numSpots + sum(~cellfun(@isempty,singleSpotTheta));
@@ -51,9 +54,9 @@ for ii = 1:numel(idx)
                 viewSpots{kk}{3,ii} = viewSpots{kk}{3,ii} + maxintensityproj(currStacks{kk},1)';
             end
         end
-        viewSpots{kk}{1,ii} = viewSpots{kk}{1,ii}*numSpots;
-        viewSpots{kk}{2,ii} = viewSpots{kk}{2,ii}*numSpots;
-        viewSpots{kk}{3,ii} = viewSpots{kk}{3,ii}*numSpots;
+%         viewSpots{kk}{1,ii} = viewSpots{kk}{1,ii}*numSpots;
+%         viewSpots{kk}{2,ii} = viewSpots{kk}{2,ii}*numSpots;
+%         viewSpots{kk}{3,ii} = viewSpots{kk}{3,ii}*numSpots;
     end
 end
 

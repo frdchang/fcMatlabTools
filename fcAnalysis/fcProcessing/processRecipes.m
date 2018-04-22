@@ -61,6 +61,7 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 kymoViews           = procKymoViews(eC_T_stageIOutputs,ec_T_stageIIOutputs);
 
 %-----USER-----------------------------------------------------------------
+% [50 75];
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 

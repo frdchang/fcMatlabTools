@@ -40,12 +40,12 @@ for ii = 1:numSeq
                 spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)+currStackZ(:);
             end
         end
-        for kk = 1:numel(currStacks)
-            % index the color by numspots
-            spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
-            spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
-            spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;
-        end
+%         for kk = 1:numel(currStacks)
+%             % index the color by numspots
+%             spotKymos{kk}{1}(:,ii) = spotKymos{kk}{1}(:,ii)*numSpots;
+%             spotKymos{kk}{2}(:,ii) = spotKymos{kk}{2}(:,ii)*numSpots;
+%             spotKymos{kk}{3}(:,ii) = spotKymos{kk}{3}(:,ii)*numSpots;
+%         end
 
     end
 end

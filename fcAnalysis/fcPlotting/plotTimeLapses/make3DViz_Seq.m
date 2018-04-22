@@ -41,11 +41,56 @@ currFluor = importStack(firstFile);
 sizeDatas = getSize(currFluor);
 
 % generate kymos
+phaseKymos = buildKymo(phasePaths,upRezFactor);
 fluorKymos = buildKymo(fluorPaths,upRezFactor);
+LLRatKymos = buildKymo(LLRatioPaths,upRezFactor);
+rawKymos   = buildKymo(rawFluorPaths,upRezFactor);
+% generate spotkymos
+spotKymos  = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor,varargin{:});
 
+% generate views (sampled)
+phaseViews = buildView(phasePaths,upRezFactor);
+fluorViews = buildView(fluorPaths,upRezFactor);
 
+% generate all timepoint views
+phaseAllViews = buildView(phasePaths,upRezFactor,numSeq);
+fluorAllViews = buildView(fluorPaths,upRezFactor,numSeq);
 
+% generate spotviews
+spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor,varargin{:});
 
+% do overlay num spots conflict with spectral rgb
+fluorViewsWithSpots = myOverlay(fluorViews,spotViews);
+fluorKymosWithSpots = myOverlay(fluorKymos,spotKymos);
+
+% remove the second views in build view and remove 2nd and 3rd dim from
+% phase
+fluorViews          = cellfunNonUniformOutput(@removeSecondElement,fluorViews);
+fluorViewsWithSpots = cellfunNonUniformOutput(@removeSecondElement,fluorViewsWithSpots);
+phaseViews          = cell2mat(phaseViews{1}(1,:));
+phaseKymos          = phaseKymos{1}(1);
+% if this is multi color dataset, generate a multi color kymograph
+if numel(fluorViews) > 1
+    coloredFluorViews = genRGBFromCell(fluorViews);
+    coloredFluorKymos = genRGBFromCell(fluorKymos);
+    
+    % convert views to rgb
+    eachView = applyFuncToCellRows(@cell2mat,coloredFluorViews);
+    coloredFluorViews = vertcat(eachView{:});
+    
+    fluorViewsWithSpots = cellfun(@(x) applyFuncToCellRows(@cell2mat,x),fluorViewsWithSpots,'un',0);
+    fluorViewsWithSpots = vertcat(fluorViewsWithSpots{:});
+    assembled = {phaseViews,phaseKymos,coloredFluorViews,fluorViewsWithSpots,coloredFluorKymos,fluorKymosWithSpots};
+else
+    assembled = {phaseViews,phaseKymos,fluorViews,fluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
+end
+
+individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','validTimepoints','fullMontage'};
+fullMontage = genMontage(assembled);
+assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,numSeq,validTimepoints,fullMontage};
+assembled = convertListToListofArguments(assembled);
+
+tableOfOutputs = table(assembled{:},'VariableNames',individualImgsNames);
 end
 
 

@@ -67,7 +67,7 @@ if params.doProcParallel
         end
     end
 else
-    for ii = 3% 1:numApplications
+    for ii = 1:numApplications
         disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
