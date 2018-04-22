@@ -4,7 +4,7 @@ function [ tracked ] = spotTracking3D(listOfSpotMLEs,varargin)
 % for future note: i can extract the variance of the estimator and have it
 % outputed for the tracks.  so the tracked datastructure should already be
 % so it can gracefully have this info appended ot it.
-% 
+%
 
 %--parameters--------------------------------------------------------------
 params.noSpotCoorVal     = -100;
@@ -21,37 +21,40 @@ numTimePoints = numel(listOfSpotMLEs);
 peaks = cell(numTimePoints,1);
 peaksPerChan = cell(numChans,1);
 [peaksPerChan{:}] = deal(peaks);
- 
+
 % populate peak dataset from MLEs to pass to trackers
 for ii = 1:numTimePoints
     spotList = listOfSpotMLEs{ii};
     if isempty(spotList)
-       for kk = 1:numChans
-          peaksPerChan{kk}{ii}{end+1} = emptyCoor;
-       end
+        for kk = 1:numChans
+            peaksPerChan{kk}{ii}{end+1} = emptyCoor;
+        end
     else
-       numSpots = numel(spotList);
-       for jj = 1:numSpots
-           currSpot = spotList{jj};
-           spotSelected  = spotSelectorByThresh(currSpot,params);
-           if isempty(spotSelected)
-              continue; 
-           end
-           spotXYZs = getXYZABFromTheta(spotSelected.thetaMLEs);
-           for kk = 1:numel(spotXYZs)
-               if ~isempty(spotXYZs{kk})
-                   spotsAtT  = spotXYZs{kk};
-                   for ll = 1:numel(spotsAtT)
-                       currCoor = spotsAtT{ll};
-                       currCoor = currCoor.*[params.specimenUnitsInMicrons 1 1];
-                       makePeakSpot = [currCoor -1]';
-                       peaksPerChan{kk}{ii}{end+1} = makePeakSpot;
-                   end
-               else
-                   peaksPerChan{kk}{ii}{end+1} = emptyCoor;
-               end
-           end
-       end
+        numSpots = numel(spotList);
+        for jj = 1:numSpots
+            currSpot = spotList{jj};
+            spotSelected  = spotSelectorByThresh(currSpot,params);
+            if isempty(spotSelected)
+                for kk = 1:numChans
+                    peaksPerChan{kk}{ii}{end+1} = emptyCoor;
+                end
+                continue;
+            end
+            spotXYZs = getXYZABFromTheta(spotSelected.thetaMLEs);
+            for kk = 1:numel(spotXYZs)
+                if ~isempty(spotXYZs{kk})
+                    spotsAtT  = spotXYZs{kk};
+                    for ll = 1:numel(spotsAtT)
+                        currCoor = spotsAtT{ll};
+                        currCoor = currCoor.*[params.specimenUnitsInMicrons 1 1];
+                        makePeakSpot = [currCoor -1]';
+                        peaksPerChan{kk}{ii}{end+1} = makePeakSpot;
+                    end
+                else
+                    peaksPerChan{kk}{ii}{end+1} = emptyCoor;
+                end
+            end
+        end
     end
 end
 
