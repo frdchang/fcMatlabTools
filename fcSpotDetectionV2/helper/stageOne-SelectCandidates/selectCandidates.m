@@ -93,6 +93,7 @@ end
 if params.imposeMinSize
     L = L > 0;
     [~,~,seeds] = breakApartMasks(smoothField,L);
+    seeds = seeds | Skeleton3D(L);
     minBBoxMask = imdilate(seeds,strel(ones(sizeKern(:)')));
     % combine the min mask with the current bwmask
     L = L | minBBoxMask;

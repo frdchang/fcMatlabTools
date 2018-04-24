@@ -1,7 +1,7 @@
 %% 2 color case
- expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
+ %expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
 % expFolder = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/twoColorDataset';
-%expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
+expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([1.1,1.1,1.2],[7 7 7]);
@@ -29,7 +29,7 @@ spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUni
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2cubed,'camVarFile',camVarFile,'doProcParallel',true);
 % maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 % xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
@@ -41,14 +41,13 @@ T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doParallel',true
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doParallel',true);
 
 %-----USER-----------------------------------------------------------------
-thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
+thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio3');
 T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
-selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
-%%%%%figure this out
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',1,'hybridSteps',1,'gradSteps',600,'doPlotEveryN',inf);
+selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',true);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',0,'hybridSteps',0,'gradSteps',600,'doPlotEveryN',inf);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 
@@ -58,7 +57,18 @@ eC_T_spotOutputs    = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',tr
 
 ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
-kymoViews           = procKymoViews(eC_T_stageIOutputs,ec_T_stageIIOutputs);
+kv_eC_T_stageIOutputs    = procKymoViews(eC_T_stageIOutputs,eC_T_spotOutputs);
+v_eC_T_stageIOutputs     = procThreeDViews(eC_T_stageIOutputs,ec_T_spotOutputs);
+v_eC_T_spotOutputs       = procThreeDViews(eC_T_spotOutputs,ec_T_spotOutputs);
+v_eC_T_qpmOutputs        = procThreeDViews(eC_T_qpmOutputs);
+
+%-----USER-----------------------------------------------------------------
+spotThresholds      = procThresholdByLooking(stageI_Views,kv_eC_T_stageIOutputs,ec_T_stageIIOutputs);
+%--------------------------------------------------------------------------
+
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',3,'spotthresh',spotThresholds.thresholds,'doProcParallel',true);
+trackViews          = procAnalyzeTracks(stageI_Views,kv_eC_T_stageIOutputs,trackedSpots,spotThresholds);
+
 
 %-----USER-----------------------------------------------------------------
 % [50 75];

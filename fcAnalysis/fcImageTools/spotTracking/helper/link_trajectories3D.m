@@ -68,14 +68,14 @@ for iframe = 2:nframe
     % dm0(i,j): quadratic difference between m0 moments of p_i and q_j
     xrep = repmat(peaks{iframe}(:,4)',m,1);
     xdiff = xrep - repmat(peaks{iframe-1}(:,4),1,n);
-    %%%dm0 = xdiff.^2;
-    dm0 = abs(xdiff);
+   dm0 = xdiff.^2;
+%     dm0 = abs(xdiff);
     
     % dm2(i,j): quadratic difference between m2 moments of p_i and q_j
     xrep = repmat(peaks{iframe}(:,5)',m,1);
     xdiff = xrep - repmat(peaks{iframe-1}(:,5),1,n);
-    %%%dm2 = xdiff.^2;
-    dm2 = abs(xdiff);
+    dm2 = xdiff.^2;
+%     dm2 = abs(xdiff);
     
     % C(i,j): cost function for link p_i, q_j
     %%%% C = L*L*ones(m+1,n+1);   % set broken dummy links to L^2

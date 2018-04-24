@@ -1,4 +1,4 @@
-function [fullMontage,tableOfOutputs] = makeKymo(fluorPaths,spotParamPaths,varargin)
+function [fullMontage,tableOfOutputs] = makeKymo(fluorPaths,varargin)
 %MAKEKYMO Summary of this function goes here
 %   Detailed explanation goes here
 %--parameters--------------------------------------------------------------
@@ -24,7 +24,6 @@ if isempty(validTimepoints)
     return;
 else
     fluorPaths      = fluorPaths(validTimepoints);
-    spotParamPaths  = spotParamPaths(validTimepoints);
 end
 display(['makeKymo(): for ' returnFileName(calcConsensusString(flattenCellArray(fluorPaths)))]);
 

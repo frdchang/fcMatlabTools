@@ -10,7 +10,8 @@ params = updateParams(params,varargin);
 raws        = ec_T_spotOutputs.outputFiles.files;
 kymoPieces  = ec_T_3Dviz.outputFiles.montagePiecesMat;
 tracks      = trackedSpots.outputFiles.passThru;
-spots       = spots.outputFiles.extractSpots{1};
+spots = load(spots.outputFiles.mat{1});
+spots = {spots.extractSpots};
 raws        = convertA1sToGlued(raws);
 
 kymoPiecesTracks = glueCells(raws,kymoPieces,tracks,spots);

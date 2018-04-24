@@ -6,7 +6,7 @@ function [ fullMontage,As,Bs,trackDists,overlayedTracks] = analyzeTracks(raws,vi
 % calc various things
 
 %--parameters--------------------------------------------------------------
-params.minTrackLength     = 3;
+params.minTrackLength     = 0;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 

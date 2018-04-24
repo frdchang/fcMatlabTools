@@ -4,7 +4,7 @@ function [newL,stats,seeds] = breakApartMasks(data,mask,varargin)
 
 %--parameters--------------------------------------------------------------
 params.Nsamples         = 2000;
-params.meanShiftSize    = 6;
+params.meanShiftSize    = 4;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 newL = bwlabeln(mask);

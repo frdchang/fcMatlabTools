@@ -31,6 +31,6 @@ for ii = 1:numSeq
     end
 end
 
-kymoXYZ = ncellfun(@norm2UINT255,kymoXYZ);
+% kymoXYZ = ncellfun(@norm2UINT255,kymoXYZ);
 end
 
