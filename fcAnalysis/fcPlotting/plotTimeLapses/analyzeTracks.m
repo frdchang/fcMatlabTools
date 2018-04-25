@@ -20,34 +20,14 @@ filteredTracks = cellfunNonUniformOutput(@(tracks) filterTracksByLength(tracks,p
 
 
 
-
-
-
-
-
-
-[trackDists,pairingSig]    = getTrackDists(filteredTracks);
-As            = getTrackByIndex(filteredTracks,4);
-Bs            = getTrackByIndex(filteredTracks,5);
-
-[AsPlot,maxVals]        = plotTrackStuff(As,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
-BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1},'maxVals',maxVals);
-distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
-
-pairingPlot   = genPairingPlotBMP(pairingSig,vizPieces.numSeq{1});
-
 allFluorViews = vizPieces.fluorAllViews{1};
-
+allSpotViews = vizPieces.allSpotViews{1};
 if ~isempty(myTracks)
-    overlayedTracks = cellfunNonUniformOutput(@(x,y,z)overlayTracks(x,y,z),allFluorViews,myTracks,num2cell(saveNumTracks)');
-    
+    overlayedTracks = cellfunNonUniformOutput(@(x,y,z,a)overlayTracks(x,y,z,a),allFluorViews,myTracks,num2cell(saveNumTracks),allSpotViews);
 else
     overlayedTracks = allFluorViews;
 end
-trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
 
-fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
-imshow(fullMontage);
 
 
 handles = imshow(overlayedTracks{1}{1,1});
@@ -68,3 +48,18 @@ end
 
 end
 
+% trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);
+% 
+% fullMontage = genMontage({AsPlot,BsPlot,distPlot,pairingPlot,trackKymos{:}});
+% imshow(fullMontage);
+
+
+% [trackDists,pairingSig]    = getTrackDists(filteredTracks);
+% As            = getTrackByIndex(filteredTracks,4);
+% Bs            = getTrackByIndex(filteredTracks,5);
+% 
+% [AsPlot,maxVals]        = plotTrackStuff(As,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
+% BsPlot        = plotTrackStuff(Bs,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1},'maxVals',maxVals);
+% distPlot      = plotTrackStuff(trackDists,vizPieces.numSeq{1},varargin{:},vizPieces.validTimepoints{1});
+% 
+% pairingPlot   = genPairingPlotBMP(pairingSig,vizPieces.numSeq{1});

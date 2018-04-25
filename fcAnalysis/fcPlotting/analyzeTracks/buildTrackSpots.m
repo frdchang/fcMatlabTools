@@ -19,12 +19,12 @@ numChans = numel(tracks);
 timeLapse = cell(numSeq,1);
 trackedSpots = cell(numChans,1);
 [trackedSpots{:}] = deal(timeLapse);
-saveNumTracks = [];
+saveNumTracks = zeros(numel(tracks),1);
 for ii = 1:numChans
    currChan = tracks{ii};
    if ~isempty(currChan)
       numTracks = numel(currChan); 
-      saveNumTracks(end+1) = numTracks;
+      saveNumTracks(ii) = numTracks;
       for jj = 1:numTracks
          currTrack = currChan{jj};
          for t = 1: size(currTrack,1)

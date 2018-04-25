@@ -45,6 +45,6 @@ for ii = 1:numel(views)
     outputViews{ii}{2} = [views{ii}{2,:}];
     outputViews{ii}{3} = [views{ii}{3,:}];
 end
-outputViews = ncellfun(@norm2UINT255,views);
+outputViews = ncellfun(@(x)x,views);
 end
 

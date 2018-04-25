@@ -25,10 +25,11 @@ function inputsOutputs = applyFuncTo_listOfListOfArguments(listOflistOfArguments
 
 %--parameters--------------------------------------------------------------
 params.doProcParallel  = false;
-params.useBatchWorkers = false;  % if true use cluster batch 
+params.useBatchWorkers = false;  % if true use cluster batch
 
 params.hashOptions     = struct('Format', 'base64', 'Method', 'MD5');
 params.hashLength      = 5;
+params.onlyDoCells     = [];
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -51,14 +52,20 @@ end
 
 outputFiles = cell(numApplications,1);
 
+if isempty(params.onlyDoCells)
+    onlyDoCells = 1:numApplications;
+else
+    onlyDoCells = params.onlyDoCells;
+end
+
 if params.doProcParallel
-    if params.useBatchWorkers 
+    if params.useBatchWorkers
         disp(['----------applyFuncTo_ListOfFiles(batch ' func2str(myFunc) ' of ' num2str(numApplications) ')--------------------']);
         batchFunc   = @(listOfArguments) batchHelper(listOfArguments,openFileFunc,openFileFuncParams,myFunc,myFuncParams,saveFunc,hashMyFuncParams,saveFuncParams);
         outputFiles = sendChuncksByBatch(batchFunc,listOflistOfArguments,varargin{:});
     else
         initMatlabParallel();
-        parfor ii = 1:numApplications
+        parfor ii = onlyDoCells
             disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
             extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
             funcOutput          = cell(nargout(myFunc),1);
@@ -67,13 +74,14 @@ if params.doProcParallel
         end
     end
 else
-    for ii = 1:numApplications
+    for ii = onlyDoCells
         disp(['----------applyFuncTo_ListOfFiles(' func2str(myFunc) ' ' num2str(ii) ' of ' num2str(numApplications) ')--------------------']);
         extractedVariables  = openFileFunc(listOflistOfArguments{ii}{:},openFileFuncParams{:});
         funcOutput          = cell(nargout(myFunc),1);
         [funcOutput{:}]     = myFunc(extractedVariables{:},myFuncParams{:});
         outputFiles{ii}     = saveFunc(listOflistOfArguments{ii},funcOutput,myFunc,hashMyFuncParams,saveFuncParams{:});
     end
+    
 end
 outputFiles = vertcat(outputFiles{:});
 

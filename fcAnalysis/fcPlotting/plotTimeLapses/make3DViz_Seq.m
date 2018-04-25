@@ -51,6 +51,8 @@ spotKymos  = buildKymoSpots(fluorKymos,spotParamPaths,sizeDatas,upRezFactor,vara
 % generate views (sampled)
 phaseViews = buildView(phasePaths,upRezFactor);
 fluorViews = buildView(fluorPaths,upRezFactor);
+phaseViews = ncellfun(@norm2UINT255,phaseViews);
+fluorViews = ncellfun(@norm2UINT255,fluorViews);
 
 % generate all timepoint views
 phaseAllViews = buildView(phasePaths,upRezFactor,numSeq);
@@ -58,6 +60,8 @@ fluorAllViews = buildView(fluorPaths,upRezFactor,numSeq);
 
 % generate spotviews
 spotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor,varargin{:});
+allSpotViews  = buildViewSpots(fluorPaths,spotParamPaths,upRezFactor,'doAllTimePoints',true,varargin{:});
+allSpotViews = ncellfun(@uint8,allSpotViews);
 
 % do overlay num spots conflict with spectral rgb
 fluorViewsWithSpots = myOverlay(fluorViews,spotViews);
@@ -85,9 +89,9 @@ else
     assembled = {phaseViews,phaseKymos,fluorViews,fluorViewsWithSpots,fluorKymos,fluorKymosWithSpots};
 end
 
-individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','validTimepoints','fullMontage'};
+individualImgsNames = {'phaseViews','phaseKymos','fluorViews','fluorViewsWithSpots','fluorKymos','fluorKymosWithSpots','phaseAllViews','fluorAllViews','sizeDatas','upRezFactor','numSeq','validTimepoints','fullMontage','allSpotViews'};
 fullMontage = genMontage(assembled);
-assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,numSeq,validTimepoints,fullMontage};
+assembled = {assembled{:},phaseAllViews,fluorAllViews,sizeDatas,upRezFactor,numSeq,validTimepoints,fullMontage,allSpotViews};
 assembled = convertListToListofArguments(assembled);
 
 tableOfOutputs = table(assembled{:},'VariableNames',individualImgsNames);

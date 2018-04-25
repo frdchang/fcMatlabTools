@@ -4,6 +4,8 @@
 % * modified by fred chang 20170805 
 %   - added 3D support
 %   - added L1 penalty versus L2
+%   - L is the distance cutoff 
+%   - totalCost is the distance + amplitude^2 cutoff
 %
 % SYNTAX:  peaks = link_trajectories(peaks, L, viz, nfig)
 %
@@ -42,7 +44,7 @@
 % STEP 5: Linking locations into trajectories
 %======================================================================
 
-function [peaks,energies] = link_trajectories3D(peaks, L)
+function [peaks,energies] = link_trajectories3D(peaks, L,totalCost)
 
 nframe = length(peaks);
 
@@ -89,12 +91,13 @@ for iframe = 2:nframe
     set2 = find(C2 > 0);
     s = union(set1,set2);
     % weight the intensity
+    C = totalCost*ones(m+1,n+1);
     C(1:m,1:n) = (delta+dm0+dm2);
     [i,j] = ind2sub([m n],s);
     C(sub2ind(size(C),i,j)) = Inf;
     %%%% cost is inf 
-    C(:,end) = inf;
-    C(end,:) = inf;
+%     C(:,end) = inf;
+%     C(end,:) = inf;
     % initialize link matrix A
     for i=1:m
         % sort costs of real particles

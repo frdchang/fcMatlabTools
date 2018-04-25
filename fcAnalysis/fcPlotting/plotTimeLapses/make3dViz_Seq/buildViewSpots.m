@@ -4,6 +4,7 @@ function [ outputViews ] = buildViewSpots(listOfFiles,spotParamsPaths,upRezFacto
  
 %--parameters--------------------------------------------------------------
 params.markerRadius     = 1;
+params.doAllTimePoints    = false;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -20,7 +21,11 @@ currFluor = importStack(firstFile);
 sizeDatas  = getSize(currFluor);
 upRezFactor = upRezFactor(1:numel(sizeDatas));
 
-numViews = ceil(numSeq/sizeDatas(2));
+if ~params.doAllTimePoints
+    numViews = ceil(numSeq/sizeDatas(2));
+else
+    numViews = numSeq;
+end
 
 viewSpots = cell(numel(listOfFiles{1}),1);
 timepoints = cell(3,numViews);
