@@ -17,6 +17,17 @@ function [ spotSelected ] = spotSelectorByThresh( spotStruct ,varargin)
 % selected
 %
 % it also makes sure all the stateOfSteps is ok
+%
+% additionally, there are spot models that occur for 2 colors. 
+% i will assume spot models go from {kmatrix,g,r}
+% [g],[r], [g g], [r,r] [g r], [r,g]
+% each condition needs a threshold to be defined
+% {[],[],[],[],[],[]}
+% so a cell array will trigger this thesholding conditions
+% 
+% i am going to hard code this for 2 colors only. if it works, generalize
+% to n colors later
+
 
 %--parameters--------------------------------------------------------------
 params.field         = 'logLikePP';
@@ -31,6 +42,38 @@ if isempty(params.spotthresh)
       spotSelected = []; 
    end
    return;
+end
+
+if iscell(params.spotthresh)
+   spotSelected = [];
+   thetas = {spotStruct.thetaMLEs};
+   okstates = strcmp({spotStruct.stateOfStep},'ok');
+   g_states = cellfun(@(x) numel(x{2}),thetas)>1;
+   r_states = cellfun(@(x) numel(x{3}),thetas)>1;
+   
+   switch binaryVectorToDec(okstates)
+       case 7
+           % second spot is good
+           switch binaryVectorToDec([g_states r_states])
+               case 11 % r g
+               
+               case 25 % g r
+                   
+               case 24 % gg
+                   
+               case 3  % r r
+                   
+               otherwise
+           end
+       case 6
+           % first spot is good
+           
+       case 4
+           % only bkgnd is good
+           
+       otherwise
+   end
+   return; 
 end
 
 % select states that are 'ok'

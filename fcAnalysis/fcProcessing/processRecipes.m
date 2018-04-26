@@ -75,7 +75,7 @@ trackViews          = procAnalyzeTracks(stageI_Views,kv_eC_T_stageIOutputs,track
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',0.5,'spotthresh',spotThresholds.thresholds,'doProcParallel',true,'onlyDoCells',[]);
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',0.5,'spotthresh',spotThresholds.thresholds,'doProcParallel',false,'onlyDoCells',3);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds,'onlyDoCells',3);
 analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots,ec_T_stageIIOutputs,'onlyDoCells',3);
 
