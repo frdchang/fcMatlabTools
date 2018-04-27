@@ -659,6 +659,9 @@ bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
 [~,photonData] = returnElectrons(sampledData,cameraParams);
 
 estimated = findSpotsStage1V2(photonData,psfs,cameraVar,'kMatrix',Kmatrix,'nonNegativity',true);
+myshow(cat(2,bigLambdas{1}(:,:,5),bigLambdas{2}(:,:,5),estimated.A1{1}(:,:,5),estimated.A1{2}(:,:,5)));
+
+
 candidates = selectCandidates(estimated,'strategy','otsu');
 plot3Dstack(candidates.L);
 % candidatesSep = selectCandidates(estimatedSep);

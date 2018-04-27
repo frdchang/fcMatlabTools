@@ -29,7 +29,7 @@ spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUni
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix,'stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true,'onlyDoCells',[]);
 % maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 % xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
@@ -72,7 +72,7 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
 %-----USER-----------------------------------------------------------------
 % [50 75];
-spotThresholds      = procSpotThresholds(stageIIOutputs);
+% spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 testThresholds      = {20,20,[20 200],[20 200],[10,10],[10,10]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
 trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',testThresholds,'doProcParallel',true,'onlyDoCells',[]);
