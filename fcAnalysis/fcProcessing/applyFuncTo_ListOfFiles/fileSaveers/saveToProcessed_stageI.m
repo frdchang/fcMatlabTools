@@ -20,9 +20,11 @@ for ii = 1:numel(saveFields)
     data = getfield(estimated,saveFields{ii});
     savePath = [returnFilePath(saveProcessedFileAt) filesep saveFields{ii} filesep saveFields{ii} '_' returnFileName(saveProcessedFileAt)];
     if iscell(data)
+        channelData = regexp(listOfFileInputPaths,'\(([^)]+)\)','match');
+
         localOut = cell(numel(data),1);
         for jj = 1:numel(data)
-            localOut{jj} = exportStack([savePath '_ch' num2str(jj) ],data{jj});
+            localOut{jj} = exportStack([savePath '_ch' channelData{1}{1} ],data{jj});
         end
         output{end+1} = localOut;
     else

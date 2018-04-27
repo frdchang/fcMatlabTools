@@ -109,6 +109,7 @@ for ii = 1:numel(stats)
          L(stats(ii).PixelIdxList) = 0;
     end
 end
+L = bwareaopen(L>0,params.minVol);
 L = bwlabeln(L>0);
 stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList');
 

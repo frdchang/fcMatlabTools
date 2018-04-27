@@ -625,20 +625,20 @@ MLEs = findSpotsStage2V2(photonData,cameraVar,estimated,candidates,Kmatrix,psfOb
 
 %% confirm convergence quality for 2 spots
 % alright fixed bugs and it works!
-Kmatrix = [1 0.2; 0.2 1];
+Kmatrix = [1 0.5; 0 1];
 binning = 3;
 params.sizeData         = [42 21 9];
 params.centerCoor       = round(params.sizeData/2);
 
 params.psfFunc          = @genPSF;
-params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',610e-9,'f',binning,'mode',0}};
+params.psfFuncArgs      = {{'lambda',514e-9,'f',binning,'mode',0},{'lambda',810e-9,'f',binning,'mode',0}};
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
-params.As               = 5;
+params.As               = 10000;
 params.Bs               = 0;
-params.dist2Spots       = 2;
+params.dist2Spots       = 4;
 
 cameraVar          = params.NoiseFunc(params.NoiseFuncArgs{:});
 
@@ -651,7 +651,7 @@ psfs        = cellfunNonUniformOutput(@(x) threshPSF(x,params.threshPSFArgs{:}),
 
 domains     = genMeshFromData(zeros(params.sizeData));
 secondCoor = centerCoor+[params.dist2Spots 0 0];
-spotCoors = {{[params.As centerCoor],params.Bs},{[params.As secondCoor],params.Bs}};
+spotCoors = {{[params.As centerCoor],params.Bs},{[params.As*2 secondCoor],params.Bs}};
 bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 
 bigLambdas  = bigLambda(domains,bigTheta,'objKerns',psfObjs);

@@ -10,7 +10,7 @@ psfObj2 = genGaussKernObj([1.2,1.2,1.2],[7 7 7]);
 specimenUnitsInMicrons = [0.1083,0.1083,0.389];  % axial scaling factor included
 
 psfObjs = {psfObj1,psfObj2};
-Kmatrix = [1 0.31; 0 1]';
+Kmatrix = [1 0.31; 0 1];
 channels = {'redGr\(ChABTTL\)','redGr\(ChCTTL\)'};
 
 %% 1 color case
@@ -29,7 +29,7 @@ spotOutputs         = procGetImages(expFolder,channels,'spotOutputs',specimenUni
 qpmOutputs          = procQPMs(phaseOutputs,'negateQPM',false,'doProcParallel',true);
 xyAlignments        = procXYAlignments(qpmOutputs,'imgTableName','genQPM1','doProcParallel',false);
 
-stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2cubed,'camVarFile',camVarFile,'doProcParallel',true);
+stageIOutputs       = procStageI(spotOutputs,psfObjs,'Kmatrix',Kmatrix','stageIFunc',@findSpotsStage1V2,'camVarFile',camVarFile,'doProcParallel',true);
 % maxColoredProjs     = procProjectStageI(stageIOutputs,'projFunc',@maxColoredProj,'projFuncArg',{3});
 % xyMaxProjNDs        = procProjectStageI(stageIOutputs,'projFunc',@xyMaxProjND,'projFuncArg',{});
 
@@ -41,13 +41,13 @@ T_spotOutputs       = procXYTranslate(xyAlignments,spotOutputs,'doParallel',true
 T_phaseOutputs      = procXYTranslate(xyAlignments,phaseOutputs,'doParallel',true);
 
 %-----USER-----------------------------------------------------------------
-thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio3');
+thresholdOutputs    = procSelectThreshold(stageIOutputs,'selectField','LLRatio');
 T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
-selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio3','doProcParallel',true);
-stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',0,'hybridSteps',0,'gradSteps',600,'doPlotEveryN',inf);
+selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
+stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',0,'hybridSteps',0,'gradSteps',600,'doPlotEveryN',inf,'onlyDoCells',[]);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
 
@@ -57,26 +57,26 @@ eC_T_spotOutputs    = procExtractCells(T_yeastSegs,T_spotOutputs,'doParallel',tr
 
 ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 
-kv_eC_T_stageIOutputs    = procKymoViews(eC_T_stageIOutputs,eC_T_spotOutputs);
-v_eC_T_stageIOutputs     = procThreeDViews(eC_T_stageIOutputs,ec_T_spotOutputs);
-v_eC_T_spotOutputs       = procThreeDViews(eC_T_spotOutputs,ec_T_spotOutputs);
-v_eC_T_qpmOutputs        = procThreeDViews(eC_T_qpmOutputs);
+% kv_eC_T_stageIOutputs    = procKymoViews(eC_T_stageIOutputs,eC_T_spotOutputs);
+% v_eC_T_stageIOutputs     = procThreeDViews(eC_T_stageIOutputs,ec_T_spotOutputs);
+% v_eC_T_spotOutputs       = procThreeDViews(eC_T_spotOutputs,ec_T_spotOutputs);
+% v_eC_T_qpmOutputs        = procThreeDViews(eC_T_qpmOutputs);
+% 
+% %-----USER-----------------------------------------------------------------
+% spotThresholds      = procThresholdByLooking(stageI_Views,kv_eC_T_stageIOutputs,ec_T_stageIIOutputs);
+% %--------------------------------------------------------------------------
 
-%-----USER-----------------------------------------------------------------
-spotThresholds      = procThresholdByLooking(stageI_Views,kv_eC_T_stageIOutputs,ec_T_stageIIOutputs);
-%--------------------------------------------------------------------------
-
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',3,'spotthresh',spotThresholds.thresholds,'doProcParallel',true);
-trackViews          = procAnalyzeTracks(stageI_Views,kv_eC_T_stageIOutputs,trackedSpots,spotThresholds);
+% trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',3,'spotthresh',spotThresholds.thresholds,'doProcParallel',true);
+% trackViews          = procAnalyzeTracks(stageI_Views,kv_eC_T_stageIOutputs,trackedSpots,spotThresholds);
 
 
 %-----USER-----------------------------------------------------------------
 % [50 75];
 spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
-
-trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',0.5,'spotthresh',spotThresholds.thresholds,'doProcParallel',false,'onlyDoCells',3);
-ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',spotThresholds.thresholds,'onlyDoCells',3);
+testThresholds      = {20,20,[20 200],[20 200],[10,10],[10,10]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
+trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',testThresholds,'doProcParallel',true,'onlyDoCells',[]);
+ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',testThresholds,'onlyDoCells',[]);
 analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots,ec_T_stageIIOutputs,'onlyDoCells',3);
 
 

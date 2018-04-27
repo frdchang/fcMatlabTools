@@ -36,7 +36,7 @@ else
 end
 cameraParams.cameraVarianceInADU = params.readNoiseData.*(params.gain.^2);
 cameraParams.gainElectronPerCount = 1/params.gain;
-cameraParams.offsetInAdu = params.offset;
+cameraParams.offsetInADU = params.offset;
 cameraParams.QE = params.QE;
 end
 
