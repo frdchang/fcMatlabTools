@@ -78,8 +78,8 @@ if ~iscell(data)
     if params.loadIntoGpu
         data = gpuArray(data);
         if ~isequal(spotKernSaved,spotKern) || ~isequal(invVarSaved,1./cameraVariance)
-        spotKern = gpuArray(spotKern);
-        cameraVariance = gpuArray(cameraVariance);
+            spotKern = gpuArray(spotKern);
+            cameraVariance = gpuArray(cameraVariance);
         end
     end
     
@@ -237,9 +237,10 @@ else
     spotKern        = cellfunNonUniformOutput(@(x) gather(x),spotKernSaved);
     
     if params.nonNegativity
-        selectNegVals = cellfunNonUniformOutput(@(x) x<0,A1);
-        selectNegVals = sumCellContents(selectNegVals);
-        LLRatio(selectNegVals>0) = 0;
+        %         selectNegVals = cellfunNonUniformOutput(@(x) x<0,A1);
+        %         selectNegVals = sumCellContents(selectNegVals);
+        selectNegVals = sumCellContents(A1);
+        LLRatio(selectNegVals<0) = 0;
         for ii = 1:size(kMatrix,2)
             A0{ii}(A0{ii}<0) = 0;
             A1{ii}(A1{ii}<0) = 0;
