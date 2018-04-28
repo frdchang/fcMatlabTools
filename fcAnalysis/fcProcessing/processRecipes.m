@@ -1,7 +1,8 @@
 %% 2 color case
+expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180420-rapid-mitosis-noPFSMirror-BWY777RG/doTimeLapse_1/takeA3DStack';
  %expFolder  = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/doTimeLapse_2/takeA3DStack';
 % expFolder = '/home/fchang/Dropbox/Public/testingmatlab/fcDataStorage/fcData/twoColorDataset';
-expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
+% expFolder = '/mnt/btrfs/fcDataStorage/fcNikon/fcData/20180226-tdTomatoVsMcherry/20180226-tdTomatoVsMcherry-BWY777RG-timelapse/cutDownInSize/doTimeLapse_2/takeA3DStack';
 camVarFile = '/home/fchang/Dropbox/code/Matlab/fcBinaries/calibration-ID300458-CoolerAIR-ROI512x512-SlowScan-sensorCorrectionON-20180227.mat';
 
 psfObj1 = genGaussKernObj([1.1,1.1,1.2],[7 7 7]);
@@ -46,7 +47,10 @@ T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
-selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
+% selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
+selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'myFunc',@selectCandidatesFuse,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','neighborTs',1,'rSearch',8,'doProcParallel',false,'doParallel',true);
+
+
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',0,'hybridSteps',0,'gradSteps',600,'doPlotEveryN',inf,'onlyDoCells',[]);
 T_stageIIOutputs    = procXYTranslateSpots(xyAlignments,stageIIOutputs);
 T_yeastSegs         = procYeastSeg(T_phaseOutputs,T_qpmOutputs,T_edgeProfileZs,'doParallel',true,'doPlot',false);
@@ -74,7 +78,9 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 % [50 75];
 % spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
-testThresholds      = {20,20,[20 200],[20 200],[10,10],[10,10]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
+testThresholds      = {20,20,[50 200],[50 200],[10,10],[10,10]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
+testThresholds      = {1,1,[1 1],[1 1],[1,1],[1,1]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
+
 trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',testThresholds,'doProcParallel',true,'onlyDoCells',[]);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',testThresholds,'onlyDoCells',[]);
 analyzedTracks      = procAnalyzeTracks(eC_T_spotOutputs,ec_T_3Dviz,trackedSpots,ec_T_stageIIOutputs,'onlyDoCells',3);

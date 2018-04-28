@@ -46,6 +46,22 @@ while(1)
     end
 end
 
+handles = imshow(overlayedTracks{2}{1,1});
+ii = 1;
+while(1)
+    handles.CData = overlayedTracks{2}{1,ii};
+    title(num2str(ii));
+    state = getkey();
+    switch state
+        case 28
+            ii = ii -1;
+        case 29
+            ii = ii + 1;
+        otherwise
+        break;
+    end
+end
+
 end
 
 % trackKymos = cellfunNonUniformOutput(@(overlayedTracks) genKymosFromViews(overlayedTracks),overlayedTracks);

@@ -8,6 +8,10 @@ for ii = 1:numel(rgb)
       rgb{ii}(:,:,jj) = cellOfDatas{jj}{ii}; 
    end
 end
+
+for ii = 1:numel(rgb)
+    rgb{ii}(:,:,[2 1]) = rgb{ii}(:,:,[1 2]);
+end
 rgb = ncellfun(@norm2UINT255,rgb);
 
 

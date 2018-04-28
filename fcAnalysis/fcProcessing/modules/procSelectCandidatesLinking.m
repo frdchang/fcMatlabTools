@@ -6,6 +6,7 @@ function [ selectCands ] = procSelectCandidatesLinking(stageIOutputs,thresholdOu
 params.doProcParallel     = true;
 params.cellMasks          = [];
 params.cellMaskVariable   = 'doOtsuThresh1';
+params.myFunc             = @selectCandidatesLinking;
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
 
@@ -20,7 +21,7 @@ if ~isempty(params.cellMasks)
    stageIandThresholds = glueCells(stageIStructs,cellMaskFiles,thresholds);
 end
 
-selectCands     = applyFuncTo_listOfListOfArguments(stageIandThresholds,@openData_selectCandidatesLinking,{},@selectCandidatesLinking,{varargin{:}},@saveToProcessed_selectCandidatesLinking,{},varargin);
+selectCands     = applyFuncTo_listOfListOfArguments(stageIandThresholds,@openData_selectCandidatesLinking,{},params.myFunc,{varargin{:}},@saveToProcessed_selectCandidatesLinking,{},varargin);
 
 
 selectCands = procSaver(stageIOutputs,selectCands);

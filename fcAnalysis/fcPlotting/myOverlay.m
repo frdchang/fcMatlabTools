@@ -8,7 +8,6 @@ params = updateParams(params,varargin);
 
 myCmap = distinguishable_colors(params.nDistguishedColors,[0 0 0]);
 myCmap(3:-1:2,:) = myCmap(2:3,:);
-myCmap([1 2],:) = myCmap([2 1],:);
 if iscell(fluorViews)
     rgb = cell(size(fluorViews));
    for ii = 1:numel(fluorViews)
