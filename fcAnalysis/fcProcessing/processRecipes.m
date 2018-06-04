@@ -47,8 +47,8 @@ T_edgeProfileZs     = procGetEdgeProfileZ(T_phaseOutputs,'end');
 %--------------------------------------------------------------------------
 
 cellMasks           = procThreshPhase(qpmOutputs,'thresholdFunc',@genMaskWOtsu,'phaseTableName','genQPM1','doProcParallel',true);
-% selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
-selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'myFunc',@selectCandidatesFuse,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','neighborTs',1,'rSearch',8,'doProcParallel',false,'doParallel',true);
+selectCands         = procSelectCandidates(stageIOutputs,thresholdOutputs,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','doProcParallel',true);
+% selectCands         = procSelectCandidatesLinking(stageIOutputs,thresholdOutputs,'myFunc',@selectCandidatesFuse,'cellMaskVariable','genMaskWOtsu1','cellMasks',cellMasks,'selectField','LLRatio','neighborTs',1,'rSearch',8,'doProcParallel',false,'doParallel',true);
 
 
 stageIIOutputs      = procStageII(stageIOutputs,selectCands,'doProcParallel',true,'newtonSteps',0,'hybridSteps',0,'gradSteps',600,'doPlotEveryN',inf,'onlyDoCells',[]);
@@ -79,7 +79,7 @@ ec_T_stageIIOutputs = procExtractSpots(T_yeastSegs,T_stageIIOutputs);
 % spotThresholds      = procSpotThresholds(stageIIOutputs);
 %--------------------------------------------------------------------------
 testThresholds      = {20,20,[50 200],[50 200],[10,10],[10,10]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
-testThresholds      = {1,1,[1 1],[1 1],[1,1],[1,1]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
+%testThresholds      = {1,1,[1 1],[1 1],[1,1],[1,1]};  %{[g],[r], [g g], [r,r] [g r], [r,g]}
 
 trackedSpots        = procSpotTracking(ec_T_stageIIOutputs,'searchDist',20,'spotthresh',testThresholds,'doProcParallel',true,'onlyDoCells',[]);
 ec_T_3Dviz          = proc3DViz(eC_T_spotOutputs,eC_T_stageIOutputs,ec_T_stageIIOutputs,eC_T_qpmOutputs,'spotthresh',testThresholds,'onlyDoCells',[]);
