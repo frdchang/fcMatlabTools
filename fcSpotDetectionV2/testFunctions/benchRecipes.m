@@ -1,15 +1,57 @@
+%% 20180605 -- final benchmarking
+% saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
+N = 2000;
+type = 1;
+
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);%,'As',linspace(0,30,11),'Bs',linspace(0,30,11));
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
+benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
+benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
+benchStruct = procBenchMarkStageI(benchStruct,@testPhaseCorrelation);
+benchStruct = procBenchMarkStageI(benchStruct,@llrpowered);
+benchStruct = procBenchMarkStageI(benchStruct,@fieldEstimator);
+
+analyzeStageI(benchStruct,@conditions,'fileList');
+analyzeStageI(benchStruct,@findSpotsStage1V2,'LLRatio','fitGamma',false);
+analyzeStageI(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageI(benchStruct,@logConv,'logConv');
+analyzeStageI(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageI(benchStruct,@regularConv,'regularConv');
+analyzeStageI(benchStruct,@gammaCorrection,'negLoggammaSig');
+analyzeStageI(benchStruct,@testPhaseCorrelation,'testPhaseCorrelation');
+analyzeStageI(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageI(benchStruct,@llrpowered,'LLRatio3');
+
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+analyzeStageIDataOut(benchStruct,@testTemplateMatching,'testTemplateMatching');
+analyzeStageIDataOut(benchStruct,@testPhaseCorrelation,'testPhaseCorrelation');
+analyzeStageIDataOut(benchStruct,@regularConv,'regularConv');
+analyzeStageIDataOut(benchStruct,@gammaCorrection,'negLoggammaSig');
+analyzeStageIDataOut(benchStruct,@fieldEstimator,'gradHessDOTLLRatio');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio2');
+analyzeStageIDataOut(benchStruct,@llrpowered,'LLRatio3');
+
+
 %% check bkgnd creep by measuring FPR vs B
  saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
 % saveFolder = '~/Desktop/fcDataStorage/';
 N = 1000;
-benchStruct = genBenchMark('benchType',1,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',0,'Bs',[1 10 100 1000]);
+benchStruct = genBenchMark('benchType',1,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder,'As',0,'Bs',[1:10]);
+benchStruct = procBenchMarkStageI(benchStruct,@testPhaseCorrelation);
 benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
 benchStruct = procBenchMarkStageI(benchStruct,@logConv);
 benchStruct = procBenchMarkStageI(benchStruct,@regularConv);
 benchStruct = procBenchMarkStageI(benchStruct,@testTemplateMatching);
 benchStruct = procBenchMarkStageI(benchStruct,@gammaCorrection);
 
-
+analyzeStageIFPR(benchStruct,@testPhaseCorrelation,'testPhaseCorrelation');
 analyzeStageIFPR(benchStruct,@findSpotsStage1V2,'LLRatio');
 analyzeStageIFPR(benchStruct,@findSpotsStage1V2,'A1');
 analyzeStageIFPR(benchStruct,@logConv,'logConv');
@@ -19,7 +61,7 @@ analyzeStageIFPR(benchStruct,@gammaCorrection,'negLoggammaSig');
 %% this is the final version
 % saveFolder = '~/Desktop/dataStorage/fcDataStorage';
 saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
-N = 1000;
+N = 100;
 for type = 1
 
 benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);%,'As',linspace(0,30,11),'Bs',linspace(0,30,11));

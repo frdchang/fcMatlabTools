@@ -7,8 +7,7 @@ for ii = 1:numel(electrons)
     if iscell(psfs{1})
         output = convSeparableND(data,psfs{ii});
     else
-            output = convFFTND(data,psfs{ii});
-
+        output = convFFTND(data,psfs{ii});
     end
     estimated.regularConv{ii} = unpadarray(output,size(electrons{ii}));
 end

@@ -256,7 +256,7 @@ for ii = 2:sizeAB(2)
     useIDX = find(ROC.newDomain > useThresh,1);
     myFPR(ii) = 1-ROC.withoutTargetCDF(useIDX);
 end
-loglog(Baxis,myFPR,'-x');xlabel('B');ylabel('measured FPR');
+plot(Baxis,myFPR,'-x');xlabel('B');ylabel('measured FPR');
 axis([min(Baxis) max(Baxis) 0.001 1]);
 myTitle = ['bkgnd sensitivity: ' conditionFunc];
 exportFigEPS([saveFolder filesep myTitle]);

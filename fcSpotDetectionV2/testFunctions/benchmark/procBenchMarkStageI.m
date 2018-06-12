@@ -40,7 +40,7 @@ parfor ii = 1:numConditions
     conditions{ii}.A                     = currA;
     conditions{ii}.B                     = currB;
     conditions{ii}.D                     = currD;
-    conditions{ii}.(func2str(myFunc))     = myFuncOutSave;
+    conditions{ii}.(func2str(myFunc))    = myFuncOutSave;
     conditions{ii}.dataFiles             = currFileList;
     conditions{ii}.camVarFile            = currCamVarList;
 end

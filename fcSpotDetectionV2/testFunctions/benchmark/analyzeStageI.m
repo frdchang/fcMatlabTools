@@ -95,7 +95,7 @@ for ii = 1:prod(sizeAB)
     end
 end
 %--------------------------------------------------------------------------
-myTitle = ['log pdf' filesep conditionFunc ' ' field ' log pdf'];
+myTitle = ['log pdf-'  conditionFunc '-' field];
 h = createFullMaxFigure(myTitle);
 minA = inf;
 minB = inf;
@@ -173,7 +173,7 @@ end
 exportFigEPS([saveFolder filesep myTitle]);
 close all;
 %--------------------------------------------------------------------------
-myTitle = ['logcdf' filesep conditionFunc ' ' field ' logcdf'];
+myTitle = ['logcdf ' conditionFunc '-' field];
 h = createFullMaxFigure(myTitle);
 minA = inf;
 minB = inf;
@@ -218,7 +218,7 @@ legend('bk','sig');
 
 exportFigEPS([saveFolder filesep myTitle]);
 
-myTitle = ['loglogcdf' filesep conditionFunc ' ' field ' loglogcdf'];
+myTitle = ['loglogcdf-' conditionFunc '-' field];
 
 if currMin >= -1 
     for ii = 1:prod(sizeAB)
@@ -246,10 +246,10 @@ for ii = 1:prod(sizeAB)
     myEER(ii) = ROC.EER;
 end
 close all;
-imagesc([minA,maxA],[minB,maxB],myEER');colorbar;title(myTitle);xlabel('A');ylabel('B');
+imagesc([minA,maxA],[minB,maxB],myEER');colorbar;xlabel('A');ylabel('B');
 caxis([0 0.5]);
-myTitle = ['EER heatmap' filesep conditionFunc ' ' field ' EER heatmap'];
-
+myTitle = ['EER heatmap-' conditionFunc '-' field];
+title(myTitle);
 if sizeAB(1) > 1 && sizeAB(2) > 1
     
     hold on;
@@ -264,7 +264,7 @@ if sizeAB(1) > 1 && sizeAB(2) > 1
     close all;
     %--------------------------------------------------------------------------
     
-    myTitle = ['EER contour' filesep conditionFunc ' ' field ' EER contour'];
+    myTitle = ['EER contour-' conditionFunc '-' field];
     [C,h]=contour(newA,newB,F(newA,newB),params.contourLines,'LineWidth',3,'ShowText','on');
     % clabel(C,h,'Color',[1 1 1],'FontSize',15);
     set(gca,'Ydir','reverse');
@@ -325,15 +325,15 @@ bkHolder = cell2mat(bkHolder);
 if ~isempty(sigHolder) && ~isempty(bkHolder)
     ROC = genROC([conditionFunc ' ' field 'global ROC'],sigHolder,bkHolder,'doPlot',true);
     figure(ROC.histHandle);
-    myTitle = ['ROC-histograms-AlessthenB' filesep conditionFunc ' ' field ' ROC-histograms-AlessthenB'];
+    myTitle = ['ROC-histograms-AlessthenB-'  conditionFunc '-' field];
     exportFigEPS([saveFolder filesep myTitle]);
     figure(ROC.CDFHandle);
-    myTitle = ['ROC-CDFs-AlessthenB' filesep conditionFunc ' ' field ' ROC-CDFs-AlessthenB'];
+    myTitle = ['ROC-CDFs-AlessthenB-'  conditionFunc '-' field];
     exportFigEPS([saveFolder filesep myTitle]);
     pause(1);
     figure(ROC.ROCHandle);
     pause(1);
-    myTitle = ['ROC-AlessthenB' filesep conditionFunc ' ' field ' ROC-AlessthenB'];
+    myTitle = ['ROC-AlessthenB-'  conditionFunc '-' field];
     exportFigEPS([saveFolder filesep myTitle]);
     close all;
 end
@@ -370,7 +370,7 @@ if ~isempty(bkHolder)
         set(gca,'XScale','log');
     end
     
-    myTitle = ['bkgndCreepLogPDF' filesep conditionFunc ' ' field ' bkgndCreepLogPDF'];
+    myTitle = ['bkgndCreepLogPDF-' conditionFunc '-' field ];
     exportFigEPS([saveFolder filesep myTitle]);
     close all;
 end
