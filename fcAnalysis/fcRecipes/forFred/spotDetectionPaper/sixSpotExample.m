@@ -2,7 +2,7 @@
 % cfp, egfp, yfp, morange, mapple, bodipy (503)
 
 doPlotEveryN            = 4;
-
+numSpots = 11;
 params.DLLDLambda       = @DLLDLambda_PoissPoiss;
 params.sizeData         = [29 29 11];%[21 21 9];
 
@@ -84,6 +84,6 @@ plot3Dstack(catNorm(estimated.A1{:}));
 plot3Dstack(estimated.LLRatio);
 
 candidates= selectCandidates(estimated);
-MLEs = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda);
+MLEs = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda,'numSpots',numSpots);
 
     
