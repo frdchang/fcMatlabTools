@@ -1,17 +1,27 @@
 %% process 2 photon sordaria
+% the parameters for the gaussian kernel.  should either be the PSF
+% approximation or the width approximation of the chromosome.
+expFolder       = '/home/fchang/Dropbox/sordaria\ for\ fred';
+gaussSigmaSqXY    = 2;
+gaussSigmaSqZ    = 1;
+patchSizeXY       = 9;
+patchSizeZ       = 1;
+
+saveFolder      = 'processed';
 
 % the path to the 3D tif file
-img = '/Users/frederickchang/Dropbox/sordaria for fred/Image1 black 101513.tif';
+tifFiles  = getAllFiles(expFolder,'tif');
 
-% the parameters for the gaussian kernel.  should either be the PSF
-% approximation or the width approximation of the chromosome. 
-gaussSigmaSq = 2;
-patchSize = 9;
+% generate kernel
+kern  = ndGauss([gaussSigmaSqXY,gaussSigmaSqXY,gaussSigmaSqZ],[patchSizeXY patchSizeXY patchSizeZ]);
+plot3Dstack(kern);
+for ii = 1:numel(tifFiles)
+    display(ii);
+    stack = importStack(tifFiles{ii});
+    est   = findSpotsStage1V2(stack,kern,ones(size(stack)));
+    saveFile = [expFolder filesep saveFolder filesep returnFileName(tifFiles{ii})];
+    saveFile = regexprep(saveFile,'\','');
+    exportStack([saveFile '_LLRATIO'],est.LLRatio);
+    exportStack([saveFile '_A1'],est.A1);
+end
 
-stack = importStack(img);
-kern  = ndGauss([gaussSigmaSq,gaussSigmaSq,gaussSigmaSq],[patchSize patchSize patchSize]);
-est   = findSpotsStage1V2(stack,kern,ones(size(stack)));
-
-plot3Dstack(catNorm(stack,est.A1,est.LLRatio));
-exportStack('~/Desktop/LLR_of_Sordaria',est.LLRatio);
-exportStack('~/Desktop/A1_of_Sordaria',est.A1);
