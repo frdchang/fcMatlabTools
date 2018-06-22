@@ -1,16 +1,22 @@
 %% process 2 photon sordaria
+% optimize psf for 2 photon
+sampleImg = '/Users/fchang/Dropbox/sordaria for fred/time series 1 71615 T=1.tif';
+sampleImg = importStack(sampleImg);
+genSigmaLandscape(sampleImg,'~/Desktop/test');
 % the parameters for the gaussian kernel.  should either be the PSF
 % approximation or the width approximation of the chromosome.
-expFolder       = '/home/fchang/Dropbox/sordaria\ for\ fred';
-gaussSigmaSqXY    = 2;
-gaussSigmaSqZ    = 1;
-patchSizeXY       = 9;
-patchSizeZ       = 1;
+expFolder       = '/Users/fchang/Dropbox/sordaria\ for\ fred';
+% expFolder       = '/Users/fchang/Dropbox/sordaria\ for\ fred/ourNikonMeasurements';
+gaussSigmaSqXY    = 3;
+gaussSigmaSqZ    = 1.5;
+patchSizeXY       = 7;
+patchSizeZ       = 7;
 
 saveFolder      = 'processed';
 
 % the path to the 3D tif file
 tifFiles  = getAllFiles(expFolder,'tif');
+tifFiles  = removeCertainStrings(tifFiles,'Bright');
 
 % generate kernel
 kern  = ndGauss([gaussSigmaSqXY,gaussSigmaSqXY,gaussSigmaSqZ],[patchSizeXY patchSizeXY patchSizeZ]);
