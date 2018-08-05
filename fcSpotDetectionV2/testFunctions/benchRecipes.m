@@ -1,3 +1,15 @@
+%% 20180805 --  make some movies
+saveFolder = '~/Desktop/dataStorage/fcDataStorage';
+N = 20;
+type = 1;
+benchStruct = genBenchMark('benchType',type,'numSamples',N,'dist2Spots',0,'saveFolder',saveFolder);%,'As',linspace(0,30,11),'Bs',linspace(0,30,11));
+benchStruct = procBenchMarkStageI(benchStruct,@findSpotsStage1V2);
+benchStruct = procBenchMarkStageI(benchStruct,@logConv);
+analyzeStageIDataOut(benchStruct,@conditions,'fileList');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'LLRatio');
+analyzeStageIDataOut(benchStruct,@findSpotsStage1V2,'A1');
+analyzeStageIDataOut(benchStruct,@logConv,'logConv');
+
 %% 20180605 -- final benchmarking
 % saveFolder = '~/Desktop/dataStorage/fcDataStorage';
 saveFolder = '/mnt/btrfs/fcDataStorage/fcCheckout/';
