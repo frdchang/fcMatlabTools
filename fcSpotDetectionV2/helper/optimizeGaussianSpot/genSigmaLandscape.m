@@ -1,9 +1,9 @@
 function [] = genSigmaLandscape(data,pathToOutputDump)
 %GENSIGMALANDSCAPE will generate a landscape of sigmas and output to dump
-zslice = 7;
+zslice = 4;
 threshVal = 0.0015;
-sigmaXY = sqrt(0.5:0.5:6);
-sigmaZ  = sqrt(0.5:0.5:6);
+sigmaXY = sqrt(3:1:36); % sigmaXY = sqrt(0.5:0.5:6);
+sigmaZ  = sqrt(3:1:36); % sigmaZ  = sqrt(0.5:0.5:3);
 patchSize = 31; % patchSize = 10:15;
 uberIndex = 1;
 makeDIRforFilename(pathToOutputDump);
