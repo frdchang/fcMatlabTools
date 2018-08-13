@@ -2,7 +2,7 @@ function [ area ] = areaOfOverlappingGauss(mu1,mu2,sigma1,sigma2)
 %AREAOFOVERLAPPINGGAUSS returns the area of 2 overlapping gaussians
 % 
 % https://stats.stackexchange.com/questions/103800/calculate-probability-area-under-the-overlapping-area-of-two-normal-distributi
-
+%http://www.jgyan.com/intersection-points-for-two-gaussian-distribution/
 
 
 a = 1 / (2*sigma1^2) - 1 / (2*sigma2^2);
