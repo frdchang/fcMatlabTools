@@ -11,7 +11,7 @@ selectNegVals = cellfunNonUniformOutput(@(x) x<0,newEstimated.A1);
 selectNegVals = multiCellContents(selectNegVals);
 newEstimated.LLRatio(selectNegVals>0) = 0;
 
-idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:));
+idxOfMax = find(max(newEstimated.LLRatio(carvedMask>0))==newEstimated.LLRatio(:),1,'first');
 A1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.A1);
 B1valsAtIDX = cellfun(@(x) x(idxOfMax),newEstimated.B1);
 idxOfMaxA1Channel = find(A1valsAtIDX==max(A1valsAtIDX));

@@ -166,7 +166,7 @@ for ii = 1:numStrategies
         end
        
 
-        if mod(jj,params.doPlotEveryN) == 1
+        if mod(jj,params.doPlotEveryN) == 0
 %              currError = sumCellContents(cellfunNonUniformOutput(@(x,y) (x-y).^2,bigLambdas(:),carveddatas(:)));
 %         currError = sum(currError(:));
 %         %         display(flattenTheta0s(theta0s));

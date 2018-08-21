@@ -16,7 +16,7 @@ function [fig] = plot3Dstack(varargin)
 %
 
 % parameters
-markerParam = {'or','LineWidth',3,'MarkerSize',15};
+markerParam = {'or','LineWidth',2,'MarkerSize',7};
 markerParamW = {'ow','LineWidth',1,'MarkerSize',10};
 nucleiParam = {'-sr'};
 volumeParam = {'FaceColor',[1,0,0],'EdgeAlpha',0.1,'FaceAlpha',0.5};

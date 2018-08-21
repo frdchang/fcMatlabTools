@@ -59,6 +59,7 @@ if params.doParallel
     end
 else
     for ii = 1:numel(ids)
+        display(ii);
         currMask = candidates.L == ids(ii);
         carvedDatas             = carveOutWithMask(datas,currMask,sizeKern);
         carvedEstimates         = carveOutWithMask(estimated,currMask,sizeKern,'spotKern','convFunc');

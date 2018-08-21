@@ -9,7 +9,7 @@ params.numSpots     = 2;
 params.gradSteps    = 200;
 params.hybridSteps  = 0;
 params.newtonSteps  = 0;
-params.doPlotEveryN = 100;
+params.doPlotEveryN = 0;
 params.theta0       = {};
 %--------------------------------------------------------------------------
 params = updateParams(params,varargin);
@@ -60,6 +60,9 @@ states{1}.logLikePGHybrid     = states{1}.logLikePG;
 theta0ByGrad = cell(params.numSpots,1);
 for ii = 1:params.numSpots
     if isempty(params.theta0)
+        if isNanTheta(theta0)
+            break;
+        end
         theta0                  = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
         theta0                  = ensureBkndThetasPos(theta0);
     else

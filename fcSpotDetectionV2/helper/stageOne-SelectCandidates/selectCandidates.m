@@ -48,7 +48,7 @@ if iscell(estimated.A1)
     end
     
 else
-    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern/sum(estimated.spotKern(:)));
+    smoothField = estimated.convFunc(estimated.(params.selectField),estimated.spotKern);
     Athresholded = estimated.A1 > params.Athreshold;
     sizeKern = size(estimated.spotKern);
 end
@@ -92,21 +92,26 @@ end
 
 if params.imposeMinSize
     L = L > 0;
-    [~,~,seeds] = breakApartMasks(smoothField,L);
+    [~,~,seeds] = breakApartMasks(smoothField,L,varargin{:});
     seeds = seeds | Skeleton3D(L);
     minBBoxMask = imdilate(seeds,strel(ones(sizeKern(:)')));
     % combine the min mask with the current bwmask
     L = L | minBBoxMask;
 end
-[L,~,seeds] = breakApartMasks(smoothField,L>0);
+[L,~,seeds] = breakApartMasks(smoothField,L>0,varargin{:});
 L = bwareaopen(L,params.minVol);
 L = bwlabeln(L>0);
-stats = regionprops(L,'PixelList','SubarrayIdx','PixelIdxList','BoundingBox');
+stats = regionprops(L,estimated.(params.selectField),'PixelList','SubarrayIdx','PixelIdxList','BoundingBox','MaxIntensity','MinIntensity');
 % remove any bbox that only has 1 dimension, this is not a spot
+% remove any bbox that has the min = max values (this means the region is
+% dead)
 for ii = 1:numel(stats)
     currSize = genSizeFromBBox(stats(ii).BoundingBox);
     if any(currSize == 1)
          L(stats(ii).PixelIdxList) = 0;
+    end
+    if stats(ii).MinIntensity == stats(ii).MaxIntensity
+        L(stats(ii).PixelIdxList) = 0;
     end
 end
 L = bwareaopen(L>0,params.minVol);
