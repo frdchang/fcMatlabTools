@@ -16,19 +16,22 @@ params.psfFuncArgs      = { {'lambda',525e-9,'f',params.binning,'mode',0},...
                             {'lambda',650e-9,'f',params.binning,'mode',0}};
                         
 params.interpMethod     = 'linear';
-params.kMatrix          = [ 1 0.7 0.5 0.4 0.3 0.3; ...
-                            0.7 1 0.8 0.7 0 0; ...
-                            0.6 0.8 1 0.9 0 0; ...
-                            0 0.2 0.5 1 0.8 0; ...
-                            0 0.8 0 0.7 1 0.9; ...
-                            0 0 0 0.6 0.8 1];
+k1 = 0.5;
+k2 = 0.25;
+k3 = 0.125;
+params.kMatrix          = [ 1 k1 k2 k3 0 0; ...
+                            k1 1 k1 k2 k3 0; ...
+                            k2 k1 1 k1 k2 k3; ...
+                            k3 k2 k1 1 k1 k2; ...
+                            0 k3 k2 k1 1 k1; ...
+                            0 0 k3 k2 k1 1];
 
 params.threshPSFArgs    = {[11,11,11]};
 params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
 params.numSamples       = 1000;
-params.As1              = 30;
+params.As1              = 20;
 params.As2              = 30;
 params.Bs               = 2;
 params.dist2Spots       = 2;
@@ -51,6 +54,7 @@ params.psfFuncArgs = {{[1 1 1],[7 7 7]},...
                         {[1 1 1],[7 7 7]}};
 psfObjs     = cellfunNonUniformOutput(@(x) genGaussKernObj(x{:}),params.psfFuncArgs);
 kern        = cellfunNonUniformOutput(@(x) ndGauss(x{:}),params.psfFuncArgs);
+kern = cellfun(@(x) x/max(x(:)),kern,'uni',0);
 % setup spot
 domains     = genMeshFromData(zeros(params.sizeData));
 secondCoor  = centerCoor+[params.dist2Spots 0 0];
@@ -90,7 +94,7 @@ sizeKern    = getPatchSize(kern{1});
  camVar                       = params.NoiseFunc(params.NoiseFuncArgs{:});
  [stack,~,cameraParams]       = genMicroscopeNoise(bigLambdas,'readNoiseData',camVar);
 cameraVarianceInElectrons   = cameraParams.cameraVarianceInADU.*(cameraParams.gainElectronPerCount.^2);
-plot3Dstack(catNorm(stack{:}));
+plot3Dstack(cat(2,stack{:}));
 
 
 
@@ -98,12 +102,13 @@ plot3Dstack(catNorm(stack{:}));
 plot3Dstack(catNorm(photonData{:}));
 estimated           = findSpotsStage1V2(photonData,kern,cameraVarianceInElectrons,'kMatrix',Kmatrix);
 plot3Dstack(cat(1,cat(2,groundTruth{:}),cat(2,estimated.A1{:})));
-
+% estNoiseFree           = findSpotsStage1V2(bigLambdas,kern,ones(size(groundTruth{1})),'kMatrix',Kmatrix);
+% plot3Dstack(cat(1,cat(2,groundTruth{:}),cat(2,estNoiseFree.A1{:})));
 %%
 plot3Dstack(estimated.LLRatio);
 
 candidates= selectCandidates(estimated);
-MLEs = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda,'numSpots',numSpots);
+MLEs = findSpotsStage2V2(photonData,cameraVarianceInElectrons,estimated,candidates,Kmatrix,psfObjs,'doPlotEveryN',doPlotEveryN,'DLLDLambda',params.DLLDLambda,'numSpots',numSpots,'gradSteps',1000);
 
 lastMLE = MLEs{1}(12).thetaMLEs;
 lastMLE = lastMLE(2:end);
@@ -122,20 +127,20 @@ for ii = 1:numel(spotsCoors)
    myChan = ['chan_' num2str(ii)];
    savePath = '~/Desktop/';
    
-%    myTitle = ['raw_' myChan];
-%    plot3Dstack(currData,'text',myTitle);
-%    export_fig([savePath myTitle]);
-%    close all;
-%    
-%    myTitle = ['crossData_' myChan];
-%    plot3Dstack(crossData,'text',myTitle);
-%       export_fig([savePath myTitle]);
-%    close all;
-%    
-%    myTitle = ['MLEA1_' myChan];
-%    plot3Dstack(currA1,'clustCent',currSpots','text',myTitle);
-%          export_fig([savePath myTitle]);
-%    close all;
+   myTitle = ['raw_' myChan];
+   plot3Dstack(currData,'text',myTitle);
+   export_fig([savePath myTitle]);
+   close all;
+   
+   myTitle = ['crossData_' myChan];
+   plot3Dstack(crossData,'text',myTitle);
+      export_fig([savePath myTitle]);
+   close all;
+   
+   myTitle = ['MLEA1_' myChan];
+   plot3Dstack(currA1,'clustCent',currSpots','text',myTitle);
+         export_fig([savePath myTitle]);
+   close all;
    
    myTitle = ['groundTruth_' myChan];
    plot3Dstack(trueData,'clustCent',trueSpots,'text',myTitle);
