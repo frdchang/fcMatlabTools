@@ -60,9 +60,9 @@ states{1}.logLikePGHybrid     = states{1}.logLikePG;
 theta0ByGrad = cell(params.numSpots,1);
 for ii = 1:params.numSpots
     if isempty(params.theta0)
-        if isNanTheta(theta0)
-            break;
-        end
+%         if isNanTheta(theta0)
+%             break;
+%         end
         theta0                  = findNextTheta0(carvedMask,domains,theta0,datas,estimated,camVar,Kmatrix,objKerns);
         theta0                  = ensureBkndThetasPos(theta0);
     else
