@@ -28,7 +28,7 @@ params.NoiseFunc        = @genSCMOSNoiseVar;
 params.NoiseFuncArgs    = {params.sizeData,'scanType','slow'};
 
 params.numSamples       = 1000;
-params.As1              = 12;
+params.As1              = 30;
 params.As2              = 30;
 params.Bs               = 2;
 params.dist2Spots       = 2;
@@ -79,7 +79,7 @@ plot3Dstack(cat(2,groundTruth{:}));
 bigTheta    = genBigTheta(Kmatrix,psfObjs,spotCoors);
 [bigLambdas,bigDLambdas,d2]  = bigLambda(domains,bigTheta,'objKerns',psfObjs);
 
-plot3Dstack(cat(2,bigLambdas{:}));
+plot3Dstack(cat(1,cat(2,groundTruth{:}),cat(2,bigLambdas{:})));
 
 
 numSpots    = numSpotsInTheta(bigTheta);
@@ -95,8 +95,11 @@ plot3Dstack(catNorm(stack{:}));
 
 
 [~,photonData]      = returnElectrons(stack,cameraParams);
+plot3Dstack(catNorm(photonData{:}));
 estimated           = findSpotsStage1V2(photonData,kern,cameraVarianceInElectrons,'kMatrix',Kmatrix);
-plot3Dstack(cat(2,estimated.A1{:}));
+plot3Dstack(cat(1,cat(2,groundTruth{:}),cat(2,estimated.A1{:})));
+
+%%
 plot3Dstack(estimated.LLRatio);
 
 candidates= selectCandidates(estimated);
