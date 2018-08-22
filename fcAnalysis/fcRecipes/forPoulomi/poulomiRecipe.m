@@ -37,27 +37,40 @@ psfs        = cellfun(@(x) threshPSF(x,[13,13,15]),psfs,'uni',0);
 
 % do spot detection
 % first apply stage I
-estC1 = findSpotsStage1V2({c1},psfs,ones(size(c1)),'kMatrix',1);
+% estC1 = findSpotsStage1V2({c1},psfs,ones(size(c1)),'kMatrix',1);
 estC2 = findSpotsStage1V2({c2},psfs,ones(size(c1)),'kMatrix',1);
 % second, select candidate spots
-selectCandidatesC1 = selectCandidates(estC1,'meanShiftSize',4,'Nsamples',3000,'minVol',50);
-plotLabels(estC1.A1{1},selectCandidatesC1.L,'showTextLabels',false);
+% selectCandidatesC1 = selectCandidates(estC1,'meanShiftSize',4,'Nsamples',3000,'minVol',50);
+% plotLabels(estC1.A1{1},selectCandidatesC1.L,'showTextLabels',false);
 
-% selectCandidatesC2 = selectCandidates(estC2,'meanShiftSize',7,'fieldThresh',1442655351,'Nsamples',3000,'minVol',50);
-% plotLabels(estC2.A1{1},selectCandidatesC2.L,'showTextLabels',false);
+selectCandidatesC2 = selectCandidates(estC2,'meanShiftSize',4,'Nsamples',3000,'minVol',50);
+plotLabels(estC2.A1{1},selectCandidatesC2.L,'showTextLabels',false);
+
+% % third, apply stage II to get sub pixel localization
+% MLEs = findSpotsStage2V2({c1},ones(size(c1)),estC1,selectCandidatesC1,1,psfObjs,'doParallel',true);
+% 
+% % plot
+% spotThresh = getLLRdistribution(MLEs);
+% clustCent = mle2clustCent(MLEs,'spotthresh',spotThresh);
+% plot3Dstack(c1,'clustCent',clustCent,'cRange',[0,15000],'zStep',1);
+% export_fig '~/Desktop/detectedSpots' -nocrop
+% 
+% amplitudes = mle2Amp(MLEs,'spotthresh',spotThresh);
+% figure;histogram(amplitudes);
+% xlabel('amplitudes');
+% export_fig '~/Desktop/amplitudes' -nocrop
+
+%%
 
 % third, apply stage II to get sub pixel localization
-MLEs = findSpotsStage2V2({c1},ones(size(c1)),estC1,selectCandidatesC1,1,psfObjs,'doParallel',true);
-
+MLEsc2 = findSpotsStage2V2({c2},ones(size(c2)),estC2,selectCandidatesC2,1,psfObjs,'doParallel',true,'numSpots',3);
 % plot
-spotThresh = getLLRdistribution(MLEs);
-clustCent = mle2clustCent(MLEs,'spotthresh',spotThresh);
-plot3Dstack(c1,'clustCent',clustCent,'cRange',[0,15000],'zStep',1);
-export_fig '~/Desktop/detectedSpots' -nocrop
+spotThresh = getLLRdistribution(MLEsc2);
+clustCentc2 = mle2clustCent(MLEsc2,'spotthresh',spotThresh);
+plot3Dstack(c2,'clustCent',clustCentc2,'cRange',[0,15000],'zStep',1);
+export_fig '~/Desktop/detectedSpotsc2' -nocrop
 
-amplitudes = mle2Amp(MLEs,'spotthresh',spotThresh);
+amplitudes = mle2Amp(MLEsc2,'spotthresh',spotThresh);
 figure;histogram(amplitudes);
 xlabel('amplitudes');
-export_fig '~/Desktop/amplitudes' -nocrop
-
-
+export_fig '~/Desktop/amplitudesc2' -nocrop
