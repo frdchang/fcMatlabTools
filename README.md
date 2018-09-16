@@ -6,16 +6,11 @@ fctools consists of a set of matlab tools that i use for my research:
 - (microscope control is located in fcMicroscope)
 - do benchmarking 
 
-## to do
-- multi-emmiter fitting
-- start yeast seg at user defined timepoint
-- try seg yeast using edge
-- fold in camera parameters
-- LLRatio at stage ii
-- pad aligning channels
-- crashed at subImg = paddedNdData(coorDomains{:}); why?
+## synthetic 3D spot detection and localization example
+
 
 ## rules of the code
+- ./fcArchive holds old functions, so don't add this folder to the path
 - template function that allows parameter adjustment and passing to subfunctions.
 
 ```Matlab
