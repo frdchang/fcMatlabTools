@@ -7,7 +7,7 @@ fctools consists of a set of matlab tools that i use for my research:
 - do benchmarking 
 
 ## synthetic 3D spot detection and localization example
-
+```fcSpotDetectionV2/testFunctions/singleSpotExample.m```
 
 ## rules of the code
 - ./fcArchive holds old functions, so don't add this folder to the path

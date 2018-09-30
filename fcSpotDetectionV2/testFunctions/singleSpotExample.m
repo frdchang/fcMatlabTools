@@ -32,7 +32,10 @@ plot3Dstack(cat(2,stack{:}),'text','noisy spot');
 [~,photonData]      = returnElectrons(stack,cameraParams);
 plot3Dstack(catNorm(photonData{:}),'text','measurement back to electrons');
 
-% parameters for stage I and stage II
+%% Given the synthetic data above, find the spot and localize it using 
+% Stagei and Stageii operations.
+
+% parameters for stage I and stage II 
 doPlotEveryN     = 5;
 % stage I
 estimated           = findSpotsStage1V2(photonData,kern,cameraVarianceInElectrons,'kMatrix',Kmatrix);
